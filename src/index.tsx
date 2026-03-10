@@ -111,7 +111,6 @@ const audience = [
   "Olympians",
   "Collectors",
   "Private clients",
-  "Luxury buyers",
 ];
 
 const countryOptions = [
