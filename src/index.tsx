@@ -756,7 +756,7 @@ export default function PraeliatorWebsite() {
             key={product.name}
             className="rounded-[2rem] border-white/10 bg-[#11100f] text-[#f4efe7] shadow-xl shadow-black/20"
           >
-            <CardContent className="p-7">
+            <CardContent className="flex h-full flex-col p-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
@@ -774,7 +774,7 @@ export default function PraeliatorWebsite() {
                 <p className="text-lg font-medium">{product.price}</p>
                 <p className="text-sm text-white/50">{product.note}</p>
               </div>
-              <div className="mt-7 flex flex-col gap-3">
+              <div className="mt-auto pt-7 flex flex-col gap-3">
                 <Button asChild className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
                   <a href={product.name === "Praeliator VIS" ? whatsappVisLink : whatsappCollectorLink} target="_blank" rel="noreferrer">
                     Request Acquisition
