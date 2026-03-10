@@ -752,42 +752,63 @@ export default function PraeliatorWebsite() {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         {products.map((product) => (
-          <Card
+                    <Card
             key={product.name}
             className="rounded-[2rem] border-white/10 bg-[#11100f] text-[#f4efe7] shadow-xl shadow-black/20"
           >
             <CardContent className="flex h-full flex-col p-7">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
-                    {product.category}
-                  </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                    {product.name}
-                  </h3>
+              <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+                      {product.category}
+                    </p>
+                    <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
+                      {product.name}
+                    </h3>
+                  </div>
+                  <Package className="mt-1 h-5 w-5 text-white/40" />
                 </div>
-                <Package className="mt-1 h-5 w-5 text-white/40" />
+
+                <p className="mt-5 text-sm leading-7 text-white/65">
+                  {product.description}
+                </p>
+                <p className="mt-4 text-sm leading-7 text-white/45">
+                  {product.longDescription}
+                </p>
               </div>
-              <p className="mt-5 text-sm leading-7 text-white/65">{product.description}</p>
-              <p className="mt-4 text-sm leading-7 text-white/45">{product.longDescription}</p>
-              <div className="mt-8 space-y-2 border-t border-white/10 pt-5">
-                <p className="text-lg font-medium">{product.price}</p>
-                <p className="text-sm text-white/50">{product.note}</p>
-              </div>
-              <div className="mt-auto pt-7 flex flex-col gap-3">
-                <Button asChild className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
-                  <a href={product.name === "Praeliator VIS" ? whatsappVisLink : whatsappCollectorLink} target="_blank" rel="noreferrer">
-                    Request Acquisition
-                  </a>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => goTo(product.name === "Praeliator VIS" ? "/praeliator-vis" : "/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                >
-                  {product.name === "Praeliator VIS" ? "Open VIS Page" : "Join Waitlist Page"}
-                </Button>
+
+              <div className="mt-auto pt-8">
+                <div className="space-y-2 border-t border-white/10 pt-5">
+                  <p className="text-lg font-medium">{product.price}</p>
+                  <p className="text-sm text-white/50">{product.note}</p>
+                </div>
+
+                <div className="mt-7 flex flex-col gap-3">
+                  <Button
+                    asChild
+                    className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                  >
+                    <a
+                      href={product.name === "Praeliator VIS" ? whatsappVisLink : whatsappCollectorLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Request Acquisition
+                    </a>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      goTo(product.name === "Praeliator VIS" ? "/praeliator-vis" : "/waitlist")
+                    }
+                    className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    {product.name === "Praeliator VIS" ? "Open VIS Page" : "Join Waitlist Page"}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
