@@ -520,106 +520,93 @@ export default function PraeliatorWebsite() {
       });
     }
   };
-
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.24),transparent_35%)]" />
-        <div className="mx-auto grid max-w-7xl gap-16 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
-          <div className="relative z-10 flex flex-col justify-center">
-            <p className="mb-5 text-xs uppercase tracking-[0.35em] text-[#b9a18d]">
-              Luxury Boxing Brand
-            </p>
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.04em] md:text-7xl">
-              Equipment for those who treat boxing as art.
-            </h1>
-            <p className="mt-8 max-w-2xl text-base leading-8 text-white/70 md:text-lg">
-              Praeliator is a luxury boxing house built for professionals, amateurs, Olympians, collectors, and private clients who expect more than ordinary sports retail. This is not open-cart commerce. It is guided acquisition.
+        <div className="absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.12),transparent_70%)]" />
+
+        <div className="mx-auto grid max-w-7xl gap-16 px-6 py-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:py-36 xl:py-40">
+          <div className="relative z-10 flex max-w-3xl flex-col justify-end">
+            <p className="mb-6 text-xs uppercase tracking-[0.38em] text-[#b9a18d]">
+              Luxury Boxing House
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.9] tracking-[-0.05em] md:text-7xl xl:text-[5.4rem]">
+              Praeliator VIS.
+              <span className="block text-white/72">Built with restraint.</span>
+            </h1>
+
+            <p className="mt-8 max-w-xl text-base leading-8 text-white/62 md:text-lg">
+              Black satin leather. Espresso undertone. Direct acquisition. A training
+              glove presented with control, discipline, and a more private route into
+              the brand.
+            </p>
+
+            <div className="mt-12 flex flex-wrap gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/praeliator-vis")}
+                className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                View VIS
+              </Button>
+
               <Button
                 asChild
                 className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
-                  Begin Private Inquiry
+                  Private Inquiry
                 </a>
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/collection")}
-                className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                <span className="inline-flex items-center">
-                  View Collection
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </span>
-              </Button>
-            </div>
-
-            <div className="mt-14 grid gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
-              <div>
-                <p className="text-3xl font-semibold">01</p>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  Private client purchase flow instead of conventional checkout.
-                </p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold">Luxury</p>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  Minimal presentation, controlled access, and personal communication.
-                </p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold">Direct</p>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  Inquiry, consultation, and waitlist management handled with intention.
-                </p>
-              </div>
             </div>
           </div>
 
           <div className="relative">
-            <div className="rounded-[2rem] border border-white/10 bg-[#141110] p-4 shadow-2xl shadow-black/40">
-              <div className="rounded-[1.75rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#1a1614_0%,#0f0d0c_100%)] p-5 md:p-7">
-                <div className="aspect-[4/5] rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.09),transparent_20%),linear-gradient(160deg,#191512_10%,#0c0a09_90%)] p-6">
-                  <div className="flex h-full flex-col justify-between rounded-[1.35rem] border border-white/10 bg-black/20 p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.3em] text-[#b9a18d]">
-                          Praeliator VIS
-                        </p>
-                        <p className="mt-2 text-sm text-white/55">Training Gloves</p>
-                      </div>
-                      <Star className="h-5 w-5 text-[#b9a18d]" />
-                    </div>
-
+            <div className="ml-auto max-w-[34rem] rounded-[2.4rem] border border-white/10 bg-[#141110] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
+              <div className="rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 md:p-8">
+                <div className="flex min-h-[36rem] flex-col justify-between rounded-[1.8rem] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_24%),linear-gradient(160deg,#191512_10%,#0c0a09_90%)] p-7 md:p-9">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <p className="max-w-xs text-3xl font-semibold leading-tight tracking-[-0.03em]">
-                        Acquired through direct client service.
+                      <p className="text-xs uppercase tracking-[0.3em] text-[#b9a18d]">
+                        Praeliator VIS
                       </p>
-                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/60">
-                        Designed to signal rarity, discretion, and intent before the first
-                        message is even sent.
+                      <p className="mt-3 text-sm text-white/45">Training Gloves</p>
+                    </div>
+                    <Star className="h-5 w-5 text-[#b9a18d]" />
+                  </div>
+
+                  <div>
+                    <p className="max-w-sm text-4xl font-semibold leading-tight tracking-[-0.04em]">
+                      Acquired through direct client service.
+                    </p>
+
+                    <p className="mt-5 max-w-sm text-sm leading-8 text-white/58">
+                      One flagship model. One disciplined expression. One controlled
+                      route into the house.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
+                        Construction
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/78">
+                        Top-grain cowhide · 16 oz · Lace-up
                       </p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-                          Positioning
-                        </p>
-                        <p className="mt-2 text-sm">Minimal luxury</p>
-                      </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-                          Purchase route
-                        </p>
-                        <p className="mt-2 text-sm">Chat-based inquiry</p>
-                      </div>
+                    <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
+                        Position
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/78">
+                        Private acquisition · Minimal luxury
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -630,8 +617,8 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#0d0c0b]">
-        <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-4 text-sm uppercase tracking-[0.24em] text-white/45">
+        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-x-20 gap-y-5 text-sm uppercase tracking-[0.28em] text-white/45">
             {audience.map((item) => (
               <span key={item}>{item}</span>
             ))}
@@ -639,53 +626,131 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8 xl:py-28">
-        <div className="grid gap-6 md:grid-cols-5">
-          {[
-            {
-              title: "Collection",
-              text: "Products, positioning, and inquiry-led acquisition in one controlled view.",
-              action: () => goTo("/collection"),
-            },
-            {
-              title: "Praeliator VIS",
-              text: "A flagship product page built around material specificity, construction, packaging, and aftercare.",
-              action: () => goTo("/praeliator-vis"),
-            },
-            {
-              title: "Acquisition",
-              text: "A private purchase guide that explains process, access, and client expectations.",
-              action: () => goTo("/acquisition"),
-            },
-            {
-              title: "Trust",
-              text: "Craft credibility, construction clarity, authenticity, and long-term brand assurance.",
-              action: () => goTo("/trust"),
-            },
-            {
-              title: "Waitlist",
-              text: "Controlled-access registration for future releases and collector interest.",
-              action: () => goTo("/waitlist"),
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              onClick={item.action}
-              className="group flex flex-col cursor-pointer rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_18px_50px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_26px_78px_rgba(0,0,0,0.35)]"
-            >
-              <h3 className="text-2xl font-semibold tracking-[-0.03em]">
-                {item.title}
-              </h3>
-
-              <p className="mt-4 text-sm leading-7 text-white/65">
-                {item.text}
+      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 xl:py-32">
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="group flex flex-col justify-between rounded-[2.4rem] border border-white/10 bg-[#11100f] p-10 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-[#b9a18d]">
+                Flagship
               </p>
 
-              <p className="mt-auto text-sm text-[#f4efe7]">
-                Enter
+              <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.04em] md:text-5xl">
+                The house begins with VIS.
+              </h2>
+
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/62">
+                One glove. One expression. One measured entry into Praeliator.
               </p>
             </div>
-          ))}
+
+            <div className="mt-14 flex flex-wrap gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/praeliator-vis")}
+                className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                View VIS
+              </Button>
+
+              <Button
+                asChild
+                className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+              >
+                <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+                  Request Acquisition
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid gap-8">
+            <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
+              <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+                Acquisition
+              </p>
+
+              <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+                Direct, controlled, personal.
+              </h3>
+
+              <p className="mt-5 text-sm leading-8 text-white/62">
+                No open-cart checkout. No noisy retail flow. Praeliator is acquired
+                through direct conversation.
+              </p>
+
+              <div className="mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => goTo("/acquisition")}
+                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  Explore Acquisition
+                </Button>
+              </div>
+            </div>
+
+            <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
+              <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+                Presentation
+              </p>
+
+              <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+                The object extends beyond the glove.
+              </h3>
+
+              <p className="mt-5 text-sm leading-8 text-white/62">
+                Rigid box. Silk dust bag. Wrapping paper. Authenticity card. Care
+                card. Legacy Refresh after the first year.
+              </p>
+
+              <div className="mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => goTo("/trust")}
+                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  View Trust Layer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
+          <div>
+            <p className="text-xs uppercase tracking-[0.34em] text-[#b9a18d]">
+              Private Access
+            </p>
+
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
+              Request acquisition or enter the waitlist.
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/waitlist")}
+              className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Join Waitlist
+            </Button>
+
+            <Button
+              asChild
+              className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Private Inquiry
+              </a>
+            </Button>
+          </div>
         </div>
       </section>
     </>
