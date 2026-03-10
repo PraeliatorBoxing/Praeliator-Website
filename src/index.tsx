@@ -668,17 +668,22 @@ export default function PraeliatorWebsite() {
               action: () => goTo("/waitlist"),
             },
           ].map((item) => (
-            <div key={item.title} className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_18px_50px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_26px_78px_rgba(0,0,0,0.35)]">
-              <h3 className="text-2xl font-semibold tracking-[-0.03em]">{item.title}</h3>
-              <p className="mt-4 text-sm leading-7 text-white/65">{item.text}</p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={item.action}
-                className="mt-6 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
+            <div
+              key={item.title}
+              onClick={item.action}
+              className="group flex flex-col cursor-pointer rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_18px_50px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_26px_78px_rgba(0,0,0,0.35)]"
+            >
+              <h3 className="text-2xl font-semibold tracking-[-0.03em]">
+                {item.title}
+              </h3>
+
+              <p className="mt-4 text-sm leading-7 text-white/65">
+                {item.text}
+              </p>
+
+              <p className="mt-auto text-sm text-[#f4efe7]">
                 Enter
-              </Button>
+              </p>
             </div>
           ))}
         </div>
