@@ -631,7 +631,7 @@ export default function PraeliatorWebsite() {
 
       <section className="border-b border-white/10 bg-[#0d0c0b]">
         <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
-          <div className="flex flex-wrap items-center gap-x-16 gap-y-4 text-sm uppercase tracking-[0.24em] text-white/45">
+          <div className="flex flex-wrap items-center gap-x-20 gap-y-4 text-sm uppercase tracking-[0.24em] text-white/45">
             {audience.map((item) => (
               <span key={item}>{item}</span>
             ))}
