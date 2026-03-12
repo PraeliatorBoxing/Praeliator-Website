@@ -359,17 +359,19 @@ function LuxuryImagePanel({
   title,
   description,
   heightClass = "min-h-[28rem]",
+  onClick,
 }: {
   src: string;
   eyebrow: string;
   title: string;
   description?: string;
   heightClass?: string;
+  onClick?: () => void;
 }) {
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-[1.85rem] border border-white/10 bg-[#11100f] shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)] ${heightClass}`}
-    >
+  const panelClasses = `group relative overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 ${onClick ? "cursor-pointer hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)]" : "hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)]"} ${heightClass}`;
+
+  const content = (
+    <>
       <div
         className="absolute inset-0 scale-[1.01] bg-cover bg-center opacity-82 transition duration-700 group-hover:scale-[1.02]"
         style={{ backgroundImage: `url(${src})` }}
@@ -377,14 +379,19 @@ function LuxuryImagePanel({
 
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.18)_0%,rgba(8,8,8,0.32)_24%,rgba(8,8,8,0.62)_58%,rgba(8,8,8,0.92)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.18),transparent_36%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(120,91,68,0.00)_0%,rgba(120,91,68,0.10)_100%)]" />
-      <div className="absolute inset-0 rounded-[1.85rem] ring-1 ring-inset ring-white/6" />
+      <div className="absolute inset-0 rounded-[1.9rem] ring-1 ring-inset ring-white/6" />
 
       <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-8">
-        <div>
+        <div className="flex items-start justify-between gap-4">
           <p className="text-[11px] uppercase tracking-[0.30em] text-[#d0b39b]">
             {eyebrow}
           </p>
+
+          {onClick ? (
+            <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55 transition duration-300 group-hover:border-white/15 group-hover:text-white/75">
+              Enter
+            </span>
+          ) : null}
         </div>
 
         <div className="max-w-[26rem]">
@@ -399,8 +406,18 @@ function LuxuryImagePanel({
           ) : null}
         </div>
       </div>
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={panelClasses}>
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={panelClasses}>{content}</div>;
 }
 
 export default function PraeliatorWebsite() {
@@ -622,20 +639,15 @@ export default function PraeliatorWebsite() {
           </div>
 
           <div className="relative">
-            <div className="absolute -inset-6 rounded-[2.8rem] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.16),transparent_62%)] blur-2xl" />
-          
-            <div className="relative rounded-[2.5rem] border border-white/8 bg-[linear-gradient(180deg,rgba(24,19,17,0.94)_0%,rgba(10,10,10,0.98)_100%)] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.5)]">
-              <div className="rounded-[2.1rem] border border-[#5b4638]/35 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.00)_100%)] p-3">
-                 <LuxuryImagePanel
-                  src={visImageSources.hero}
-                  eyebrow="Praeliator VIS"
-                  title="Direct acquisition."
-                  description="One flagship model. One controlled entry into the house."
-                   heightClass="min-h-[36rem]"
-                 />
-               </div>
-              </div>
-            </div>
+            <LuxuryImagePanel
+              src={visImageSources.hero}
+              eyebrow="Praeliator VIS"
+              title="Direct acquisition."
+              description="One flagship model. One controlled entry into the house."
+              heightClass="min-h-[36rem]"
+              onClick={() => goTo("/praeliator-vis")}
+            />
+          </div>
         </div>
       </section>
 
