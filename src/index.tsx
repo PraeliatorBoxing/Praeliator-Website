@@ -368,27 +368,36 @@ function LuxuryImagePanel({
 }) {
   return (
     <div
-      className={`group relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] ${heightClass}`}
+      className={`group relative overflow-hidden rounded-[1.85rem] border border-white/10 bg-[#11100f] shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)] ${heightClass}`}
     >
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-80"
+        className="absolute inset-0 scale-[1.01] bg-cover bg-center opacity-82 transition duration-700 group-hover:scale-[1.02]"
         style={{ backgroundImage: `url(${src})` }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.16)_0%,rgba(8,8,8,0.55)_40%,rgba(8,8,8,0.92)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_40%)]" />
 
-      <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.28em] text-[#d0b39b]">
-          {eyebrow}
-        </p>
-        <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#f4efe7] md:text-4xl">
-          {title}
-        </h3>
-        {description ? (
-          <p className="mt-4 max-w-md text-sm leading-8 text-white/72">
-            {description}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.18)_0%,rgba(8,8,8,0.32)_24%,rgba(8,8,8,0.62)_58%,rgba(8,8,8,0.92)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.18),transparent_36%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(120,91,68,0.00)_0%,rgba(120,91,68,0.10)_100%)]" />
+      <div className="absolute inset-0 rounded-[1.85rem] ring-1 ring-inset ring-white/6" />
+
+      <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-8">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.30em] text-[#d0b39b]">
+            {eyebrow}
           </p>
-        ) : null}
+        </div>
+
+        <div className="max-w-[26rem]">
+          <h3 className="text-3xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] md:text-[3rem]">
+            {title}
+          </h3>
+
+          {description ? (
+            <p className="mt-4 max-w-sm text-sm leading-7 text-white/70">
+              {description}
+            </p>
+          ) : null}
+        </div>
       </div>
     </div>
   );
