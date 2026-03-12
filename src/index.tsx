@@ -10,7 +10,6 @@ import {
   Medal,
   Gem,
   Package,
-  Star,
   Mail,
   Instagram,
   ArrowLeft,
@@ -81,6 +80,13 @@ const visService = [
   "Leather conditioning",
   "Lace replacement",
 ];
+
+const visImageSources = {
+  hero: "/images/vis-hero.jpg",
+  leather: "/images/vis-leather.jpg",
+  plate: "/images/vis-logo-detail.jpg",
+  packaging: "/images/vis-packaging.jpg",
+};
 
 const pillars = [
   {
@@ -347,6 +353,47 @@ function SectionFrame({
   );
 }
 
+function LuxuryImagePanel({
+  src,
+  eyebrow,
+  title,
+  description,
+  heightClass = "min-h-[28rem]",
+}: {
+  src: string;
+  eyebrow: string;
+  title: string;
+  description?: string;
+  heightClass?: string;
+}) {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] ${heightClass}`}
+    >
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-80"
+        style={{ backgroundImage: `url(${src})` }}
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.16)_0%,rgba(8,8,8,0.55)_40%,rgba(8,8,8,0.92)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_40%)]" />
+
+      <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8">
+        <p className="text-xs uppercase tracking-[0.28em] text-[#d0b39b]">
+          {eyebrow}
+        </p>
+        <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#f4efe7] md:text-4xl">
+          {title}
+        </h3>
+        {description ? (
+          <p className="mt-4 max-w-md text-sm leading-8 text-white/72">
+            {description}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
@@ -520,6 +567,7 @@ export default function PraeliatorWebsite() {
       });
     }
   };
+
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10">
@@ -566,52 +614,13 @@ export default function PraeliatorWebsite() {
           </div>
 
           <div className="relative">
-            <div className="ml-auto max-w-[34rem] rounded-[2.4rem] border border-white/10 bg-[#141110] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
-              <div className="rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 md:p-8">
-                <div className="flex min-h-[36rem] flex-col justify-between rounded-[1.8rem] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_24%),linear-gradient(160deg,#191512_10%,#0c0a09_90%)] p-7 md:p-9">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-[#b9a18d]">
-                        Praeliator VIS
-                      </p>
-                      <p className="mt-3 text-sm text-white/45">Training Gloves</p>
-                    </div>
-                    <Star className="h-5 w-5 text-[#b9a18d]" />
-                  </div>
-
-                  <div>
-                    <p className="max-w-sm text-4xl font-semibold leading-tight tracking-[-0.04em]">
-                      Acquired through direct client service.
-                    </p>
-
-                    <p className="mt-5 max-w-sm text-sm leading-8 text-white/58">
-                      One flagship model. One disciplined expression. One controlled
-                      route into the house.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-                        Construction
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/78">
-                        Top-grain cowhide · 16 oz · Lace-up
-                      </p>
-                    </div>
-
-                    <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-                        Position
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/78">
-                        Private acquisition · Minimal luxury
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <LuxuryImagePanel
+              src={visImageSources.hero}
+              eyebrow="Praeliator VIS"
+              title="Acquired through direct client service."
+              description="One flagship model. One disciplined expression. One controlled route into the house."
+              heightClass="min-h-[36rem]"
+            />
           </div>
         </div>
       </section>
@@ -780,6 +789,7 @@ export default function PraeliatorWebsite() {
             ))}
           </div>
         </div>
+
         <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
           <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Frequently Asked</p>
           <div className="mt-6 grid gap-4">
@@ -800,7 +810,12 @@ export default function PraeliatorWebsite() {
             <Button asChild className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">Private Purchase Inquiry</a>
             </Button>
-            <Button type="button" variant="outline" onClick={() => goTo("/contact")} className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/contact")}
+              className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
               Contact Page
             </Button>
           </div>
@@ -817,7 +832,7 @@ export default function PraeliatorWebsite() {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         {products.map((product) => (
-                    <Card
+          <Card
             key={product.name}
             className="rounded-[2rem] border-white/10 bg-[#11100f] text-[#f4efe7] shadow-xl shadow-black/20"
           >
@@ -951,99 +966,38 @@ export default function PraeliatorWebsite() {
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-4 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] md:p-6">
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="flex min-h-[540px] flex-col justify-between rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_22%),linear-gradient(160deg,#191512_10%,#0c0a09_90%)] p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Primary View</p>
-                  <p className="mt-2 text-sm text-white/45">Hero product angle</p>
-                </div>
-                <Star className="h-5 w-5 text-[#b9a18d]" />
-              </div>
-              <div className="mx-auto flex h-full w-full max-w-[440px] items-center justify-center">
-                <div className="relative h-[320px] w-[220px] rounded-[3rem] border border-white/10 bg-[linear-gradient(180deg,#161210_0%,#0d0a09_100%)] shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
-                  <div className="absolute left-1/2 top-8 h-[210px] w-[150px] -translate-x-1/2 rounded-[45%_45%_42%_42%/38%_38%_52%_52%] border border-white/10 bg-[linear-gradient(180deg,#1b1614_0%,#0f0c0b_100%)]" />
-                  <div className="absolute left-1/2 top-[72px] h-[150px] w-[102px] -translate-x-1/2 rounded-[50%] border border-[#5b4638]/50 bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.10),transparent_28%),linear-gradient(160deg,#15110f_0%,#090807_100%)]" />
-                  <div className="absolute left-1/2 top-[230px] h-[74px] w-[132px] -translate-x-1/2 rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#1a1513_0%,#0c0a09_100%)]" />
-                  <div className="absolute left-1/2 top-[246px] h-[10px] w-[98px] -translate-x-1/2 rounded-full bg-[#2a201a] opacity-70" />
-                  <div className="absolute left-[46px] top-[104px] h-[18px] w-[18px] rounded-full border border-white/10 bg-[#120f0d]" />
-                  <div className="absolute right-[44px] top-[104px] h-[18px] w-[18px] rounded-full border border-white/10 bg-[#120f0d]" />
-                  <div className="absolute left-[54px] top-[122px] h-[88px] w-[2px] bg-[#2b211b] opacity-60" />
-                  <div className="absolute right-[52px] top-[122px] h-[88px] w-[2px] bg-[#2b211b] opacity-60" />
-                  <div className="absolute bottom-[20px] left-1/2 h-[48px] w-[170px] -translate-x-1/2 rounded-[1.25rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#181311_0%,#0d0a09_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
-                  <div className="absolute bottom-[35px] left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.28em] text-[#8e7461]">
-                    PRAELIATOR
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-white/55">
-                  Black remains dominant. Espresso appears only when light catches the
-                  leather at the right angle.
-                </p>
-              </div>
-            </div>
+        <LuxuryImagePanel
+          src={visImageSources.hero}
+          eyebrow="Praeliator VIS"
+          title="The silhouette carries the house."
+          description="Black remains dominant. Espresso appears only when light breaks across the leather."
+          heightClass="min-h-[42rem]"
+        />
 
-            <div className="grid gap-4">
-              <div className="flex min-h-[168px] flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0d0b0a_100%)] p-5 transition duration-300 hover:border-[#5b4638]/55 hover:bg-[linear-gradient(180deg,#181412_0%,#0f0c0b_100%)]">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-[#b9a18d]">Leather Finish</p>
-                  <p className="mt-3 text-sm leading-7 text-white/60">
-                    Soft satin surface with restrained two-tone expression.
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="h-16 rounded-2xl border border-white/10 bg-[#0d0b0a]" />
-                  <div className="h-16 rounded-2xl border border-[#5b4638]/45 bg-[#1b1410]" />
-                </div>
-              </div>
-              <div className="flex min-h-[168px] flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0d0b0a_100%)] p-5 transition duration-300 hover:border-[#5b4638]/55 hover:bg-[linear-gradient(180deg,#181412_0%,#0f0c0b_100%)]">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-[#b9a18d]">Wrist Plate</p>
-                  <p className="mt-3 text-sm leading-7 text-white/60">
-                    Debossed branding kept minimal and deliberate.
-                  </p>
-                </div>
-                <div className="rounded-[1.25rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#181311_0%,#0d0a09_100%)] px-4 py-5 text-center text-[10px] uppercase tracking-[0.32em] text-[#8e7461] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                  PRAELIATOR
-                </div>
-              </div>
-              <div className="flex min-h-[168px] flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0d0b0a_100%)] p-5 transition duration-300 hover:border-[#5b4638]/55 hover:bg-[linear-gradient(180deg,#181412_0%,#0f0c0b_100%)]">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.24em] text-[#b9a18d]">Packaging</p>
-                  <p className="mt-3 text-sm leading-7 text-white/60">
-                    Presentation built to feel like acquisition rather than shipment.
-                  </p>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="h-14 rounded-2xl border border-white/10 bg-[#11100f]" />
-                  <div className="h-14 rounded-2xl border border-white/10 bg-[#171311]" />
-                  <div className="h-14 rounded-2xl border border-white/10 bg-[#0c0a09]" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="grid gap-8">
+          <LuxuryImagePanel
+            src={visImageSources.leather}
+            eyebrow="Leather Finish"
+            title="Soft satin. Quiet depth."
+            description="Top-grain cowhide with a restrained two-tone response under shifting light."
+            heightClass="min-h-[12.5rem]"
+          />
 
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Gallery Notes</p>
-          <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
-            The visual language should sell restraint.
-          </h3>
-          <div className="mt-6 grid gap-4">
-            {[
-              "Hero angle focused on silhouette and wrist structure",
-              "Close-up of leather grain and satin finish response to light",
-              "Detail shot of debossed wrist branding",
-              "Palm view showing ventilation and integrated grip bar",
-              "Packaging composition with rigid box, silk dust bag, and cards",
-            ].map((item) => (
-              <div key={item} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-                <p className="text-sm leading-7 text-white/75">{item}</p>
-              </div>
-            ))}
-          </div>
+          <LuxuryImagePanel
+            src={visImageSources.plate}
+            eyebrow="Wrist Plate"
+            title="Debossed, not announced."
+            description="Branding remains controlled and deliberate."
+            heightClass="min-h-[12.5rem]"
+          />
+
+          <LuxuryImagePanel
+            src={visImageSources.packaging}
+            eyebrow="Presentation"
+            title="Presented as acquisition, not shipment."
+            description="Rigid box, silk dust bag, wrapping paper, authenticity card, and care card."
+            heightClass="min-h-[12.5rem]"
+          />
         </div>
       </div>
 
@@ -1191,7 +1145,12 @@ export default function PraeliatorWebsite() {
           <Button asChild className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
             <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">Discuss Acquisition</a>
           </Button>
-          <Button type="button" variant="outline" onClick={() => goTo("/praeliator-vis")} className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => goTo("/praeliator-vis")}
+            className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+          >
             View VIS
           </Button>
         </div>
@@ -1290,6 +1249,7 @@ export default function PraeliatorWebsite() {
                 </option>
               ))}
             </select>
+
             <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
               <select
                 name="phoneCountryCode"
@@ -1303,6 +1263,7 @@ export default function PraeliatorWebsite() {
                   </option>
                 ))}
               </select>
+
               <input
                 name="whatsapp"
                 type="tel"
@@ -1314,6 +1275,7 @@ export default function PraeliatorWebsite() {
                 placeholder="Phone number *"
               />
             </div>
+
             <select
               name="clientType"
               value={waitlistForm.clientType}
@@ -1327,6 +1289,7 @@ export default function PraeliatorWebsite() {
               <option value="Collector">Collector</option>
               <option value="Other">Other</option>
             </select>
+
             <select
               name="buyerProfile"
               value={waitlistForm.buyerProfile}
@@ -1340,6 +1303,7 @@ export default function PraeliatorWebsite() {
               <option value="Gym / team purchase">Gym / team purchase</option>
               <option value="Other">Other</option>
             </select>
+
             <select
               name="trainingFrequency"
               value={waitlistForm.trainingFrequency}
@@ -1353,6 +1317,7 @@ export default function PraeliatorWebsite() {
               <option value="Occasionally">Occasionally</option>
               <option value="Not applicable">Not applicable</option>
             </select>
+
             <select
               name="timeline"
               value={waitlistForm.timeline}
@@ -1365,6 +1330,7 @@ export default function PraeliatorWebsite() {
               <option value="Within 3 months">Within 3 months</option>
               <option value="Researching only">Researching only</option>
             </select>
+
             <select
               name="productInterest"
               value={waitlistForm.productInterest}
@@ -1377,6 +1343,7 @@ export default function PraeliatorWebsite() {
               <option value="Future Releases">Future Releases</option>
               <option value="General Brand Interest">General Brand Interest</option>
             </select>
+
             <select
               name="ounceInterest"
               value={waitlistForm.ounceInterest}
@@ -1390,6 +1357,7 @@ export default function PraeliatorWebsite() {
               <option value="16 oz">16 oz</option>
               <option value="Unsure">Unsure</option>
             </select>
+
             <select
               name="contactPreference"
               value={waitlistForm.contactPreference}
@@ -1401,6 +1369,7 @@ export default function PraeliatorWebsite() {
               <option value="Email">Email</option>
               <option value="Either">Either</option>
             </select>
+
             <textarea
               name="message"
               value={waitlistForm.message}
@@ -1408,6 +1377,7 @@ export default function PraeliatorWebsite() {
               className="min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
               placeholder="Add any relevant detail about intended use, fit preference, or purchase context"
             />
+
             <Button
               type="submit"
               disabled={waitlistState.loading}
@@ -1415,15 +1385,18 @@ export default function PraeliatorWebsite() {
             >
               {waitlistState.loading ? "Submitting..." : "Join Waitlist"}
             </Button>
+
             {waitlistState.success ? (
               <p className="text-sm leading-6 text-[#d7c5ae]">
                 You are on the list. The submission has been routed to
                 praeliatorboxing@gmail.com.
               </p>
             ) : null}
+
             {waitlistState.error ? (
               <p className="text-sm leading-6 text-[#d99b8d]">{waitlistState.error}</p>
             ) : null}
+
             <p className="text-xs leading-6 text-white/35">
               Name, email, and phone fields are configured for autofill-friendly
               behavior on compatible Apple devices and browsers.
@@ -1632,7 +1605,9 @@ export default function PraeliatorWebsite() {
         ) : null}
       </header>
 
-      <main className="overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_30%)]">{renderPage()}</main>
+      <main className="overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_30%)]">
+        {renderPage()}
+      </main>
 
       <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 text-sm text-white/45 md:flex-row md:items-center md:justify-between lg:px-8">
