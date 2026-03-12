@@ -617,8 +617,8 @@ export default function PraeliatorWebsite() {
             <LuxuryImagePanel
               src={visImageSources.hero}
               eyebrow="Praeliator VIS"
-              title="Acquired through direct client service."
-              description="One flagship model. One disciplined expression. One controlled route into the house."
+              title="Direct acquisition."
+              description="One flagship model. One controlled entry into the house."
               heightClass="min-h-[36rem]"
             />
           </div>
