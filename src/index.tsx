@@ -595,9 +595,9 @@ export default function PraeliatorWebsite() {
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)]"
+                className="rounded-full border border-white/10 bg-[#151210] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-[#5b4638]/55 hover:bg-[#1b1614] hover:shadow-[0_16px_34px_rgba(0,0,0,0.34)]"
               >
-                View VIS
+                 View VIS
               </Button>
 
               <Button
