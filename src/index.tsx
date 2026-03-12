@@ -339,16 +339,20 @@ function SectionFrame({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-24 xl:py-28">
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
       <div className="max-w-3xl">
-        <div className="mb-8 h-px w-20 bg-[linear-gradient(90deg,rgba(185,161,141,0.85),rgba(185,161,141,0))]" />
-        <p className="text-xs uppercase tracking-[0.35em] text-[#b9a18d]">{eyebrow}</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
+        <div className="mb-6 h-px w-16 bg-[linear-gradient(90deg,rgba(185,161,141,0.85),rgba(185,161,141,0))] sm:mb-8 sm:w-20" />
+        <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:text-xs sm:tracking-[0.35em]">
+          {eyebrow}
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-4xl md:text-6xl">
           {title}
         </h1>
-        <p className="mt-6 max-w-2xl text-base leading-8 text-white/65">{description}</p>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
+          {description}
+        </p>
       </div>
-      <div className="mt-12">{children}</div>
+      <div className="mt-10 sm:mt-12">{children}</div>
     </section>
   );
 }
@@ -372,7 +376,7 @@ function LuxuryImagePanel({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative block w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] text-left shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.46)] ${heightClass}`}
+      className={`group relative block w-full overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11100f] text-left shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.46)] sm:rounded-[2rem] ${heightClass}`}
     >
       <div
         className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]"
@@ -382,26 +386,26 @@ function LuxuryImagePanel({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.42)_0%,rgba(8,8,8,0.16)_26%,rgba(8,8,8,0.38)_56%,rgba(8,8,8,0.88)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.16),transparent_38%)]" />
 
-      <div className="relative z-10 flex h-full flex-col justify-between p-8 md:p-10">
-        <div className="flex items-start justify-between gap-4">
+      <div className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-8 md:p-10">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.30em] text-[#d0b39b]">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.30em]">
               {eyebrow}
             </p>
 
-            <h3 className="mt-5 max-w-[20rem] text-2xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] md:text-[2.8rem]">
+            <h3 className="mt-3 max-w-[14rem] text-xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] sm:mt-5 sm:max-w-[20rem] sm:text-2xl md:text-[2.8rem]">
               {title}
             </h3>
           </div>
 
-          <span className="rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-white/55 transition duration-300 group-hover:border-white/18 group-hover:text-white/72">
+          <span className="rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-white/55 transition duration-300 group-hover:border-white/18 group-hover:text-white/72 sm:px-3 sm:text-[10px] sm:tracking-[0.24em]">
             Enter
           </span>
         </div>
 
-        <div className="max-w-sm">
+        <div className="max-w-xs sm:max-w-sm">
           {description ? (
-            <p className="text-sm leading-7 text-white/72">
+            <p className="text-xs leading-6 text-white/72 sm:text-sm sm:leading-7">
               {description}
             </p>
           ) : null}
@@ -589,37 +593,37 @@ export default function PraeliatorWebsite() {
     <>
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.24),transparent_35%)]" />
-        <div className="absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.12),transparent_70%)]" />
+        <div className="absolute inset-y-0 right-0 hidden w-[40%] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.12),transparent_70%)] lg:block" />
 
-        <div className="mx-auto grid max-w-[88rem] gap-16 px-6 py-24 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-36 xl:gap-20 xl:py-40">
+        <div className="mx-auto grid max-w-[88rem] gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8 lg:py-36 xl:gap-20 xl:py-40">
           <div className="relative z-10 flex max-w-[36rem] flex-col justify-center">
-            <p className="mb-6 text-xs uppercase tracking-[0.38em] text-[#b9a18d]">
+            <p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:mb-6 sm:text-xs sm:tracking-[0.38em]">
               Luxury Boxing House
             </p>
 
-            <h1 className="max-w-[34rem] text-5xl font-semibold leading-[0.9] tracking-[-0.05em] md:text-7xl xl:text-[5.15rem]">
+            <h1 className="max-w-[34rem] text-4xl font-semibold leading-[0.92] tracking-[-0.05em] sm:text-5xl md:text-7xl xl:text-[5.15rem]">
               Praeliator VIS.
               <span className="block text-white/72">Built with restraint.</span>
             </h1>
 
-            <p className="mt-8 max-w-xl text-base leading-8 text-white/62 md:text-lg">
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:mt-8 sm:text-base sm:leading-8 md:text-lg">
               Black satin leather. Espresso undertone. Direct acquisition. A training
               glove presented with control, discipline, and a more private route into
               the brand.
             </p>
 
-            <div className="mt-12 flex flex-wrap gap-4">
+            <div className="mt-8 grid gap-3 sm:mt-12 sm:flex sm:flex-wrap sm:gap-4">
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full border border-[#5b4638]/45 bg-[#151210] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_10px_24px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.03)] transition duration-300 hover:-translate-y-0.5 hover:border-[#7a5d49]/65 hover:bg-[#1b1614] hover:shadow-[0_16px_34px_rgba(0,0,0,0.34)]"
+                className="w-full rounded-full border border-[#5b4638]/45 bg-[#151210] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_10px_24px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.03)] transition duration-300 hover:-translate-y-0.5 hover:border-[#7a5d49]/65 hover:bg-[#1b1614] hover:shadow-[0_16px_34px_rgba(0,0,0,0.34)] sm:w-auto sm:py-6"
               >
-                 View VIS
+                View VIS
               </Button>
 
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
@@ -635,7 +639,7 @@ export default function PraeliatorWebsite() {
               eyebrow="Praeliator VIS"
               title="Direct acquisition."
               description="Flagship access through private client service."
-              heightClass="min-h-[44rem]"
+              heightClass="min-h-[24rem] sm:min-h-[30rem] lg:min-h-[44rem]"
               onClick={() => goTo("/praeliator-vis")}
             />
           </div>
@@ -643,8 +647,8 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#0d0c0b]">
-        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-20 gap-y-5 text-sm uppercase tracking-[0.28em] text-white/45">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.20em] text-white/45 sm:gap-x-20 sm:gap-y-5 sm:text-sm sm:tracking-[0.28em]">
             {audience.map((item) => (
               <span key={item}>{item}</span>
             ))}
@@ -652,35 +656,35 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 xl:py-32">
-        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="group flex flex-col justify-between rounded-[2.4rem] border border-white/10 bg-[#11100f] p-10 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-32">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+          <div className="group flex flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8 lg:rounded-[2.4rem] lg:p-10">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-[#b9a18d]">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
                 Flagship
               </p>
 
-              <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.04em] md:text-5xl">
+              <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.04em] sm:mt-5 sm:text-4xl md:text-5xl">
                 The house begins with VIS.
               </h2>
 
-              <p className="mt-6 max-w-2xl text-base leading-8 text-white/62">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/62 sm:mt-6 sm:text-base sm:leading-8">
                 One glove. One expression. One measured entry into Praeliator.
               </p>
             </div>
 
-            <div className="mt-14 flex flex-wrap gap-4">
+            <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4 lg:mt-14">
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)]"
+                className="w-full rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)] sm:w-auto sm:py-6"
               >
                 View VIS
               </Button>
 
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
               >
                 <a href={whatsappVisLink} target="_blank" rel="noreferrer">
                   Request Acquisition
@@ -689,53 +693,53 @@ export default function PraeliatorWebsite() {
             </div>
           </div>
 
-          <div className="grid gap-8">
-            <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-              <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+          <div className="grid gap-6 lg:gap-8">
+            <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
                 Acquisition
               </p>
 
-              <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
                 Direct, controlled, personal.
               </h3>
 
-              <p className="mt-5 text-sm leading-8 text-white/62">
+              <p className="mt-4 text-sm leading-7 text-white/62 sm:mt-5 sm:leading-8">
                 No open-cart checkout. No noisy retail flow. Praeliator is acquired
                 through direct conversation.
               </p>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/acquisition")}
-                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  className="w-full rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
                 >
                   Explore Acquisition
                 </Button>
               </div>
             </div>
 
-            <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
-              <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+            <div className="group rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
                 Presentation
               </p>
 
-              <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
                 The object extends beyond the glove.
               </h3>
 
-              <p className="mt-5 text-sm leading-8 text-white/62">
+              <p className="mt-4 text-sm leading-7 text-white/62 sm:mt-5 sm:leading-8">
                 Rigid box. Silk dust bag. Wrapping paper. Authenticity card. Care
                 card. Legacy Refresh after the first year.
               </p>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/trust")}
-                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  className="w-full rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
                 >
                   View Trust Layer
                 </Button>
@@ -746,30 +750,30 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
           <div>
-            <p className="text-xs uppercase tracking-[0.34em] text-[#b9a18d]">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.34em]">
               Private Access
             </p>
 
-            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
               Request acquisition or enter the waitlist.
             </h2>
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => goTo("/waitlist")}
-              className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className="w-full rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
             >
               Join Waitlist
             </Button>
 
             <Button
               asChild
-              className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+              className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                 Private Inquiry
@@ -787,28 +791,37 @@ export default function PraeliatorWebsite() {
       title="How acquisition works at Praeliator."
       description="The acquisition process is direct, controlled, and personal. This page clarifies what a serious buyer should expect before making contact."
     >
-      <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Process</p>
-          <div className="mt-6 grid gap-4">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Process
+          </p>
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {[
               ["01", "Inquiry", "The client enters through WhatsApp or email rather than conventional checkout."],
               ["02", "Qualification", "Praeliator confirms intent, product interest, and the correct route for the client."],
               ["03", "Confirmation", "Availability, delivery scope, and next steps are clarified directly."],
               ["04", "Acquisition", "Purchase is completed through private client communication rather than a mass-market transaction flow."],
             ].map(([step, title, text]) => (
-              <div key={step} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">{step}</p>
-                <h3 className="mt-2 text-xl font-semibold">{title}</h3>
+              <div
+                key={step}
+                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5"
+              >
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                  {step}
+                </p>
+                <h3 className="mt-2 text-lg font-semibold sm:text-xl">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Frequently Asked</p>
-          <div className="mt-6 grid gap-4">
+        <div className="group rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Frequently Asked
+          </p>
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {[
               ["How do I buy?", "Through direct inquiry, not open checkout."],
               ["Is VIS always available?", "Availability is confirmed directly through client service."],
@@ -816,21 +829,29 @@ export default function PraeliatorWebsite() {
               ["Is there aftercare?", "Yes. Praeliator Legacy Refresh is available after the first year."],
               ["Do you ship internationally?", "Shipping scope is confirmed during inquiry based on destination."],
             ].map(([q, a]) => (
-              <div key={q} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.07]">
-                <h3 className="text-lg font-medium">{q}</h3>
+              <div
+                key={q}
+                className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5"
+              >
+                <h3 className="text-base font-medium sm:text-lg">{q}</h3>
                 <p className="mt-3 text-sm leading-7 text-white/65">{a}</p>
               </div>
             ))}
           </div>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button asChild className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">Private Purchase Inquiry</a>
+          <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+            <Button
+              asChild
+              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Private Purchase Inquiry
+              </a>
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => goTo("/contact")}
-              className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
             >
               Contact Page
             </Button>
@@ -850,16 +871,16 @@ export default function PraeliatorWebsite() {
         {products.map((product) => (
           <Card
             key={product.name}
-            className="rounded-[2rem] border-white/10 bg-[#11100f] text-[#f4efe7] shadow-xl shadow-black/20"
+            className="rounded-[1.5rem] border-white/10 bg-[#11100f] text-[#f4efe7] shadow-xl shadow-black/20 sm:rounded-[2rem]"
           >
-            <CardContent className="flex h-full flex-col p-7">
+            <CardContent className="flex h-full flex-col p-5 sm:p-7">
               <div>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
                       {product.category}
                     </p>
-                    <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
+                    <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
                       {product.name}
                     </h3>
                   </div>
@@ -880,10 +901,10 @@ export default function PraeliatorWebsite() {
                   <p className="text-sm text-white/50">{product.note}</p>
                 </div>
 
-                <div className="mt-7 flex flex-col gap-3">
+                <div className="mt-7 grid gap-3">
                   <Button
                     asChild
-                    className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                    className="w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
                   >
                     <a
                       href={product.name === "Praeliator VIS" ? whatsappVisLink : whatsappCollectorLink}
@@ -900,7 +921,7 @@ export default function PraeliatorWebsite() {
                     onClick={() =>
                       goTo(product.name === "Praeliator VIS" ? "/praeliator-vis" : "/waitlist")
                     }
-                    className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
                     {product.name === "Praeliator VIS" ? "Open VIS Page" : "Join Waitlist Page"}
                   </Button>
@@ -919,32 +940,43 @@ export default function PraeliatorWebsite() {
       title="A flagship training glove shaped by restraint, structure, and intent."
       description="Praeliator VIS is built for disciplined training and technical sparring. It is presented as a luxury acquisition: materially specific, visually controlled, and service-backed."
     >
-      <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] md:p-10">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Flagship Product</p>
-          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8 md:p-10">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Flagship Product
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-4xl md:text-5xl">
             Praeliator VIS
           </h2>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/65">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
             A 16 oz lace-up training glove built in top-grain cowhide leather with a
             soft satin finish and a restrained two-tone character. Deep black remains
             the primary visual read, while a minimal espresso tone reveals itself
             depending on light direction.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">Use</p>
-              <p className="mt-3 text-lg font-medium">Training · Technical sparring</p>
+          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2">
+            <div className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                Use
+              </p>
+              <p className="mt-3 text-base font-medium sm:text-lg">
+                Training · Technical sparring
+              </p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
+            <div className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
                 Position
               </p>
-              <p className="mt-3 text-lg font-medium">Luxury training instrument</p>
+              <p className="mt-3 text-base font-medium sm:text-lg">
+                Luxury training instrument
+              </p>
             </div>
           </div>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button asChild className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
+          <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+            <Button
+              asChild
+              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
+            >
               <a href={whatsappVisLink} target="_blank" rel="noreferrer">
                 Private Purchase Inquiry
               </a>
@@ -953,50 +985,56 @@ export default function PraeliatorWebsite() {
               type="button"
               variant="outline"
               onClick={() => goTo("/waitlist")}
-              className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
             >
               Join Waitlist
             </Button>
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] md:p-10">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Visual Identity</p>
-          <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+        <div className="group rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8 md:p-10">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Visual Identity
+          </p>
+          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Minimal branding. Controlled presence.
           </h3>
-          <p className="mt-5 text-sm leading-8 text-white/65">
+          <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
             External branding is deliberately restrained. The primary visible marking is a debossed PRAELIATOR logo on the wrist strap plate. The leather finish is soft satin rather than gloss, and the black surface carries a subtle espresso reveal under changing light.
           </p>
-          <div className="mt-8 space-y-4">
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.07]">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">Primary tone</p>
-              <p className="mt-2 text-lg font-medium">Deep black</p>
+          <div className="mt-6 space-y-4 sm:mt-8">
+            <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                Primary tone
+              </p>
+              <p className="mt-2 text-base font-medium sm:text-lg">Deep black</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.07]">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">Secondary tone</p>
-              <p className="mt-2 text-lg font-medium">Espresso brown</p>
+            <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                Secondary tone
+              </p>
+              <p className="mt-2 text-base font-medium sm:text-lg">Espresso brown</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
         <LuxuryImagePanel
           src={visImageSources.hero}
           eyebrow="Praeliator VIS"
           title="The silhouette carries the house."
           description="Black remains dominant. Espresso appears only when light breaks across the leather."
-          heightClass="min-h-[42rem]"
+          heightClass="min-h-[22rem] sm:min-h-[28rem] lg:min-h-[42rem]"
         />
 
-        <div className="grid gap-8">
+        <div className="grid gap-6 lg:gap-8">
           <LuxuryImagePanel
             src={visImageSources.leather}
             eyebrow="Leather Finish"
             title="Soft satin. Quiet depth."
             description="Top-grain cowhide with a restrained two-tone response under shifting light."
-            heightClass="min-h-[12.5rem]"
+            heightClass="min-h-[12rem] sm:min-h-[12.5rem]"
           />
 
           <LuxuryImagePanel
@@ -1004,7 +1042,7 @@ export default function PraeliatorWebsite() {
             eyebrow="Wrist Plate"
             title="Debossed, not announced."
             description="Branding remains controlled and deliberate."
-            heightClass="min-h-[12.5rem]"
+            heightClass="min-h-[12rem] sm:min-h-[12.5rem]"
           />
 
           <LuxuryImagePanel
@@ -1012,71 +1050,90 @@ export default function PraeliatorWebsite() {
             eyebrow="Presentation"
             title="Presented as acquisition, not shipment."
             description="Rigid box, silk dust bag, wrapping paper, authenticity card, and care card."
-            heightClass="min-h-[12.5rem]"
+            heightClass="min-h-[12rem] sm:min-h-[12.5rem]"
           />
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr]">
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Specifications</p>
-          <div className="mt-6 grid gap-4">
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_1fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Specifications
+          </p>
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {visSpecifications.map((item) => (
               <div
                 key={item.label}
                 className="flex flex-col justify-between gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-center"
               >
-                <p className="text-sm uppercase tracking-[0.16em] text-white/40">{item.label}</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40 sm:text-sm sm:tracking-[0.16em]">
+                  {item.label}
+                </p>
                 <p className="text-sm text-white/80 sm:text-right">{item.value}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Padding System</p>
-          <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Padding System
+          </p>
+          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Four-layer impact structure
           </h3>
-          <div className="mt-6 grid gap-4">
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {visPaddingLayers.map((layer, index) => (
-              <div key={`${layer}-${index}`} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
+              <div
+                key={`${layer}-${index}`}
+                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5"
+              >
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
                   Layer {index + 1}
                 </p>
-                <p className="mt-2 text-lg font-medium">{layer}</p>
+                <p className="mt-2 text-base font-medium sm:text-lg">{layer}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr]">
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Packaging</p>
-          <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_1fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Packaging
+          </p>
+          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Presented as acquisition, not shipment.
           </h3>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-2">
             {visPackaging.map((item) => (
-              <div key={item} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
+              <div
+                key={item}
+                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5"
+              >
                 <p className="text-sm leading-7 text-white/80">{item}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Aftercare</p>
-          <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Aftercare
+          </p>
+          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Praeliator Legacy Refresh
           </h3>
-          <p className="mt-5 text-sm leading-8 text-white/65">
+          <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
             Available after the first year, this service extends the life and finish of the glove through maintenance rather than replacement culture.
           </p>
-          <div className="mt-6 grid gap-4">
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {visService.map((item) => (
-              <div key={item} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
+              <div
+                key={item}
+                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5"
+              >
                 <p className="text-sm leading-7 text-white/80">{item}</p>
               </div>
             ))}
@@ -1092,35 +1149,45 @@ export default function PraeliatorWebsite() {
       title="Credibility built into the brand architecture."
       description="Praeliator should not rely on hype to feel legitimate. This page communicates material seriousness, construction clarity, aftercare, and the logic behind the private client model."
     >
-      <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Construction Integrity</p>
-          <div className="mt-6 grid gap-4">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Construction Integrity
+          </p>
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {[
               ["Top-grain cowhide leather", "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface."],
               ["Four-layer impact structure", "Multi-foam, EVA, and dual natural latex layers define the internal protection system."],
               ["4-way stretch lining", "The internal lining is chosen to support comfort, fit response, and sustained use in training."],
               ["Extended lace-up cuff", "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk."],
             ].map(([title, text]) => (
-              <div key={title} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.04]">
-                <h3 className="text-lg font-medium">{title}</h3>
+              <div
+                key={title}
+                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5"
+              >
+                <h3 className="text-base font-medium sm:text-lg">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-8 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Brand Assurance</p>
-          <div className="mt-6 grid gap-4">
+        <div className="group rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+            Brand Assurance
+          </p>
+          <div className="mt-5 grid gap-4 sm:mt-6">
             {[
               ["Hand-assembled", "Each pair is hand-assembled rather than presented as anonymous mass production."],
               ["Made in Pakistan", "The manufacturing origin is stated directly rather than hidden behind vague brand language."],
               ["Authenticity card included", "Presentation includes an authenticity card to reinforce legitimacy and ownership."],
               ["Legacy Refresh service", "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one."],
             ].map(([title, text]) => (
-              <div key={title} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-white/15 hover:bg-white/[0.07]">
-                <h3 className="text-lg font-medium">{title}</h3>
+              <div
+                key={title}
+                className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5"
+              >
+                <h3 className="text-base font-medium sm:text-lg">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
               </div>
             ))}
@@ -1128,7 +1195,7 @@ export default function PraeliatorWebsite() {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr_1fr]">
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_1fr_1fr] lg:gap-8">
         {[
           {
             title: "Authenticity",
@@ -1143,29 +1210,47 @@ export default function PraeliatorWebsite() {
             text: "The inquiry-led model is not there to create friction. It exists to preserve control, clarity, and a more tailored acquisition process.",
           },
         ].map((item) => (
-          <div key={item.title} className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-            <p className="text-xs uppercase tracking-[0.24em] text-[#b9a18d]">Trust Signal</p>
-            <h3 className="mt-4 text-2xl font-semibold tracking-[-0.03em]">{item.title}</h3>
-            <p className="mt-4 text-sm leading-8 text-white/65">{item.text}</p>
+          <div
+            key={item.title}
+            className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8"
+          >
+            <p className="text-[10px] uppercase tracking-[0.20em] text-[#b9a18d] sm:text-xs sm:tracking-[0.24em]">
+              Trust Signal
+            </p>
+            <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-2xl">
+              {item.title}
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
+              {item.text}
+            </p>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] md:p-10">
-        <p className="text-xs uppercase tracking-[0.28em] text-[#b9a18d]">Why this matters</p>
-        <h3 className="mt-4 text-3xl font-semibold tracking-[-0.03em]">Luxury without proof is decoration.</h3>
-        <p className="mt-5 max-w-4xl text-sm leading-8 text-white/65">
+      <div className="mt-6 group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:mt-8 sm:rounded-[2rem] sm:p-8 md:p-10">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+          Why this matters
+        </p>
+        <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+          Luxury without proof is decoration.
+        </h3>
+        <p className="mt-4 max-w-4xl text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
           Praeliator gains credibility when it speaks in specifics: material, thickness, assembly, structure, service, and presentation. Trust architecture is not filler. It is the layer that makes the brand feel deliberate rather than theatrical.
         </p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Button asChild className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
-            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">Discuss Acquisition</a>
+        <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+          <Button
+            asChild
+            className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
+          >
+            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+              Discuss Acquisition
+            </a>
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => goTo("/praeliator-vis")}
-            className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
           >
             View VIS
           </Button>
@@ -1184,11 +1269,16 @@ export default function PraeliatorWebsite() {
         {pillars.map((pillar) => {
           const Icon = pillar.icon;
           return (
-            <div key={pillar.title} className="group rounded-[2rem] border border-white/10 bg-[#12100f] p-6 shadow-[0_16px_44px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-0.5 hover:border-[#5b4638]/55 hover:shadow-[0_24px_68px_rgba(0,0,0,0.34)]">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#5b4638] bg-[#171311]">
+            <div
+              key={pillar.title}
+              className="group rounded-[1.5rem] border border-white/10 bg-[#12100f] p-5 shadow-[0_16px_44px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-0.5 hover:border-[#5b4638]/55 hover:shadow-[0_24px_68px_rgba(0,0,0,0.34)] sm:rounded-[2rem] sm:p-6"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#5b4638] bg-[#171311] sm:h-12 sm:w-12 sm:rounded-2xl">
                 <Icon className="h-5 w-5 text-[#b9a18d]" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold tracking-[-0.02em]">{pillar.title}</h3>
+              <h3 className="mt-4 text-lg font-semibold tracking-[-0.02em] sm:mt-5 sm:text-xl">
+                {pillar.title}
+              </h3>
               <p className="mt-3 text-sm leading-7 text-white/65">{pillar.text}</p>
             </div>
           );
@@ -1205,9 +1295,16 @@ export default function PraeliatorWebsite() {
     >
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {audience.map((item) => (
-          <div key={item} className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-            <p className="text-sm uppercase tracking-[0.24em] text-[#b9a18d]">Praeliator Client</p>
-            <h3 className="mt-4 text-2xl font-semibold tracking-[-0.03em]">{item}</h3>
+          <div
+            key={item}
+            className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8"
+          >
+            <p className="text-xs uppercase tracking-[0.20em] text-[#b9a18d] sm:text-sm sm:tracking-[0.24em]">
+              Praeliator Client
+            </p>
+            <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+              {item}
+            </h3>
             <p className="mt-4 text-sm leading-7 text-white/65">
               A dedicated audience category within the Praeliator ecosystem, presented
               with sharper focus and stronger positioning.
@@ -1224,17 +1321,19 @@ export default function PraeliatorWebsite() {
       title="Controlled access deserves its own frame."
       description="This page is dedicated to future-release demand, collector access, and waitlist intake routed directly to your email."
     >
-      <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
         <div>
-          <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)]">
-            <h3 className="text-2xl font-semibold tracking-[-0.03em]">Why a waitlist matters</h3>
-            <p className="mt-5 text-sm leading-8 text-white/65">
+          <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8">
+            <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+              Why a waitlist matters
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
               A luxury brand should not feel endlessly available. A dedicated waitlist page strengthens demand, selectivity, and restraint.
             </p>
           </div>
         </div>
 
-        <div className="group rounded-[2rem] border border-white/10 bg-[#11100f] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] md:p-10">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8 md:p-10">
           <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
             <input
               name="fullName"
@@ -1397,7 +1496,7 @@ export default function PraeliatorWebsite() {
             <Button
               type="submit"
               disabled={waitlistState.loading}
-              className="h-14 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="h-14 w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {waitlistState.loading ? "Submitting..." : "Join Waitlist"}
             </Button>
@@ -1442,52 +1541,58 @@ export default function PraeliatorWebsite() {
           href={whatsappLink}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-between rounded-[1.75rem] border border-white/10 bg-white/5 p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)]"
+          className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-white/10 bg-white/5 p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)] sm:rounded-[1.75rem] sm:p-5"
         >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
               <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">WhatsApp Client Service</p>
-              <p className="text-sm text-white/45">Preferred for private purchase inquiries</p>
+              <p className="text-sm text-white/45">
+                Preferred for private purchase inquiries
+              </p>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-white/35" />
+          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
         </a>
 
         <a
           href={emailLink}
-          className="flex items-center justify-between rounded-[1.75rem] border border-white/10 bg-white/5 p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)]"
+          className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-white/10 bg-white/5 p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)] sm:rounded-[1.75rem] sm:p-5"
         >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
               <Mail className="h-5 w-5 text-[#b9a18d]" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-white/45">For formal inquiries and brand communication</p>
+              <p className="text-sm text-white/45">
+                For formal inquiries and brand communication
+              </p>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-white/35" />
+          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
         </a>
 
         <a
           href={instagramLink}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-between rounded-[1.75rem] border border-white/10 bg-white/5 p-5 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)]"
+          className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-white/10 bg-white/5 p-4 shadow-[0_14px_40px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.07] hover:shadow-[0_22px_58px_rgba(0,0,0,0.26)] sm:rounded-[1.75rem] sm:p-5"
         >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
               <Instagram className="h-5 w-5 text-[#b9a18d]" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">Instagram</p>
-              <p className="text-sm text-white/45">Visual presence, updates, and brand atmosphere</p>
+              <p className="text-sm text-white/45">
+                Visual presence, updates, and brand atmosphere
+              </p>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-white/35" />
+          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
         </a>
       </div>
     </SectionFrame>
@@ -1519,12 +1624,20 @@ export default function PraeliatorWebsite() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <button type="button" onClick={() => goTo("/")} className="flex min-w-0 items-center gap-3 text-left">
-            <div className="h-9 w-9 shrink-0 rounded-full border border-[#5b4638] bg-[#151210]" />
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <button
+            type="button"
+            onClick={() => goTo("/")}
+            className="flex min-w-0 items-center gap-3 text-left"
+          >
+            <div className="h-8 w-8 shrink-0 rounded-full border border-[#5b4638] bg-[#151210] sm:h-9 sm:w-9" />
             <div className="min-w-0">
-              <p className="truncate text-xs uppercase tracking-[0.35em] text-[#b9a18d]">Praeliator</p>
-              <p className="truncate text-[11px] uppercase tracking-[0.28em] text-white/45">{currentPageTitle}</p>
+              <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:text-xs sm:tracking-[0.35em]">
+                Praeliator
+              </p>
+              <p className="truncate text-[10px] uppercase tracking-[0.20em] text-white/45 sm:text-[11px] sm:tracking-[0.28em]">
+                {currentPageTitle}
+              </p>
             </div>
           </button>
 
@@ -1560,14 +1673,24 @@ export default function PraeliatorWebsite() {
                 Join Waitlist
               </Button>
             )}
-            <Button asChild className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
-              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">Private Purchase</a>
+            <Button
+              asChild
+              className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+            >
+              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                Private Purchase
+              </a>
             </Button>
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
-            <Button asChild className="rounded-full bg-[#efe5d7] px-4 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:px-5">
-              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">Buy</a>
+            <Button
+              asChild
+              className="rounded-full bg-[#efe5d7] px-3 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:px-5"
+            >
+              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                Buy
+              </a>
             </Button>
             <button
               type="button"
@@ -1612,8 +1735,13 @@ export default function PraeliatorWebsite() {
                 >
                   {route !== "/" ? "Return Home" : "Join Waitlist"}
                 </Button>
-                <Button asChild className="h-12 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]">
-                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">Private Purchase</a>
+                <Button
+                  asChild
+                  className="h-12 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                >
+                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                    Private Purchase
+                  </a>
                 </Button>
               </div>
             </div>
@@ -1626,12 +1754,14 @@ export default function PraeliatorWebsite() {
       </main>
 
       <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 text-sm text-white/45 md:flex-row md:items-center md:justify-between lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
-            <p className="uppercase tracking-[0.3em] text-[#b9a18d]">Praeliator</p>
+            <p className="uppercase tracking-[0.24em] text-[#b9a18d] sm:tracking-[0.3em]">
+              Praeliator
+            </p>
             <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
           </div>
-          <div className="flex flex-wrap gap-6">
+          <div className="flex flex-wrap gap-4 sm:gap-6">
             <button type="button" onClick={() => goTo("/collection")} className="transition hover:text-white">Collection</button>
             <button type="button" onClick={() => goTo("/praeliator-vis")} className="transition hover:text-white">VIS</button>
             <button type="button" onClick={() => goTo("/acquisition")} className="transition hover:text-white">Acquisition</button>
