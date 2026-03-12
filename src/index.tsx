@@ -594,9 +594,8 @@ export default function PraeliatorWebsite() {
             <div className="mt-12 flex flex-wrap gap-4">
               <Button
                 type="button"
-                variant="outline"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className="rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)]"
               >
                 View VIS
               </Button>
@@ -655,9 +654,8 @@ export default function PraeliatorWebsite() {
             <div className="mt-14 flex flex-wrap gap-4">
               <Button
                 type="button"
-                variant="outline"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className="rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-6 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)]"
               >
                 View VIS
               </Button>
