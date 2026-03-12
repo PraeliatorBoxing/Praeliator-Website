@@ -368,56 +368,47 @@ function LuxuryImagePanel({
   heightClass?: string;
   onClick?: () => void;
 }) {
-  const panelClasses = `group relative overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 ${onClick ? "cursor-pointer hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)]" : "hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.44)]"} ${heightClass}`;
-
-  const content = (
-    <>
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group relative block w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] text-left shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.46)] ${heightClass}`}
+    >
       <div
-        className="absolute inset-0 scale-[1.01] bg-cover bg-center opacity-82 transition duration-700 group-hover:scale-[1.02]"
+        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]"
         style={{ backgroundImage: `url(${src})` }}
       />
 
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.18)_0%,rgba(8,8,8,0.32)_24%,rgba(8,8,8,0.62)_58%,rgba(8,8,8,0.92)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.18),transparent_36%)]" />
-      <div className="absolute inset-0 rounded-[1.9rem] ring-1 ring-inset ring-white/6" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.42)_0%,rgba(8,8,8,0.16)_26%,rgba(8,8,8,0.38)_56%,rgba(8,8,8,0.88)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.16),transparent_38%)]" />
 
-      <div className="relative z-10 flex h-full flex-col justify-between p-7 md:p-8">
+      <div className="relative z-10 flex h-full flex-col justify-between p-8 md:p-10">
         <div className="flex items-start justify-between gap-4">
-          <p className="text-[11px] uppercase tracking-[0.30em] text-[#d0b39b]">
-            {eyebrow}
-          </p>
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.30em] text-[#d0b39b]">
+              {eyebrow}
+            </p>
 
-          {onClick ? (
-            <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55 transition duration-300 group-hover:border-white/15 group-hover:text-white/75">
-              Enter
-            </span>
-          ) : null}
+            <h3 className="mt-5 max-w-[20rem] text-2xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] md:text-[2.8rem]">
+              {title}
+            </h3>
+          </div>
+
+          <span className="rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-white/55 transition duration-300 group-hover:border-white/18 group-hover:text-white/72">
+            Enter
+          </span>
         </div>
 
-        <div className="max-w-[26rem]">
-          <h3 className="text-3xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] md:text-[3rem]">
-            {title}
-          </h3>
-
+        <div className="max-w-sm">
           {description ? (
-            <p className="mt-4 max-w-sm text-sm leading-7 text-white/70">
+            <p className="text-sm leading-7 text-white/72">
               {description}
             </p>
           ) : null}
         </div>
       </div>
-    </>
+    </button>
   );
-
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={panelClasses}>
-        {content}
-      </button>
-    );
-  }
-
-  return <div className={panelClasses}>{content}</div>;
 }
 
 export default function PraeliatorWebsite() {
@@ -600,13 +591,13 @@ export default function PraeliatorWebsite() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.24),transparent_35%)]" />
         <div className="absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.12),transparent_70%)]" />
 
-        <div className="mx-auto grid max-w-7xl gap-16 px-6 py-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:py-36 xl:py-40">
-          <div className="relative z-10 flex max-w-3xl flex-col justify-end">
+        <div className="mx-auto grid max-w-[88rem] gap-16 px-6 py-24 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-36 xl:gap-20 xl:py-40">
+          <div className="relative z-10 flex max-w-[36rem] flex-col justify-center">
             <p className="mb-6 text-xs uppercase tracking-[0.38em] text-[#b9a18d]">
               Luxury Boxing House
             </p>
 
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[0.9] tracking-[-0.05em] md:text-7xl xl:text-[5.4rem]">
+            <h1 className="max-w-[34rem] text-5xl font-semibold leading-[0.9] tracking-[-0.05em] md:text-7xl xl:text-[5.15rem]">
               Praeliator VIS.
               <span className="block text-white/72">Built with restraint.</span>
             </h1>
@@ -643,8 +634,8 @@ export default function PraeliatorWebsite() {
               src={visImageSources.hero}
               eyebrow="Praeliator VIS"
               title="Direct acquisition."
-              description="One flagship model. One controlled entry into the house."
-              heightClass="min-h-[36rem]"
+              description="Flagship access through private client service."
+              heightClass="min-h-[44rem]"
               onClick={() => goTo("/praeliator-vis")}
             />
           </div>
