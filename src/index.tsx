@@ -357,6 +357,25 @@ function SectionFrame({
   );
 }
 
+function InfoPill({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.03] px-4 py-3 backdrop-blur-sm sm:rounded-[1.25rem] sm:px-5 sm:py-4">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-white/38 sm:text-[11px] sm:tracking-[0.22em]">
+        {label}
+      </p>
+      <p className="mt-1.5 text-sm font-medium text-[#f4efe7] sm:text-[15px]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
 function LuxuryImagePanel({
   src,
   eyebrow,
@@ -376,39 +395,50 @@ function LuxuryImagePanel({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative block w-full overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11100f] text-left shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-500 hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_34px_100px_rgba(0,0,0,0.46)] sm:rounded-[2rem] ${heightClass}`}
+      className={`group relative block w-full overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.40)] transition duration-500 hover:-translate-y-1 hover:border-[#7a5d49]/45 hover:shadow-[0_38px_110px_rgba(0,0,0,0.52)] sm:rounded-[2rem] ${heightClass}`}
     >
       <div
-        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]"
+        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
         style={{ backgroundImage: `url(${src})` }}
       />
 
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,8,0.42)_0%,rgba(8,8,8,0.16)_26%,rgba(8,8,8,0.38)_56%,rgba(8,8,8,0.88)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.16),transparent_38%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.72)_0%,rgba(6,6,6,0.24)_24%,rgba(6,6,6,0.28)_52%,rgba(6,6,6,0.86)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.72)_100%)]" />
 
-      <div className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-8 md:p-10">
-        <div className="flex items-start justify-between gap-3 sm:gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.30em]">
-              {eyebrow}
-            </p>
+      <div className="absolute left-5 right-5 top-5 z-10 sm:left-8 sm:right-8 sm:top-8">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-[10px] uppercase tracking-[0.26em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.32em]">
+            {eyebrow}
+          </p>
 
-            <h3 className="mt-3 max-w-[14rem] text-xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f4efe7] sm:mt-5 sm:max-w-[20rem] sm:text-2xl md:text-[2.8rem]">
-              {title}
-            </h3>
-          </div>
-
-          <span className="rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-white/55 transition duration-300 group-hover:border-white/18 group-hover:text-white/72 sm:px-3 sm:text-[10px] sm:tracking-[0.24em]">
-            Enter
+          <span className="hidden rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/48 sm:inline-block">
+            Editorial frame
           </span>
         </div>
 
-        <div className="max-w-xs sm:max-w-sm">
-          {description ? (
-            <p className="text-xs leading-6 text-white/72 sm:text-sm sm:leading-7">
-              {description}
-            </p>
-          ) : null}
+        <h3 className="mt-4 max-w-[16rem] text-2xl font-semibold leading-[0.98] tracking-[-0.05em] text-[#f4efe7] sm:mt-5 sm:max-w-[21rem] sm:text-3xl md:text-[3.05rem]">
+          {title}
+        </h3>
+      </div>
+
+      <div className="absolute bottom-5 left-5 right-5 z-10 sm:bottom-8 sm:left-8 sm:right-8">
+        <div className="flex items-end justify-between gap-4">
+          <div className="max-w-[18rem] sm:max-w-sm">
+            {description ? (
+              <p className="text-xs leading-6 text-white/70 sm:text-sm sm:leading-7">
+                {description}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="shrink-0">
+            <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/58 transition duration-300 group-hover:text-white/78 sm:text-[11px] sm:tracking-[0.24em]">
+              Open VIS
+              <span className="block h-px w-7 bg-white/35 transition duration-300 group-hover:w-10 group-hover:bg-white/60" />
+            </span>
+          </div>
         </div>
       </div>
     </button>
@@ -592,38 +622,40 @@ export default function PraeliatorWebsite() {
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.24),transparent_35%)]" />
-        <div className="absolute inset-y-0 right-0 hidden w-[40%] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.12),transparent_70%)] lg:block" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_34%)]" />
+        <div className="absolute inset-y-0 right-0 hidden w-[42%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
+        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.35),rgba(0,0,0,0))]" />
 
-        <div className="mx-auto grid max-w-[88rem] gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8 lg:py-36 xl:gap-20 xl:py-40">
-          <div className="relative z-10 flex max-w-[36rem] flex-col justify-center">
-            <p className="mb-4 text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:mb-6 sm:text-xs sm:tracking-[0.38em]">
-              Luxury Boxing House
-            </p>
+        <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.88fr_1.12fr] lg:gap-16 lg:px-8 lg:py-28 xl:gap-20 xl:py-36">
+          <div className="relative z-10 flex max-w-[37rem] flex-col justify-center">
+            <div className="inline-flex w-fit items-center rounded-full border border-[#5b4638]/35 bg-[#120f0d]/80 px-3 py-1.5 backdrop-blur-sm">
+              <span className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.3em]">
+                Luxury Boxing House
+              </span>
+            </div>
 
-            <h1 className="max-w-[34rem] text-4xl font-semibold leading-[0.92] tracking-[-0.05em] sm:text-5xl md:text-7xl xl:text-[5.15rem]">
+            <h1 className="mt-6 max-w-[34rem] text-4xl font-semibold leading-[0.9] tracking-[-0.055em] sm:text-5xl md:text-7xl xl:text-[5.45rem]">
               Praeliator VIS.
-              <span className="block text-white/72">Built with restraint.</span>
+              <span className="mt-1 block text-white/70">Discipline, shaped.</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:mt-8 sm:text-base sm:leading-8 md:text-lg">
-              Black satin leather. Espresso undertone. Direct acquisition. A training
-              glove presented with control, discipline, and a more private route into
-              the brand.
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8 md:text-lg">
+              A flagship training glove presented with restraint, material clarity, and a
+              more controlled route into the house.
             </p>
 
-            <div className="mt-8 grid gap-3 sm:mt-12 sm:flex sm:flex-wrap sm:gap-4">
+            <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4">
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="w-full rounded-full border border-[#5b4638]/45 bg-[#151210] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_10px_24px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.03)] transition duration-300 hover:-translate-y-0.5 hover:border-[#7a5d49]/65 hover:bg-[#1b1614] hover:shadow-[0_16px_34px_rgba(0,0,0,0.34)] sm:w-auto sm:py-6"
+                className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:bg-[linear-gradient(180deg,#211916_0%,#16110f_100%)] hover:shadow-[0_22px_44px_rgba(0,0,0,0.42)] sm:w-auto sm:px-7 sm:py-6"
               >
                 View VIS
               </Button>
 
               <Button
                 asChild
-                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
+                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_30px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e6dacb] hover:shadow-[0_20px_40px_rgba(239,229,215,0.22)] sm:w-auto sm:px-7 sm:py-6"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
@@ -631,15 +663,23 @@ export default function PraeliatorWebsite() {
                 </a>
               </Button>
             </div>
+
+            <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3">
+              <InfoPill label="Position" value="Flagship model" />
+              <InfoPill label="Acquisition" value="Direct inquiry" />
+              <InfoPill label="Presentation" value="Luxury boxed" />
+            </div>
           </div>
 
           <div className="relative">
+            <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
+
             <LuxuryImagePanel
               src={visImageSources.hero}
               eyebrow="Praeliator VIS"
               title="Direct acquisition."
               description="Flagship access through private client service."
-              heightClass="min-h-[24rem] sm:min-h-[30rem] lg:min-h-[44rem]"
+              heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem]"
               onClick={() => goTo("/praeliator-vis")}
             />
           </div>
@@ -648,7 +688,7 @@ export default function PraeliatorWebsite() {
 
       <section className="border-b border-white/10 bg-[#0d0c0b]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.20em] text-white/45 sm:gap-x-20 sm:gap-y-5 sm:text-sm sm:tracking-[0.28em]">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.18em] text-white/42 sm:gap-x-16 sm:text-sm sm:tracking-[0.26em]">
             {audience.map((item) => (
               <span key={item}>{item}</span>
             ))}
@@ -656,20 +696,21 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-32">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
-          <div className="group flex flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:p-8 lg:rounded-[2.4rem] lg:p-10">
+          <div className="group flex flex-col justify-between rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.34)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_32px_96px_rgba(0,0,0,0.42)] sm:rounded-[2rem] sm:p-8 lg:rounded-[2.4rem] lg:p-10">
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
                 Flagship
               </p>
 
-              <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.04em] sm:mt-5 sm:text-4xl md:text-5xl">
+              <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl md:text-5xl">
                 The house begins with VIS.
               </h2>
 
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/62 sm:mt-6 sm:text-base sm:leading-8">
-                One glove. One expression. One measured entry into Praeliator.
+                One expression. One route. One product that defines how the brand is
+                understood before the first drop ever expands.
               </p>
             </div>
 
@@ -677,7 +718,7 @@ export default function PraeliatorWebsite() {
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="w-full rounded-full border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0f0c0b_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.30)] transition duration-300 hover:-translate-y-0.5 hover:border-[#6b5344]/65 hover:bg-[linear-gradient(180deg,#1b1614_0%,#120f0d_100%)] hover:shadow-[0_18px_38px_rgba(0,0,0,0.36)] sm:w-auto sm:py-6"
+                className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.32)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:shadow-[0_18px_38px_rgba(0,0,0,0.38)] sm:w-auto sm:py-6"
               >
                 View VIS
               </Button>
@@ -699,13 +740,13 @@ export default function PraeliatorWebsite() {
                 Acquisition
               </p>
 
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
                 Direct, controlled, personal.
               </h3>
 
               <p className="mt-4 text-sm leading-7 text-white/62 sm:mt-5 sm:leading-8">
-                No open-cart checkout. No noisy retail flow. Praeliator is acquired
-                through direct conversation.
+                No open-cart theatre. No generic checkout energy. The route is quieter,
+                more deliberate, and more aligned with the house.
               </p>
 
               <div className="mt-6 sm:mt-8">
@@ -725,13 +766,13 @@ export default function PraeliatorWebsite() {
                 Presentation
               </p>
 
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
                 The object extends beyond the glove.
               </h3>
 
               <p className="mt-4 text-sm leading-7 text-white/62 sm:mt-5 sm:leading-8">
-                Rigid box. Silk dust bag. Wrapping paper. Authenticity card. Care
-                card. Legacy Refresh after the first year.
+                Box, dust bag, paper, authenticity, and care. The experience should read
+                as acquisition from the first touchpoint to the final opening.
               </p>
 
               <div className="mt-6 sm:mt-8">
@@ -940,38 +981,29 @@ export default function PraeliatorWebsite() {
       title="A flagship training glove shaped by restraint, structure, and intent."
       description="Praeliator VIS is built for disciplined training and technical sparring. It is presented as a luxury acquisition: materially specific, visually controlled, and service-backed."
     >
-      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
-        <div className="group rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:rounded-[2rem] sm:p-8 md:p-10">
+      <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8">
+        <div className="group rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.32)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_30px_96px_rgba(0,0,0,0.40)] sm:rounded-[2rem] sm:p-8 md:p-10">
           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
             Flagship Product
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-4xl md:text-5xl">
+
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.045em] sm:mt-4 sm:text-4xl md:text-5xl">
             Praeliator VIS
           </h2>
+
           <p className="mt-5 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
             A 16 oz lace-up training glove built in top-grain cowhide leather with a
             soft satin finish and a restrained two-tone character. Deep black remains
             the primary visual read, while a minimal espresso tone reveals itself
             depending on light direction.
           </p>
-          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2">
-            <div className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                Use
-              </p>
-              <p className="mt-3 text-base font-medium sm:text-lg">
-                Training · Technical sparring
-              </p>
-            </div>
-            <div className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.04] sm:rounded-[1.5rem] sm:p-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                Position
-              </p>
-              <p className="mt-3 text-base font-medium sm:text-lg">
-                Luxury training instrument
-              </p>
-            </div>
+
+          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-3">
+            <InfoPill label="Weight" value="16 oz" />
+            <InfoPill label="Closure" value="Lace-up" />
+            <InfoPill label="Use" value="Training / sparring" />
           </div>
+
           <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
             <Button
               asChild
@@ -981,6 +1013,7 @@ export default function PraeliatorWebsite() {
                 Private Purchase Inquiry
               </a>
             </Button>
+
             <Button
               type="button"
               variant="outline"
@@ -996,12 +1029,18 @@ export default function PraeliatorWebsite() {
           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
             Visual Identity
           </p>
+
           <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Minimal branding. Controlled presence.
           </h3>
+
           <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-            External branding is deliberately restrained. The primary visible marking is a debossed PRAELIATOR logo on the wrist strap plate. The leather finish is soft satin rather than gloss, and the black surface carries a subtle espresso reveal under changing light.
+            External branding is deliberately restrained. The primary visible marking is
+            a debossed PRAELIATOR logo on the wrist strap plate. The leather finish is
+            soft satin rather than gloss, and the black surface carries a subtle
+            espresso reveal under changing light.
           </p>
+
           <div className="mt-6 space-y-4 sm:mt-8">
             <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
@@ -1009,6 +1048,7 @@ export default function PraeliatorWebsite() {
               </p>
               <p className="mt-2 text-base font-medium sm:text-lg">Deep black</p>
             </div>
+
             <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-white/15 hover:bg-white/[0.07] sm:rounded-[1.5rem] sm:p-5">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
                 Secondary tone
@@ -1126,7 +1166,8 @@ export default function PraeliatorWebsite() {
             Praeliator Legacy Refresh
           </h3>
           <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-            Available after the first year, this service extends the life and finish of the glove through maintenance rather than replacement culture.
+            Available after the first year, this service extends the life and finish of
+            the glove through maintenance rather than replacement culture.
           </p>
           <div className="mt-5 grid gap-4 sm:mt-6">
             {visService.map((item) => (
@@ -1235,7 +1276,10 @@ export default function PraeliatorWebsite() {
           Luxury without proof is decoration.
         </h3>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-          Praeliator gains credibility when it speaks in specifics: material, thickness, assembly, structure, service, and presentation. Trust architecture is not filler. It is the layer that makes the brand feel deliberate rather than theatrical.
+          Praeliator gains credibility when it speaks in specifics: material, thickness,
+          assembly, structure, service, and presentation. Trust architecture is not
+          filler. It is the layer that makes the brand feel deliberate rather than
+          theatrical.
         </p>
         <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
           <Button
@@ -1328,7 +1372,8 @@ export default function PraeliatorWebsite() {
               Why a waitlist matters
             </h3>
             <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-              A luxury brand should not feel endlessly available. A dedicated waitlist page strengthens demand, selectivity, and restraint.
+              A luxury brand should not feel endlessly available. A dedicated waitlist
+              page strengthens demand, selectivity, and restraint.
             </p>
           </div>
         </div>
@@ -1517,12 +1562,13 @@ export default function PraeliatorWebsite() {
               behavior on compatible Apple devices and browsers.
             </p>
             <p className="text-xs leading-6 text-white/35">
-              The form now qualifies lead quality before the first reply by capturing buyer profile, purchase timing, and training context.
+              The form now qualifies lead quality before the first reply by capturing
+              buyer profile, purchase timing, and training context.
             </p>
             <p className="text-xs leading-6 text-white/35">
-              This waitlist is wired to send submissions to your email. The first
-              live submission may require confirmation from a verification email sent
-              to praeliatorboxing@gmail.com.
+              This waitlist is wired to send submissions to your email. The first live
+              submission may require confirmation from a verification email sent to
+              praeliatorboxing@gmail.com.
             </p>
           </form>
         </div>
