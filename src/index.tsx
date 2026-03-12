@@ -613,14 +613,20 @@ export default function PraeliatorWebsite() {
           </div>
 
           <div className="relative">
-            <LuxuryImagePanel
-              src={visImageSources.hero}
-              eyebrow="Praeliator VIS"
-              title="Direct acquisition."
-              description="One flagship model. One controlled entry into the house."
-              heightClass="min-h-[36rem]"
-            />
-          </div>
+            <div className="absolute -inset-6 rounded-[2.8rem] bg-[radial-gradient(circle_at_center,rgba(120,91,68,0.16),transparent_62%)] blur-2xl" />
+          
+            <div className="relative rounded-[2.5rem] border border-white/8 bg-[linear-gradient(180deg,rgba(24,19,17,0.94)_0%,rgba(10,10,10,0.98)_100%)] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.5)]">
+              <div className="rounded-[2.1rem] border border-[#5b4638]/35 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.00)_100%)] p-3">
+                 <LuxuryImagePanel
+                  src={visImageSources.hero}
+                  eyebrow="Praeliator VIS"
+                  title="Direct acquisition."
+                  description="One flagship model. One controlled entry into the house."
+                   heightClass="min-h-[36rem]"
+                 />
+               </div>
+              </div>
+            </div>
         </div>
       </section>
 
