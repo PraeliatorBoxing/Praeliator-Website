@@ -376,48 +376,159 @@ function InfoPill({
   );
 }
 
-<div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
-  <LuxuryImagePanel
-    src={visImageSources.hero}
-    eyebrow="Praeliator VIS"
-    title="The silhouette carries the house."
-    description="Black remains dominant. Espresso appears only when light breaks across the leather."
-    heightClass="min-h-[22rem] sm:min-h-[28rem] lg:min-h-[42rem]"
-    ctaLabel="Hero detail"
-  />
+function LuxuryImagePanel({
+  src,
+  eyebrow,
+  title,
+  description,
+  heightClass = "min-h-[28rem]",
+  onClick,
+  compact = false,
+  showCta = true,
+  ctaLabel = "Open",
+}: {
+  src: string;
+  eyebrow: string;
+  title: string;
+  description?: string;
+  heightClass?: string;
+  onClick?: () => void;
+  compact?: boolean;
+  showCta?: boolean;
+  ctaLabel?: string;
+}) {
+  const isInteractive = typeof onClick === "function";
 
-  <div className="grid gap-6 lg:gap-8">
-    <LuxuryImagePanel
-      src={visImageSources.leather}
-      eyebrow="Leather Finish"
-      title="Soft satin. Quiet depth."
-      description="Top-grain cowhide with a restrained two-tone response under shifting light."
-      heightClass="min-h-[15rem] sm:min-h-[16rem]"
-      compact
-      ctaLabel="Material detail"
-    />
+  const className = `group relative block w-full overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.40)] transition duration-500 sm:rounded-[2rem] ${heightClass} ${
+    isInteractive
+      ? "cursor-pointer hover:-translate-y-1 hover:border-[#7a5d49]/45 hover:shadow-[0_38px_110px_rgba(0,0,0,0.52)]"
+      : "cursor-default"
+  }`;
 
-    <LuxuryImagePanel
-      src={visImageSources.plate}
-      eyebrow="Wrist Plate"
-      title="Debossed, not announced."
-      description="Branding remains controlled and deliberate."
-      heightClass="min-h-[15rem] sm:min-h-[16rem]"
-      compact
-      ctaLabel="Brand detail"
-    />
+  const content = (
+    <>
+      <div
+        className={`absolute inset-0 bg-cover bg-center transition duration-700 ${
+          isInteractive ? "group-hover:scale-[1.03]" : ""
+        }`}
+        style={{ backgroundImage: `url(${src})` }}
+      />
 
-    <LuxuryImagePanel
-      src={visImageSources.packaging}
-      eyebrow="Presentation"
-      title="Presented as acquisition, not shipment."
-      description="Rigid box, silk dust bag, wrapping paper, authenticity card, and care card."
-      heightClass="min-h-[15rem] sm:min-h-[16rem]"
-      compact
-      ctaLabel="Packaging detail"
-    />
-  </div>
-</div>
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.72)_0%,rgba(6,6,6,0.24)_24%,rgba(6,6,6,0.28)_52%,rgba(6,6,6,0.86)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.72)_100%)]" />
+
+      {!compact ? (
+        <>
+          <div className="absolute left-5 right-5 top-5 z-10 sm:left-8 sm:right-8 sm:top-8">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-[10px] uppercase tracking-[0.26em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.32em]">
+                {eyebrow}
+              </p>
+
+              <span className="hidden rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/48 sm:inline-block">
+                Editorial frame
+              </span>
+            </div>
+
+            <h3 className="mt-4 max-w-[16rem] text-2xl font-semibold leading-[0.98] tracking-[-0.05em] text-[#f4efe7] sm:mt-5 sm:max-w-[21rem] sm:text-3xl md:text-[3.05rem]">
+              {title}
+            </h3>
+          </div>
+
+          <div className="absolute bottom-5 left-5 right-5 z-10 sm:bottom-8 sm:left-8 sm:right-8">
+            <div className="flex items-end justify-between gap-4">
+              <div className="max-w-[18rem] sm:max-w-sm">
+                {description ? (
+                  <p className="text-xs leading-6 text-white/70 sm:text-sm sm:leading-7">
+                    {description}
+                  </p>
+                ) : null}
+              </div>
+
+              {showCta ? (
+                <div className="shrink-0">
+                  <span
+                    className={`inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] sm:text-[11px] sm:tracking-[0.24em] ${
+                      isInteractive
+                        ? "text-white/58 transition duration-300 group-hover:text-white/78"
+                        : "text-white/42"
+                    }`}
+                  >
+                    {ctaLabel}
+                    <span
+                      className={`block h-px ${
+                        isInteractive
+                          ? "w-7 bg-white/35 transition duration-300 group-hover:w-10 group-hover:bg-white/60"
+                          : "w-7 bg-white/22"
+                      }`}
+                    />
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-7">
+          <div className="flex items-start justify-between gap-4">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
+              {eyebrow}
+            </p>
+
+            <span className="rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[9px] uppercase tracking-[0.16em] text-white/45 sm:text-[10px]">
+              Editorial frame
+            </span>
+          </div>
+
+          <div className="mt-4">
+            <h3 className="max-w-[12ch] text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.35rem]">
+              {title}
+            </h3>
+
+            {description ? (
+              <p className="mt-3 max-w-[34rem] text-sm leading-6 text-white/68">
+                {description}
+              </p>
+            ) : null}
+          </div>
+
+          {showCta ? (
+            <div className="mt-5 flex justify-end">
+              <span
+                className={`inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] sm:text-[11px] sm:tracking-[0.24em] ${
+                  isInteractive
+                    ? "text-white/58 transition duration-300 group-hover:text-white/78"
+                    : "text-white/42"
+                }`}
+              >
+                {ctaLabel}
+                <span
+                  className={`block h-px ${
+                    isInteractive
+                      ? "w-7 bg-white/35 transition duration-300 group-hover:w-10 group-hover:bg-white/60"
+                      : "w-7 bg-white/22"
+                  }`}
+                />
+              </span>
+            </div>
+          ) : null}
+        </div>
+      )}
+    </>
+  );
+
+  if (isInteractive) {
+    return (
+      <button type="button" onClick={onClick} className={className}>
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
+}
 
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
@@ -655,6 +766,8 @@ export default function PraeliatorWebsite() {
               description="Flagship access through private client service."
               heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem]"
               onClick={() => goTo("/praeliator-vis")}
+              showCta
+              ctaLabel="Explore"
             />
           </div>
         </div>
@@ -1040,6 +1153,7 @@ export default function PraeliatorWebsite() {
           title="The silhouette carries the house."
           description="Black remains dominant. Espresso appears only when light breaks across the leather."
           heightClass="min-h-[22rem] sm:min-h-[28rem] lg:min-h-[42rem]"
+          showCta={false}
         />
 
         <div className="grid gap-6 lg:gap-8">
@@ -1050,6 +1164,7 @@ export default function PraeliatorWebsite() {
             description="Top-grain cowhide with a restrained two-tone response under shifting light."
             heightClass="min-h-[15rem] sm:min-h-[16rem]"
             compact
+            showCta={false}
           />
 
           <LuxuryImagePanel
@@ -1059,6 +1174,7 @@ export default function PraeliatorWebsite() {
             description="Branding remains controlled and deliberate."
             heightClass="min-h-[15rem] sm:min-h-[16rem]"
             compact
+            showCta={false}
           />
 
           <LuxuryImagePanel
@@ -1068,6 +1184,7 @@ export default function PraeliatorWebsite() {
             description="Rigid box, silk dust bag, wrapping paper, authenticity card, and care card."
             heightClass="min-h-[15rem] sm:min-h-[16rem]"
             compact
+            showCta={false}
           />
         </div>
       </div>
