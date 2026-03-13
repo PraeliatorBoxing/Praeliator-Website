@@ -704,143 +704,163 @@ export default function PraeliatorWebsite() {
   };
 
   const renderHomePage = () => (
-    <>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_34%)]" />
-        <div className="absolute inset-y-0 right-0 hidden w-[42%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
-        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.35),rgba(0,0,0,0))]" />
+  <>
+    <section className="relative overflow-hidden border-b border-white/10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_34%)]" />
+      <div className="absolute inset-y-0 right-0 hidden w-[44%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
+      <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.35),rgba(0,0,0,0))]" />
 
-        <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.88fr_1.12fr] lg:gap-16 lg:px-8 lg:py-28 xl:gap-20 xl:py-36">
-          <div className="relative z-10 flex max-w-[37rem] flex-col justify-center">
-            <div className="inline-flex w-fit items-center rounded-full border border-[#5b4638]/35 bg-[#120f0d]/80 px-3 py-1.5 backdrop-blur-sm">
-              <span className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.3em]">
-                Luxury Boxing House
-              </span>
-            </div>
+      <div className="mx-auto grid max-w-[96rem] gap-12 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10 lg:px-8 lg:py-24 lg:pb-36 xl:gap-16 xl:py-32 xl:pb-40">
+        <div className="relative z-10 flex max-w-[34rem] flex-col justify-center lg:pt-14 xl:pt-20">
+          <div className="inline-flex w-fit items-center rounded-full border border-[#5b4638]/35 bg-[#120f0d]/80 px-3 py-1.5 backdrop-blur-sm">
+            <span className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.3em]">
+              Luxury Boxing House
+            </span>
+          </div>
 
-            <h1 className="mt-6 max-w-[34rem] text-4xl font-semibold leading-[0.9] tracking-[-0.055em] sm:text-5xl md:text-7xl xl:text-[5.45rem]">
-              Praeliator VIS.
-              <span className="mt-1 block text-white/70">Discipline, shaped.</span>
-            </h1>
+          <h1 className="mt-6 max-w-[30rem] text-4xl font-semibold leading-[0.88] tracking-[-0.06em] sm:text-5xl md:text-7xl xl:text-[5.6rem]">
+            Praeliator VIS.
+            <span className="mt-2 block max-w-[8ch] text-white/70">
+              Discipline, shaped.
+            </span>
+          </h1>
 
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8 md:text-lg">
-              A flagship training glove presented with restraint, material clarity, and a
-              more controlled route into the house.
-            </p>
+          <p className="mt-7 max-w-[28rem] text-sm leading-7 text-white/62 sm:text-base sm:leading-8 md:text-lg">
+            A flagship training glove presented with restraint, material clarity, and a
+            more controlled route into the house.
+          </p>
 
-            <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4">
-              <Button
-                type="button"
-                onClick={() => goTo("/praeliator-vis")}
-                className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:bg-[linear-gradient(180deg,#211916_0%,#16110f_100%)] hover:shadow-[0_22px_44px_rgba(0,0,0,0.42)] sm:w-auto sm:px-7 sm:py-6"
-              >
-                View VIS
-              </Button>
+          <div className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4">
+            <Button
+              type="button"
+              onClick={() => goTo("/praeliator-vis")}
+              className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_16px_36px_rgba(0,0,0,0.34)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:bg-[linear-gradient(180deg,#211916_0%,#16110f_100%)] hover:shadow-[0_22px_44px_rgba(0,0,0,0.42)] sm:w-auto sm:px-7 sm:py-6"
+            >
+              View VIS
+            </Button>
 
-              <Button
-                asChild
-                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_30px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e6dacb] hover:shadow-[0_20px_40px_rgba(239,229,215,0.22)] sm:w-auto sm:px-7 sm:py-6"
-              >
-                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Private Inquiry
-                </a>
-              </Button>
-            </div>
+            <Button
+              asChild
+              className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_30px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e6dacb] hover:shadow-[0_20px_40px_rgba(239,229,215,0.22)] sm:w-auto sm:px-7 sm:py-6"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Private Inquiry
+              </a>
+            </Button>
+          </div>
 
-            <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-6">
-              <InfoPill label="Position" value="Flagship model" />
-              <InfoPill label="Acquisition" value="Direct inquiry" />
+          <div className="mt-10 grid max-w-[26rem] grid-cols-2 gap-x-8 gap-y-6 sm:mt-12">
+            <InfoPill label="Position" value="Flagship model" />
+            <InfoPill label="Acquisition" value="Direct inquiry" />
+            <div className="col-span-2 max-w-[12rem]">
               <InfoPill label="Presentation" value="Luxury boxed" />
             </div>
           </div>
+        </div>
 
-          <div className="relative">
-            <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
+        <div className="relative lg:pl-8 xl:pl-14">
+          <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
 
+          <div className="relative lg:mt-8 xl:mt-12">
             <LuxuryImagePanel
               src={visImageSources.hero}
               eyebrow="Praeliator VIS"
               title="Direct acquisition."
               description="Flagship access through private client service."
-              heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem]"
+              heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[48rem] xl:min-h-[52rem]"
               onClick={() => goTo("/praeliator-vis")}
               showCta
               ctaLabel="Explore"
             />
-          </div>
-        </div>
-      </section>
 
-      <section className="border-b border-white/10 bg-[#0d0c0b]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.18em] text-white/42 sm:gap-x-16 sm:text-sm sm:tracking-[0.26em]">
-            {audience.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
-        <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-12">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
-              Flagship
-            </p>
-
-            <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl md:text-5xl">
-              The house begins with VIS.
-            </h2>
-
-            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-              One expression. One route. One product that defines how the brand is
-              understood before the first drop ever expands.
-            </p>
-
-            <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
-              <Button
-                type="button"
-                onClick={() => goTo("/praeliator-vis")}
-                className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.32)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:shadow-[0_18px_38px_rgba(0,0,0,0.38)] sm:w-auto sm:py-6"
-              >
-                View VIS
-              </Button>
-
-              <Button
-                asChild
-                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
-              >
-                <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                  Request Acquisition
-                </a>
-              </Button>
-            </div>
-
-            <div className="mt-10 grid gap-8 border-t border-white/10 pt-6 sm:grid-cols-2 sm:pt-8">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                  Acquisition
-                </p>
-                <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  No open-cart theatre. No generic checkout energy. The route is quieter,
-                  more deliberate, and more aligned with the house.
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                  Presentation
-                </p>
-                <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  Box, dust bag, paper, authenticity, and care. The object extends beyond
-                  the glove and the experience begins before opening.
-                </p>
-              </div>
+            <div className="pointer-events-none absolute -bottom-10 left-0 z-20 hidden max-w-xs rounded-[1.5rem] border border-white/10 bg-[#11100f]/92 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md lg:block xl:-left-10">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                House Logic
+              </p>
+              <p className="mt-3 text-lg font-medium tracking-[-0.03em] text-[#f4efe7]">
+                Inquiry replaces checkout.
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62">
+                The route remains quieter, more deliberate, and more aligned with the
+                object.
+              </p>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.34)] sm:rounded-[2rem] sm:p-8 lg:p-10">
+    <section className="border-b border-white/10 bg-[#0d0c0b]">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.18em] text-white/42 sm:gap-x-16 sm:text-sm sm:tracking-[0.26em]">
+          {audience.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
+      <div className="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-start lg:gap-14">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
+            Flagship
+          </p>
+
+          <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl md:text-5xl">
+            The house begins with VIS.
+          </h2>
+
+          <p className="mt-6 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+            One expression. One route. One product that defines how the brand is
+            understood before the first drop ever expands.
+          </p>
+
+          <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+            <Button
+              type="button"
+              onClick={() => goTo("/praeliator-vis")}
+              className="w-full rounded-full border border-[#6b5344]/50 bg-[linear-gradient(180deg,#1a1512_0%,#120f0d_100%)] px-6 py-5 text-sm text-[#f4efe7] shadow-[0_12px_28px_rgba(0,0,0,0.32)] transition duration-300 hover:-translate-y-0.5 hover:border-[#8b6c56]/70 hover:shadow-[0_18px_38px_rgba(0,0,0,0.38)] sm:w-auto sm:py-6"
+            >
+              View VIS
+            </Button>
+
+            <Button
+              asChild
+              className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
+            >
+              <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+                Request Acquisition
+              </a>
+            </Button>
+          </div>
+
+          <div className="mt-10 grid gap-8 border-t border-white/10 pt-6 sm:mt-12 sm:grid-cols-2 sm:pt-8">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                Acquisition
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                No open-cart theatre. No generic checkout energy. The route is quieter,
+                more deliberate, and more aligned with the house.
+              </p>
+            </div>
+
+            <div className="sm:pt-10">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                Presentation
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                Box, dust bag, paper, authenticity, and care. The object extends beyond
+                the glove and the experience begins before opening.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:pt-12">
+          <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.34)] sm:rounded-[2rem] sm:p-8 lg:p-10">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
               House Logic
             </p>
@@ -873,201 +893,105 @@ export default function PraeliatorWebsite() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.34em]">
-              Private Access
-            </p>
-
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
-              Request acquisition or enter the waitlist.
-            </h2>
-          </div>
-
-          <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goTo("/waitlist")}
-              className="w-full rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
-            >
-              Join Waitlist
-            </Button>
-
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
-            >
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Private Inquiry
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-
-  const renderAcquisitionPage = () => (
-    <SectionFrame
-      eyebrow="Acquisition"
-      title="How acquisition works at Praeliator."
-      description="The acquisition process is direct, controlled, and personal. This page clarifies what a serious buyer should expect before making contact."
-    >
-      <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12">
+    <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Process
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.34em]">
+            Private Access
           </p>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-            {[
-              [
-                "01",
-                "Inquiry",
-                "The client enters through WhatsApp or email rather than conventional checkout.",
-              ],
-              [
-                "02",
-                "Qualification",
-                "Praeliator confirms intent, product interest, and the correct route for the client.",
-              ],
-              [
-                "03",
-                "Confirmation",
-                "Availability, delivery scope, and next steps are clarified directly.",
-              ],
-              [
-                "04",
-                "Acquisition",
-                "Purchase is completed through private client communication rather than a mass-market transaction flow.",
-              ],
-            ].map(([step, title, text]) => (
-              <div
-                key={step}
-                className="grid gap-4 py-5 sm:grid-cols-[72px_1fr] sm:gap-6 sm:py-6"
-              >
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#b9a18d] sm:text-[11px] sm:tracking-[0.22em]">
-                    {step}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold sm:text-xl">{title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">
-                    {text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
+            Request acquisition or enter the waitlist.
+          </h2>
         </div>
 
-        <div className="rounded-[1.6rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Frequently Asked
-          </p>
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => goTo("/waitlist")}
+            className="w-full rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
+          >
+            Join Waitlist
+          </Button>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-            {[
-              ["How do I buy?", "Through direct inquiry, not open checkout."],
-              [
-                "Is VIS always available?",
-                "Availability is confirmed directly through client service.",
-              ],
-              [
-                "What is included?",
-                "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
-              ],
-              [
-                "Is there aftercare?",
-                "Yes. Praeliator Legacy Refresh is available after the first year.",
-              ],
-              [
-                "Do you ship internationally?",
-                "Shipping scope is confirmed during inquiry based on destination.",
-              ],
-            ].map(([q, a]) => (
-              <div key={q} className="py-5 sm:py-6">
-                <h3 className="text-base font-medium sm:text-lg">{q}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">{a}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
-            >
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Private Purchase Inquiry
-              </a>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goTo("/contact")}
-              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
-            >
-              Contact
-            </Button>
-          </div>
+          <Button
+            asChild
+            className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
+          >
+            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+              Private Inquiry
+            </a>
+          </Button>
         </div>
       </div>
-    </SectionFrame>
-  );
+    </section>
+  </>
+);
+
 
   const renderCollectionPage = () => (
-    <SectionFrame
-      eyebrow="Collection"
-      title="The collection deserves its own frame."
-      description="This page presents Praeliator products as selective acquisitions rather than standard ecommerce listings."
-    >
-      <div className="divide-y divide-white/10 border-t border-white/10">
-        {products.map((product, index) => {
-          const isVis = product.name === "Praeliator VIS";
+  <SectionFrame
+    eyebrow="Collection"
+    title="The collection deserves its own frame."
+    description="This page presents Praeliator products as selective acquisitions rather than standard ecommerce listings."
+  >
+    <div className="divide-y divide-white/10 border-t border-white/10">
+      {products.map((product, index) => {
+        const isVis = product.name === "Praeliator VIS";
+        const isOdd = index % 2 === 1;
 
-          return (
-            <div
-              key={product.name}
-              className="grid gap-8 py-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-12 lg:py-14"
-            >
-              <div className={`${index % 2 === 1 ? "lg:order-2" : ""}`}>
-                <div className="relative min-h-[18rem] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] shadow-[0_22px_70px_rgba(0,0,0,0.32)] sm:min-h-[22rem] sm:rounded-[2rem]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
-                  <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
-                    <div className="flex items-start justify-between gap-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
-                        {product.category}
-                      </p>
-                      <Package className="h-5 w-5 text-white/35" />
-                    </div>
+        return (
+          <div
+            key={product.name}
+            className={`grid gap-8 py-10 lg:items-center lg:gap-14 lg:py-16 ${
+              isOdd ? "lg:grid-cols-[1.08fr_0.92fr]" : "lg:grid-cols-[0.92fr_1.08fr]"
+            }`}
+          >
+            <div className={`${isOdd ? "lg:order-2 lg:pl-6 xl:pl-12" : "lg:pr-6 xl:pr-12"}`}>
+              <div
+                className={`relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] shadow-[0_22px_70px_rgba(0,0,0,0.32)] sm:rounded-[2rem] ${
+                  index === 0
+                    ? "min-h-[24rem] sm:min-h-[30rem] lg:min-h-[36rem]"
+                    : index === 1
+                      ? "min-h-[18rem] sm:min-h-[22rem] lg:min-h-[24rem]"
+                      : "min-h-[20rem] sm:min-h-[24rem] lg:min-h-[28rem]"
+                } ${isOdd ? "lg:mt-12" : ""}`}
+              >
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
+                <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.72)_100%)]" />
 
-                    <div>
-                      <h3 className="max-w-[12ch] text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.5rem]">
-                        {product.name}
-                      </h3>
-                      <p className="mt-4 text-sm leading-7 text-white/55 sm:leading-8">
-                        {product.note}
-                      </p>
-                    </div>
+                <div className="relative flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
+                  <div className="flex items-start justify-between gap-4">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
+                      {product.category}
+                    </p>
+                    <Package className="h-5 w-5 text-white/35" />
+                  </div>
+
+                  <div className="max-w-[16rem]">
+                    <h3 className="text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.5rem]">
+                      {product.name}
+                    </h3>
+                    <p className="mt-4 text-sm leading-7 text-white/55 sm:leading-8">
+                      {product.note}
+                    </p>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className={`${index % 2 === 1 ? "lg:order-1" : ""}`}>
+            <div className={`${isOdd ? "lg:order-1" : ""}`}>
+              <div className={`${isOdd ? "max-w-2xl" : "max-w-[38rem]"}`}>
                 <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
                   {product.category}
                 </p>
 
-                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-4xl">
+                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-4xl md:text-[3.2rem]">
                   {product.name}
                 </h3>
 
@@ -1109,11 +1033,13 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-    </SectionFrame>
-  );
+          </div>
+        );
+      })}
+    </div>
+  </SectionFrame>
+);
+
 
   const renderVisPage = () => (
     <SectionFrame
