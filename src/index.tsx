@@ -703,15 +703,15 @@ export default function PraeliatorWebsite() {
     }
   };
 
-  const renderHomePage = () => (
+const renderHomePage = () => (
   <>
     <section className="relative overflow-hidden border-b border-white/10">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_34%)]" />
-      <div className="absolute inset-y-0 right-0 hidden w-[44%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
+      <div className="absolute inset-y-0 right-0 hidden w-[46%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
       <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.35),rgba(0,0,0,0))]" />
 
-      <div className="mx-auto grid max-w-[96rem] gap-12 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10 lg:px-8 lg:py-24 lg:pb-36 xl:gap-16 xl:py-32 xl:pb-40">
-        <div className="relative z-10 flex max-w-[34rem] flex-col justify-center lg:pt-14 xl:pt-20">
+      <div className="mx-auto grid max-w-[96rem] gap-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-10 lg:px-8 lg:py-20 xl:gap-14 xl:py-24">
+        <div className="relative z-10 flex max-w-[34rem] flex-col justify-center">
           <div className="inline-flex w-fit items-center rounded-full border border-[#5b4638]/35 bg-[#120f0d]/80 px-3 py-1.5 backdrop-blur-sm">
             <span className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.3em]">
               Luxury Boxing House
@@ -759,34 +759,19 @@ export default function PraeliatorWebsite() {
           </div>
         </div>
 
-        <div className="relative lg:pl-8 xl:pl-14">
+        <div className="relative lg:-mr-6 xl:-mr-12">
           <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
 
-          <div className="relative lg:mt-8 xl:mt-12">
-            <LuxuryImagePanel
-              src={visImageSources.hero}
-              eyebrow="Praeliator VIS"
-              title="Direct acquisition."
-              description="Flagship access through private client service."
-              heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[48rem] xl:min-h-[52rem]"
-              onClick={() => goTo("/praeliator-vis")}
-              showCta
-              ctaLabel="Explore"
-            />
-
-            <div className="pointer-events-none absolute -bottom-10 left-0 z-20 hidden max-w-xs rounded-[1.5rem] border border-white/10 bg-[#11100f]/92 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md lg:block xl:-left-10">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                House Logic
-              </p>
-              <p className="mt-3 text-lg font-medium tracking-[-0.03em] text-[#f4efe7]">
-                Inquiry replaces checkout.
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">
-                The route remains quieter, more deliberate, and more aligned with the
-                object.
-              </p>
-            </div>
-          </div>
+          <LuxuryImagePanel
+            src={visImageSources.hero}
+            eyebrow="Praeliator VIS"
+            title="Direct acquisition."
+            description="Flagship access through private client service."
+            heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem] xl:min-h-[50rem]"
+            onClick={() => goTo("/praeliator-vis")}
+            showCta
+            ctaLabel="Explore"
+          />
         </div>
       </div>
     </section>
@@ -802,7 +787,7 @@ export default function PraeliatorWebsite() {
     </section>
 
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
-      <div className="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-start lg:gap-14">
+      <div className="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:gap-14">
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
             Flagship
@@ -835,62 +820,38 @@ export default function PraeliatorWebsite() {
               </a>
             </Button>
           </div>
-
-          <div className="mt-10 grid gap-8 border-t border-white/10 pt-6 sm:mt-12 sm:grid-cols-2 sm:pt-8">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                Acquisition
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                No open-cart theatre. No generic checkout energy. The route is quieter,
-                more deliberate, and more aligned with the house.
-              </p>
-            </div>
-
-            <div className="sm:pt-10">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                Presentation
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                Box, dust bag, paper, authenticity, and care. The object extends beyond
-                the glove and the experience begins before opening.
-              </p>
-            </div>
-          </div>
         </div>
 
-        <div className="lg:pt-12">
-          <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.34)] sm:rounded-[2rem] sm:p-8 lg:p-10">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-              House Logic
+        <div className="grid gap-8 border-t border-white/10 pt-6 lg:pt-0">
+          <div className="lg:max-w-[24rem]">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+              Acquisition
             </p>
+            <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+              No open-cart theatre. No generic checkout energy. The route is quieter,
+              more deliberate, and more aligned with the house.
+            </p>
+          </div>
 
-            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
-              Direct, measured, selective.
-            </h3>
+          <div className="lg:ml-auto lg:max-w-[22rem]">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+              Presentation
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+              Box, dust bag, paper, authenticity, and care. The object extends beyond
+              the glove and the experience begins before opening.
+            </p>
+          </div>
 
-            <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-              {[
-                "Inquiry replaces conventional checkout.",
-                "Availability is confirmed directly.",
-                "Presentation is part of the product, not an afterthought.",
-              ].map((item) => (
-                <div key={item} className="py-4 sm:py-5">
-                  <p className="text-sm leading-7 text-white/68 sm:leading-8">{item}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/acquisition")}
-                className="w-full rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
-              >
-                Explore Acquisition
-              </Button>
-            </div>
+          <div className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/acquisition")}
+              className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Explore Acquisition
+            </Button>
           </div>
         </div>
       </div>
