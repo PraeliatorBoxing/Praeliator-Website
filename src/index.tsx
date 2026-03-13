@@ -1499,7 +1499,7 @@ export default function PraeliatorWebsite() {
               ],
               [
                 "4-way stretch lining",
-                "The internal lining is chosen to suport comfort, fit response, and sustained use in training.",
+                "The internal lining is chosen to support comfort, fit response, and sustained use in training.",
               ],
               [
                 "Extended lace-up cuff",
