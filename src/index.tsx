@@ -1688,14 +1688,62 @@ export default function PraeliatorWebsite() {
           </button>
 
           <nav className="hidden items-center gap-6 text-sm text-white/70 lg:flex xl:gap-8">
-            <button type="button" onClick={() => goTo("/collection")} className="transition hover:text-white">Collection</button>
-            <button type="button" onClick={() => goTo("/praeliator-vis")} className="transition hover:text-white">VIS</button>
-            <button type="button" onClick={() => goTo("/acquisition")} className="transition hover:text-white">Acquisition</button>
-            <button type="button" onClick={() => goTo("/trust")} className="transition hover:text-white">Trust</button>
-            <button type="button" onClick={() => goTo("/experience")} className="transition hover:text-white">Experience</button>
-            <button type="button" onClick={() => goTo("/clients")} className="transition hover:text-white">Clients</button>
-            <button type="button" onClick={() => goTo("/waitlist")} className="transition hover:text-white">Waitlist</button>
-            <button type="button" onClick={() => goTo("/contact")} className="transition hover:text-white">Contact</button>
+            <button
+              type="button"
+              onClick={() => goTo("/collection")}
+              className="transition hover:text-white"
+            >
+              Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/praeliator-vis")}
+              className="transition hover:text-white"
+            >
+              VIS
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/acquisition")}
+              className="transition hover:text-white"
+            >
+              Acquisition
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/trust")}
+              className="transition hover:text-white"
+            >
+              Trust
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/experience")}
+              className="transition hover:text-white"
+            >
+              Experience
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/clients")}
+              className="transition hover:text-white"
+            >
+              Clients
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/waitlist")}
+              className="transition hover:text-white"
+            >
+              Waitlist
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/contact")}
+              className="transition hover:text-white"
+            >
+              Contact
+            </button>
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
@@ -1719,6 +1767,7 @@ export default function PraeliatorWebsite() {
                 Join Waitlist
               </Button>
             )}
+
             <Button
               asChild
               className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
@@ -1738,6 +1787,7 @@ export default function PraeliatorWebsite() {
                 Buy
               </a>
             </Button>
+
             <button
               type="button"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -1772,6 +1822,7 @@ export default function PraeliatorWebsite() {
                   <ChevronRight className="h-4 w-4 text-white/35" />
                 </button>
               ))}
+
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <Button
                   type="button"
@@ -1781,6 +1832,7 @@ export default function PraeliatorWebsite() {
                 >
                   {route !== "/" ? "Return Home" : "Join Waitlist"}
                 </Button>
+
                 <Button
                   asChild
                   className="h-12 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
@@ -1807,13 +1859,50 @@ export default function PraeliatorWebsite() {
             </p>
             <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
           </div>
+
           <div className="flex flex-wrap gap-4 sm:gap-6">
-            <button type="button" onClick={() => goTo("/collection")} className="transition hover:text-white">Collection</button>
-            <button type="button" onClick={() => goTo("/praeliator-vis")} className="transition hover:text-white">VIS</button>
-            <button type="button" onClick={() => goTo("/acquisition")} className="transition hover:text-white">Acquisition</button>
-            <button type="button" onClick={() => goTo("/trust")} className="transition hover:text-white">Trust</button>
-            <button type="button" onClick={() => goTo("/waitlist")} className="transition hover:text-white">Waitlist</button>
-            <button type="button" onClick={() => goTo("/contact")} className="transition hover:text-white">Contact</button>
+            <button
+              type="button"
+              onClick={() => goTo("/collection")}
+              className="transition hover:text-white"
+            >
+              Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/praeliator-vis")}
+              className="transition hover:text-white"
+            >
+              VIS
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/acquisition")}
+              className="transition hover:text-white"
+            >
+              Acquisition
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/trust")}
+              className="transition hover:text-white"
+            >
+              Trust
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/waitlist")}
+              className="transition hover:text-white"
+            >
+              Waitlist
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/contact")}
+              className="transition hover:text-white"
+            >
+              Contact
+            </button>
           </div>
         </div>
       </footer>
