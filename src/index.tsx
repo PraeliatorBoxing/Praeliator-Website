@@ -501,9 +501,7 @@ function LuxuryImagePanel({
   const isInteractive = typeof onClick === "function";
 
   const sharedClassName = `group relative block w-full overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.40)] transition duration-500 sm:rounded-[2rem] ${heightClass} ${
-    isInteractive
-      ? "cursor-pointer hover:-translate-y-1 hover:border-[#7a5d49]/45"
-      : ""
+    isInteractive ? "cursor-pointer hover:-translate-y-1 hover:border-[#7a5d49]/45" : ""
   }`;
 
   const content = (
@@ -1051,26 +1049,10 @@ export default function PraeliatorWebsite() {
             </p>
             <div className="mt-5 grid gap-4 sm:mt-6">
               {[
-                [
-                  "01",
-                  "Inquiry",
-                  "The client enters through WhatsApp or email rather than conventional checkout.",
-                ],
-                [
-                  "02",
-                  "Qualification",
-                  "Praeliator confirms intent, product interest, and the correct route for the client.",
-                ],
-                [
-                  "03",
-                  "Confirmation",
-                  "Availability, delivery scope, and next steps are clarified directly.",
-                ],
-                [
-                  "04",
-                  "Acquisition",
-                  "Purchase is completed through private client communication rather than a mass-market transaction flow.",
-                ],
+                ["01", "Inquiry", "The client enters through WhatsApp or email rather than conventional checkout."],
+                ["02", "Qualification", "Praeliator confirms intent, product interest, and the correct route for the client."],
+                ["03", "Confirmation", "Availability, delivery scope, and next steps are clarified directly."],
+                ["04", "Acquisition", "Purchase is completed through private client communication rather than a mass-market transaction flow."],
               ].map(([step, title, text]) => (
                 <div
                   key={step}
@@ -1095,22 +1077,10 @@ export default function PraeliatorWebsite() {
             <div className="mt-5 grid gap-4 sm:mt-6">
               {[
                 ["How do I buy?", "Through direct inquiry, not open checkout."],
-                [
-                  "Is VIS always available?",
-                  "Availability is confirmed directly through client service.",
-                ],
-                [
-                  "What is included?",
-                  "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
-                ],
-                [
-                  "Is there aftercare?",
-                  "Yes. Praeliator Legacy Refresh is available after the first year.",
-                ],
-                [
-                  "Do you ship internationally?",
-                  "Shipping scope is confirmed during inquiry based on destination.",
-                ],
+                ["Is VIS always available?", "Availability is confirmed directly through client service."],
+                ["What is included?", "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card."],
+                ["Is there aftercare?", "Yes. Praeliator Legacy Refresh is available after the first year."],
+                ["Do you ship internationally?", "Shipping scope is confirmed during inquiry based on destination."],
               ].map(([q, a]) => (
                 <div
                   key={q}
@@ -1491,22 +1461,10 @@ export default function PraeliatorWebsite() {
 
             <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
               {[
-                [
-                  "Top-grain cowhide leather",
-                  "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface.",
-                ],
-                [
-                  "Four-layer impact structure",
-                  "Multi-foam, EVA, and dual natural latex layers define the internal protection system.",
-                ],
-                [
-                  "4-way stretch lining",
-                  "The internal lining is chosen to support comfort, fit response, and sustained use in training.",
-                ],
-                [
-                  "Extended lace-up cuff",
-                  "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk.",
-                ],
+                ["Top-grain cowhide leather", "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface."],
+                ["Four-layer impact structure", "Multi-foam, EVA, and dual natural latex layers define the internal protection system."],
+                ["4-way stretch lining", "The internal lining is chosen to support comfort, fit response, and sustained use in training."],
+                ["Extended lace-up cuff", "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk."],
               ].map(([title, text]) => (
                 <div key={title} className="py-5 sm:py-6">
                   <h3 className="text-base font-medium sm:text-lg">{title}</h3>
@@ -1525,22 +1483,10 @@ export default function PraeliatorWebsite() {
 
             <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
               {[
-                [
-                  "Hand-assembled",
-                  "Each pair is hand-assembled rather than presented as anonymous mass production.",
-                ],
-                [
-                  "Made in Pakistan",
-                  "The manufacturing origin is stated directly rather than hidden behind vague brand language.",
-                ],
-                [
-                  "Authenticity card included",
-                  "Presentation includes an authenticity card to reinforce legitimacy and ownership.",
-                ],
-                [
-                  "Legacy Refresh service",
-                  "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one.",
-                ],
+                ["Hand-assembled", "Each pair is hand-assembled rather than presented as anonymous mass production."],
+                ["Made in Pakistan", "The manufacturing origin is stated directly rather than hidden behind vague brand language."],
+                ["Authenticity card included", "Presentation includes an authenticity card to reinforce legitimacy and ownership."],
+                ["Legacy Refresh service", "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one."],
               ].map(([title, text]) => (
                 <div key={title} className="py-5 sm:py-6">
                   <h3 className="text-base font-medium sm:text-lg">{title}</h3>
@@ -2067,15 +2013,11 @@ export default function PraeliatorWebsite() {
             onClick={() => goTo("/")}
             className="flex min-w-0 items-center gap-3 text-left"
           >
-            <div className="h-8 w-8 shrink-0 rounded-full border border-[#5b4638] bg-[#151210] sm:h-9 sm:w-9" />
-            <div className="min-w-0">
-              <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:text-xs sm:tracking-[0.35em]">
-                Praeliator
-              </p>
-              <p className="truncate text-[10px] uppercase tracking-[0.20em] text-white/45 sm:text-[11px] sm:tracking-[0.28em]">
-                {currentPageTitle}
-              </p>
-            </div>
+            <img
+              src="/logo-header.png"
+              alt="Praeliator"
+              className="h-10 w-auto shrink-0 object-contain sm:h-12"
+            />
           </button>
 
           <nav className="hidden items-center gap-6 text-sm text-white/70 lg:flex xl:gap-8">
