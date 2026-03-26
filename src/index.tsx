@@ -4,6 +4,7 @@ import { Button } from "./components/ui/button";
 import {
   AnimatePresence,
   motion,
+  useReducedMotion,
   useScroll,
   useTransform,
 } from "framer-motion";
@@ -314,38 +315,49 @@ const routeTitles: Record<Route, string> = {
   "/contact": "Contact",
 };
 
+const navItems: Array<{ label: string; path: Route }> = [
+  { label: "Collection", path: "/collection" },
+  { label: "VIS", path: "/praeliator-vis" },
+  { label: "Acquisition", path: "/acquisition" },
+  { label: "Trust", path: "/trust" },
+  { label: "Experience", path: "/experience" },
+  { label: "Clients", path: "/clients" },
+  { label: "Waitlist", path: "/waitlist" },
+  { label: "Contact", path: "/contact" },
+];
+
 const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 26 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, ease: easeOut },
+    transition: { duration: 0.82, ease: easeOut },
   },
 };
 
-const staggerSlow = {
+const staggerSoft = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.08,
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
     },
   },
 };
 
 const pageTransition = {
-  initial: { opacity: 0, y: 16 },
+  initial: { opacity: 0, y: 12 },
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: easeOut },
+    transition: { duration: 0.72, ease: easeOut },
   },
   exit: {
     opacity: 0,
-    y: 10,
-    transition: { duration: 0.45, ease: easeOut },
+    y: 8,
+    transition: { duration: 0.36, ease: easeOut },
   },
 };
 
@@ -413,11 +425,11 @@ function Reveal({
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
       variants={{
-        hidden: { opacity: 0, y: 24 },
+        hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.85, delay, ease: easeOut },
+          transition: { duration: 0.82, delay, ease: easeOut },
         },
       }}
     >
@@ -426,7 +438,7 @@ function Reveal({
   );
 }
 
-function RevealStagger({
+function RevealGroup({
   children,
   className = "",
 }: {
@@ -439,7 +451,7 @@ function RevealStagger({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
-      variants={staggerSlow}
+      variants={staggerSoft}
     >
       {children}
     </motion.div>
@@ -454,10 +466,7 @@ function InfoPill({
   value: string;
 }) {
   return (
-    <motion.div
-      variants={fadeUp}
-      className="border-t border-white/10 pt-3 sm:pt-4"
-    >
+    <motion.div variants={fadeUp} className="border-t border-white/10 pt-3 sm:pt-4">
       <p className="text-[10px] uppercase tracking-[0.18em] text-white/38 sm:text-[11px] sm:tracking-[0.22em]">
         {label}
       </p>
@@ -491,17 +500,18 @@ function LuxuryImagePanel({
 }) {
   const isInteractive = typeof onClick === "function";
 
-  const className = `group relative block w-full overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.40)] sm:rounded-[2rem] ${heightClass}`;
+  const sharedClassName = `group relative block w-full overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.40)] transition duration-500 sm:rounded-[2rem] ${heightClass} ${
+    isInteractive
+      ? "cursor-pointer hover:-translate-y-1 hover:border-[#7a5d49]/45"
+      : ""
+  }`;
 
   const content = (
     <>
-      <motion.div
-        className="absolute inset-0 bg-cover bg-center"
+      <div
+        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.025]"
         style={{ backgroundImage: `url(${src})` }}
-        whileHover={isInteractive ? { scale: 1.035 } : undefined}
-        transition={{ duration: 1.2, ease: easeOut }}
       />
-
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.72)_0%,rgba(6,6,6,0.24)_24%,rgba(6,6,6,0.28)_52%,rgba(6,6,6,0.86)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
@@ -511,45 +521,26 @@ function LuxuryImagePanel({
         <>
           <div className="absolute left-5 right-5 top-5 z-10 sm:left-8 sm:right-8 sm:top-8">
             <div className="flex items-center justify-between gap-4">
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, ease: easeOut }}
-                className="text-[10px] uppercase tracking-[0.26em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.32em]"
-              >
+              <p className="text-[10px] uppercase tracking-[0.26em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.32em]">
                 {eyebrow}
-              </motion.p>
-
+              </p>
               <span className="hidden rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/48 sm:inline-block">
                 Editorial frame
               </span>
             </div>
 
-            <motion.h3
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.95, delay: 0.05, ease: easeOut }}
-              className="mt-4 max-w-[16rem] text-2xl font-semibold leading-[0.98] tracking-[-0.05em] text-[#f4efe7] sm:mt-5 sm:max-w-[21rem] sm:text-3xl md:text-[3.05rem]"
-            >
+            <h3 className="mt-4 max-w-[16rem] text-2xl font-semibold leading-[0.98] tracking-[-0.05em] text-[#f4efe7] sm:mt-5 sm:max-w-[21rem] sm:text-3xl md:text-[3.05rem]">
               {title}
-            </motion.h3>
+            </h3>
           </div>
 
           <div className="absolute bottom-5 left-5 right-5 z-10 sm:bottom-8 sm:left-8 sm:right-8">
             <div className="flex items-end justify-between gap-4">
               <div className="max-w-[18rem] sm:max-w-sm">
                 {description ? (
-                  <motion.p
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.85, delay: 0.12, ease: easeOut }}
-                    className="text-xs leading-6 text-white/70 sm:text-sm sm:leading-7"
-                  >
+                  <p className="text-xs leading-6 text-white/70 sm:text-sm sm:leading-7">
                     {description}
-                  </motion.p>
+                  </p>
                 ) : null}
               </div>
 
@@ -582,7 +573,6 @@ function LuxuryImagePanel({
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
               {eyebrow}
             </p>
-
             <span className="rounded-full border border-white/12 bg-black/20 px-3 py-1 text-[9px] uppercase tracking-[0.16em] text-white/45 sm:text-[10px]">
               Editorial frame
             </span>
@@ -592,7 +582,6 @@ function LuxuryImagePanel({
             <h3 className="max-w-[12ch] text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.35rem]">
               {title}
             </h3>
-
             {description ? (
               <p className="mt-3 max-w-[34rem] text-sm leading-6 text-white/68">
                 {description}
@@ -627,31 +616,18 @@ function LuxuryImagePanel({
 
   if (isInteractive) {
     return (
-      <motion.button
-        type="button"
-        onClick={onClick}
-        className={className}
-        initial={{ opacity: 0, y: 26 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.95, ease: easeOut }}
-        whileHover={{ y: -6 }}
-      >
-        {content}
-      </motion.button>
+      <Reveal>
+        <button type="button" onClick={onClick} className={sharedClassName}>
+          {content}
+        </button>
+      </Reveal>
     );
   }
 
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 26 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.95, ease: easeOut }}
-    >
-      {content}
-    </motion.div>
+    <Reveal>
+      <div className={sharedClassName}>{content}</div>
+    </Reveal>
   );
 }
 
@@ -693,9 +669,18 @@ export default function PraeliatorWebsite() {
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
-  const heroImageY = useTransform(scrollY, [0, 700], [0, 36]);
-  const heroTextY = useTransform(scrollY, [0, 700], [0, -16]);
+  const heroImageY = useTransform(
+    scrollY,
+    [0, 700],
+    reduceMotion ? [0, 0] : [0, 22]
+  );
+  const heroTextY = useTransform(
+    scrollY,
+    [0, 700],
+    reduceMotion ? [0, 0] : [0, -10]
+  );
 
   useEffect(() => {
     const handlePopState = () => {
@@ -836,14 +821,14 @@ export default function PraeliatorWebsite() {
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.22),transparent_34%)]" />
-        <div className="absolute inset-y-0 right-0 hidden w-[46%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.2),transparent_34%)]" />
+        <div className="absolute inset-y-0 right-0 hidden w-[44%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.06),transparent_72%)] lg:block" />
         <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.35),rgba(0,0,0,0))]" />
 
-        <div className="mx-auto grid max-w-[96rem] gap-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-10 lg:px-8 lg:py-20 xl:gap-14 xl:py-24">
+        <div className="mx-auto grid max-w-[96rem] gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-10 lg:px-8 lg:py-14 xl:gap-14 xl:py-16">
           <motion.div
             style={{ y: heroTextY }}
-            variants={staggerSlow}
+            variants={staggerSoft}
             initial="hidden"
             animate="visible"
             className="relative z-10 flex max-w-[34rem] flex-col justify-center"
@@ -858,7 +843,7 @@ export default function PraeliatorWebsite() {
 
             <motion.h1
               variants={fadeUp}
-              className="mt-6 max-w-[30rem] text-4xl font-semibold leading-[0.88] tracking-[-0.06em] sm:text-5xl md:text-7xl xl:text-[5.6rem]"
+              className="mt-5 max-w-[30rem] text-4xl font-semibold leading-[0.88] tracking-[-0.06em] sm:text-5xl md:text-7xl xl:text-[5.4rem]"
             >
               Praeliator VIS.
               <span className="mt-2 block max-w-[8ch] text-white/70">
@@ -868,15 +853,15 @@ export default function PraeliatorWebsite() {
 
             <motion.p
               variants={fadeUp}
-              className="mt-7 max-w-[28rem] text-sm leading-7 text-white/62 sm:text-base sm:leading-8 md:text-lg"
+              className="mt-6 max-w-[28rem] text-sm leading-7 text-white/62 sm:text-base sm:leading-8 md:text-lg"
             >
               A flagship training glove presented with restraint, material clarity, and a
-              more controlled route into the house.
+              quieter route into the house.
             </motion.p>
 
             <motion.div
               variants={fadeUp}
-              className="mt-8 grid gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4"
+              className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4"
             >
               <Button
                 type="button"
@@ -897,21 +882,21 @@ export default function PraeliatorWebsite() {
               </Button>
             </motion.div>
 
-            <RevealStagger className="mt-10 grid max-w-[26rem] grid-cols-2 gap-x-8 gap-y-6 sm:mt-12">
+            <RevealGroup className="mt-10 grid max-w-[26rem] grid-cols-2 gap-x-8 gap-y-6 sm:mt-11">
               <InfoPill label="Position" value="Flagship model" />
               <InfoPill label="Acquisition" value="Direct inquiry" />
               <div className="col-span-2 max-w-[12rem]">
                 <InfoPill label="Presentation" value="Luxury boxed" />
               </div>
-            </RevealStagger>
+            </RevealGroup>
           </motion.div>
 
           <motion.div
             style={{ y: heroImageY }}
-            initial={{ opacity: 0, x: 24 }}
+            initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.05, ease: easeOut }}
-            className="relative lg:-mr-6 xl:-mr-12"
+            transition={{ duration: 0.96, ease: easeOut }}
+            className="relative lg:-mr-4 xl:-mr-10"
           >
             <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
 
@@ -920,7 +905,7 @@ export default function PraeliatorWebsite() {
               eyebrow="Praeliator VIS"
               title="Direct acquisition."
               description="Flagship access through private client service."
-              heightClass="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem] xl:min-h-[50rem]"
+              heightClass="min-h-[24rem] sm:min-h-[31rem] lg:min-h-[42rem] xl:min-h-[46rem]"
               onClick={() => goTo("/praeliator-vis")}
               showCta
               ctaLabel="Explore"
@@ -930,18 +915,20 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#0d0c0b]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.18em] text-white/42 sm:gap-x-16 sm:text-sm sm:tracking-[0.26em]">
-            {audience.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
+        <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+          <Reveal>
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[11px] uppercase tracking-[0.18em] text-white/42 sm:gap-x-16 sm:text-sm sm:tracking-[0.26em]">
+              {audience.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24 xl:py-28">
         <div className="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:gap-14">
-          <Reveal delay={0.05}>
+          <Reveal delay={0.04}>
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.3em]">
               Flagship
             </p>
@@ -952,7 +939,7 @@ export default function PraeliatorWebsite() {
 
             <p className="mt-6 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
               One expression. One route. One product that defines how the brand is
-              understood before the first drop ever expands.
+              understood before expansion ever begins.
             </p>
 
             <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
@@ -975,10 +962,7 @@ export default function PraeliatorWebsite() {
             </div>
           </Reveal>
 
-          <Reveal
-            delay={0.12}
-            className="grid gap-8 border-t border-white/10 pt-6 lg:pt-0"
-          >
+          <Reveal delay={0.1} className="grid gap-8 border-t border-white/10 pt-6 lg:pt-0">
             <div className="lg:max-w-[24rem]">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
                 Acquisition
@@ -1015,35 +999,39 @@ export default function PraeliatorWebsite() {
 
       <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8 xl:py-20">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.34em]">
-              Private Access
-            </p>
+          <Reveal>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.34em]">
+                Private Access
+              </p>
 
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
-              Request acquisition or enter the waitlist.
-            </h2>
-          </div>
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
+                Request acquisition or enter the waitlist.
+              </h2>
+            </div>
+          </Reveal>
 
-          <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goTo("/waitlist")}
-              className="w-full rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
-            >
-              Join Waitlist
-            </Button>
+          <Reveal delay={0.08}>
+            <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/waitlist")}
+                className="w-full rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
+              >
+                Join Waitlist
+              </Button>
 
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
-            >
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Private Inquiry
-              </a>
-            </Button>
-          </div>
+              <Button
+                asChild
+                className="w-full rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto sm:py-6"
+              >
+                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  Private Inquiry
+                </a>
+              </Button>
+            </div>
+          </Reveal>
         </div>
       </section>
     </>
@@ -1056,99 +1044,103 @@ export default function PraeliatorWebsite() {
       description="The acquisition process is direct, controlled, and personal. This page clarifies what a serious buyer should expect before making contact."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:gap-8">
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Process
-          </p>
-          <div className="mt-5 grid gap-4 sm:mt-6">
-            {[
-              [
-                "01",
-                "Inquiry",
-                "The client enters through WhatsApp or email rather than conventional checkout.",
-              ],
-              [
-                "02",
-                "Qualification",
-                "Praeliator confirms intent, product interest, and the correct route for the client.",
-              ],
-              [
-                "03",
-                "Confirmation",
-                "Availability, delivery scope, and next steps are clarified directly.",
-              ],
-              [
-                "04",
-                "Acquisition",
-                "Purchase is completed through private client communication rather than a mass-market transaction flow.",
-              ],
-            ].map(([step, title, text]) => (
-              <div
-                key={step}
-                className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 sm:rounded-[1.5rem] sm:p-5"
-              >
-                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                  {step}
-                </p>
-                <h3 className="mt-2 text-lg font-semibold sm:text-xl">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
-              </div>
-            ))}
+        <Reveal>
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Process
+            </p>
+            <div className="mt-5 grid gap-4 sm:mt-6">
+              {[
+                [
+                  "01",
+                  "Inquiry",
+                  "The client enters through WhatsApp or email rather than conventional checkout.",
+                ],
+                [
+                  "02",
+                  "Qualification",
+                  "Praeliator confirms intent, product interest, and the correct route for the client.",
+                ],
+                [
+                  "03",
+                  "Confirmation",
+                  "Availability, delivery scope, and next steps are clarified directly.",
+                ],
+                [
+                  "04",
+                  "Acquisition",
+                  "Purchase is completed through private client communication rather than a mass-market transaction flow.",
+                ],
+              ].map(([step, title, text]) => (
+                <div
+                  key={step}
+                  className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 sm:rounded-[1.5rem] sm:p-5"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                    {step}
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold sm:text-xl">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Frequently Asked
-          </p>
-          <div className="mt-5 grid gap-4 sm:mt-6">
-            {[
-              ["How do I buy?", "Through direct inquiry, not open checkout."],
-              [
-                "Is VIS always available?",
-                "Availability is confirmed directly through client service.",
-              ],
-              [
-                "What is included?",
-                "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
-              ],
-              [
-                "Is there aftercare?",
-                "Yes. Praeliator Legacy Refresh is available after the first year.",
-              ],
-              [
-                "Do you ship internationally?",
-                "Shipping scope is confirmed during inquiry based on destination.",
-              ],
-            ].map(([q, a]) => (
-              <div
-                key={q}
-                className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 sm:rounded-[1.5rem] sm:p-5"
+        <Reveal delay={0.08}>
+          <div className="rounded-[1.5rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Frequently Asked
+            </p>
+            <div className="mt-5 grid gap-4 sm:mt-6">
+              {[
+                ["How do I buy?", "Through direct inquiry, not open checkout."],
+                [
+                  "Is VIS always available?",
+                  "Availability is confirmed directly through client service.",
+                ],
+                [
+                  "What is included?",
+                  "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
+                ],
+                [
+                  "Is there aftercare?",
+                  "Yes. Praeliator Legacy Refresh is available after the first year.",
+                ],
+                [
+                  "Do you ship internationally?",
+                  "Shipping scope is confirmed during inquiry based on destination.",
+                ],
+              ].map(([q, a]) => (
+                <div
+                  key={q}
+                  className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4 sm:rounded-[1.5rem] sm:p-5"
+                >
+                  <h3 className="text-base font-medium sm:text-lg">{q}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/65">{a}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+              <Button
+                asChild
+                className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
               >
-                <h3 className="text-base font-medium sm:text-lg">{q}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/65">{a}</p>
-              </div>
-            ))}
+                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  Private Purchase Inquiry
+                </a>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/contact")}
+                className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
+              >
+                Contact Page
+              </Button>
+            </div>
           </div>
-          <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
-            >
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Private Purchase Inquiry
-              </a>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goTo("/contact")}
-              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
-            >
-              Contact Page
-            </Button>
-          </div>
-        </div>
+        </Reveal>
       </div>
     </SectionFrame>
   );
@@ -1165,99 +1157,96 @@ export default function PraeliatorWebsite() {
           const isOdd = index % 2 === 1;
 
           return (
-            <motion.div
-              key={product.name}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.18 }}
-              transition={{ duration: 0.9, ease: easeOut }}
-              className={`grid gap-8 py-10 lg:items-center lg:gap-14 lg:py-16 ${
-                isOdd ? "lg:grid-cols-[1.08fr_0.92fr]" : "lg:grid-cols-[0.92fr_1.08fr]"
-              }`}
-            >
-              <div className={`${isOdd ? "lg:order-2 lg:pl-6 xl:pl-12" : "lg:pr-6 xl:pr-12"}`}>
-                <div
-                  className={`relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] shadow-[0_22px_70px_rgba(0,0,0,0.32)] sm:rounded-[2rem] ${
-                    index === 0
-                      ? "min-h-[24rem] sm:min-h-[30rem] lg:min-h-[36rem]"
-                      : index === 1
-                        ? "min-h-[18rem] sm:min-h-[22rem] lg:min-h-[24rem]"
-                        : "min-h-[20rem] sm:min-h-[24rem] lg:min-h-[28rem]"
-                  } ${isOdd ? "lg:mt-12" : ""}`}
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
-                  <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.72)_100%)]" />
+            <Reveal key={product.name}>
+              <div
+                className={`grid gap-8 py-10 lg:items-center lg:gap-14 lg:py-16 ${
+                  isOdd ? "lg:grid-cols-[1.08fr_0.92fr]" : "lg:grid-cols-[0.92fr_1.08fr]"
+                }`}
+              >
+                <div className={`${isOdd ? "lg:order-2 lg:pl-6 xl:pl-12" : "lg:pr-6 xl:pr-12"}`}>
+                  <div
+                    className={`relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] shadow-[0_22px_70px_rgba(0,0,0,0.32)] sm:rounded-[2rem] ${
+                      index === 0
+                        ? "min-h-[24rem] sm:min-h-[30rem] lg:min-h-[36rem]"
+                        : index === 1
+                          ? "min-h-[18rem] sm:min-h-[22rem] lg:min-h-[24rem]"
+                          : "min-h-[20rem] sm:min-h-[24rem] lg:min-h-[28rem]"
+                    } ${isOdd ? "lg:mt-12" : ""}`}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.14),transparent_34%)]" />
+                    <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.72)_100%)]" />
 
-                  <div className="relative flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
-                        {product.category}
-                      </p>
-                      <Package className="h-5 w-5 text-white/35" />
-                    </div>
+                    <div className="relative flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
+                      <div className="flex items-start justify-between gap-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px] sm:tracking-[0.28em]">
+                          {product.category}
+                        </p>
+                        <Package className="h-5 w-5 text-white/35" />
+                      </div>
 
-                    <div className="max-w-[16rem]">
-                      <h3 className="text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.5rem]">
-                        {product.name}
-                      </h3>
-                      <p className="mt-4 text-sm leading-7 text-white/55 sm:leading-8">
-                        {product.note}
-                      </p>
+                      <div className="max-w-[16rem]">
+                        <h3 className="text-[2rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-[2.5rem]">
+                          {product.name}
+                        </h3>
+                        <p className="mt-4 text-sm leading-7 text-white/55 sm:leading-8">
+                          {product.note}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className={`${isOdd ? "lg:order-1" : ""}`}>
-                <div className={`${isOdd ? "max-w-2xl" : "max-w-[38rem]"}`}>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-                    {product.category}
-                  </p>
+                <div className={`${isOdd ? "lg:order-1" : ""}`}>
+                  <div className={`${isOdd ? "max-w-2xl" : "max-w-[38rem]"}`}>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+                      {product.category}
+                    </p>
 
-                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-4xl md:text-[3.2rem]">
-                    {product.name}
-                  </h3>
+                    <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-4xl md:text-[3.2rem]">
+                      {product.name}
+                    </h3>
 
-                  <p className="mt-5 text-sm leading-7 text-white/65 sm:text-base sm:leading-8">
-                    {product.description}
-                  </p>
+                    <p className="mt-5 text-sm leading-7 text-white/65 sm:text-base sm:leading-8">
+                      {product.description}
+                    </p>
 
-                  <p className="mt-4 text-sm leading-7 text-white/45 sm:leading-8">
-                    {product.longDescription}
-                  </p>
+                    <p className="mt-4 text-sm leading-7 text-white/45 sm:leading-8">
+                      {product.longDescription}
+                    </p>
 
-                  <div className="mt-6 border-t border-white/10 pt-5">
-                    <p className="text-lg font-medium">{product.price}</p>
-                    <p className="mt-2 text-sm text-white/50">{product.note}</p>
-                  </div>
+                    <div className="mt-6 border-t border-white/10 pt-5">
+                      <p className="text-lg font-medium">{product.price}</p>
+                      <p className="mt-2 text-sm text-white/50">{product.note}</p>
+                    </div>
 
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <Button
-                      asChild
-                      className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
-                    >
-                      <a
-                        href={isVis ? whatsappVisLink : whatsappCollectorLink}
-                        target="_blank"
-                        rel="noreferrer"
+                    <div className="mt-8 flex flex-wrap gap-3">
+                      <Button
+                        asChild
+                        className="rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
                       >
-                        Request Acquisition
-                      </a>
-                    </Button>
+                        <a
+                          href={isVis ? whatsappVisLink : whatsappCollectorLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Request Acquisition
+                        </a>
+                      </Button>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => goTo(isVis ? "/praeliator-vis" : "/waitlist")}
-                      className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                    >
-                      {isVis ? "View VIS" : "Join Waitlist"}
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => goTo(isVis ? "/praeliator-vis" : "/waitlist")}
+                        className="rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                      >
+                        {isVis ? "View VIS" : "Join Waitlist"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </Reveal>
           );
         })}
       </div>
@@ -1271,81 +1260,85 @@ export default function PraeliatorWebsite() {
       description="Praeliator VIS is built for disciplined training and technical sparring. It is presented as a luxury acquisition: materially specific, visually controlled, and service-backed."
     >
       <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-10">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Flagship Product
-          </p>
+        <Reveal>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Flagship Product
+            </p>
 
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.045em] sm:mt-4 sm:text-4xl md:text-5xl">
-            Praeliator VIS
-          </h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.045em] sm:mt-4 sm:text-4xl md:text-5xl">
+              Praeliator VIS
+            </h2>
 
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
-            A 16 oz lace-up training glove built in top-grain cowhide leather with a
-            soft satin finish and a restrained two-tone character. Deep black remains
-            the primary visual read, while a minimal espresso tone reveals itself
-            depending on light direction.
-          </p>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
+              A 16 oz lace-up training glove built in top-grain cowhide leather with a
+              soft satin finish and a restrained two-tone character. Deep black remains
+              the primary visual read, while a minimal espresso tone reveals itself
+              depending on light direction.
+            </p>
 
-          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-3 sm:gap-6">
-            <InfoPill label="Weight" value="16 oz" />
-            <InfoPill label="Closure" value="Lace-up" />
-            <InfoPill label="Use" value="Training / sparring" />
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
-            <Button
-              asChild
-              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
-            >
-              <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                Private Purchase Inquiry
-              </a>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => goTo("/waitlist")}
-              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
-            >
-              Join Waitlist
-            </Button>
-          </div>
-        </div>
-
-        <div className="rounded-[1.6rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8 md:p-10">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Visual Identity
-          </p>
-
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
-            Minimal branding. Controlled presence.
-          </h3>
-
-          <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-            External branding is deliberately restrained. The primary visible marking is
-            a debossed PRAELIATOR logo on the wrist strap plate. The leather finish is
-            soft satin rather than gloss, and the black surface carries a subtle
-            espresso reveal under changing light.
-          </p>
-
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
-            <div className="py-4 sm:py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                Primary tone
-              </p>
-              <p className="mt-2 text-base font-medium sm:text-lg">Deep black</p>
+            <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-3 sm:gap-6">
+              <InfoPill label="Weight" value="16 oz" />
+              <InfoPill label="Closure" value="Lace-up" />
+              <InfoPill label="Use" value="Training / sparring" />
             </div>
 
-            <div className="py-4 sm:py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                Secondary tone
-              </p>
-              <p className="mt-2 text-base font-medium sm:text-lg">Espresso brown</p>
+            <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+              <Button
+                asChild
+                className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
+              >
+                <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+                  Private Purchase Inquiry
+                </a>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/waitlist")}
+                className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
+              >
+                Join Waitlist
+              </Button>
             </div>
           </div>
-        </div>
+        </Reveal>
+
+        <Reveal delay={0.08}>
+          <div className="rounded-[1.6rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8 md:p-10">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Visual Identity
+            </p>
+
+            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              Minimal branding. Controlled presence.
+            </h3>
+
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
+              External branding is deliberately restrained. The primary visible marking is
+              a debossed PRAELIATOR logo on the wrist strap plate. The leather finish is
+              soft satin rather than gloss, and the black surface carries a subtle
+              espresso reveal under changing light.
+            </p>
+
+            <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
+              <div className="py-4 sm:py-5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                  Primary tone
+                </p>
+                <p className="mt-2 text-base font-medium sm:text-lg">Deep black</p>
+              </div>
+
+              <div className="py-4 sm:py-5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                  Secondary tone
+                </p>
+                <p className="mt-2 text-base font-medium sm:text-lg">Espresso brown</p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
       </div>
 
       <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
@@ -1392,85 +1385,93 @@ export default function PraeliatorWebsite() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_1fr] lg:gap-8">
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Specifications
-          </p>
-          <div className="mt-5 grid gap-4 sm:mt-6">
-            {visSpecifications.map((item) => (
-              <div
-                key={item.label}
-                className="flex flex-col justify-between gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-center"
-              >
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40 sm:text-sm sm:tracking-[0.16em]">
-                  {item.label}
-                </p>
-                <p className="text-sm text-white/80 sm:text-right">{item.value}</p>
-              </div>
-            ))}
+        <Reveal>
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Specifications
+            </p>
+            <div className="mt-5 grid gap-4 sm:mt-6">
+              {visSpecifications.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex flex-col justify-between gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-center"
+                >
+                  <p className="text-xs uppercase tracking-[0.14em] text-white/40 sm:text-sm sm:tracking-[0.16em]">
+                    {item.label}
+                  </p>
+                  <p className="text-sm text-white/80 sm:text-right">{item.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Padding System
-          </p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
-            Four-layer impact structure
-          </h3>
-          <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
-            {visPaddingLayers.map((layer, index) => (
-              <div
-                key={`${layer}-${index}`}
-                className="grid gap-3 py-4 sm:grid-cols-[88px_1fr] sm:items-center sm:py-5"
-              >
-                <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
-                  Layer {index + 1}
-                </p>
-                <p className="text-base font-medium sm:text-lg">{layer}</p>
-              </div>
-            ))}
+        <Reveal delay={0.08}>
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Padding System
+            </p>
+            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              Four-layer impact structure
+            </h3>
+            <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
+              {visPaddingLayers.map((layer, index) => (
+                <div
+                  key={`${layer}-${index}`}
+                  className="grid gap-3 py-4 sm:grid-cols-[88px_1fr] sm:items-center sm:py-5"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 sm:text-[11px] sm:tracking-[0.22em]">
+                    Layer {index + 1}
+                  </p>
+                  <p className="text-base font-medium sm:text-lg">{layer}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       <div className="mt-6 grid gap-8 lg:mt-8 lg:grid-cols-[1fr_1fr] lg:gap-10">
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Packaging
-          </p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
-            Presented as acquisition, not shipment.
-          </h3>
-          <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
-            {visPackaging.map((item) => (
-              <div key={item} className="py-4 sm:py-5">
-                <p className="text-sm leading-7 text-white/80 sm:leading-8">{item}</p>
-              </div>
-            ))}
+        <Reveal>
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Packaging
+            </p>
+            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              Presented as acquisition, not shipment.
+            </h3>
+            <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
+              {visPackaging.map((item) => (
+                <div key={item} className="py-4 sm:py-5">
+                  <p className="text-sm leading-7 text-white/80 sm:leading-8">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Aftercare
-          </p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
-            Praeliator Legacy Refresh
-          </h3>
-          <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-            Available after the first year, this service extends the life and finish of
-            the glove through maintenance rather than replacement culture.
-          </p>
+        <Reveal delay={0.08}>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Aftercare
+            </p>
+            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+              Praeliator Legacy Refresh
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
+              Available after the first year, this service extends the life and finish of
+              the glove through maintenance rather than replacement culture.
+            </p>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
-            {visService.map((item) => (
-              <div key={item} className="py-4 sm:py-5">
-                <p className="text-sm leading-7 text-white/80 sm:leading-8">{item}</p>
-              </div>
-            ))}
+            <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
+              {visService.map((item) => (
+                <div key={item} className="py-4 sm:py-5">
+                  <p className="text-sm leading-7 text-white/80 sm:leading-8">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </SectionFrame>
   );
@@ -1482,144 +1483,154 @@ export default function PraeliatorWebsite() {
       description="Praeliator should not rely on hype to feel legitimate. This page communicates material seriousness, construction clarity, aftercare, and the logic behind the private client model."
     >
       <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-12">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Construction Integrity
-          </p>
+        <Reveal>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Construction Integrity
+            </p>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-            {[
-              [
-                "Top-grain cowhide leather",
-                "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface.",
-              ],
-              [
-                "Four-layer impact structure",
-                "Multi-foam, EVA, and dual natural latex layers define the internal protection system.",
-              ],
-              [
-                "4-way stretch lining",
-                "The internal lining is chosen to support comfort, fit response, and sustained use in training.",
-              ],
-              [
-                "Extended lace-up cuff",
-                "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk.",
-              ],
-            ].map(([title, text]) => (
-              <div key={title} className="py-5 sm:py-6">
-                <h3 className="text-base font-medium sm:text-lg">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">{text}</p>
-              </div>
-            ))}
+            <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              {[
+                [
+                  "Top-grain cowhide leather",
+                  "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface.",
+                ],
+                [
+                  "Four-layer impact structure",
+                  "Multi-foam, EVA, and dual natural latex layers define the internal protection system.",
+                ],
+                [
+                  "4-way stretch lining",
+                  "The internal lining is chosen to support comfort, fit response, and sustained use in training.",
+                ],
+                [
+                  "Extended lace-up cuff",
+                  "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk.",
+                ],
+              ].map(([title, text]) => (
+                <div key={title} className="py-5 sm:py-6">
+                  <h3 className="text-base font-medium sm:text-lg">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="rounded-[1.6rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Brand Assurance
-          </p>
+        <Reveal delay={0.08}>
+          <div className="rounded-[1.6rem] border border-[#5b4638]/45 bg-[linear-gradient(180deg,#171311_0%,#0d0b0a_100%)] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-8">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Brand Assurance
+            </p>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-            {[
-              [
-                "Hand-assembled",
-                "Each pair is hand-assembled rather than presented as anonymous mass production.",
-              ],
-              [
-                "Made in Pakistan",
-                "The manufacturing origin is stated directly rather than hidden behind vague brand language.",
-              ],
-              [
-                "Authenticity card included",
-                "Presentation includes an authenticity card to reinforce legitimacy and ownership.",
-              ],
-              [
-                "Legacy Refresh service",
-                "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one.",
-              ],
-            ].map(([title, text]) => (
-              <div key={title} className="py-5 sm:py-6">
-                <h3 className="text-base font-medium sm:text-lg">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">{text}</p>
-              </div>
-            ))}
+            <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              {[
+                [
+                  "Hand-assembled",
+                  "Each pair is hand-assembled rather than presented as anonymous mass production.",
+                ],
+                [
+                  "Made in Pakistan",
+                  "The manufacturing origin is stated directly rather than hidden behind vague brand language.",
+                ],
+                [
+                  "Authenticity card included",
+                  "Presentation includes an authenticity card to reinforce legitimacy and ownership.",
+                ],
+                [
+                  "Legacy Refresh service",
+                  "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one.",
+                ],
+              ].map(([title, text]) => (
+                <div key={title} className="py-5 sm:py-6">
+                  <h3 className="text-base font-medium sm:text-lg">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12">
-        <div>
+        <Reveal>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Trust Signals
+            </p>
+            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
+              What reinforces the house.
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
+              Trust improves when the brand speaks in specifics: what the client receives,
+              how the object is built, and what happens after delivery.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.08}>
+          <div className="divide-y divide-white/10 border-t border-white/10">
+            {[
+              {
+                title: "Authenticity",
+                text: "Presentation is specific: box, dust bag, wrapping paper, authenticity card, and care card.",
+              },
+              {
+                title: "Aftercare",
+                text: "A glove positioned as luxury should not end at delivery. Refresh service strengthens continuity and stewardship.",
+              },
+              {
+                title: "Private Client Logic",
+                text: "The inquiry-led model exists to preserve control, clarity, and a more tailored acquisition process.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="py-5 sm:py-6">
+                <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+
+      <Reveal delay={0.08} className="mt-10">
+        <div className="rounded-[1.6rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8 md:p-10">
           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Trust Signals
+            Why this matters
           </p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
-            What reinforces the house.
+          <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
+            Luxury without proof is decoration.
           </h3>
-          <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
-            Trust improves when the brand speaks in specifics: what the client receives,
-            how the object is built, and what happens after delivery.
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
+            Praeliator gains credibility when it speaks in specifics: material, thickness,
+            assembly, structure, service, and presentation. Trust architecture is not
+            filler. It is the layer that makes the brand feel deliberate rather than
+            theatrical.
           </p>
+          <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+            <Button
+              asChild
+              className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Discuss Acquisition
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/praeliator-vis")}
+              className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
+            >
+              View VIS
+            </Button>
+          </div>
         </div>
-
-        <div className="divide-y divide-white/10 border-t border-white/10">
-          {[
-            {
-              title: "Authenticity",
-              text: "Presentation is specific: box, dust bag, wrapping paper, authenticity card, and care card.",
-            },
-            {
-              title: "Aftercare",
-              text: "A glove positioned as luxury should not end at delivery. Refresh service strengthens continuity and stewardship.",
-            },
-            {
-              title: "Private Client Logic",
-              text: "The inquiry-led model exists to preserve control, clarity, and a more tailored acquisition process.",
-            },
-          ].map((item) => (
-            <div key={item.title} className="py-5 sm:py-6">
-              <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
-                {item.title}
-              </h3>
-              <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
-                {item.text}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-10 rounded-[1.6rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8 md:p-10">
-        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-          Why this matters
-        </p>
-        <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
-          Luxury without proof is decoration.
-        </h3>
-        <p className="mt-4 max-w-4xl text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
-          Praeliator gains credibility when it speaks in specifics: material, thickness,
-          assembly, structure, service, and presentation. Trust architecture is not
-          filler. It is the layer that makes the brand feel deliberate rather than
-          theatrical.
-        </p>
-        <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
-          <Button
-            asChild
-            className="w-full rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:w-auto"
-          >
-            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-              Discuss Acquisition
-            </a>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => goTo("/praeliator-vis")}
-            className="w-full rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto"
-          >
-            View VIS
-          </Button>
-        </div>
-      </div>
+      </Reveal>
     </SectionFrame>
   );
 
@@ -1630,42 +1641,46 @@ export default function PraeliatorWebsite() {
       description="This page explains the brand model: less transactional, more selective, more personal."
     >
       <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
-        <div>
-          <p className="max-w-sm text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-            The experience is designed to feel measured from first inquiry to final
-            delivery.
-          </p>
-        </div>
+        <Reveal>
+          <div>
+            <p className="max-w-sm text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              The experience is designed to feel measured from first inquiry to final
+              delivery.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="divide-y divide-white/10 border-t border-white/10">
-          {pillars.map((pillar, index) => {
-            const Icon = pillar.icon;
-            return (
-              <div
-                key={pillar.title}
-                className="grid gap-4 py-6 sm:grid-cols-[88px_1fr] sm:gap-6"
-              >
-                <div className="flex items-start gap-3 sm:block">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="mt-2 hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 sm:flex">
-                    <Icon className="h-4 w-4 text-[#b9a18d]" />
+        <Reveal delay={0.08}>
+          <div className="divide-y divide-white/10 border-t border-white/10">
+            {pillars.map((pillar, index) => {
+              const Icon = pillar.icon;
+              return (
+                <div
+                  key={pillar.title}
+                  className="grid gap-4 py-6 sm:grid-cols-[88px_1fr] sm:gap-6"
+                >
+                  <div className="flex items-start gap-3 sm:block">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div className="mt-2 hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 sm:flex">
+                      <Icon className="h-4 w-4 text-[#b9a18d]" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+                      {pillar.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-white/65 sm:text-base sm:leading-8">
+                      {pillar.text}
+                    </p>
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
-                    {pillar.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-white/65 sm:text-base sm:leading-8">
-                    {pillar.text}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </Reveal>
       </div>
     </SectionFrame>
   );
@@ -1677,37 +1692,41 @@ export default function PraeliatorWebsite() {
       description="This page isolates the intended audience so the brand feels exact rather than generic."
     >
       <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12">
-        <div>
-          <p className="max-w-sm text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-            The audience should read as specific, not broad. The page exists to narrow
-            the brand rather than widen it.
-          </p>
-        </div>
+        <Reveal>
+          <div>
+            <p className="max-w-sm text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              The audience should read as specific, not broad. The page exists to narrow
+              the brand rather than widen it.
+            </p>
+          </div>
+        </Reveal>
 
-        <div className="divide-y divide-white/10 border-t border-white/10">
-          {audience.map((item, index) => (
-            <div
-              key={item}
-              className="grid gap-4 py-5 sm:grid-cols-[72px_1fr] sm:gap-6 sm:py-6"
-            >
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
-              </div>
+        <Reveal delay={0.08}>
+          <div className="divide-y divide-white/10 border-t border-white/10">
+            {audience.map((item, index) => (
+              <div
+                key={item}
+                className="grid gap-4 py-5 sm:grid-cols-[72px_1fr] sm:gap-6 sm:py-6"
+              >
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                </div>
 
-              <div>
-                <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
-                  {item}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">
-                  A dedicated audience category within the Praeliator ecosystem, presented
-                  with sharper focus and stronger positioning.
-                </p>
+                <div>
+                  <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+                    {item}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-white/65 sm:leading-8">
+                    A dedicated audience category within the Praeliator ecosystem, presented
+                    with sharper focus and stronger positioning.
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </SectionFrame>
   );
@@ -1719,225 +1738,229 @@ export default function PraeliatorWebsite() {
       description="This page is dedicated to future-release demand, collector access, and waitlist intake routed directly to your email."
     >
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
-            Waitlist Logic
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
-            Why a waitlist matters
-          </h3>
-          <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
-            A luxury brand should not feel endlessly available. A dedicated waitlist page
-            strengthens demand, selectivity, and restraint.
-          </p>
+        <Reveal>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs sm:tracking-[0.28em]">
+              Waitlist Logic
+            </p>
+            <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+              Why a waitlist matters
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
+              A luxury brand should not feel endlessly available. A dedicated waitlist page
+              strengthens demand, selectivity, and restraint.
+            </p>
 
-          <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
-            {[
-              "Supports controlled access.",
-              "Separates intent from casual browsing.",
-              "Creates a cleaner path for future releases.",
-            ].map((item) => (
-              <div key={item} className="py-4 sm:py-5">
-                <p className="text-sm leading-7 text-white/65 sm:leading-8">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8 md:p-10">
-          <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
-            <input
-              name="fullName"
-              autoComplete="name"
-              value={waitlistForm.fullName}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
-              placeholder="Full name *"
-            />
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={waitlistForm.email}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
-              placeholder="Email address *"
-            />
-            <select
-              name="country"
-              value={waitlistForm.country}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              {countryOptions.map((option) => (
-                <option key={option.label} value={option.label}>
-                  {option.label}
-                </option>
+            <div className="mt-6 divide-y divide-white/10 border-t border-white/10 sm:mt-8">
+              {[
+                "Supports controlled access.",
+                "Separates intent from casual browsing.",
+                "Creates a cleaner path for future releases.",
+              ].map((item) => (
+                <div key={item} className="py-4 sm:py-5">
+                  <p className="text-sm leading-7 text-white/65 sm:leading-8">{item}</p>
+                </div>
               ))}
-            </select>
+            </div>
+          </div>
+        </Reveal>
 
-            <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
-              <select
-                name="phoneCountryCode"
-                value={waitlistForm.phoneCountryCode}
+        <Reveal delay={0.08}>
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:rounded-[2rem] sm:p-8 md:p-10">
+            <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
+              <input
+                name="fullName"
+                autoComplete="name"
+                value={waitlistForm.fullName}
                 onChange={handleWaitlistChange}
-                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-4 text-sm text-[#f4efe7] outline-none"
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
+                placeholder="Full name *"
+              />
+              <input
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={waitlistForm.email}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
+                placeholder="Email address *"
+              />
+              <select
+                name="country"
+                value={waitlistForm.country}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
               >
                 {countryOptions.map((option) => (
-                  <option key={`${option.label}-${option.code}`} value={option.code}>
-                    {`${option.code} · ${option.label}`}
+                  <option key={option.label} value={option.label}>
+                    {option.label}
                   </option>
                 ))}
               </select>
 
-              <input
-                name="whatsapp"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel-national"
-                value={waitlistForm.whatsapp}
+              <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
+                <select
+                  name="phoneCountryCode"
+                  value={waitlistForm.phoneCountryCode}
+                  onChange={handleWaitlistChange}
+                  className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-4 text-sm text-[#f4efe7] outline-none"
+                >
+                  {countryOptions.map((option) => (
+                    <option key={`${option.label}-${option.code}`} value={option.code}>
+                      {`${option.code} · ${option.label}`}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  name="whatsapp"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel-national"
+                  value={waitlistForm.whatsapp}
+                  onChange={handleWaitlistChange}
+                  className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
+                  placeholder="Phone number *"
+                />
+              </div>
+
+              <select
+                name="clientType"
+                value={waitlistForm.clientType}
                 onChange={handleWaitlistChange}
-                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
-                placeholder="Phone number *"
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Client type *</option>
+                <option value="Professional">Professional</option>
+                <option value="Amateur">Amateur</option>
+                <option value="Olympian">Olympian</option>
+                <option value="Collector">Collector</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <select
+                name="buyerProfile"
+                value={waitlistForm.buyerProfile}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Buyer profile *</option>
+                <option value="Personal use">Personal use</option>
+                <option value="Collector">Collector</option>
+                <option value="Gift">Gift</option>
+                <option value="Gym / team purchase">Gym / team purchase</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <select
+                name="trainingFrequency"
+                value={waitlistForm.trainingFrequency}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Training frequency</option>
+                <option value="Daily">Daily</option>
+                <option value="4–6 times per week">4–6 times per week</option>
+                <option value="2–3 times per week">2–3 times per week</option>
+                <option value="Occasionally">Occasionally</option>
+                <option value="Not applicable">Not applicable</option>
+              </select>
+
+              <select
+                name="timeline"
+                value={waitlistForm.timeline}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Purchase timeline *</option>
+                <option value="Ready now">Ready now</option>
+                <option value="Within 30 days">Within 30 days</option>
+                <option value="Within 3 months">Within 3 months</option>
+                <option value="Researching only">Researching only</option>
+              </select>
+
+              <select
+                name="productInterest"
+                value={waitlistForm.productInterest}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Product interest *</option>
+                <option value="Praeliator VIS">Praeliator VIS</option>
+                <option value="Collector Access">Collector Access</option>
+                <option value="Future Releases">Future Releases</option>
+                <option value="General Brand Interest">General Brand Interest</option>
+              </select>
+
+              <select
+                name="ounceInterest"
+                value={waitlistForm.ounceInterest}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Glove ounce interest</option>
+                <option value="10 oz">10 oz</option>
+                <option value="12 oz">12 oz</option>
+                <option value="14 oz">14 oz</option>
+                <option value="16 oz">16 oz</option>
+                <option value="Unsure">Unsure</option>
+              </select>
+
+              <select
+                name="contactPreference"
+                value={waitlistForm.contactPreference}
+                onChange={handleWaitlistChange}
+                className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
+              >
+                <option value="">Preferred contact method *</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Email">Email</option>
+                <option value="Either">Either</option>
+              </select>
+
+              <textarea
+                name="message"
+                value={waitlistForm.message}
+                onChange={handleWaitlistChange}
+                className="min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
+                placeholder="Add any relevant detail about intended use, fit preference, or purchase context"
               />
-            </div>
 
-            <select
-              name="clientType"
-              value={waitlistForm.clientType}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Client type *</option>
-              <option value="Professional">Professional</option>
-              <option value="Amateur">Amateur</option>
-              <option value="Olympian">Olympian</option>
-              <option value="Collector">Collector</option>
-              <option value="Other">Other</option>
-            </select>
+              <Button
+                type="submit"
+                disabled={waitlistState.loading}
+                className="h-14 w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {waitlistState.loading ? "Submitting..." : "Join Waitlist"}
+              </Button>
 
-            <select
-              name="buyerProfile"
-              value={waitlistForm.buyerProfile}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Buyer profile *</option>
-              <option value="Personal use">Personal use</option>
-              <option value="Collector">Collector</option>
-              <option value="Gift">Gift</option>
-              <option value="Gym / team purchase">Gym / team purchase</option>
-              <option value="Other">Other</option>
-            </select>
+              {waitlistState.success ? (
+                <p className="text-sm leading-6 text-[#d7c5ae]">
+                  You are on the list. The submission has been routed to
+                  praeliatorboxing@gmail.com.
+                </p>
+              ) : null}
 
-            <select
-              name="trainingFrequency"
-              value={waitlistForm.trainingFrequency}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Training frequency</option>
-              <option value="Daily">Daily</option>
-              <option value="4–6 times per week">4–6 times per week</option>
-              <option value="2–3 times per week">2–3 times per week</option>
-              <option value="Occasionally">Occasionally</option>
-              <option value="Not applicable">Not applicable</option>
-            </select>
+              {waitlistState.error ? (
+                <p className="text-sm leading-6 text-[#d99b8d]">{waitlistState.error}</p>
+              ) : null}
 
-            <select
-              name="timeline"
-              value={waitlistForm.timeline}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Purchase timeline *</option>
-              <option value="Ready now">Ready now</option>
-              <option value="Within 30 days">Within 30 days</option>
-              <option value="Within 3 months">Within 3 months</option>
-              <option value="Researching only">Researching only</option>
-            </select>
-
-            <select
-              name="productInterest"
-              value={waitlistForm.productInterest}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Product interest *</option>
-              <option value="Praeliator VIS">Praeliator VIS</option>
-              <option value="Collector Access">Collector Access</option>
-              <option value="Future Releases">Future Releases</option>
-              <option value="General Brand Interest">General Brand Interest</option>
-            </select>
-
-            <select
-              name="ounceInterest"
-              value={waitlistForm.ounceInterest}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Glove ounce interest</option>
-              <option value="10 oz">10 oz</option>
-              <option value="12 oz">12 oz</option>
-              <option value="14 oz">14 oz</option>
-              <option value="16 oz">16 oz</option>
-              <option value="Unsure">Unsure</option>
-            </select>
-
-            <select
-              name="contactPreference"
-              value={waitlistForm.contactPreference}
-              onChange={handleWaitlistChange}
-              className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none"
-            >
-              <option value="">Preferred contact method *</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Email">Email</option>
-              <option value="Either">Either</option>
-            </select>
-
-            <textarea
-              name="message"
-              value={waitlistForm.message}
-              onChange={handleWaitlistChange}
-              className="min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
-              placeholder="Add any relevant detail about intended use, fit preference, or purchase context"
-            />
-
-            <Button
-              type="submit"
-              disabled={waitlistState.loading}
-              className="h-14 w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {waitlistState.loading ? "Submitting..." : "Join Waitlist"}
-            </Button>
-
-            {waitlistState.success ? (
-              <p className="text-sm leading-6 text-[#d7c5ae]">
-                You are on the list. The submission has been routed to
+              <p className="text-xs leading-6 text-white/35">
+                Name, email, and phone fields are configured for autofill-friendly
+                behavior on compatible Apple devices and browsers.
+              </p>
+              <p className="text-xs leading-6 text-white/35">
+                The form now qualifies lead quality before the first reply by capturing
+                buyer profile, purchase timing, and training context.
+              </p>
+              <p className="text-xs leading-6 text-white/35">
+                This waitlist is wired to send submissions to your email. The first live
+                submission may require confirmation from a verification email sent to
                 praeliatorboxing@gmail.com.
               </p>
-            ) : null}
-
-            {waitlistState.error ? (
-              <p className="text-sm leading-6 text-[#d99b8d]">{waitlistState.error}</p>
-            ) : null}
-
-            <p className="text-xs leading-6 text-white/35">
-              Name, email, and phone fields are configured for autofill-friendly
-              behavior on compatible Apple devices and browsers.
-            </p>
-            <p className="text-xs leading-6 text-white/35">
-              The form now qualifies lead quality before the first reply by capturing
-              buyer profile, purchase timing, and training context.
-            </p>
-            <p className="text-xs leading-6 text-white/35">
-              This waitlist is wired to send submissions to your email. The first live
-              submission may require confirmation from a verification email sent to
-              praeliatorboxing@gmail.com.
-            </p>
-          </form>
-        </div>
+            </form>
+          </div>
+        </Reveal>
       </div>
     </SectionFrame>
   );
@@ -1948,65 +1971,67 @@ export default function PraeliatorWebsite() {
       title="Direct channels for private client communication."
       description="This page centralizes the channels that matter: WhatsApp, email, and Instagram."
     >
-      <div className="divide-y divide-white/10 border-t border-white/10">
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
-        >
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-              <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
+      <Reveal>
+        <div className="divide-y divide-white/10 border-t border-white/10">
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
+          >
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
+                <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">WhatsApp Client Service</p>
+                <p className="text-sm text-white/45">
+                  Preferred for private purchase inquiries
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium">WhatsApp Client Service</p>
-              <p className="text-sm text-white/45">
-                Preferred for private purchase inquiries
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-        </a>
+            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+          </a>
 
-        <a
-          href={emailLink}
-          className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
-        >
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-              <Mail className="h-5 w-5 text-[#b9a18d]" />
+          <a
+            href={emailLink}
+            className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
+          >
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
+                <Mail className="h-5 w-5 text-[#b9a18d]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Email</p>
+                <p className="text-sm text-white/45">
+                  For formal inquiries and brand communication
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-white/45">
-                For formal inquiries and brand communication
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-        </a>
+            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+          </a>
 
-        <a
-          href={instagramLink}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
-        >
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-              <Instagram className="h-5 w-5 text-[#b9a18d]" />
+          <a
+            href={instagramLink}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between gap-4 py-5 transition hover:bg-white/[0.02] sm:py-6"
+          >
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
+                <Instagram className="h-5 w-5 text-[#b9a18d]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Instagram</p>
+                <p className="text-sm text-white/45">
+                  Visual presence, updates, and brand atmosphere
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium">Instagram</p>
-              <p className="text-sm text-white/45">
-                Visual presence, updates, and brand atmosphere
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-        </a>
-      </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+          </a>
+        </div>
+      </Reveal>
     </SectionFrame>
   );
 
@@ -2054,62 +2079,16 @@ export default function PraeliatorWebsite() {
           </button>
 
           <nav className="hidden items-center gap-6 text-sm text-white/70 lg:flex xl:gap-8">
-            <button
-              type="button"
-              onClick={() => goTo("/collection")}
-              className="transition hover:text-white"
-            >
-              Collection
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/praeliator-vis")}
-              className="transition hover:text-white"
-            >
-              VIS
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/acquisition")}
-              className="transition hover:text-white"
-            >
-              Acquisition
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/trust")}
-              className="transition hover:text-white"
-            >
-              Trust
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/experience")}
-              className="transition hover:text-white"
-            >
-              Experience
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/clients")}
-              className="transition hover:text-white"
-            >
-              Clients
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/waitlist")}
-              className="transition hover:text-white"
-            >
-              Waitlist
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/contact")}
-              className="transition hover:text-white"
-            >
-              Contact
-            </button>
+            {navItems.map((item) => (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => goTo(item.path)}
+                className="transition hover:text-white"
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
@@ -2168,23 +2147,14 @@ export default function PraeliatorWebsite() {
         {mobileMenuOpen ? (
           <div className="border-t border-white/10 bg-[#0a0a0a] lg:hidden">
             <div className="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
-              {[
-                ["Collection", "/collection"],
-                ["VIS", "/praeliator-vis"],
-                ["Acquisition", "/acquisition"],
-                ["Trust", "/trust"],
-                ["Experience", "/experience"],
-                ["Clients", "/clients"],
-                ["Waitlist", "/waitlist"],
-                ["Contact", "/contact"],
-              ].map(([label, path]) => (
+              {navItems.map((item) => (
                 <button
-                  key={label}
+                  key={item.path}
                   type="button"
-                  onClick={() => goTo(path as Route)}
+                  onClick={() => goTo(item.path)}
                   className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/80 transition hover:bg-white/10"
                 >
-                  <span>{label}</span>
+                  <span>{item.label}</span>
                   <ChevronRight className="h-4 w-4 text-white/35" />
                 </button>
               ))}
@@ -2237,48 +2207,22 @@ export default function PraeliatorWebsite() {
           </div>
 
           <div className="flex flex-wrap gap-4 sm:gap-6">
-            <button
-              type="button"
-              onClick={() => goTo("/collection")}
-              className="transition hover:text-white"
-            >
-              Collection
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/praeliator-vis")}
-              className="transition hover:text-white"
-            >
-              VIS
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/acquisition")}
-              className="transition hover:text-white"
-            >
-              Acquisition
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/trust")}
-              className="transition hover:text-white"
-            >
-              Trust
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/waitlist")}
-              className="transition hover:text-white"
-            >
-              Waitlist
-            </button>
-            <button
-              type="button"
-              onClick={() => goTo("/contact")}
-              className="transition hover:text-white"
-            >
-              Contact
-            </button>
+            {navItems
+              .filter((item) =>
+                ["/collection", "/praeliator-vis", "/acquisition", "/trust", "/waitlist", "/contact"].includes(
+                  item.path
+                )
+              )
+              .map((item) => (
+                <button
+                  key={item.path}
+                  type="button"
+                  onClick={() => goTo(item.path)}
+                  className="transition hover:text-white"
+                >
+                  {item.label}
+                </button>
+              ))}
           </div>
         </div>
       </footer>
