@@ -1,5 +1,4 @@
-import React from "react";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "./components/ui/button";
 import {
   AnimatePresence,
@@ -9,20 +8,19 @@ import {
   useTransform,
 } from "framer-motion";
 import {
-  MessageCircle,
-  ShieldCheck,
-  Crown,
-  ChevronRight,
-  Medal,
-  Gem,
-  Package,
-  Mail,
-  Instagram,
   ArrowLeft,
-  Menu,
-  X,
-  Play,
+  ChevronRight,
+  Crown,
+  Gem,
   Image as ImageIcon,
+  Instagram,
+  Mail,
+  Medal,
+  Menu,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  X,
 } from "lucide-react";
 
 const products = [
@@ -141,10 +139,6 @@ const audience = [
   "Private clients",
 ];
 
-/*
-  I kept this shorter so the file stays usable here.
-  If you want every country again, replace this with your old full array.
-*/
 const countryOptions = [
   { code: "+52", label: "Mexico" },
   { code: "+1", label: "United States" },
@@ -218,38 +212,38 @@ const navItems: Array<{ label: string; path: Route }> = [
 
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1.15, ease: easeLuxury },
-  },
-};
-
 const staggerSlow = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.11,
-      delayChildren: 0.08,
+      staggerChildren: 0.09,
+      delayChildren: 0.05,
     },
   },
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1, ease: easeLuxury },
+  },
+};
+
 const pageTransition = {
-  initial: { opacity: 0, y: 14, filter: "blur(6px)" },
+  initial: { opacity: 0, y: 8, filter: "blur(4px)" },
   animate: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1.2, ease: easeLuxury },
+    transition: { duration: 1.1, ease: easeLuxury },
   },
   exit: {
     opacity: 0,
-    y: 8,
-    filter: "blur(4px)",
-    transition: { duration: 0.7, ease: easeLuxury },
+    y: 6,
+    filter: "blur(3px)",
+    transition: { duration: 0.6, ease: easeLuxury },
   },
 };
 
@@ -280,7 +274,7 @@ function SectionFrame({
 }: {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -293,10 +287,13 @@ function SectionFrame({
         <h1 className="mt-4 text-3xl font-semibold tracking-[-0.045em] sm:text-4xl md:text-6xl">
           {title}
         </h1>
-        <p className="mt-5 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-          {description}
-        </p>
+        {description ? (
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+            {description}
+          </p>
+        ) : null}
       </div>
+
       <div className="mt-12 sm:mt-14">{children}</div>
     </section>
   );
@@ -314,17 +311,10 @@ function Reveal({
   return (
     <motion.div
       className={className}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.18 }}
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 1.05, delay, ease: easeLuxury },
-        },
-      }}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.16 }}
+      transition={{ duration: 1, delay, ease: easeLuxury }}
     >
       {children}
     </motion.div>
@@ -343,7 +333,7 @@ function RevealStagger({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.12 }}
+      viewport={{ once: true, amount: 0.14 }}
       variants={staggerSlow}
     >
       {children}
@@ -393,7 +383,7 @@ function LuxuryImagePanel({
 }) {
   const isInteractive = typeof onClick === "function";
 
-  const className = `group relative block w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.36)] sm:rounded-[2rem] ${heightClass}`;
+  const baseClass = `group relative block w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#11100f] text-left shadow-[0_28px_80px_rgba(0,0,0,0.36)] sm:rounded-[2rem] ${heightClass}`;
 
   const content = (
     <>
@@ -401,9 +391,9 @@ function LuxuryImagePanel({
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${src})` }}
         whileHover={isInteractive ? { scale: 1.02 } : undefined}
-        transition={{ duration: 1.6, ease: easeLuxury }}
+        transition={{ duration: 1.4, ease: easeLuxury }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.74)_0%,rgba(6,6,6,0.28)_26%,rgba(6,6,6,0.30)_56%,rgba(6,6,6,0.88)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.76)_0%,rgba(6,6,6,0.30)_25%,rgba(6,6,6,0.32)_55%,rgba(6,6,6,0.88)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.06),transparent_30%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_34%)]" />
       <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(9,9,9,0.74)_100%)]" />
@@ -514,9 +504,9 @@ function LuxuryImagePanel({
         <motion.button
           type="button"
           onClick={onClick}
-          className={className}
+          className={baseClass}
           whileHover={{ y: -4 }}
-          transition={{ duration: 0.9, ease: easeLuxury }}
+          transition={{ duration: 0.8, ease: easeLuxury }}
         >
           {content}
         </motion.button>
@@ -526,7 +516,7 @@ function LuxuryImagePanel({
 
   return (
     <Reveal>
-      <div className={className}>{content}</div>
+      <div className={baseClass}>{content}</div>
     </Reveal>
   );
 }
@@ -561,6 +551,7 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return "/";
     return normalizePath(window.location.pathname);
   });
+
   const [waitlistForm, setWaitlistForm] = useState(initialWaitlistForm);
   const [waitlistState, setWaitlistState] = useState({
     loading: false,
@@ -572,15 +563,17 @@ export default function PraeliatorWebsite() {
 
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
+
   const heroImageY = useTransform(
     scrollY,
     [0, 900],
-    reduceMotion ? [0, 0] : [0, 22]
+    reduceMotion ? [0, 0] : [0, 18]
   );
+
   const heroTextY = useTransform(
     scrollY,
     [0, 900],
-    reduceMotion ? [0, 0] : [0, -10]
+    reduceMotion ? [0, 0] : [0, -8]
   );
 
   useEffect(() => {
@@ -602,6 +595,7 @@ export default function PraeliatorWebsite() {
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
+
       if (current !== nextRoute) {
         window.history.pushState({}, "", nextRoute);
       }
@@ -629,6 +623,7 @@ export default function PraeliatorWebsite() {
 
     if (name === "country") {
       const selectedCountry = countryOptions.find((option) => option.label === value);
+
       setWaitlistForm((current) => ({
         ...current,
         country: value,
@@ -707,6 +702,7 @@ export default function PraeliatorWebsite() {
       });
 
       const result = await response.json();
+
       if (!response.ok || result?.success === "false") {
         throw new Error("Submission failed.");
       }
@@ -906,112 +902,57 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="border-t border-white/10 border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:gap-14">
-            <Reveal>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs">
-                  Moving Image
-                </p>
-                <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl md:text-4xl">
-                  A cinematic space for the brand.
-                </h2>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  This section gives the homepage more breath and gives the brand room to
-                  feel slower, more controlled, and more elevated.
-                </p>
-
-                <div className="mt-8">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/gallery")}
-                    className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    View Gallery
-                  </Button>
-                </div>
+      <section className="border-t border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
+        <div className="mx-auto max-w-[110rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <Reveal>
+            <div className="overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_30px_90px_rgba(0,0,0,0.36)]">
+              <div className="relative aspect-[16/8] sm:aspect-[16/7] lg:aspect-[16/6.4]">
+                <video
+                  className="h-full w-full object-cover"
+                  controls
+                  muted
+                  playsInline
+                  poster={visImageSources.videoPoster}
+                >
+                  <source src="/videos/praeliator-film.mp4" type="video/mp4" />
+                </video>
               </div>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#11100f] shadow-[0_26px_80px_rgba(0,0,0,0.34)]">
-                <div className="relative aspect-[16/9]">
-                  <video
-                    className="h-full w-full object-cover"
-                    controls
-                    muted
-                    playsInline
-                    poster={visImageSources.videoPoster}
-                  >
-                    <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-                  </video>
-
-                  <div className="pointer-events-none absolute left-5 top-5 rounded-full border border-white/12 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/62 backdrop-blur-sm">
-                    Brand Film
-                  </div>
-
-                  <div className="pointer-events-none absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full border border-white/12 bg-black/30 text-white/72 backdrop-blur-sm">
-                    <Play className="h-4 w-4" />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
-          <Reveal>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs">
-                Gallery
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl md:text-4xl">
-                A more visual proof of atmosphere.
-              </h2>
-              <p className="mt-5 max-w-sm text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                This preview extends the homepage and gives the brand an editorial rhythm
-                instead of a short landing-page feel.
-              </p>
+        <Reveal>
+          <div className="mb-8 border-b border-white/10 pb-5">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+              Gallery
+            </p>
+          </div>
+        </Reveal>
 
-              <div className="mt-8">
-                <Button
-                  type="button"
-                  onClick={() => goTo("/gallery")}
-                  className="rounded-full bg-[#efe5d7] px-6 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
-                >
-                  Open Full Gallery
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div className="grid grid-cols-2 gap-4 sm:gap-5">
-              {galleryImages.slice(0, 4).map((src, index) => (
-                <motion.button
-                  key={src}
-                  type="button"
-                  onClick={() => goTo("/gallery")}
-                  className={`group relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#11100f] shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${
-                    index === 0 || index === 3 ? "aspect-[4/5]" : "aspect-square"
-                  }`}
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.8, ease: easeLuxury }}
-                >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
-                    style={{ backgroundImage: `url(${src})` }}
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.52))]" />
-                </motion.button>
-              ))}
-            </div>
-          </Reveal>
-        </div>
+        <Reveal delay={0.08}>
+          <div className="grid grid-cols-2 gap-4 sm:gap-5">
+            {galleryImages.slice(0, 4).map((src, index) => (
+              <motion.button
+                key={src}
+                type="button"
+                onClick={() => goTo("/gallery")}
+                className={`group relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#11100f] shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${
+                  index === 0 || index === 3 ? "aspect-[4/5]" : "aspect-square"
+                }`}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.8, ease: easeLuxury }}
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
+                  style={{ backgroundImage: `url(${src})` }}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.46))]" />
+              </motion.button>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
@@ -1063,19 +1004,40 @@ export default function PraeliatorWebsite() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:gap-8">
         <Reveal>
           <div className="rounded-[1.6rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:p-8">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Process</p>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Process
+            </p>
+
             <div className="mt-5 grid gap-4 sm:mt-6">
               {[
-                ["01", "Inquiry", "The client enters through WhatsApp or email rather than conventional checkout."],
-                ["02", "Qualification", "Praeliator confirms intent, product interest, and the correct route for the client."],
-                ["03", "Confirmation", "Availability, delivery scope, and next steps are clarified directly."],
-                ["04", "Acquisition", "Purchase is completed through private client communication rather than a mass-market transaction flow."],
+                [
+                  "01",
+                  "Inquiry",
+                  "The client enters through WhatsApp or email rather than conventional checkout.",
+                ],
+                [
+                  "02",
+                  "Qualification",
+                  "Praeliator confirms intent, product interest, and the correct route for the client.",
+                ],
+                [
+                  "03",
+                  "Confirmation",
+                  "Availability, delivery scope, and next steps are clarified directly.",
+                ],
+                [
+                  "04",
+                  "Acquisition",
+                  "Purchase is completed through private client communication rather than a mass-market transaction flow.",
+                ],
               ].map(([step, title, text]) => (
                 <div
                   key={step}
                   className="rounded-[1.25rem] border border-white/10 bg-black/20 p-4 sm:p-5"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">{step}</p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+                    {step}
+                  </p>
                   <h3 className="mt-2 text-lg font-semibold sm:text-xl">{title}</h3>
                   <p className="mt-3 text-sm leading-7 text-white/65">{text}</p>
                 </div>
@@ -1089,13 +1051,26 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Frequently Asked
             </p>
+
             <div className="mt-5 grid gap-4 sm:mt-6">
               {[
                 ["How do I buy?", "Through direct inquiry, not open checkout."],
-                ["Is VIS always available?", "Availability is confirmed directly through client service."],
-                ["What is included?", "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card."],
-                ["Is there aftercare?", "Yes. Praeliator Legacy Refresh is available after the first year."],
-                ["Do you ship internationally?", "Shipping scope is confirmed during inquiry based on destination."],
+                [
+                  "Is VIS always available?",
+                  "Availability is confirmed directly through client service.",
+                ],
+                [
+                  "What is included?",
+                  "Presentation box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
+                ],
+                [
+                  "Is there aftercare?",
+                  "Yes. Praeliator Legacy Refresh is available after the first year.",
+                ],
+                [
+                  "Do you ship internationally?",
+                  "Shipping scope is confirmed during inquiry based on destination.",
+                ],
               ].map(([q, a]) => (
                 <div
                   key={q}
@@ -1106,6 +1081,7 @@ export default function PraeliatorWebsite() {
                 </div>
               ))}
             </div>
+
             <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
               <Button
                 asChild
@@ -1115,6 +1091,7 @@ export default function PraeliatorWebsite() {
                   Private Purchase Inquiry
                 </a>
               </Button>
+
               <Button
                 type="button"
                 variant="outline"
@@ -1148,7 +1125,9 @@ export default function PraeliatorWebsite() {
                   isOdd ? "lg:grid-cols-[1.08fr_0.92fr]" : "lg:grid-cols-[0.92fr_1.08fr]"
                 }`}
               >
-                <div className={`${isOdd ? "lg:order-2 lg:pl-6 xl:pl-12" : "lg:pr-6 xl:pr-12"}`}>
+                <div
+                  className={`${isOdd ? "lg:order-2 lg:pl-6 xl:pl-12" : "lg:pr-6 xl:pr-12"}`}
+                >
                   <div
                     className={`relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,#151210_0%,#0f0d0c_100%)] shadow-[0_22px_70px_rgba(0,0,0,0.32)] ${
                       index === 0
@@ -1375,6 +1354,7 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Specifications
             </p>
+
             <div className="mt-5 grid gap-4 sm:mt-6">
               {visSpecifications.map((item) => (
                 <div
@@ -1396,9 +1376,11 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Padding System
             </p>
+
             <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
               Four-layer impact structure
             </h3>
+
             <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
               {visPaddingLayers.map((layer, index) => (
                 <div
@@ -1422,9 +1404,11 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Packaging
             </p>
+
             <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
               Presented as acquisition, not shipment.
             </h3>
+
             <div className="mt-5 divide-y divide-white/10 border-t border-white/10 sm:mt-6">
               {visPackaging.map((item) => (
                 <div key={item} className="py-4 sm:py-5">
@@ -1440,9 +1424,11 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Aftercare
             </p>
+
             <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
               Praeliator Legacy Refresh
             </h3>
+
             <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
               Available after the first year, this service extends the life and finish of
               the glove through maintenance rather than replacement culture.
@@ -1476,10 +1462,22 @@ export default function PraeliatorWebsite() {
 
             <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
               {[
-                ["Top-grain cowhide leather", "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface."],
-                ["Four-layer impact structure", "Multi-foam, EVA, and dual natural latex layers define the internal protection system."],
-                ["4-way stretch lining", "The internal lining is chosen to support comfort, fit response, and sustained use in training."],
-                ["Extended lace-up cuff", "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk."],
+                [
+                  "Top-grain cowhide leather",
+                  "Built in top-grain cowhide with a 0.9–1.0 mm leather thickness for a controlled, premium surface.",
+                ],
+                [
+                  "Four-layer impact structure",
+                  "Multi-foam, EVA, and dual natural latex layers define the internal protection system.",
+                ],
+                [
+                  "4-way stretch lining",
+                  "The internal lining is chosen to support comfort, fit response, and sustained use in training.",
+                ],
+                [
+                  "Extended lace-up cuff",
+                  "The cuff and wrist structure are built to reinforce support rather than rely on superficial bulk.",
+                ],
               ].map(([title, text]) => (
                 <div key={title} className="py-5 sm:py-6">
                   <h3 className="text-base font-medium sm:text-lg">{title}</h3>
@@ -1498,10 +1496,22 @@ export default function PraeliatorWebsite() {
 
             <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
               {[
-                ["Hand-assembled", "Each pair is hand-assembled rather than presented as anonymous mass production."],
-                ["Made in Pakistan", "The manufacturing origin is stated directly rather than hidden behind vague brand language."],
-                ["Authenticity card included", "Presentation includes an authenticity card to reinforce legitimacy and ownership."],
-                ["Legacy Refresh service", "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one."],
+                [
+                  "Hand-assembled",
+                  "Each pair is hand-assembled rather than presented as anonymous mass production.",
+                ],
+                [
+                  "Made in Pakistan",
+                  "The manufacturing origin is stated directly rather than hidden behind vague brand language.",
+                ],
+                [
+                  "Authenticity card included",
+                  "Presentation includes an authenticity card to reinforce legitimacy and ownership.",
+                ],
+                [
+                  "Legacy Refresh service",
+                  "Praeliator supports long-term care through leather cleaning, conditioning, and lace replacement after year one.",
+                ],
               ].map(([title, text]) => (
                 <div key={title} className="py-5 sm:py-6">
                   <h3 className="text-base font-medium sm:text-lg">{title}</h3>
@@ -1519,9 +1529,11 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Trust Signals
             </p>
+
             <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">
               What reinforces the house.
             </h3>
+
             <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
               Trust improves when the brand speaks in specifics: what the client receives,
               how the object is built, and what happens after delivery.
@@ -1563,15 +1575,18 @@ export default function PraeliatorWebsite() {
           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
             Why this matters
           </p>
+
           <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:mt-4 sm:text-3xl">
             Luxury without proof is decoration.
           </h3>
+
           <p className="mt-4 max-w-4xl text-sm leading-7 text-white/65 sm:mt-5 sm:leading-8">
             Praeliator gains credibility when it speaks in specifics: material, thickness,
             assembly, structure, service, and presentation. Trust architecture is not
             filler. It is the layer that makes the brand feel deliberate rather than
             theatrical.
           </p>
+
           <div className="mt-6 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
             <Button
               asChild
@@ -1581,6 +1596,7 @@ export default function PraeliatorWebsite() {
                 Discuss Acquisition
               </a>
             </Button>
+
             <Button
               type="button"
               variant="outline"
@@ -1615,6 +1631,7 @@ export default function PraeliatorWebsite() {
           <div className="divide-y divide-white/10 border-t border-white/10">
             {pillars.map((pillar, index) => {
               const Icon = pillar.icon;
+
               return (
                 <div
                   key={pillar.title}
@@ -1624,6 +1641,7 @@ export default function PraeliatorWebsite() {
                     <span className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
+
                     <div className="mt-2 hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 sm:flex">
                       <Icon className="h-4 w-4 text-[#b9a18d]" />
                     </div>
@@ -1693,19 +1711,13 @@ export default function PraeliatorWebsite() {
   );
 
   const renderGalleryPage = () => (
-    <SectionFrame
-      eyebrow="Gallery"
-      title="An editorial space for ten images."
-      description="This page gives the brand a visual cadence. Replace each placeholder file with your final photography and it will feel much more expensive instantly."
-    >
+    <SectionFrame eyebrow="Gallery" title="Gallery">
       <Reveal>
         <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/10 pb-6">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-              Visual Archive
-            </p>
-            <p className="mt-2 text-sm text-white/52">
-              10-image grid, built to feel quiet, polished, and editorial.
+          <div className="flex items-center gap-3">
+            <ImageIcon className="h-4 w-4 text-[#b9a18d]" />
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs">
+              Gallery
             </p>
           </div>
 
@@ -1761,9 +1773,11 @@ export default function PraeliatorWebsite() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Waitlist Logic
             </p>
+
             <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
               Why a waitlist matters
             </h3>
+
             <p className="mt-4 text-sm leading-7 text-white/65 sm:leading-8">
               A luxury brand should not feel endlessly available. A dedicated waitlist page
               strengthens demand, selectivity, and restraint.
@@ -1794,6 +1808,7 @@ export default function PraeliatorWebsite() {
                 className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
                 placeholder="Full name *"
               />
+
               <input
                 name="email"
                 type="email"
@@ -1803,6 +1818,7 @@ export default function PraeliatorWebsite() {
                 className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none placeholder:text-white/30"
                 placeholder="Email address *"
               />
+
               <select
                 name="country"
                 value={waitlistForm.country}
@@ -1987,6 +2003,7 @@ export default function PraeliatorWebsite() {
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
                 <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
               </div>
+
               <div className="min-w-0">
                 <p className="text-sm font-medium">WhatsApp Client Service</p>
                 <p className="text-sm text-white/45">
@@ -1994,6 +2011,7 @@ export default function PraeliatorWebsite() {
                 </p>
               </div>
             </div>
+
             <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
           </a>
 
@@ -2005,6 +2023,7 @@ export default function PraeliatorWebsite() {
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
                 <Mail className="h-5 w-5 text-[#b9a18d]" />
               </div>
+
               <div className="min-w-0">
                 <p className="text-sm font-medium">Email</p>
                 <p className="text-sm text-white/45">
@@ -2012,6 +2031,7 @@ export default function PraeliatorWebsite() {
                 </p>
               </div>
             </div>
+
             <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
           </a>
 
@@ -2025,6 +2045,7 @@ export default function PraeliatorWebsite() {
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
                 <Instagram className="h-5 w-5 text-[#b9a18d]" />
               </div>
+
               <div className="min-w-0">
                 <p className="text-sm font-medium">Instagram</p>
                 <p className="text-sm text-white/45">
@@ -2032,6 +2053,7 @@ export default function PraeliatorWebsite() {
                 </p>
               </div>
             </div>
+
             <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
           </a>
         </div>
@@ -2075,11 +2097,11 @@ export default function PraeliatorWebsite() {
             onMouseLeave={() => setHomeHovered(false)}
             className="flex min-w-0 items-center gap-3 text-left"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
               <img
                 src="/logo-header.png"
                 alt="Praeliator"
-                className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+                className="h-full w-full object-cover scale-[0.88]"
               />
             </div>
 
