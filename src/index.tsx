@@ -559,7 +559,6 @@ export default function PraeliatorWebsite() {
     error: "",
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [homeHovered, setHomeHovered] = useState(false);
 
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
@@ -903,10 +902,10 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-t border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
-        <div className="mx-auto max-w-[110rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[92rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <Reveal>
             <div className="overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_30px_90px_rgba(0,0,0,0.36)]">
-              <div className="relative aspect-[16/8] sm:aspect-[16/7] lg:aspect-[16/6.4]">
+              <div className="relative mx-auto aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9] lg:max-w-[82rem]">
                 <video
                   className="h-full w-full object-cover"
                   controls
@@ -2090,30 +2089,32 @@ export default function PraeliatorWebsite() {
     <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
-          <button
+          <motion.button
             type="button"
             onClick={() => goTo("/")}
-            onMouseEnter={() => setHomeHovered(true)}
-            onMouseLeave={() => setHomeHovered(false)}
-            className="flex min-w-0 items-center gap-3 text-left"
+            whileHover={{ scale: 1.02, y: -1 }}
+            transition={{ duration: 0.55, ease: easeLuxury }}
+            className="group flex min-w-0 items-center gap-3 text-left"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
-              <img
-                src="/logo-header.png"
-                alt="Praeliator"
-                className="h-full w-full object-cover scale-[0.88]"
-              />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
+              <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
+                <img
+                  src="/logo-header.png"
+                  alt="Praeliator"
+                  className="h-full w-full object-contain object-center"
+                />
+              </div>
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] sm:text-xs sm:tracking-[0.35em]">
+              <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs sm:tracking-[0.35em]">
                 Praeliator
               </p>
               <p className="truncate text-[10px] uppercase tracking-[0.20em] text-white/45 sm:text-[11px] sm:tracking-[0.28em]">
-                {homeHovered ? "Resaltar" : currentPageTitle}
+                {currentPageTitle}
               </p>
             </div>
-          </button>
+          </motion.button>
 
           <nav className="hidden items-center gap-6 text-sm text-white/68 lg:flex xl:gap-8">
             {navItems.map((item) => (
