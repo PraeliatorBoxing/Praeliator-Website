@@ -1098,14 +1098,14 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-        <div className="grid gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 xl:gap-24">
           <Reveal>
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-xs">
                 Flagship
               </p>
 
-              <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl md:text-5xl">
+              <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-[1.02] tracking-[-0.05em] sm:text-4xl md:text-5xl">
                 The house begins with VIS.
               </h2>
 
@@ -1136,36 +1136,54 @@ export default function PraeliatorWebsite() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <div className="grid gap-8 border-t border-white/10 pt-6 lg:pt-0">
-              <div className="lg:max-w-[24rem]">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+            <div className="relative overflow-hidden rounded-[1.8rem] border border-[#5b4638]/35 bg-[linear-gradient(180deg,rgba(24,18,14,0.88)_0%,rgba(10,10,10,0.96)_100%)] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+              <div className="relative">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d] sm:text-[11px]">
                   Acquisition
                 </p>
-                <p className="mt-3 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  No open-cart theatre. No generic checkout energy. The route is quieter,
-                  more deliberate, and more aligned with the house.
-                </p>
-              </div>
 
-              <div className="lg:ml-auto lg:max-w-[22rem]">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                  Presentation
-                </p>
-                <p className="mt-3 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  Box, dust bag, paper, authenticity, and care. The object extends beyond
-                  the glove and the experience begins before opening.
-                </p>
-              </div>
+                <h3 className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-3xl">
+                  No open-cart theatre.
+                </h3>
 
-              <div className="pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => goTo("/acquisition")}
-                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                >
-                  Explore Acquisition
-                </Button>
+                <p className="mt-4 max-w-[34rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  No generic checkout energy. The route is quieter, more deliberate,
+                  and more aligned with the house.
+                </p>
+
+                <div className="mt-8 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-8">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                      Presentation
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                      Box, dust bag, paper, authenticity, and care. The object extends
+                      beyond the glove and the experience begins before opening.
+                    </p>
+                  </div>
+
+                  <div className="lg:border-l lg:border-white/10 lg:pl-8">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                      Route
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                      Inquiry, confirmation, and acquisition happen through direct
+                      contact. That is not a workaround. It is part of the positioning.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => goTo("/acquisition")}
+                    className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    Explore Acquisition
+                  </Button>
+                </div>
               </div>
             </div>
           </Reveal>
@@ -1174,11 +1192,11 @@ export default function PraeliatorWebsite() {
 
       <section className="relative bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/8" />
-        <div className="mx-auto max-w-[92rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[96rem] px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-28">
           <div ref={homeFilmRef}>
             <Reveal>
-              <div className="overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_30px_90px_rgba(0,0,0,0.36)]">
-                <div className="relative mx-auto aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9] lg:max-w-[82rem]">
+              <div className="overflow-hidden rounded-[2rem] bg-[#11100f] shadow-[0_40px_120px_rgba(0,0,0,0.45)]">
+                <div className="relative aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9]">
                   <video
                     className="h-full w-full object-cover"
                     autoPlay
@@ -1190,6 +1208,7 @@ export default function PraeliatorWebsite() {
                   >
                     <source src="/videos/praeliator-film.mp4" type="video/mp4" />
                   </video>
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.28))]" />
                 </div>
               </div>
             </Reveal>
