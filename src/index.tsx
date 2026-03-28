@@ -752,11 +752,18 @@ export default function PraeliatorWebsite() {
   useEffect(() => {
     if (reduceMotion) return;
 
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      (window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0);
+
+    if (isTouchDevice) return;
+
     const lenis = new Lenis({
-      duration: 1.45,
+      duration: 0.95,
       smoothWheel: true,
-      syncTouch: false,
-      touchMultiplier: 1,
+      wheelMultiplier: 0.9,
     });
 
     let rafId = 0;
@@ -843,8 +850,8 @@ export default function PraeliatorWebsite() {
             scrollTrigger: {
               trigger: homeFilmRef.current,
               start: "top 85%",
-              end: "bottom 30%",
-              scrub: 0.8,
+              end: "bottom 45%",
+              scrub: 0.35,
             },
           }
         );
@@ -1165,7 +1172,8 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="border-t border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
+      <section className="relative bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/8" />
         <div className="mx-auto max-w-[92rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <div ref={homeFilmRef}>
             <Reveal>
