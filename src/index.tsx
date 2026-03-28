@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Button } from "./components/ui/button";
 import {
   AnimatePresence,
@@ -6,7 +12,17 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
-} from "framer-motion";
+} from "motion/react";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import SplitType from "split-type";
+import useEmblaCarousel from "embla-carousel-react";
+import Fade from "embla-carousel-fade";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { ContactShadows, Environment, Float } from "@react-three/drei";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -22,6 +38,8 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const products = [
   {
@@ -216,34 +234,34 @@ const staggerSlow = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.09,
+      staggerChildren: 0.08,
       delayChildren: 0.05,
     },
   },
 };
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 1, ease: easeLuxury },
+    transition: { duration: 0.95, ease: easeLuxury },
   },
 };
 
 const pageTransition = {
-  initial: { opacity: 0, y: 12, filter: "blur(6px)" },
+  initial: { opacity: 0, y: 8, filter: "blur(4px)" },
   animate: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1.35, ease: easeLuxury },
+    transition: { duration: 1.05, ease: easeLuxury },
   },
   exit: {
     opacity: 0,
-    y: 10,
-    filter: "blur(5px)",
-    transition: { duration: 0.85, ease: easeLuxury },
+    y: 6,
+    filter: "blur(3px)",
+    transition: { duration: 0.55, ease: easeLuxury },
   },
 };
 
@@ -314,7 +332,7 @@ function Reveal({
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.16 }}
-      transition={{ duration: 1, delay, ease: easeLuxury }}
+      transition={{ duration: 0.95, delay, ease: easeLuxury }}
     >
       {children}
     </motion.div>
@@ -521,6 +539,145 @@ function LuxuryImagePanel({
   );
 }
 
+function FloatingGloveSculpt() {
+  const mesh = useRef<any>(null);
+
+  useFrame((state) => {
+    if (!mesh.current) return;
+    mesh.current.rotation.y = state.clock.getElapsedTime() * 0.25;
+    mesh.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.45) * 0.08;
+  });
+
+  return (
+    <Float speed={1.2} rotationIntensity={0.25} floatIntensity={0.6}>
+      <group ref={mesh} position={[0, 0.1, 0]}>
+        <mesh castShadow receiveShadow position={[0, 0, 0]}>
+          <sphereGeometry args={[1.02, 64, 64]} />
+          <meshStandardMaterial
+            color="#0f0f10"
+            metalness={0.35}
+            roughness={0.28}
+          />
+        </mesh>
+
+        <mesh castShadow position={[0.76, -0.2, 0]}>
+          <boxGeometry args={[0.7, 1.18, 1.08]} />
+          <meshStandardMaterial color="#151311" metalness={0.26} roughness={0.34} />
+        </mesh>
+
+        <mesh castShadow position={[-0.2, 0.12, 0.95]}>
+          <capsuleGeometry args={[0.12, 1.1, 8, 20]} />
+          <meshStandardMaterial color="#201814" metalness={0.18} roughness={0.38} />
+        </mesh>
+
+        <mesh castShadow position={[-0.02, 0.14, -0.95]}>
+          <capsuleGeometry args={[0.12, 1.1, 8, 20]} />
+          <meshStandardMaterial color="#201814" metalness={0.18} roughness={0.38} />
+        </mesh>
+
+        <mesh castShadow position={[0.24, 0.12, 0]}>
+          <capsuleGeometry args={[0.1, 0.92, 8, 20]} />
+          <meshStandardMaterial color="#c6a35a" metalness={0.72} roughness={0.22} />
+        </mesh>
+      </group>
+    </Float>
+  );
+}
+
+function Hero3DPanel() {
+  return (
+    <div className="relative h-[24rem] overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(28,22,18,0.8),rgba(10,10,10,1))] shadow-[0_30px_100px_rgba(0,0,0,0.42)] sm:h-[30rem] lg:h-[42rem]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_24%)]" />
+      <Canvas camera={{ position: [0, 0.6, 4.5], fov: 38 }}>
+        <ambientLight intensity={0.65} />
+        <directionalLight position={[3, 4, 4]} intensity={2.2} />
+        <directionalLight position={[-3, -2, -4]} intensity={0.4} />
+        <Environment preset="city" />
+        <FloatingGloveSculpt />
+        <ContactShadows
+          position={[0, -1.55, 0]}
+          opacity={0.45}
+          scale={7}
+          blur={2.5}
+          far={5}
+        />
+      </Canvas>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55))]" />
+    </div>
+  );
+}
+
+function LuxuryLoaderMark() {
+  return (
+    <div className="flex items-center gap-4 rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 backdrop-blur-sm">
+      <div className="h-12 w-12 overflow-hidden rounded-full border border-white/10 bg-black/20">
+        <DotLottieReact
+          src="/lottie/mark.lottie"
+          autoplay
+          loop
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+          Signature motion
+        </p>
+        <p className="mt-1 text-sm text-white/56">
+          Drop your `.lottie` mark in `/public/lottie/mark.lottie`
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function EmblaPreview({
+  images,
+  onOpenGallery,
+}: {
+  images: string[];
+  onOpenGallery: () => void;
+}) {
+  const [emblaRef] = useEmblaCarousel({ loop: true, duration: 28 }, [Fade()]);
+
+  return (
+    <Reveal>
+      <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#11100f] shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+            Gallery
+          </p>
+          <button
+            type="button"
+            onClick={onOpenGallery}
+            className="text-[10px] uppercase tracking-[0.24em] text-white/52 transition duration-500 hover:text-white"
+          >
+            Open full gallery
+          </button>
+        </div>
+
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {images.map((src, index) => (
+              <div key={src} className="min-w-0 flex-[0_0_100%]">
+                <div className="relative aspect-[4/3] sm:aspect-[16/8]">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${src})` }}
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1),rgba(0,0,0,0.45))]" />
+                  <div className="absolute left-4 top-4 rounded-full border border-white/12 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/60 backdrop-blur-sm">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
@@ -562,6 +719,9 @@ export default function PraeliatorWebsite() {
 
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
+  const heroTextRef = useRef<HTMLHeadingElement | null>(null);
+  const heroSectionRef = useRef<HTMLElement | null>(null);
+  const homeFilmRef = useRef<HTMLDivElement | null>(null);
 
   const heroImageY = useTransform(
     scrollY,
@@ -589,6 +749,110 @@ export default function PraeliatorWebsite() {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
 
+  useEffect(() => {
+    if (reduceMotion) return;
+
+    const lenis = new Lenis({
+      duration: 1.45,
+      smoothWheel: true,
+      syncTouch: false,
+      touchMultiplier: 1,
+    });
+
+    let rafId = 0;
+
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+
+    rafId = requestAnimationFrame(raf);
+
+    const onResize = () => {
+      ScrollTrigger.refresh();
+    };
+
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+      lenis.destroy();
+    };
+  }, [reduceMotion]);
+
+  useLayoutEffect(() => {
+    if (route !== "/" || reduceMotion || !heroTextRef.current) return;
+
+    const split = new SplitType(heroTextRef.current, {
+      types: "lines,words",
+      lineClass: "split-line",
+      wordClass: "split-word",
+    });
+
+    gsap.set(heroTextRef.current.querySelectorAll(".split-word"), {
+      yPercent: 110,
+      opacity: 0,
+    });
+
+    gsap.to(heroTextRef.current.querySelectorAll(".split-word"), {
+      yPercent: 0,
+      opacity: 1,
+      duration: 1.15,
+      ease: "power4.out",
+      stagger: 0.045,
+      delay: 0.1,
+    });
+
+    return () => {
+      split.revert();
+    };
+  }, [route, reduceMotion]);
+
+  useGSAP(
+    () => {
+      if (route !== "/" || reduceMotion) return;
+
+      if (heroSectionRef.current) {
+        const cards = heroSectionRef.current.querySelectorAll("[data-home-fade]");
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: heroSectionRef.current,
+              start: "top 75%",
+            },
+          }
+        );
+      }
+
+      if (homeFilmRef.current) {
+        gsap.fromTo(
+          homeFilmRef.current,
+          { scale: 0.96, opacity: 0.65 },
+          {
+            scale: 1,
+            opacity: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: homeFilmRef.current,
+              start: "top 85%",
+              end: "bottom 30%",
+              scrub: 0.8,
+            },
+          }
+        );
+      }
+    },
+    { dependencies: [route, reduceMotion] }
+  );
+
   const currentPageTitle = useMemo(() => routeTitles[route], [route]);
 
   const goTo = (nextRoute: Route) => {
@@ -599,9 +863,9 @@ export default function PraeliatorWebsite() {
         window.history.pushState({}, "", nextRoute);
       }
 
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+      }, 80);
     }
 
     setRoute(nextRoute);
@@ -720,7 +984,10 @@ export default function PraeliatorWebsite() {
 
   const renderHomePage = () => (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
+      <section
+        ref={heroSectionRef}
+        className="relative overflow-hidden border-b border-white/10"
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.18),transparent_36%)]" />
         <div className="absolute inset-y-0 right-0 hidden w-[44%] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.05),transparent_74%)] lg:block" />
         <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(0,0,0,0),rgba(185,161,141,0.30),rgba(0,0,0,0))]" />
@@ -733,7 +1000,7 @@ export default function PraeliatorWebsite() {
             animate="visible"
             className="relative z-10 flex max-w-[35rem] flex-col justify-center"
           >
-            <motion.div variants={fadeUp}>
+            <motion.div variants={fadeUp} data-home-fade>
               <div className="inline-flex w-fit items-center rounded-full border border-[#5b4638]/35 bg-[#120f0d]/80 px-3 py-1.5 backdrop-blur-sm">
                 <span className="text-[10px] uppercase tracking-[0.26em] text-[#d0b39b] sm:text-[11px]">
                   Luxury Boxing House
@@ -742,7 +1009,9 @@ export default function PraeliatorWebsite() {
             </motion.div>
 
             <motion.h1
+              ref={heroTextRef}
               variants={fadeUp}
+              data-home-fade
               className="mt-6 max-w-[31rem] text-4xl font-semibold leading-[0.88] tracking-[-0.06em] sm:text-5xl md:text-7xl xl:text-[5.4rem]"
             >
               Praeliator VIS.
@@ -753,6 +1022,7 @@ export default function PraeliatorWebsite() {
 
             <motion.p
               variants={fadeUp}
+              data-home-fade
               className="mt-7 max-w-[28rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-lg"
             >
               A flagship training glove presented with restraint, material clarity, and a
@@ -761,6 +1031,7 @@ export default function PraeliatorWebsite() {
 
             <motion.div
               variants={fadeUp}
+              data-home-fade
               className="mt-9 grid gap-3 sm:flex sm:flex-wrap sm:gap-4"
             >
               <Button
@@ -789,6 +1060,10 @@ export default function PraeliatorWebsite() {
                 <InfoPill label="Presentation" value="Luxury boxed" />
               </div>
             </RevealStagger>
+
+            <Reveal className="mt-8 max-w-[26rem]" delay={0.15}>
+              <LuxuryLoaderMark />
+            </Reveal>
           </motion.div>
 
           <motion.div
@@ -798,18 +1073,7 @@ export default function PraeliatorWebsite() {
             transition={{ duration: 1.3, ease: easeLuxury }}
             className="relative lg:-mr-4 xl:-mr-8"
           >
-            <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(198,163,90,0.08),transparent_60%)] blur-2xl sm:-inset-6 sm:rounded-[2.5rem]" />
-
-            <LuxuryImagePanel
-              src={visImageSources.hero}
-              eyebrow="Praeliator VIS"
-              title="Direct acquisition."
-              description="Flagship access through private client service."
-              heightClass="min-h-[25rem] sm:min-h-[32rem] lg:min-h-[44rem] xl:min-h-[48rem]"
-              onClick={() => goTo("/praeliator-vis")}
-              showCta
-              ctaLabel="Explore"
-            />
+            <Hero3DPanel />
           </motion.div>
         </div>
       </section>
@@ -901,57 +1165,35 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="relative border-y border-white/10 bg-black">
-        <div className="relative h-[72vh] min-h-[34rem] w-full overflow-hidden lg:h-[88vh]">
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={visImageSources.videoPoster}
-          >
-            <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-          </video>
-
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.58)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_34%)]" />
+      <section className="border-t border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
+        <div className="mx-auto max-w-[92rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <div ref={homeFilmRef}>
+            <Reveal>
+              <div className="overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_30px_90px_rgba(0,0,0,0.36)]">
+                <div className="relative mx-auto aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9] lg:max-w-[82rem]">
+                  <video
+                    className="h-full w-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    poster={visImageSources.videoPoster}
+                  >
+                    <source src="/videos/praeliator-film.mp4" type="video/mp4" />
+                  </video>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-        <Reveal>
-          <div className="mb-8 border-b border-white/10 pb-5">
-            <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-              Gallery
-            </p>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.08}>
-          <div className="grid grid-cols-2 gap-4 sm:gap-5">
-            {galleryImages.slice(0, 4).map((src, index) => (
-              <motion.button
-                key={src}
-                type="button"
-                onClick={() => goTo("/gallery")}
-                className={`group relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#11100f] shadow-[0_18px_50px_rgba(0,0,0,0.28)] ${
-                  index === 0 || index === 3 ? "aspect-[4/5]" : "aspect-square"
-                }`}
-                whileHover={{ y: -3 }}
-                transition={{ duration: 0.8, ease: easeLuxury }}
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
-                  style={{ backgroundImage: `url(${src})` }}
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.46))]" />
-              </motion.button>
-            ))}
-          </div>
-        </Reveal>
+        <EmblaPreview
+          images={galleryImages}
+          onOpenGallery={() => goTo("/gallery")}
+        />
       </section>
 
       <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
@@ -2096,12 +2338,14 @@ export default function PraeliatorWebsite() {
             transition={{ duration: 0.55, ease: easeLuxury }}
             className="group flex min-w-0 items-center gap-3 text-left"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[linear-gradient(180deg,#171311_0%,#100d0b_100%)] shadow-[0_0_0_1px_rgba(255,255,255,0.03)] sm:h-12 sm:w-12">
-              <img
-                src="/logo-header.png"
-                alt="Praeliator"
-                className="h-[74%] w-[74%] object-contain object-center"
-              />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
+              <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
+                <img
+                  src="/logo-header.png"
+                  alt="Praeliator"
+                  className="h-full w-full object-contain object-center"
+                />
+              </div>
             </div>
 
             <div className="min-w-0">
@@ -2120,9 +2364,10 @@ export default function PraeliatorWebsite() {
                 key={item.path}
                 type="button"
                 onClick={() => goTo(item.path)}
-                className="transition duration-500 hover:text-white"
+                className="relative transition duration-500 hover:text-white"
               >
-                {item.label}
+                <span>{item.label}</span>
+                {item.path === "/" ? null : null}
               </button>
             ))}
           </nav>
