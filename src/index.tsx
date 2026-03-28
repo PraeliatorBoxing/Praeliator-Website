@@ -232,18 +232,18 @@ const fadeUp = {
 };
 
 const pageTransition = {
-  initial: { opacity: 0, y: 8, filter: "blur(4px)" },
+  initial: { opacity: 0, y: 12, filter: "blur(6px)" },
   animate: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1.1, ease: easeLuxury },
+    transition: { duration: 1.35, ease: easeLuxury },
   },
   exit: {
     opacity: 0,
-    y: 6,
-    filter: "blur(3px)",
-    transition: { duration: 0.6, ease: easeLuxury },
+    y: 10,
+    filter: "blur(5px)",
+    transition: { duration: 0.85, ease: easeLuxury },
   },
 };
 
@@ -599,9 +599,9 @@ export default function PraeliatorWebsite() {
         window.history.pushState({}, "", nextRoute);
       }
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 90);
+      });
     }
 
     setRoute(nextRoute);
@@ -901,23 +901,23 @@ export default function PraeliatorWebsite() {
         </div>
       </section>
 
-      <section className="border-t border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#0a0a0a_100%)]">
-        <div className="mx-auto max-w-[92rem] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <Reveal>
-            <div className="overflow-hidden rounded-[1.9rem] border border-white/10 bg-[#11100f] shadow-[0_30px_90px_rgba(0,0,0,0.36)]">
-              <div className="relative mx-auto aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9] lg:max-w-[82rem]">
-                <video
-                  className="h-full w-full object-cover"
-                  controls
-                  muted
-                  playsInline
-                  poster={visImageSources.videoPoster}
-                >
-                  <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-                </video>
-              </div>
-            </div>
-          </Reveal>
+      <section className="relative border-y border-white/10 bg-black">
+        <div className="relative h-[72vh] min-h-[34rem] w-full overflow-hidden lg:h-[88vh]">
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={visImageSources.videoPoster}
+          >
+            <source src="/videos/praeliator-film.mp4" type="video/mp4" />
+          </video>
+
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.58)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_28%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_34%)]" />
         </div>
       </section>
 
@@ -2096,14 +2096,12 @@ export default function PraeliatorWebsite() {
             transition={{ duration: 0.55, ease: easeLuxury }}
             className="group flex min-w-0 items-center gap-3 text-left"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
-              <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
-                <img
-                  src="/logo-header.png"
-                  alt="Praeliator"
-                  className="h-full w-full object-contain object-center"
-                />
-              </div>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[linear-gradient(180deg,#171311_0%,#100d0b_100%)] shadow-[0_0_0_1px_rgba(255,255,255,0.03)] sm:h-12 sm:w-12">
+              <img
+                src="/logo-header.png"
+                alt="Praeliator"
+                className="h-[74%] w-[74%] object-contain object-center"
+              />
             </div>
 
             <div className="min-w-0">
