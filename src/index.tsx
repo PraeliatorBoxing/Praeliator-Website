@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
 import {
@@ -15,7 +16,6 @@ import {
   Mail,
   Menu,
   MessageCircle,
-  Search,
   X,
 } from "lucide-react";
 
@@ -32,9 +32,9 @@ const visSpecifications = [
   { label: "Thumb", value: "Attached thumb with safety strap" },
   { label: "Wrist", value: "Extended lace-up cuff · Structured wrist support" },
   { label: "Assembly", value: "Hand-assembled in Pakistan" },
-] as const;
+];
 
-const visPaddingLayers = ["Multi-foam", "EVA", "Natural latex", "Natural latex"] as const;
+const visPaddingLayers = ["Multi-foam", "EVA", "Natural latex", "Natural latex"];
 
 const visPackaging = [
   "Rigid presentation box",
@@ -42,13 +42,13 @@ const visPackaging = [
   "Silk wrapping paper",
   "Authenticity card",
   "Care card",
-] as const;
+];
 
 const visService = [
   "Leather cleaning",
   "Leather conditioning",
   "Lace replacement",
-] as const;
+];
 
 const visImageSources = {
   hero: "/images/vis-hero.jpg",
@@ -56,70 +56,29 @@ const visImageSources = {
   plate: "/images/vis-logo-detail.jpg",
   packaging: "/images/vis-packaging.jpg",
   videoPoster: "/images/video-poster.jpg",
-  galleryOne: "/images/gallery-01.jpg",
-  galleryTwo: "/images/gallery-03.jpg",
-  galleryThree: "/images/gallery-06.jpg",
-  galleryFour: "/images/gallery-09.jpg",
-} as const;
+};
 
-const titleOptions = [
-  "Mr.",
-  "Mrs.",
-  "Ms.",
-  "Miss",
-  "Mx.",
-  "Dr.",
-  "Prof.",
-  "Sir.",
-  "Dame",
-  "Lord",
-  "Lady",
-  "Prince",
-  "Princess",
-  "Sheikh",
-  "Sheikha",
-  "H.E.",
-  "H.E. Dr.",
-  "H.E. Mr.",
-  "H.E. Mrs.",
-  "H.H.",
-  "H.H. Prince",
-  "H.H. Sheikh",
-  "H.H. Sheikha",
-  "H.R.H.",
-  "H.R.H. Prince",
-  "H.R.H. Princess",
-  "Esq.",
-  "Captain",
-  "Chief",
-  "Dato",
-  "Dato Sri",
-  "Datin",
-  "Datin Sri",
-  "Puan Sri",
-  "Tan Sri",
-  "Reverend",
-  "Herr",
-  "Frau",
-  "Mdm.",
-  "Monsieur",
-  "Madame",
-  "Señor",
-  "Señora",
-  "Señorita",
-  "先生",
-  "女士",
-] as const;
+const galleryImages = [
+  "/images/gallery-01.jpg",
+  "/images/gallery-03.jpg",
+  "/images/gallery-06.jpg",
+  "/images/gallery-09.jpg",
+];
+
+const homeImageSources = {
+  hero: galleryImages[0],
+  videoPoster: galleryImages[1],
+  material: galleryImages[2],
+  presentation: galleryImages[3],
+};
 
 const countryOptions = [
   { code: "+93", label: "Afghanistan" },
   { code: "+355", label: "Albania" },
   { code: "+213", label: "Algeria" },
   { code: "+1684", label: "American Samoa" },
-  { code: "+376", label: "Andorra" },
   { code: "+244", label: "Angola" },
   { code: "+1264", label: "Anguilla" },
-  { code: "+672", label: "Antarctica" },
   { code: "+1268", label: "Antigua and Barbuda" },
   { code: "+54", label: "Argentina" },
   { code: "+374", label: "Armenia" },
@@ -127,7 +86,6 @@ const countryOptions = [
   { code: "+61", label: "Australia" },
   { code: "+43", label: "Austria" },
   { code: "+994", label: "Azerbaijan" },
-  { code: "+1242", label: "Bahamas" },
   { code: "+973", label: "Bahrain" },
   { code: "+880", label: "Bangladesh" },
   { code: "+1246", label: "Barbados" },
@@ -137,21 +95,16 @@ const countryOptions = [
   { code: "+229", label: "Benin" },
   { code: "+1441", label: "Bermuda" },
   { code: "+975", label: "Bhutan" },
-  { code: "+591", label: "Bolivia" },
-  { code: "+599", label: "Bonaire, Sint Eustatius and Saba" },
   { code: "+387", label: "Bosnia and Herzegovina" },
   { code: "+267", label: "Botswana" },
-  { code: "", label: "Bouvet Island" },
   { code: "+55", label: "Brazil" },
   { code: "+246", label: "British Indian Ocean Territory" },
-  { code: "+673", label: "Brunei" },
   { code: "+359", label: "Bulgaria" },
   { code: "+226", label: "Burkina Faso" },
   { code: "+257", label: "Burundi" },
   { code: "+855", label: "Cambodia" },
   { code: "+237", label: "Cameroon" },
   { code: "+1", label: "Canada" },
-  { code: "+238", label: "Cape Verde" },
   { code: "+1345", label: "Cayman Islands" },
   { code: "+236", label: "Central African Republic" },
   { code: "+235", label: "Chad" },
@@ -161,16 +114,11 @@ const countryOptions = [
   { code: "+61", label: "Cocos (Keeling) Islands" },
   { code: "+57", label: "Colombia" },
   { code: "+269", label: "Comoros" },
-  { code: "+242", label: "Congo" },
   { code: "+682", label: "Cook Islands" },
   { code: "+506", label: "Costa Rica" },
-  { code: "+225", label: "Cote d'Ivoire" },
   { code: "+385", label: "Croatia" },
   { code: "+53", label: "Cuba" },
-  { code: "+599", label: "Curacao" },
   { code: "+357", label: "Cyprus" },
-  { code: "+420", label: "Czechia" },
-  { code: "+243", label: "Democratic Republic of the Congo" },
   { code: "+45", label: "Denmark" },
   { code: "+253", label: "Djibouti" },
   { code: "+1767", label: "Dominica" },
@@ -181,18 +129,14 @@ const countryOptions = [
   { code: "+240", label: "Equatorial Guinea" },
   { code: "+291", label: "Eritrea" },
   { code: "+372", label: "Estonia" },
-  { code: "+268", label: "Eswatini" },
   { code: "+251", label: "Ethiopia" },
-  { code: "+500", label: "Falkland Islands (Malvinas)" },
   { code: "+298", label: "Faroe Islands" },
   { code: "+679", label: "Fiji" },
   { code: "+358", label: "Finland" },
   { code: "+33", label: "France" },
   { code: "+594", label: "French Guiana" },
   { code: "+689", label: "French Polynesia" },
-  { code: "+262", label: "French Southern Territories" },
   { code: "+241", label: "Gabon" },
-  { code: "+220", label: "Gambia" },
   { code: "+995", label: "Georgia" },
   { code: "+49", label: "Germany" },
   { code: "+233", label: "Ghana" },
@@ -208,15 +152,12 @@ const countryOptions = [
   { code: "+245", label: "Guinea-Bissau" },
   { code: "+592", label: "Guyana" },
   { code: "+509", label: "Haiti" },
-  { code: "", label: "Heard Island and McDonald Islands" },
-  { code: "+379", label: "Holy See" },
-  { code: "+504", label: "Honduras" },
+    { code: "+504", label: "Honduras" },
   { code: "+852", label: "Hong Kong" },
   { code: "+36", label: "Hungary" },
   { code: "+354", label: "Iceland" },
   { code: "+91", label: "India" },
   { code: "+62", label: "Indonesia" },
-  { code: "+98", label: "Iran, Islamic Republic of" },
   { code: "+964", label: "Iraq" },
   { code: "+353", label: "Ireland" },
   { code: "+44", label: "Isle of Man" },
@@ -240,7 +181,6 @@ const countryOptions = [
   { code: "+423", label: "Liechtenstein" },
   { code: "+370", label: "Lithuania" },
   { code: "+352", label: "Luxembourg" },
-  { code: "+853", label: "Macau" },
   { code: "+261", label: "Madagascar" },
   { code: "+265", label: "Malawi" },
   { code: "+60", label: "Malaysia" },
@@ -253,15 +193,11 @@ const countryOptions = [
   { code: "+230", label: "Mauritius" },
   { code: "+262", label: "Mayotte" },
   { code: "+52", label: "Mexico" },
-  { code: "+691", label: "Micronesia" },
-  { code: "+373", label: "Moldova" },
   { code: "+377", label: "Monaco" },
   { code: "+976", label: "Mongolia" },
-  { code: "+382", label: "Montenegro" },
   { code: "+1664", label: "Montserrat" },
   { code: "+212", label: "Morocco" },
   { code: "+258", label: "Mozambique" },
-  { code: "+95", label: "Myanmar" },
   { code: "+264", label: "Namibia" },
   { code: "+674", label: "Nauru" },
   { code: "+977", label: "Nepal" },
@@ -273,20 +209,16 @@ const countryOptions = [
   { code: "+234", label: "Nigeria" },
   { code: "+683", label: "Niue" },
   { code: "+672", label: "Norfolk Island" },
-  { code: "+850", label: "North Korea" },
-  { code: "+389", label: "North Macedonia" },
   { code: "+1670", label: "Northern Mariana Islands" },
   { code: "+47", label: "Norway" },
   { code: "+968", label: "Oman" },
   { code: "+92", label: "Pakistan" },
   { code: "+680", label: "Palau" },
-  { code: "+970", label: "Palestine" },
   { code: "+507", label: "Panama" },
   { code: "+675", label: "Papua New Guinea" },
   { code: "+595", label: "Paraguay" },
   { code: "+51", label: "Peru" },
   { code: "+63", label: "Philippines" },
-  { code: "+64", label: "Pitcairn" },
   { code: "+48", label: "Poland" },
   { code: "+351", label: "Portugal" },
   { code: "+1787", label: "Puerto Rico" },
@@ -295,30 +227,24 @@ const countryOptions = [
   { code: "+7", label: "Russian Federation" },
   { code: "+250", label: "Rwanda" },
   { code: "+262", label: "Réunion" },
-  { code: "+590", label: "Saint Barthélemy" },
-  { code: "+290", label: "Saint Helena, Ascension and Tristan da Cunha" },
   { code: "+1869", label: "Saint Kitts and Nevis" },
   { code: "+1758", label: "Saint Lucia" },
-  { code: "+590", label: "Saint Martin (French part)" },
   { code: "+508", label: "Saint Pierre and Miquelon" },
   { code: "+1784", label: "Saint Vincent and the Grenadines" },
   { code: "+685", label: "Samoa" },
   { code: "+378", label: "San Marino" },
-  { code: "+239", label: "Sao Tome and Principe" },
   { code: "+966", label: "Saudi Arabia" },
   { code: "+221", label: "Senegal" },
   { code: "+381", label: "Serbia" },
   { code: "+248", label: "Seychelles" },
   { code: "+232", label: "Sierra Leone" },
   { code: "+65", label: "Singapore" },
-  { code: "+1721", label: "Sint Maarten (Dutch part)" },
   { code: "+421", label: "Slovakia" },
   { code: "+386", label: "Slovenia" },
   { code: "+677", label: "Solomon Islands" },
   { code: "+252", label: "Somalia" },
   { code: "+27", label: "South Africa" },
   { code: "+500", label: "South Georgia and the South Sandwich Islands" },
-  { code: "+82", label: "South Korea" },
   { code: "+211", label: "South Sudan" },
   { code: "+34", label: "Spain" },
   { code: "+94", label: "Sri Lanka" },
@@ -328,40 +254,33 @@ const countryOptions = [
   { code: "+46", label: "Sweden" },
   { code: "+41", label: "Switzerland" },
   { code: "+963", label: "Syrian Arab Republic" },
-  { code: "+886", label: "Taiwan" },
   { code: "+992", label: "Tajikistan" },
-  { code: "+255", label: "Tanzania" },
   { code: "+66", label: "Thailand" },
-  { code: "+670", label: "Timor-Leste" },
   { code: "+228", label: "Togo" },
   { code: "+690", label: "Tokelau" },
   { code: "+676", label: "Tonga" },
   { code: "+1868", label: "Trinidad and Tobago" },
   { code: "+216", label: "Tunisia" },
-  { code: "+90", label: "Turkey" },
   { code: "+993", label: "Turkmenistan" },
-  { code: "+1649", label: "Turks and Caicos Islands" },
   { code: "+688", label: "Tuvalu" },
   { code: "+256", label: "Uganda" },
   { code: "+380", label: "Ukraine" },
   { code: "+971", label: "United Arab Emirates" },
   { code: "+44", label: "United Kingdom" },
   { code: "+1", label: "United States" },
-  { code: "+1", label: "United States Minor Outlying Islands" },
   { code: "+598", label: "Uruguay" },
   { code: "+998", label: "Uzbekistan" },
   { code: "+678", label: "Vanuatu" },
-  { code: "+58", label: "Venezuela" },
-  { code: "+84", label: "Vietnam" },
-  { code: "+1284", label: "Virgin Islands, British" },
-  { code: "+1340", label: "Virgin Islands, U.S." },
   { code: "+681", label: "Wallis and Futuna" },
   { code: "+212", label: "Western Sahara" },
   { code: "+967", label: "Yemen" },
   { code: "+260", label: "Zambia" },
   { code: "+263", label: "Zimbabwe" },
-  { code: "+358", label: "Åland Islands" },
-] as const;
+];
+
+const dialCodeSuggestions = Array.from(
+  new Map(countryOptions.map((option) => [option.code, option])).values()
+);
 
 const initialWaitlistForm = {
   title: "",
@@ -376,8 +295,12 @@ const initialWaitlistForm = {
   note: "",
 };
 
-type Route = "/" | "/praeliator-vis" | "/acquisition" | "/waitlist" | "/contact";
-type SearchOption = { label: string; code?: string };
+type Route =
+  | "/"
+  | "/praeliator-vis"
+  | "/acquisition"
+  | "/waitlist"
+  | "/contact";
 
 const routeTitles: Record<Route, string> = {
   "/": "Home",
@@ -402,13 +325,13 @@ const pageTransition = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.85, ease: easeLuxury },
+    transition: { duration: 0.9, ease: easeLuxury },
   },
   exit: {
     opacity: 0,
     y: 8,
     filter: "blur(4px)",
-    transition: { duration: 0.4, ease: easeLuxury },
+    transition: { duration: 0.45, ease: easeLuxury },
   },
 };
 
@@ -450,14 +373,18 @@ function SectionHeading({
   eyebrow,
   title,
   description,
+  center = false,
 }: {
   eyebrow: string;
   title: string;
   description?: string;
+  center?: boolean;
 }) {
   return (
-    <div className="max-w-3xl">
-      <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">{eyebrow}</p>
+    <div className={center ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+      <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+        {eyebrow}
+      </p>
       <h1 className="mt-4 text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-6xl">
         {title}
       </h1>
@@ -485,7 +412,7 @@ function Reveal({
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.8, delay, ease: easeLuxury }}
+      transition={{ duration: 0.85, delay, ease: easeLuxury }}
     >
       {children}
     </motion.div>
@@ -506,8 +433,12 @@ function DataList({
           key={item.label}
           className={`grid gap-2 py-4 ${compact ? "sm:grid-cols-[110px_1fr]" : "sm:grid-cols-[160px_1fr]"} sm:items-start`}
         >
-          <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">{item.label}</p>
-          <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item.value}</p>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
+            {item.label}
+          </p>
+          <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+            {item.value}
+          </p>
         </div>
       ))}
     </div>
@@ -535,7 +466,7 @@ function ImageSurface({
         aria-label={alt}
         role="img"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1),rgba(0,0,0,0.58))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.62))]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
       {priorityCopy ? (
         <div className="relative z-10 flex h-full items-end p-6 sm:p-8 lg:p-10">
@@ -575,7 +506,9 @@ function InputField({
 }: {
   name: string;
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
   placeholder: string;
   type?: string;
   autoComplete?: string;
@@ -601,7 +534,9 @@ function SelectField({
 }: {
   name: string;
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
   children: React.ReactNode;
 }) {
   return (
@@ -616,31 +551,28 @@ function SelectField({
   );
 }
 
-function LuxuryCombobox({
+function SearchPicker({
   value,
   onChange,
   options,
   placeholder,
-  searchableByCode = false,
+  exactMatchUpdates,
   inputMode,
 }: {
   value: string;
-  onChange: (value: string, option?: SearchOption) => void;
-  options: SearchOption[];
+  onChange: (value: string, matchedOption?: { label: string; code: string }) => void;
+  options: Array<{ label: string; code: string }>;
   placeholder: string;
-  searchableByCode?: boolean;
+  exactMatchUpdates?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
         setOpen(false);
-        setQuery("");
       }
     };
 
@@ -649,109 +581,75 @@ function LuxuryCombobox({
   }, []);
 
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return options;
+    const query = value.trim().toLowerCase();
+    if (!query) return options.slice(0, 12);
 
-    return options.filter((option) => {
-      const labelMatch = option.label.toLowerCase().includes(normalized);
-      const codeMatch = searchableByCode && (option.code || "").toLowerCase().includes(normalized);
-      return labelMatch || codeMatch;
-    });
-  }, [options, query, searchableByCode]);
-
-  const handleWheelCapture = (event: React.WheelEvent<HTMLDivElement>) => {
-    const container = listRef.current;
-    if (!container) return;
-
-    const delta = event.deltaY;
-    const atTop = container.scrollTop <= 0;
-    const atBottom = Math.ceil(container.scrollTop + container.clientHeight) >= container.scrollHeight;
-
-    event.stopPropagation();
-
-    if ((atTop && delta < 0) || (atBottom && delta > 0)) {
-      event.preventDefault();
-    }
-  };
-
-  const displayValue = open ? query : value;
+    return options
+      .filter((option) => {
+        const label = option.label.toLowerCase();
+        const code = option.code.toLowerCase();
+        return label.includes(query) || code.includes(query);
+      })
+      .slice(0, 12);
+  }, [options, value]);
 
   return (
     <div ref={wrapperRef} className="relative">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/28" />
-        <input
-          value={displayValue}
-          onFocus={() => {
-            setQuery("");
-            setOpen(true);
-          }}
-          onChange={(event) => {
-            const next = inputMode === "tel" ? event.target.value.replace(/[^\d+]/g, "") : event.target.value;
-            setQuery(next);
-            setOpen(true);
-            if (inputMode === "tel") {
-              onChange(next);
-            }
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              setOpen(false);
-              setQuery("");
-            }
-          }}
-          inputMode={inputMode}
-          className="h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] pl-11 pr-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
-          placeholder={placeholder}
-        />
-      </div>
+      <input
+        value={value}
+        onChange={(event) => {
+          const next = event.target.value;
+          const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : next;
+          const matchedOption = options.find(
+            (option) =>
+              option.label.toLowerCase() === cleaned.trim().toLowerCase() ||
+              option.code.toLowerCase() === cleaned.trim().toLowerCase()
+          );
 
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.25, ease: easeLuxury }}
-            className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+          if (exactMatchUpdates) {
+            onChange(cleaned, matchedOption);
+          } else {
+            onChange(cleaned);
+          }
+
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        inputMode={inputMode}
+        className="h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+        placeholder={placeholder}
+      />
+
+      {open && filtered.length > 0 ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          <div
+            className="max-h-72 overflow-y-auto overscroll-contain py-2"
+            onWheelCapture={(event) => {
+              event.stopPropagation();
+            }}
+            onTouchMoveCapture={(event) => {
+              event.stopPropagation();
+            }}
           >
-            <div className="border-b border-white/8 px-4 py-3">
-              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                {searchableByCode ? "Search country or code" : "Select title"}
-              </p>
-            </div>
-
-            <div
-              ref={listRef}
-              className="max-h-72 overflow-y-auto overscroll-contain py-2"
-              onWheelCapture={handleWheelCapture}
-              onTouchMove={(event) => event.stopPropagation()}
-            >
-              {filtered.length > 0 ? (
-                filtered.map((option) => (
-                  <button
-                    key={`${option.label}-${option.code || option.label}`}
-                    type="button"
-                    onClick={() => {
-                      onChange(option.label, option);
-                      setOpen(false);
-                      setQuery("");
-                    }}
-                    className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 hover:bg-white/[0.04]"
-                  >
-                    <span className="truncate text-sm text-[#f4efe7]">{option.label}</span>
-                    {option.code ? (
-                      <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">{option.code}</span>
-                    ) : null}
-                  </button>
-                ))
-              ) : (
-                <div className="px-4 py-4 text-sm text-white/45">No matches found.</div>
-              )}
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+            {filtered.map((option) => (
+              <button
+                key={`${option.code}-${option.label}`}
+                type="button"
+                onClick={() => {
+                  onChange(inputMode === "tel" ? option.code : option.label, option);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 hover:bg-white/[0.04]"
+              >
+                <span className="truncate text-sm text-[#f4efe7]">{option.label}</span>
+                <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                  {option.code}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -770,7 +668,8 @@ export default function PraeliatorWebsite() {
   const whatsappWaitlistFollowUpLink = createWhatsAppLink(
     "Hello Praeliator, I joined the waitlist and would like to follow up."
   );
-  const emailLink = "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
+  const emailLink =
+    "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
   const instagramLink = "https://instagram.com/praeliatorboxing";
   const waitlistEndpoint = "https://formsubmit.co/ajax/praeliatorboxing@gmail.com";
 
@@ -789,9 +688,19 @@ export default function PraeliatorWebsite() {
 
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
+  const heroTextRef = useRef<HTMLDivElement | null>(null);
 
-  const heroMediaY = useTransform(scrollY, [0, 900], reduceMotion ? [0, 0] : [0, 28]);
-  const heroTextY = useTransform(scrollY, [0, 900], reduceMotion ? [0, 0] : [0, -10]);
+  const heroMediaY = useTransform(
+    scrollY,
+    [0, 900],
+    reduceMotion ? [0, 0] : [0, 24]
+  );
+
+  const heroTextY = useTransform(
+    scrollY,
+    [0, 900],
+    reduceMotion ? [0, 0] : [0, -10]
+  );
 
   useEffect(() => {
     const handlePopState = () => {
@@ -843,19 +752,9 @@ export default function PraeliatorWebsite() {
     if (route === "/praeliator-vis") return whatsappVisLink;
     if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
     return whatsappGeneralLink;
-  }, [route, whatsappGeneralLink, whatsappVisLink, whatsappWaitlistFollowUpLink]);
+  }, [route]);
 
   const currentPageTitle = routeTitles[route];
-
-  const countrySearchOptions: SearchOption[] = useMemo(
-    () => countryOptions.map((option) => ({ label: option.label, code: option.code })),
-    []
-  );
-
-  const titleSearchOptions: SearchOption[] = useMemo(
-    () => titleOptions.map((option) => ({ label: option })),
-    []
-  );
 
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
@@ -880,12 +779,6 @@ export default function PraeliatorWebsite() {
     if (name === "whatsapp") {
       const cleanedNumber = value.replace(/[^\d]/g, "");
       setWaitlistForm((current) => ({ ...current, whatsapp: cleanedNumber }));
-      return;
-    }
-
-    if (name === "phoneCountryCode") {
-      const cleanedCode = value.replace(/[^\d+]/g, "");
-      setWaitlistForm((current) => ({ ...current, phoneCountryCode: cleanedCode }));
       return;
     }
 
@@ -962,18 +855,12 @@ export default function PraeliatorWebsite() {
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10 bg-[#060606]">
-        <motion.div
-          style={{ y: heroMediaY }}
-          className="absolute inset-0 bg-cover bg-center opacity-55"
-          aria-hidden="true"
-        >
-          <div
-            className="h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${visImageSources.hero})` }}
-          />
-        </motion.div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.12),transparent_32%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.68)_55%,rgba(0,0,0,0.94))]" />
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-55"
+          style={{ backgroundImage: `url(${homeImageSources.hero})` }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28),rgba(0,0,0,0.68)_55%,rgba(0,0,0,0.92))]" />
 
         <Container className="relative py-10 sm:py-12 lg:py-16">
           <motion.div
@@ -983,11 +870,15 @@ export default function PraeliatorWebsite() {
             transition={{ duration: 0.95, ease: easeLuxury }}
             className="flex min-h-[82svh] max-w-[58rem] flex-col justify-end pb-6 sm:pb-10 lg:min-h-[88svh] lg:pb-14"
           >
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">Praeliator</p>
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
+              Praeliator
+            </p>
 
             <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.84] tracking-[-0.07em] sm:text-6xl md:text-7xl lg:text-[6.4rem] xl:text-[7rem]">
               Enter slowly.
-              <span className="mt-4 block max-w-[9ch] text-white/68">Leave noise outside.</span>
+              <span className="mt-4 block max-w-[9ch] text-white/68">
+                Leave noise outside.
+              </span>
             </h1>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-12">
@@ -1022,34 +913,13 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#090909]">
-        <Container className="py-10 sm:py-12 lg:py-16">
-          <Reveal>
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_42px_120px_rgba(0,0,0,0.45)]">
-              <div className="relative aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/8]">
-                <video
-                  className="h-full w-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  poster={visImageSources.videoPoster}
-                >
-                  <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-                </video>
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.36))]" />
-              </div>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
-      <section className="border-b border-white/10 bg-[#070707]">
         <Container className="py-20 sm:py-24 lg:py-32">
           <Reveal>
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Brand core</p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Brand core
+                </p>
               </div>
 
               <div>
@@ -1064,34 +934,66 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="border-b border-white/10 bg-[#060606]">
+      <section className="border-b border-white/10 bg-[#0b0b0b]">
         <Container className="py-10 sm:py-12 lg:py-16">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+          <Reveal>
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_42px_120px_rgba(0,0,0,0.45)]">
+              <div className="relative aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/8]">
+                <video
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  poster={homeImageSources.videoPoster}
+                >
+                  <source src="/videos/praeliator-film.mp4" type="video/mp4" />
+                </video>
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.4))]" />
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#070707]">
+        <Container className="py-16 sm:py-20 lg:py-28">
+          <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-10">
             <Reveal>
-              <ImageSurface
-                src={visImageSources.galleryOne}
-                alt="Praeliator editorial still"
-                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[46rem]"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">The house</p>
-                    <p className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
-                      The site should slow the client down.
-                    </p>
-                  </>
-                }
-              />
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_30px_90px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_24%)]" />
+                <div className="relative">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d] sm:text-xs">
+                    The house
+                  </p>
+                  <h3 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
+                    The site should slow the client down.
+                  </h3>
+                  <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    Not everything should speak at once. Praeliator works when the hierarchy is severe:
+                    atmosphere first, object second, acquisition last.
+                  </p>
+                  <div className="mt-10">
+                    <QuietLinkButton onClick={() => goTo("/acquisition")}>
+                      Read the acquisition model
+                    </QuietLinkButton>
+                  </div>
+                </div>
+              </div>
             </Reveal>
 
-            <div className="grid gap-6 lg:gap-8">
+            <div className="grid gap-8">
               <Reveal delay={0.06}>
                 <ImageSurface
-                  src={visImageSources.leather}
+                  src={homeImageSources.material}
                   alt="Praeliator leather detail"
-                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
+                  className="min-h-[16rem] sm:min-h-[18rem]"
                   priorityCopy={
                     <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Material</p>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
+                        Material
+                      </p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
                         Soft satin. Quiet depth.
                       </p>
@@ -1102,12 +1004,14 @@ export default function PraeliatorWebsite() {
 
               <Reveal delay={0.12}>
                 <ImageSurface
-                  src={visImageSources.packaging}
+                  src={homeImageSources.presentation}
                   alt="Praeliator presentation"
-                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
+                  className="min-h-[16rem] sm:min-h-[18rem]"
                   priorityCopy={
                     <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Presentation</p>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
+                        Presentation
+                      </p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
                         The object starts before it is opened.
                       </p>
@@ -1125,7 +1029,9 @@ export default function PraeliatorWebsite() {
           <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-14">
             <Reveal>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Praeliator VIS</p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Praeliator VIS
+                </p>
                 <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
                   The flagship, in one line.
                 </h2>
@@ -1176,10 +1082,13 @@ export default function PraeliatorWebsite() {
       <section className="border-t border-white/10 bg-[#070707]">
         <Container className="py-16 sm:py-20 lg:py-24">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[visImageSources.galleryOne, visImageSources.galleryTwo, visImageSources.galleryThree, visImageSources.galleryFour].map((src, index) => (
+            {galleryImages.map((src, index) => (
               <Reveal key={src} delay={index * 0.05}>
                 <div className={`relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.3)] ${index % 2 === 0 ? "aspect-[4/5]" : "aspect-square"}`}>
-                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${src})` }} />
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${src})` }}
+                  />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.35))]" />
                 </div>
               </Reveal>
@@ -1191,7 +1100,7 @@ export default function PraeliatorWebsite() {
   );
 
   const renderVisPage = () => (
-    <section className="border-b border-white/10 bg-[#080808]">
+    <section className="border-b border-white/10">
       <Container className="py-16 sm:py-20 lg:py-28">
         <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start lg:gap-14">
           <Reveal>
@@ -1229,7 +1138,9 @@ export default function PraeliatorWebsite() {
               className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[44rem]"
               priorityCopy={
                 <>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Praeliator VIS</p>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
+                    Praeliator VIS
+                  </p>
                   <p className="mt-4 max-w-[13ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
                     Minimal branding. Controlled presence.
                   </p>
@@ -1243,9 +1154,10 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <div className="max-w-2xl">
               <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                A 16 oz lace-up training glove built in top-grain cowhide leather with a soft satin finish
-                and a restrained two-tone character. Deep black remains the primary visual read, while a
-                subtle espresso tone reveals itself when light moves across the surface.
+                A 16 oz lace-up training glove built in top-grain cowhide leather with a
+                soft satin finish and a restrained two-tone character. Deep black remains
+                the primary visual read, while a subtle espresso tone reveals itself when
+                light moves across the surface.
               </p>
             </div>
           </Reveal>
@@ -1267,16 +1179,28 @@ export default function PraeliatorWebsite() {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <Reveal>
-            <ImageSurface src={visImageSources.leather} alt="Praeliator VIS leather" className="min-h-[22rem] sm:min-h-[26rem] lg:min-h-[34rem]" />
+            <ImageSurface
+              src={visImageSources.leather}
+              alt="Praeliator VIS leather"
+              className="min-h-[22rem] sm:min-h-[26rem] lg:min-h-[34rem]"
+            />
           </Reveal>
 
           <div className="grid gap-6">
             <Reveal delay={0.06}>
-              <ImageSurface src={visImageSources.plate} alt="Praeliator VIS plate" className="min-h-[15rem] sm:min-h-[16rem]" />
+              <ImageSurface
+                src={visImageSources.plate}
+                alt="Praeliator VIS plate"
+                className="min-h-[15rem] sm:min-h-[16rem]"
+              />
             </Reveal>
 
             <Reveal delay={0.12}>
-              <ImageSurface src={visImageSources.packaging} alt="Praeliator VIS packaging" className="min-h-[15rem] sm:min-h-[16rem]" />
+              <ImageSurface
+                src={visImageSources.packaging}
+                alt="Praeliator VIS packaging"
+                className="min-h-[15rem] sm:min-h-[16rem]"
+              />
             </Reveal>
           </div>
         </div>
@@ -1284,22 +1208,35 @@ export default function PraeliatorWebsite() {
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1fr] lg:gap-10">
           <Reveal>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Specifications</p>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Specifications
+              </p>
               <div className="mt-6">
-                <DataList items={visSpecifications.map((item) => ({ label: item.label, value: item.value }))} />
+                <DataList items={visSpecifications} />
               </div>
             </div>
           </Reveal>
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Padding system</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Four-layer impact structure</h3>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Padding system
+              </p>
+              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                Four-layer impact structure
+              </h3>
+              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
                 {visPaddingLayers.map((layer, index) => (
-                  <div key={`${layer}-${index}`} className="grid gap-2 py-4 sm:grid-cols-[92px_1fr] sm:items-center">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">Layer {index + 1}</p>
-                    <p className="text-sm leading-7 text-white/80 sm:text-[15px] sm:leading-8">{layer}</p>
+                  <div
+                    key={`${layer}-${index}`}
+                    className="grid gap-2 py-4 sm:grid-cols-[92px_1fr] sm:items-center"
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
+                      Layer {index + 1}
+                    </p>
+                    <p className="text-sm leading-7 text-white/80 sm:text-[15px] sm:leading-8">
+                      {layer}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1310,12 +1247,18 @@ export default function PraeliatorWebsite() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
           <Reveal>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Presentation</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">The object extends beyond the glove.</h3>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Presentation
+              </p>
+              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                The object extends beyond the glove.
+              </h3>
+              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
                 {visPackaging.map((item) => (
                   <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
+                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1324,16 +1267,22 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Aftercare</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Praeliator Legacy Refresh</h3>
-              <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                Available after the first year, this service supports longevity through maintenance rather
-                than replacement culture.
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Aftercare
               </p>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                Praeliator Legacy Refresh
+              </h3>
+              <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                Available after the first year, this service supports longevity through
+                maintenance rather than replacement culture.
+              </p>
+              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
                 {visService.map((item) => (
                   <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
+                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1345,7 +1294,7 @@ export default function PraeliatorWebsite() {
   );
 
   const renderAcquisitionPage = () => (
-    <section className="border-b border-white/10 bg-[#090909]">
+    <section className="border-b border-white/10">
       <Container className="py-16 sm:py-20 lg:py-28">
         <SectionHeading
           eyebrow="Acquisition"
@@ -1357,15 +1306,33 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <div className="divide-y divide-white/10 border-t border-white/10">
               {[
-                ["01", "Inquiry", "Clients enter through WhatsApp or email rather than conventional checkout."],
-                ["02", "Clarification", "Product interest, timing, destination, and availability are confirmed directly."],
-                ["03", "Acquisition", "Purchase is completed privately, with communication kept personal and controlled."],
+                [
+                  "01",
+                  "Inquiry",
+                  "Clients enter through WhatsApp or email rather than conventional checkout.",
+                ],
+                [
+                  "02",
+                  "Clarification",
+                  "Product interest, timing, destination, and availability are confirmed directly.",
+                ],
+                [
+                  "03",
+                  "Acquisition",
+                  "Purchase is completed privately, with communication kept personal and controlled.",
+                ],
               ].map(([step, title, text]) => (
                 <div key={step} className="grid gap-4 py-5 sm:grid-cols-[90px_1fr] sm:gap-6 sm:py-6">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">{step}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
+                    {step}
+                  </p>
                   <div>
-                    <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">{title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{text}</p>
+                    <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
+                      {title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                      {text}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -1374,8 +1341,10 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Notes</p>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Notes
+              </p>
+              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
                 {[
                   {
                     title: "Availability",
@@ -1395,8 +1364,10 @@ export default function PraeliatorWebsite() {
                   },
                 ].map((item) => (
                   <div key={item.title} className="py-5">
-                    <h3 className="text-lg font-medium text-[#f4efe7]">{item.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item.text}</p>
+                    <h3 className="text-lg font-medium sm:text-xl">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                      {item.text}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1407,16 +1378,16 @@ export default function PraeliatorWebsite() {
                   className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                    Begin Inquiry
+                    Private Purchase Inquiry
                   </a>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => goTo("/waitlist")}
+                  onClick={() => goTo("/contact")}
                   className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                 >
-                  Join Waitlist
+                  Contact Channels
                 </Button>
               </div>
             </div>
@@ -1427,93 +1398,135 @@ export default function PraeliatorWebsite() {
   );
 
   const renderWaitlistPage = () => (
-    <section className="border-b border-white/10 bg-[#090909]">
-      <Container className="py-16 sm:py-20 lg:py-28">
-        <SectionHeading
-          eyebrow="Waitlist"
-          title="A quieter way into future access."
-          description="The waitlist exists for future releases, collector interest, and clients who prefer to enter the house before a direct purchase conversation."
-        />
-
-        <div className="mt-12 grid gap-10 lg:grid-cols-[0.84fr_1.16fr] lg:gap-14">
+    <section className="border-b border-white/10">
+      <Container className="pt-2 pb-14 sm:pt-4 sm:pb-16 lg:pt-6 lg:pb-20">
+        <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-12">
           <Reveal>
-            <div>
-              <p className="text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                The form stays deliberately restrained. Enough to identify the client, understand the route,
-                and begin the conversation without turning the entry into an application ritual.
-              </p>
+            <SectionHeading
+              eyebrow="Waitlist"
+              title="A quieter way into future access."
+              description="The waitlist exists for future releases, collector interest, and clients who prefer to enter the house before a direct purchase conversation."
+            />
 
-              <div className="mt-8 divide-y divide-white/10 border-t border-white/10">
-                {[
-                  "Search country by name or dial code.",
-                  "Type a dial code manually if you prefer.",
-                  "Use a formal title if it matters to you.",
-                  "The inquiry is routed directly to Praeliator.",
-                ].map((item) => (
-                  <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
+              {[
+                "Search country by name or dial code.",
+                "Type a dial code manually if you prefer.",
+                "Use a formal title if it matters to you.",
+                "The inquiry is routed directly to Praeliator.",
+              ].map((item) => (
+                <div key={item} className="py-4">
+                  <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  Prefer direct inquiry instead
+                </a>
+              </Button>
             </div>
           </Reveal>
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
               <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
-                <LuxuryCombobox
-                  value={waitlistForm.title}
-                  onChange={(next) => setWaitlistForm((current) => ({ ...current, title: next }))}
-                  options={titleSearchOptions}
-                  placeholder="Title"
-                />
+                <div className="grid gap-4 sm:grid-cols-[0.72fr_1.28fr]">
+                  <SelectField
+                    name="title"
+                    value={waitlistForm.title}
+                    onChange={handleWaitlistChange}
+                  >
+                    <option value="">Title</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Miss">Miss</option>
+                    <option value="Mx.">Mx.</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                    <option value="Sir">Sir</option>
+                    <option value="Dame">Dame</option>
+                    <option value="Lord">Lord</option>
+                    <option value="Lady">Lady</option>
+                    <option value="Prince">Prince</option>
+                    <option value="Princess">Princess</option>
+                    <option value="Sheikh">Sheikh</option>
+                    <option value="Sheikha">Sheikha</option>
+                    <option value="H.E.">H.E.</option>
+                    <option value="H.H.">H.H.</option>
+                    <option value="H.R.H.">H.R.H.</option>
+                  </SelectField>
 
-                <InputField
-                  name="fullName"
-                  value={waitlistForm.fullName}
-                  onChange={handleWaitlistChange}
-                  placeholder="Full name *"
-                  autoComplete="name"
-                />
+                  <InputField
+                    name="fullName"
+                    value={waitlistForm.fullName}
+                    onChange={handleWaitlistChange}
+                    autoComplete="name"
+                    placeholder="Full name *"
+                  />
+                </div>
 
                 <InputField
                   name="email"
                   type="email"
                   value={waitlistForm.email}
                   onChange={handleWaitlistChange}
-                  placeholder="Email address *"
                   autoComplete="email"
+                  placeholder="Email address *"
                 />
 
-                <LuxuryCombobox
+                <SearchPicker
                   value={waitlistForm.country}
-                  onChange={(next, option) =>
+                  onChange={(value, matchedOption) => {
                     setWaitlistForm((current) => ({
                       ...current,
-                      country: next,
-                      phoneCountryCode: option?.code || current.phoneCountryCode,
-                    }))
-                  }
-                  options={countrySearchOptions}
-                  placeholder="Country or dial code *"
-                  searchableByCode
+                      country: value,
+                      phoneCountryCode: matchedOption ? matchedOption.code : current.phoneCountryCode,
+                    }));
+                  }}
+                  options={countryOptions}
+                  placeholder="Country *"
+                  exactMatchUpdates
                 />
 
-                <div className="grid gap-4 sm:grid-cols-[0.85fr_1.15fr]">
-                  <InputField
-                    name="phoneCountryCode"
+                <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
+                  <SearchPicker
                     value={waitlistForm.phoneCountryCode}
-                    onChange={handleWaitlistChange}
-                    placeholder="Dial code *"
-                    autoComplete="tel-country-code"
+                    onChange={(value, matchedOption) => {
+                      const cleanedCode = value.replace(/[^\d+]/g, "");
+                      const normalizedCode = cleanedCode
+                        ? cleanedCode.startsWith("+")
+                          ? cleanedCode
+                          : `+${cleanedCode}`
+                        : "";
+
+                      setWaitlistForm((current) => ({
+                        ...current,
+                        phoneCountryCode: normalizedCode,
+                        country: matchedOption && current.country === "Mexico" ? matchedOption.label : current.country,
+                      }));
+                    }}
+                    options={dialCodeSuggestions}
+                    placeholder="Code *"
+                    inputMode="tel"
                   />
 
                   <InputField
                     name="whatsapp"
+                    type="tel"
                     value={waitlistForm.whatsapp}
                     onChange={handleWaitlistChange}
-                    placeholder="WhatsApp number *"
                     autoComplete="tel-national"
+                    placeholder="Phone number *"
                   />
                 </div>
 
@@ -1524,9 +1537,9 @@ export default function PraeliatorWebsite() {
                 >
                   <option value="">Interest *</option>
                   <option value="Praeliator VIS">Praeliator VIS</option>
-                  <option value="Future releases">Future releases</option>
-                  <option value="Collector interest">Collector interest</option>
-                  <option value="General brand inquiry">General brand inquiry</option>
+                  <option value="Future Releases">Future releases</option>
+                  <option value="Collector Interest">Collector interest</option>
+                  <option value="General Brand Interest">General brand interest</option>
                 </SelectField>
 
                 <SelectField
@@ -1569,7 +1582,9 @@ export default function PraeliatorWebsite() {
                 </Button>
 
                 {waitlistState.success ? (
-                  <p className="text-sm leading-6 text-[#d7c5ae]">You are on the list. Praeliator will review the inquiry directly.</p>
+                  <p className="text-sm leading-6 text-[#d7c5ae]">
+                    You are on the list. Your submission has been routed to Praeliator.
+                  </p>
                 ) : null}
 
                 {waitlistState.error ? (
@@ -1584,72 +1599,78 @@ export default function PraeliatorWebsite() {
   );
 
   const renderContactPage = () => (
-    <section className="border-b border-white/10 bg-[#090909]">
+    <section className="border-b border-white/10">
       <Container className="py-16 sm:py-20 lg:py-28">
         <SectionHeading
           eyebrow="Contact"
           title="Direct channels for private client communication."
-          description="WhatsApp remains the preferred route for acquisition inquiries. Email and Instagram remain available for slower contact."
+          description="WhatsApp remains the primary route. Email and Instagram stay available for formal contact and brand presence."
         />
 
         <div className="mt-12 divide-y divide-white/10 border-t border-white/10">
-          <a
-            href={whatsappGeneralLink}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-          >
-            <div className="flex min-w-0 items-center gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-                <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
+          <Reveal>
+            <a
+              href={whatsappGeneralLink}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                  <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium sm:text-base">WhatsApp</p>
+                  <p className="text-sm text-white/45">
+                    Preferred for private purchase inquiries
+                  </p>
+                </div>
               </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+            </a>
+          </Reveal>
 
-              <div className="min-w-0">
-                <p className="text-sm font-medium">WhatsApp Client Service</p>
-                <p className="text-sm text-white/45">Preferred for private purchase inquiries</p>
+          <Reveal delay={0.06}>
+            <a
+              href={emailLink}
+              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                  <Mail className="h-5 w-5 text-[#b9a18d]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium sm:text-base">Email</p>
+                  <p className="text-sm text-white/45">
+                    For formal communication and brand contact
+                  </p>
+                </div>
               </div>
-            </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+            </a>
+          </Reveal>
 
-            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-          </a>
-
-          <a
-            href={emailLink}
-            className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-          >
-            <div className="flex min-w-0 items-center gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-                <Mail className="h-5 w-5 text-[#b9a18d]" />
+          <Reveal delay={0.12}>
+            <a
+              href={instagramLink}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                  <Instagram className="h-5 w-5 text-[#b9a18d]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium sm:text-base">Instagram</p>
+                  <p className="text-sm text-white/45">
+                    Visual presence, updates, and atmosphere
+                  </p>
+                </div>
               </div>
-
-              <div className="min-w-0">
-                <p className="text-sm font-medium">Email</p>
-                <p className="text-sm text-white/45">For formal inquiries and brand communication</p>
-              </div>
-            </div>
-
-            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-          </a>
-
-          <a
-            href={instagramLink}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-          >
-            <div className="flex min-w-0 items-center gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20 sm:h-12 sm:w-12 sm:rounded-2xl">
-                <Instagram className="h-5 w-5 text-[#b9a18d]" />
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-sm font-medium">Instagram</p>
-                <p className="text-sm text-white/45">Visual presence, updates, and brand atmosphere</p>
-              </div>
-            </div>
-
-            <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-          </a>
+              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
+            </a>
+          </Reveal>
         </div>
       </Container>
     </section>
@@ -1673,37 +1694,39 @@ export default function PraeliatorWebsite() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
-          <motion.button
+        <Container className="flex items-center justify-between py-3 sm:py-4">
+          <button
             type="button"
             onClick={() => goTo("/")}
-            whileHover={{ scale: 1.02, y: -1 }}
-            transition={{ duration: 0.55, ease: easeLuxury }}
             className="group flex min-w-0 items-center gap-3 text-left"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
               <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
-                <img src="/logo-header.png" alt="Praeliator" className="h-full w-full object-contain object-center" />
+                <img
+                  src="/logo-header.png"
+                  alt="Praeliator"
+                  className="h-full w-full object-contain object-center"
+                />
               </div>
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-[10px] uppercase tracking-[0.28em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs sm:tracking-[0.35em]">
+              <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
                 Praeliator
               </p>
-              <p className="truncate text-[10px] uppercase tracking-[0.20em] text-white/45 sm:text-[11px] sm:tracking-[0.28em]">
+              <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
                 {currentPageTitle}
               </p>
             </div>
-          </motion.button>
+          </button>
 
-          <nav className="hidden items-center gap-6 text-sm text-white/68 lg:flex xl:gap-8">
+          <nav className="hidden items-center gap-7 text-sm text-white/66 lg:flex">
             {navItems.map((item) => (
               <button
                 key={item.path}
                 type="button"
                 onClick={() => goTo(item.path)}
-                className="relative transition duration-500 hover:text-white"
+                className={`transition duration-500 hover:text-white ${route === item.path ? "text-white" : ""}`}
               >
                 {item.label}
               </button>
@@ -1719,25 +1742,16 @@ export default function PraeliatorWebsite() {
                 className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Return Home
+                Home
               </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/waitlist")}
-                className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                Join Waitlist
-              </Button>
-            )}
+            ) : null}
 
             <Button
               asChild
               className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
             >
               <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
-                Private Purchase
+                Private Inquiry
               </a>
             </Button>
           </div>
@@ -1761,7 +1775,7 @@ export default function PraeliatorWebsite() {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
-        </div>
+        </Container>
 
         <AnimatePresence>
           {mobileMenuOpen ? (
@@ -1769,59 +1783,58 @@ export default function PraeliatorWebsite() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.35, ease: easeLuxury }}
+              transition={{ duration: 0.55, ease: easeLuxury }}
               className="overflow-hidden border-t border-white/10 bg-[#0a0a0a] lg:hidden"
             >
-              <div className="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
+              <Container className="grid gap-2 py-4">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
                     type="button"
                     onClick={() => goTo(item.path)}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/80 transition duration-500 hover:bg-white/10"
+                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/10"
                   >
                     <span>{item.label}</span>
                     <ChevronRight className="h-4 w-4 text-white/35" />
                   </button>
                 ))}
 
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {route !== "/" ? (
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => goTo(route !== "/" ? "/" : "/waitlist")}
-                    className="h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    onClick={() => goTo("/")}
+                    className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    {route !== "/" ? "Return Home" : "Join Waitlist"}
+                    Return Home
                   </Button>
-
-                  <Button
-                    asChild
-                    className="h-12 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
-                  >
-                    <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
-                      Private Purchase
-                    </a>
-                  </Button>
-                </div>
-              </div>
+                ) : null}
+              </Container>
             </motion.div>
           ) : null}
         </AnimatePresence>
       </header>
 
-      <main className="overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_30%)]">
+      <main className="overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_28%)]">
         <AnimatePresence mode="wait">
-          <motion.div key={route} variants={pageTransition} initial="initial" animate="animate" exit="exit">
+          <motion.div
+            key={route}
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
             {renderPage()}
           </motion.div>
         </AnimatePresence>
       </main>
 
       <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-white/45 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+        <Container className="flex flex-col gap-5 py-8 text-sm text-white/42 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="uppercase tracking-[0.24em] text-[#b9a18d] sm:tracking-[0.3em]">Praeliator</p>
+            <p className="uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+              Praeliator
+            </p>
             <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
           </div>
 
@@ -1837,7 +1850,7 @@ export default function PraeliatorWebsite() {
               </button>
             ))}
           </div>
-        </div>
+        </Container>
       </footer>
     </div>
   );
