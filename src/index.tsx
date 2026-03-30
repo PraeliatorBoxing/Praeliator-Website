@@ -66,22 +66,215 @@ const galleryImages = [
 ];
 
 const countryOptions = [
-  { code: "+52", label: "Mexico" },
-  { code: "+1", label: "United States" },
-  { code: "+1", label: "Canada" },
-  { code: "+34", label: "Spain" },
-  { code: "+44", label: "United Kingdom" },
-  { code: "+33", label: "France" },
-  { code: "+49", label: "Germany" },
-  { code: "+39", label: "Italy" },
-  { code: "+971", label: "United Arab Emirates" },
-  { code: "+974", label: "Qatar" },
-  { code: "+966", label: "Saudi Arabia" },
+  { code: "+93", label: "Afghanistan" },
+  { code: "+355", label: "Albania" },
+  { code: "+213", label: "Algeria" },
+  { code: "+1684", label: "American Samoa" },
+  { code: "+244", label: "Angola" },
+  { code: "+1264", label: "Anguilla" },
+  { code: "+1268", label: "Antigua and Barbuda" },
   { code: "+54", label: "Argentina" },
-  { code: "+57", label: "Colombia" },
+  { code: "+374", label: "Armenia" },
+  { code: "+297", label: "Aruba" },
+  { code: "+61", label: "Australia" },
+  { code: "+43", label: "Austria" },
+  { code: "+994", label: "Azerbaijan" },
+  { code: "+973", label: "Bahrain" },
+  { code: "+880", label: "Bangladesh" },
+  { code: "+1246", label: "Barbados" },
+  { code: "+375", label: "Belarus" },
+  { code: "+32", label: "Belgium" },
+  { code: "+501", label: "Belize" },
+  { code: "+229", label: "Benin" },
+  { code: "+1441", label: "Bermuda" },
+  { code: "+975", label: "Bhutan" },
+  { code: "+387", label: "Bosnia and Herzegovina" },
+  { code: "+267", label: "Botswana" },
+  { code: "+55", label: "Brazil" },
+  { code: "+246", label: "British Indian Ocean Territory" },
+  { code: "+359", label: "Bulgaria" },
+  { code: "+226", label: "Burkina Faso" },
+  { code: "+257", label: "Burundi" },
+  { code: "+855", label: "Cambodia" },
+  { code: "+237", label: "Cameroon" },
+  { code: "+1", label: "Canada" },
+  { code: "+1345", label: "Cayman Islands" },
+  { code: "+236", label: "Central African Republic" },
+  { code: "+235", label: "Chad" },
   { code: "+56", label: "Chile" },
+  { code: "+86", label: "China" },
+  { code: "+61", label: "Christmas Island" },
+  { code: "+61", label: "Cocos (Keeling) Islands" },
+  { code: "+57", label: "Colombia" },
+  { code: "+269", label: "Comoros" },
+  { code: "+682", label: "Cook Islands" },
+  { code: "+506", label: "Costa Rica" },
+  { code: "+385", label: "Croatia" },
+  { code: "+53", label: "Cuba" },
+  { code: "+357", label: "Cyprus" },
+  { code: "+45", label: "Denmark" },
+  { code: "+253", label: "Djibouti" },
+  { code: "+1767", label: "Dominica" },
+  { code: "+1809", label: "Dominican Republic" },
+  { code: "+593", label: "Ecuador" },
+  { code: "+20", label: "Egypt" },
+  { code: "+503", label: "El Salvador" },
+  { code: "+240", label: "Equatorial Guinea" },
+  { code: "+291", label: "Eritrea" },
+  { code: "+372", label: "Estonia" },
+  { code: "+251", label: "Ethiopia" },
+  { code: "+298", label: "Faroe Islands" },
+  { code: "+679", label: "Fiji" },
+  { code: "+358", label: "Finland" },
+  { code: "+33", label: "France" },
+  { code: "+594", label: "French Guiana" },
+  { code: "+689", label: "French Polynesia" },
+  { code: "+241", label: "Gabon" },
+  { code: "+995", label: "Georgia" },
+  { code: "+49", label: "Germany" },
+  { code: "+233", label: "Ghana" },
+  { code: "+350", label: "Gibraltar" },
+  { code: "+30", label: "Greece" },
+  { code: "+299", label: "Greenland" },
+  { code: "+1473", label: "Grenada" },
+  { code: "+590", label: "Guadeloupe" },
+  { code: "+1671", label: "Guam" },
+  { code: "+502", label: "Guatemala" },
+  { code: "+44", label: "Guernsey" },
+  { code: "+224", label: "Guinea" },
+  { code: "+245", label: "Guinea-Bissau" },
+  { code: "+592", label: "Guyana" },
+  { code: "+509", label: "Haiti" },
+  { code: "+", label: "Heard Island and McDonald Islands" },
+  { code: "+504", label: "Honduras" },
+  { code: "+852", label: "Hong Kong" },
+  { code: "+36", label: "Hungary" },
+  { code: "+354", label: "Iceland" },
+  { code: "+91", label: "India" },
+  { code: "+62", label: "Indonesia" },
+  { code: "+964", label: "Iraq" },
+  { code: "+353", label: "Ireland" },
+  { code: "+44", label: "Isle of Man" },
+  { code: "+972", label: "Israel" },
+  { code: "+39", label: "Italy" },
+  { code: "+1876", label: "Jamaica" },
+  { code: "+81", label: "Japan" },
+  { code: "+44", label: "Jersey" },
+  { code: "+962", label: "Jordan" },
+  { code: "+76", label: "Kazakhstan" },
+  { code: "+254", label: "Kenya" },
+  { code: "+686", label: "Kiribati" },
+  { code: "+965", label: "Kuwait" },
+  { code: "+996", label: "Kyrgyzstan" },
+  { code: "+856", label: "Lao People's Democratic Republic" },
+  { code: "+371", label: "Latvia" },
+  { code: "+961", label: "Lebanon" },
+  { code: "+266", label: "Lesotho" },
+  { code: "+231", label: "Liberia" },
+  { code: "+218", label: "Libya" },
+  { code: "+423", label: "Liechtenstein" },
+  { code: "+370", label: "Lithuania" },
+  { code: "+352", label: "Luxembourg" },
+  { code: "+261", label: "Madagascar" },
+  { code: "+265", label: "Malawi" },
+  { code: "+60", label: "Malaysia" },
+  { code: "+960", label: "Maldives" },
+  { code: "+223", label: "Mali" },
+  { code: "+356", label: "Malta" },
+  { code: "+692", label: "Marshall Islands" },
+  { code: "+596", label: "Martinique" },
+  { code: "+222", label: "Mauritania" },
+  { code: "+230", label: "Mauritius" },
+  { code: "+262", label: "Mayotte" },
+  { code: "+52", label: "Mexico" },
+  { code: "+377", label: "Monaco" },
+  { code: "+976", label: "Mongolia" },
+  { code: "+1664", label: "Montserrat" },
+  { code: "+212", label: "Morocco" },
+  { code: "+258", label: "Mozambique" },
+  { code: "+264", label: "Namibia" },
+  { code: "+674", label: "Nauru" },
+  { code: "+977", label: "Nepal" },
+  { code: "+31", label: "Netherlands" },
+  { code: "+687", label: "New Caledonia" },
+  { code: "+64", label: "New Zealand" },
+  { code: "+505", label: "Nicaragua" },
+  { code: "+227", label: "Niger" },
+  { code: "+234", label: "Nigeria" },
+  { code: "+683", label: "Niue" },
+  { code: "+672", label: "Norfolk Island" },
+  { code: "+1670", label: "Northern Mariana Islands" },
+  { code: "+47", label: "Norway" },
+  { code: "+968", label: "Oman" },
+  { code: "+92", label: "Pakistan" },
+  { code: "+680", label: "Palau" },
+  { code: "+507", label: "Panama" },
+  { code: "+675", label: "Papua New Guinea" },
+  { code: "+595", label: "Paraguay" },
   { code: "+51", label: "Peru" },
+  { code: "+63", label: "Philippines" },
+  { code: "+48", label: "Poland" },
+  { code: "+351", label: "Portugal" },
+  { code: "+1787", label: "Puerto Rico" },
+  { code: "+974", label: "Qatar" },
+  { code: "+40", label: "Romania" },
+  { code: "+7", label: "Russian Federation" },
+  { code: "+250", label: "Rwanda" },
+  { code: "+262", label: "Réunion" },
+  { code: "+1869", label: "Saint Kitts and Nevis" },
+  { code: "+1758", label: "Saint Lucia" },
+  { code: "+508", label: "Saint Pierre and Miquelon" },
+  { code: "+1784", label: "Saint Vincent and the Grenadines" },
+  { code: "+685", label: "Samoa" },
+  { code: "+378", label: "San Marino" },
+  { code: "+966", label: "Saudi Arabia" },
+  { code: "+221", label: "Senegal" },
+  { code: "+381", label: "Serbia" },
+  { code: "+248", label: "Seychelles" },
+  { code: "+232", label: "Sierra Leone" },
+  { code: "+65", label: "Singapore" },
+  { code: "+421", label: "Slovakia" },
+  { code: "+386", label: "Slovenia" },
+  { code: "+677", label: "Solomon Islands" },
+  { code: "+252", label: "Somalia" },
+  { code: "+27", label: "South Africa" },
+  { code: "+500", label: "South Georgia and the South Sandwich Islands" },
+  { code: "+211", label: "South Sudan" },
+  { code: "+34", label: "Spain" },
+  { code: "+94", label: "Sri Lanka" },
+  { code: "+249", label: "Sudan" },
+  { code: "+597", label: "Suriname" },
+  { code: "+4779", label: "Svalbard and Jan Mayen" },
+  { code: "+46", label: "Sweden" },
+  { code: "+41", label: "Switzerland" },
+  { code: "+963", label: "Syrian Arab Republic" },
+  { code: "+992", label: "Tajikistan" },
+  { code: "+66", label: "Thailand" },
+  { code: "+228", label: "Togo" },
+  { code: "+690", label: "Tokelau" },
+  { code: "+676", label: "Tonga" },
+  { code: "+1868", label: "Trinidad and Tobago" },
+  { code: "+216", label: "Tunisia" },
+  { code: "+993", label: "Turkmenistan" },
+  { code: "+688", label: "Tuvalu" },
+  { code: "+256", label: "Uganda" },
+  { code: "+380", label: "Ukraine" },
+  { code: "+971", label: "United Arab Emirates" },
+  { code: "+44", label: "United Kingdom" },
+  { code: "+1", label: "United States" },
+  { code: "+598", label: "Uruguay" },
+  { code: "+998", label: "Uzbekistan" },
+  { code: "+678", label: "Vanuatu" },
+  { code: "+681", label: "Wallis and Futuna" },
+  { code: "+212", label: "Western Sahara" },
+  { code: "+967", label: "Yemen" },
+  { code: "+260", label: "Zambia" },
+  { code: "+263", label: "Zimbabwe" },
 ];
+
+const dialCodeSuggestions = Array.from(
+  new Map(countryOptions.map((option) => [option.code, option])).values()
+);
 
 const initialWaitlistForm = {
   fullName: "",
@@ -103,7 +296,7 @@ type Route =
   | "/contact";
 
 const routeTitles: Record<Route, string> = {
-  "/": "Praeliator",
+  "/": "Home",
   "/praeliator-vis": "Praeliator VIS",
   "/acquisition": "Acquisition",
   "/waitlist": "Waitlist",
@@ -451,6 +644,8 @@ export default function PraeliatorWebsite() {
     return whatsappGeneralLink;
   }, [route]);
 
+  const currentPageTitle = routeTitles[route];
+
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
@@ -472,7 +667,10 @@ export default function PraeliatorWebsite() {
     const { name, value } = event.target;
 
     if (name === "country") {
-      const selectedCountry = countryOptions.find((option) => option.label === value);
+      const normalizedValue = value.trim().toLowerCase();
+      const selectedCountry = countryOptions.find(
+        (option) => option.label.toLowerCase() === normalizedValue
+      );
 
       setWaitlistForm((current) => ({
         ...current,
@@ -483,7 +681,14 @@ export default function PraeliatorWebsite() {
     }
 
     if (name === "phoneCountryCode") {
-      setWaitlistForm((current) => ({ ...current, phoneCountryCode: value }));
+      const cleanedCode = value.replace(/[^\d+]/g, "");
+      const normalizedCode = cleanedCode
+        ? cleanedCode.startsWith("+")
+          ? cleanedCode
+          : `+${cleanedCode}`
+        : "";
+
+      setWaitlistForm((current) => ({ ...current, phoneCountryCode: normalizedCode }));
       return;
     }
 
@@ -564,35 +769,40 @@ export default function PraeliatorWebsite() {
 
   const renderHomePage = () => (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.18),transparent_34%)]" />
-        <Container className="py-8 sm:py-10 lg:py-14">
-          <div className="grid min-h-[82svh] gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:gap-14">
-            <motion.div
-              ref={heroTextRef}
-              style={{ y: heroTextY }}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.95, ease: easeLuxury }}
-              className="relative z-10 max-w-[35rem]"
-            >
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
-                Praeliator
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#060606]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.12),transparent_32%)]" />
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-55"
+          style={{ backgroundImage: `url(${visImageSources.hero})` }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28),rgba(0,0,0,0.68)_55%,rgba(0,0,0,0.92))]" />
+
+        <Container className="relative py-10 sm:py-12 lg:py-16">
+          <motion.div
+            style={{ y: heroTextY }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.95, ease: easeLuxury }}
+            className="flex min-h-[82svh] max-w-[58rem] flex-col justify-end pb-6 sm:pb-10 lg:min-h-[88svh] lg:pb-14"
+          >
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
+              Praeliator
+            </p>
+
+            <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.84] tracking-[-0.07em] sm:text-6xl md:text-7xl lg:text-[6.4rem] xl:text-[7rem]">
+              Enter slowly.
+              <span className="mt-4 block max-w-[9ch] text-white/68">
+                Leave noise outside.
+              </span>
+            </h1>
+
+            <div className="mt-8 grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-12">
+              <p className="max-w-[28rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-lg">
+                Praeliator is a luxury boxing house built around restraint, material seriousness,
+                and a private route into acquisition. The website is not the sale. It is the threshold.
               </p>
 
-              <h1 className="mt-5 text-4xl font-semibold leading-[0.88] tracking-[-0.065em] sm:text-5xl md:text-7xl xl:text-[5.6rem]">
-                This is not something you just buy.
-                <span className="mt-3 block max-w-[9ch] text-white/68">
-                  This is something you enter.
-                </span>
-              </h1>
-
-              <p className="mt-7 max-w-[29rem] text-sm leading-7 text-white/58 sm:text-base sm:leading-8 md:text-lg">
-                Praeliator VIS is a flagship training glove presented with restraint,
-                material precision, and a slower route into the house.
-              </p>
-
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
                 <Button
                   type="button"
                   onClick={() => goTo("/praeliator-vis")}
@@ -612,60 +822,35 @@ export default function PraeliatorWebsite() {
                   </a>
                 </Button>
               </div>
-
-              <div className="mt-12 border-t border-white/10 pt-5">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-white/36 sm:text-[11px]">
-                  Praeliator VIS · 16 oz · Lace-up · Direct acquisition
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              style={{ y: heroMediaY }}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1.05, ease: easeLuxury, delay: 0.08 }}
-              className="relative"
-            >
-              <ImageSurface
-                src={visImageSources.hero}
-                alt="Praeliator VIS hero"
-                className="min-h-[26rem] sm:min-h-[34rem] lg:min-h-[46rem]"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                      Praeliator VIS
-                    </p>
-                    <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl md:text-5xl">
-                      Discipline, in form.
-                    </p>
-                  </>
-                }
-              />
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </Container>
       </section>
 
       <section className="border-b border-white/10 bg-[#090909]">
-        <Container className="py-16 sm:py-20 lg:py-28">
+        <Container className="py-20 sm:py-24 lg:py-32">
           <Reveal>
-            <div className="mx-auto max-w-5xl text-center">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Manifesto
-              </p>
-              <h2 className="mt-5 text-3xl font-semibold leading-[0.95] tracking-[-0.055em] sm:text-5xl md:text-6xl lg:text-[4.6rem]">
-                Boxing, treated as art.
-                <span className="mt-3 block text-white/70">Control before noise.</span>
-                <span className="mt-3 block text-white/46">Acquisition before transaction.</span>
-              </h2>
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Brand core
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-[5rem]">
+                  Boxing, treated as art.
+                  <span className="mt-3 block text-white/68">Discipline, before display.</span>
+                  <span className="mt-3 block text-white/44">Control, before spectacle.</span>
+                </h2>
+              </div>
             </div>
           </Reveal>
         </Container>
       </section>
 
-      <section className="relative bg-[linear-gradient(180deg,#0b0b0b_0%,#090909_100%)]">
-        <Container className="py-8 sm:py-10 lg:py-14">
+      <section className="border-b border-white/10 bg-[#0b0b0b]">
+        <Container className="py-10 sm:py-12 lg:py-16">
           <Reveal>
             <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_42px_120px_rgba(0,0,0,0.45)]">
               <div className="relative aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/8]">
@@ -680,98 +865,52 @@ export default function PraeliatorWebsite() {
                 >
                   <source src="/videos/praeliator-film.mp4" type="video/mp4" />
                 </video>
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.32))]" />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.4))]" />
               </div>
             </div>
           </Reveal>
         </Container>
       </section>
 
-      <section className="border-t border-white/10">
+      <section className="border-b border-white/10 bg-[#070707]">
         <Container className="py-16 sm:py-20 lg:py-28">
-          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
+          <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-10">
             <Reveal>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Flagship
-                </p>
-                <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  VIS defines the house before anything else does.
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  One model. One expression. One object that establishes tone, material
-                  seriousness, and the way Praeliator is meant to be approached.
-                </p>
-                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    asChild
-                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                  >
-                    <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                      Request Acquisition
-                    </a>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/praeliator-vis")}
-                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    View Specifications
-                  </Button>
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_30px_90px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_24%)]" />
+                <div className="relative">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d] sm:text-xs">
+                    The house
+                  </p>
+                  <h3 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
+                    The site should slow the client down.
+                  </h3>
+                  <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    Not everything should speak at once. Praeliator works when the hierarchy is severe:
+                    atmosphere first, object second, acquisition last.
+                  </p>
+                  <div className="mt-10">
+                    <QuietLinkButton onClick={() => goTo("/acquisition")}>
+                      Read the acquisition model
+                    </QuietLinkButton>
+                  </div>
                 </div>
               </div>
             </Reveal>
 
-            <Reveal delay={0.08}>
-              <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-                <DataList
-                  items={[
-                    { label: "Weight", value: "16 oz" },
-                    { label: "Closure", value: "Lace-up only" },
-                    { label: "Use", value: "Training · Technical sparring" },
-                    { label: "Leather", value: "Top-grain cowhide · 0.9–1.0 mm" },
-                    { label: "Finish", value: "Soft satin with restrained two-tone response" },
-                    { label: "Presentation", value: "Rigid box · silk dust bag · authenticity" },
-                  ]}
-                  compact
-                />
-              </div>
-            </Reveal>
-          </div>
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-            <Reveal>
-              <ImageSurface
-                src={visImageSources.leather}
-                alt="Praeliator VIS leather detail"
-                className="min-h-[22rem] sm:min-h-[26rem] lg:min-h-[34rem]"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                      Material
-                    </p>
-                    <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                      Soft satin. Quiet depth.
-                    </p>
-                  </>
-                }
-              />
-            </Reveal>
-
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               <Reveal delay={0.06}>
                 <ImageSurface
-                  src={visImageSources.plate}
-                  alt="Praeliator VIS debossed plate detail"
-                  className="min-h-[15rem] sm:min-h-[16rem]"
+                  src={visImageSources.leather}
+                  alt="Praeliator leather detail"
+                  className="min-h-[16rem] sm:min-h-[18rem]"
                   priorityCopy={
                     <>
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                        Branding
+                        Material
                       </p>
-                      <p className="mt-4 max-w-[14ch] text-xl font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7] sm:text-2xl">
-                        Debossed, not announced.
+                      <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
+                        Soft satin. Quiet depth.
                       </p>
                     </>
                   }
@@ -781,15 +920,15 @@ export default function PraeliatorWebsite() {
               <Reveal delay={0.12}>
                 <ImageSurface
                   src={visImageSources.packaging}
-                  alt="Praeliator VIS packaging"
-                  className="min-h-[15rem] sm:min-h-[16rem]"
+                  alt="Praeliator presentation"
+                  className="min-h-[16rem] sm:min-h-[18rem]"
                   priorityCopy={
                     <>
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
                         Presentation
                       </p>
-                      <p className="mt-4 max-w-[14ch] text-xl font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7] sm:text-2xl">
-                        The object begins before it is opened.
+                      <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
+                        The object starts before it is opened.
                       </p>
                     </>
                   }
@@ -800,61 +939,53 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="border-t border-white/10 bg-[#090909]">
+      <section className="border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
         <Container className="py-16 sm:py-20 lg:py-28">
-          <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
+          <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-14">
             <Reveal>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Acquisition
+                  Praeliator VIS
                 </p>
-                <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  The route is deliberate by design.
+                <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
+                  The flagship, in one line.
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  Praeliator does not use open-cart logic, discount choreography, or
-                  transaction theatre. Inquiry, confirmation, and acquisition happen
-                  directly.
+                  16 oz. Lace-up. Top-grain cowhide. Technical sparring and disciplined training.
+                  Nothing else on the site should compete with that.
                 </p>
-                <div className="mt-8">
-                  <QuietLinkButton onClick={() => goTo("/acquisition")}>
-                    Explore the acquisition model
-                  </QuietLinkButton>
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    type="button"
+                    onClick={() => goTo("/praeliator-vis")}
+                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                  >
+                    Enter VIS
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+                      Request Acquisition
+                    </a>
+                  </Button>
                 </div>
               </div>
             </Reveal>
 
             <Reveal delay={0.08}>
-              <div className="divide-y divide-white/10 border-t border-white/10">
+              <div className="grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:grid-cols-2">
                 {[
-                  [
-                    "01",
-                    "Inquiry",
-                    "The client enters through WhatsApp or email, not through a conventional checkout flow.",
-                  ],
-                  [
-                    "02",
-                    "Confirmation",
-                    "Availability, timing, and next steps are clarified directly.",
-                  ],
-                  [
-                    "03",
-                    "Acquisition",
-                    "The purchase is completed through private client communication.",
-                  ],
-                ].map(([step, title, text]) => (
-                  <div key={step} className="grid gap-4 py-5 sm:grid-cols-[92px_1fr] sm:gap-6 sm:py-6">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                      {step}
-                    </p>
-                    <div>
-                      <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
-                        {title}
-                      </h3>
-                      <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                        {text}
-                      </p>
-                    </div>
+                  { label: "Weight", value: "16 oz" },
+                  { label: "Closure", value: "Lace-up only" },
+                  { label: "Use", value: "Training · Technical sparring" },
+                  { label: "Leather", value: "Top-grain cowhide · 0.9–1.0 mm" },
+                ].map((item) => (
+                  <div key={item.label} className="bg-[#11100f] p-6 sm:p-7">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/38">{item.label}</p>
+                    <p className="mt-3 text-lg font-medium text-[#f4efe7] sm:text-xl">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -863,9 +994,9 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="border-t border-white/10">
-        <Container className="py-16 sm:py-20 lg:py-28">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <section className="border-t border-white/10 bg-[#070707]">
+        <Container className="py-16 sm:py-20 lg:py-24">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {galleryImages.map((src, index) => (
               <Reveal key={src} delay={index * 0.05}>
                 <div className={`relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.3)] ${index % 2 === 0 ? "aspect-[4/5]" : "aspect-square"}`}>
@@ -880,49 +1011,10 @@ export default function PraeliatorWebsite() {
           </div>
         </Container>
       </section>
-
-      <section className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <Container className="py-14 sm:py-16 lg:py-20">
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-            <Reveal>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Private access
-                </p>
-                <h2 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  Request acquisition or enter the waitlist.
-                </h2>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => goTo("/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                >
-                  Join Waitlist
-                </Button>
-
-                <Button
-                  asChild
-                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                >
-                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                    Private Inquiry
-                  </a>
-                </Button>
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
     </>
   );
 
-  const renderVisPage = () => (
+  const renderVisPage = (
     <section className="border-b border-white/10">
       <Container className="py-16 sm:py-20 lg:py-28">
         <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start lg:gap-14">
@@ -1235,7 +1327,7 @@ export default function PraeliatorWebsite() {
               {[
                 "Use the waitlist if you want future release access.",
                 "Use direct inquiry if you are ready to discuss VIS now.",
-                "The first contact should feel easy, not administrative.",
+                "You can search a country or type the dialing code manually.",
               ].map((item) => (
                 <div key={item} className="py-4">
                   <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
@@ -1278,30 +1370,40 @@ export default function PraeliatorWebsite() {
                   placeholder="Email address *"
                 />
 
-                <SelectField
-                  name="country"
-                  value={waitlistForm.country}
-                  onChange={handleWaitlistChange}
-                >
-                  {countryOptions.map((option) => (
-                    <option key={option.label} value={option.label}>
-                      {option.label}
-                    </option>
-                  ))}
-                </SelectField>
-
-                <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
-                  <SelectField
-                    name="phoneCountryCode"
-                    value={waitlistForm.phoneCountryCode}
+                <div className="grid gap-2">
+                  <input
+                    list="praeliator-country-options"
+                    name="country"
+                    value={waitlistForm.country}
                     onChange={handleWaitlistChange}
-                  >
+                    className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                    placeholder="Country *"
+                  />
+                  <datalist id="praeliator-country-options">
                     {countryOptions.map((option) => (
-                      <option key={`${option.label}-${option.code}`} value={option.code}>
-                        {`${option.code} · ${option.label}`}
-                      </option>
+                      <option key={option.label} value={option.label} />
                     ))}
-                  </SelectField>
+                  </datalist>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
+                  <div className="grid gap-2">
+                    <input
+                      list="praeliator-dial-code-options"
+                      name="phoneCountryCode"
+                      value={waitlistForm.phoneCountryCode}
+                      onChange={handleWaitlistChange}
+                      className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                      placeholder="Code *"
+                    />
+                    <datalist id="praeliator-dial-code-options">
+                      {dialCodeSuggestions.map((option) => (
+                        <option key={`${option.code}-${option.label}`} value={option.code}>
+                          {`${option.code} · ${option.label}`}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
 
                   <InputField
                     name="whatsapp"
@@ -1496,6 +1598,9 @@ export default function PraeliatorWebsite() {
             <div className="min-w-0">
               <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
                 Praeliator
+              </p>
+              <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
+                {currentPageTitle}
               </p>
             </div>
           </button>
