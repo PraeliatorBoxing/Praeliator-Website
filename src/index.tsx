@@ -50,6 +50,56 @@ const visService = [
   "Lace replacement",
 ];
 
+const constructionEvidence = [
+  {
+    label: "Construction record",
+    value:
+      "0.9–1.0 mm top-grain cowhide, 16 oz balance control, attached thumb, ventilated palm, and an extended lace-up cuff are stated directly rather than implied.",
+  },
+  {
+    label: "Packing record",
+    value:
+      "Each pair can be tied to a presentation checklist covering box, dust bag, silk wrapping, authenticity card, and care card.",
+  },
+  {
+    label: "Ownership record",
+    value:
+      "The ownership structure is designed to hold a client reference, product allocation, delivery status, and future aftercare history in one place.",
+  },
+];
+
+const trustArchitecture = [
+  {
+    title: "Inquiry record",
+    text:
+      "Each qualified inquiry should open a client record with a reference number, contact history, and route status rather than disappearing into inbox search.",
+  },
+  {
+    title: "Delivery record",
+    text:
+      "Allocation, dispatch, delivery confirmation, and packaging completion should sit inside one controlled record rather than separate manual notes.",
+  },
+  {
+    title: "Aftercare record",
+    text:
+      "Ownership should continue after delivery through service history, lace replacement, leather maintenance, and return logistics when needed.",
+  },
+];
+
+const ownershipSignals = [
+  { label: "Allocation", value: "Product allocation reference held against the client record." },
+  { label: "Authenticity", value: "Card code and packing checklist stored with the order record." },
+  { label: "Delivery", value: "Dispatch, carrier, destination, and receipt confirmation attached to the file." },
+  { label: "Aftercare", value: "Service eligibility and future maintenance history preserved under one ownership record." },
+];
+
+const serviceStandards = [
+  "Client reference returned after submission.",
+  "Lead routed into a persistent backend record rather than email-only intake.",
+  "CRM contact sync for follow-up, history, and response ownership.",
+  "Delivery and aftercare records designed to continue after purchase.",
+];
+
 const visImageSources = {
   hero: "/images/vis-hero.jpg",
   leather: "/images/vis-leather.jpg",
@@ -671,7 +721,7 @@ export default function PraeliatorWebsite() {
   const emailLink =
     "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
   const instagramLink = "https://instagram.com/praeliatorboxing";
-  const waitlistEndpoint = "https://formsubmit.co/ajax/praeliatorboxing@gmail.com";
+  const waitlistEndpoint = "/api/private-client-intake";
 
   const [route, setRoute] = useState<Route>(() => {
     if (typeof window === "undefined") return "/";
@@ -684,6 +734,8 @@ export default function PraeliatorWebsite() {
     loading: false,
     success: false,
     error: "",
+    reference: "",
+    serviceMessage: "",
   });
 
   const reduceMotion = useReducedMotion();
@@ -788,30 +840,34 @@ export default function PraeliatorWebsite() {
   const handleWaitlistSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setWaitlistState({ loading: true, success: false, error: "" });
+    setWaitlistState({
+      loading: true,
+      success: false,
+      error: "",
+      reference: "",
+      serviceMessage: "",
+    });
 
     const payload = {
       title: waitlistForm.title.trim(),
       fullName: waitlistForm.fullName.trim(),
       email: waitlistForm.email.trim(),
       phoneCountryCode: waitlistForm.phoneCountryCode.trim(),
-      whatsapp: waitlistForm.whatsapp.trim(),
-      fullWhatsapp: `${waitlistForm.phoneCountryCode} ${waitlistForm.whatsapp.trim()}`.trim(),
+      phoneNumber: waitlistForm.whatsapp.trim(),
+      fullPhone: `${waitlistForm.phoneCountryCode} ${waitlistForm.whatsapp.trim()}`.trim(),
       country: waitlistForm.country.trim(),
       interest: waitlistForm.interest.trim(),
       timeline: waitlistForm.timeline.trim(),
       contactPreference: waitlistForm.contactPreference.trim(),
       note: waitlistForm.note.trim(),
-      _subject: "New Praeliator Waitlist Submission",
-      _template: "table",
-      _captcha: "false",
+      sourceRoute: route,
     };
 
     if (
       !payload.fullName ||
       !payload.email ||
       !payload.phoneCountryCode ||
-      !payload.whatsapp ||
+      !payload.phoneNumber ||
       !payload.country ||
       !payload.interest ||
       !payload.timeline ||
@@ -821,6 +877,8 @@ export default function PraeliatorWebsite() {
         loading: false,
         success: false,
         error: "Please complete all required fields.",
+        reference: "",
+        serviceMessage: "",
       });
       return;
     }
@@ -837,17 +895,30 @@ export default function PraeliatorWebsite() {
 
       const result = await response.json();
 
-      if (!response.ok || result?.success === "false") {
-        throw new Error("Submission failed.");
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || "Submission failed.");
       }
 
-      setWaitlistState({ loading: false, success: true, error: "" });
+      setWaitlistState({
+        loading: false,
+        success: true,
+        error: "",
+        reference: result.reference || "",
+        serviceMessage:
+          result.serviceMessage ||
+          "A private response follows after review. Your client record is now open.",
+      });
       setWaitlistForm(initialWaitlistForm);
-    } catch {
+    } catch (error) {
       setWaitlistState({
         loading: false,
         success: false,
-        error: "Submission failed. Please try again or contact Praeliator directly by WhatsApp.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Submission failed. Please try again or contact Praeliator directly by WhatsApp.",
+        reference: "",
+        serviceMessage: "",
       });
     }
   };
@@ -855,12 +926,18 @@ export default function PraeliatorWebsite() {
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10 bg-[#060606]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.12),transparent_32%)]" />
-        <div
+        <motion.div
+          style={{ y: heroMediaY }}
           className="absolute inset-0 bg-cover bg-center opacity-55"
-          style={{ backgroundImage: `url(${homeImageSources.hero})` }}
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28),rgba(0,0,0,0.68)_55%,rgba(0,0,0,0.92))]" />
+          aria-hidden="true"
+        >
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${homeImageSources.hero})` }}
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.12),transparent_32%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.68)_55%,rgba(0,0,0,0.94))]" />
 
         <Container className="relative py-10 sm:py-12 lg:py-16">
           <motion.div
@@ -875,16 +952,16 @@ export default function PraeliatorWebsite() {
             </p>
 
             <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.84] tracking-[-0.07em] sm:text-6xl md:text-7xl lg:text-[6.4rem] xl:text-[7rem]">
-              Enter slowly.
+              Serious equipment.
               <span className="mt-4 block max-w-[9ch] text-white/68">
-                Leave noise outside.
+                Quieter acquisition.
               </span>
             </h1>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-12">
-              <p className="max-w-[28rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-lg">
-                Praeliator is a luxury boxing house built around restraint, material seriousness,
-                and a private route into acquisition. The website is not the sale. It is the threshold.
+              <p className="max-w-[31rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-lg">
+                Praeliator is built for clients who want disciplined boxing equipment, controlled presentation,
+                and a private route into ownership. The site introduces the house. The product and the record do the rest.
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
@@ -913,28 +990,6 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#090909]">
-        <Container className="py-20 sm:py-24 lg:py-32">
-          <Reveal>
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Brand core
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-[5rem]">
-                  Boxing, treated as art.
-                  <span className="mt-3 block text-white/68">Discipline, before display.</span>
-                  <span className="mt-3 block text-white/44">Control, before spectacle.</span>
-                </h2>
-              </div>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
-      <section className="border-b border-white/10 bg-[#0b0b0b]">
         <Container className="py-10 sm:py-12 lg:py-16">
           <Reveal>
             <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_42px_120px_rgba(0,0,0,0.45)]">
@@ -946,11 +1001,11 @@ export default function PraeliatorWebsite() {
                   loop
                   playsInline
                   preload="auto"
-                  poster={homeImageSources.videoPoster}
+                  poster={visImageSources.videoPoster}
                 >
                   <source src="/videos/praeliator-film.mp4" type="video/mp4" />
                 </video>
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.4))]" />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.36))]" />
               </div>
             </div>
           </Reveal>
@@ -958,44 +1013,55 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[#070707]">
-        <Container className="py-16 sm:py-20 lg:py-28">
-          <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-10">
-            <Reveal>
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] p-7 shadow-[0_30px_90px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(198,163,90,0.08),transparent_24%)]" />
-                <div className="relative">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d] sm:text-xs">
-                    The house
-                  </p>
-                  <h3 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                    The site should slow the client down.
-                  </h3>
-                  <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                    Not everything should speak at once. Praeliator works when the hierarchy is severe:
-                    atmosphere first, object second, acquisition last.
-                  </p>
-                  <div className="mt-10">
-                    <QuietLinkButton onClick={() => goTo("/acquisition")}>
-                      Read the acquisition model
-                    </QuietLinkButton>
-                  </div>
-                </div>
+        <Container className="py-20 sm:py-24 lg:py-32">
+          <Reveal>
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Brand core</p>
               </div>
+
+              <div>
+                <h2 className="text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-[5rem]">
+                  Built with discipline.
+                  <span className="mt-3 block text-white/68">Presented with restraint.</span>
+                  <span className="mt-3 block text-white/44">Supported after delivery.</span>
+                </h2>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#060606]">
+        <Container className="py-10 sm:py-12 lg:py-16">
+          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+            <Reveal>
+              <ImageSurface
+                src={homeImageSources.hero}
+                alt="Praeliator editorial still"
+                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[46rem]"
+                priorityCopy={
+                  <>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">The house</p>
+                    <p className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
+                      First impression should stay controlled.
+                    </p>
+                  </>
+                }
+              />
             </Reveal>
 
-            <div className="grid gap-8">
+            <div className="grid gap-6 lg:gap-8">
               <Reveal delay={0.06}>
                 <ImageSurface
                   src={homeImageSources.material}
-                  alt="Praeliator leather detail"
-                  className="min-h-[16rem] sm:min-h-[18rem]"
+                  alt="Praeliator editorial material detail"
+                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
                   priorityCopy={
                     <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                        Material
-                      </p>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Material</p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        Soft satin. Quiet depth.
+                        The product earns the language.
                       </p>
                     </>
                   }
@@ -1005,15 +1071,13 @@ export default function PraeliatorWebsite() {
               <Reveal delay={0.12}>
                 <ImageSurface
                   src={homeImageSources.presentation}
-                  alt="Praeliator presentation"
-                  className="min-h-[16rem] sm:min-h-[18rem]"
+                  alt="Praeliator editorial presentation"
+                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
                   priorityCopy={
                     <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                        Presentation
-                      </p>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Ownership</p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        The object starts before it is opened.
+                        Service should continue after receipt.
                       </p>
                     </>
                   }
@@ -1025,19 +1089,38 @@ export default function PraeliatorWebsite() {
       </section>
 
       <section className="border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
+        <Container className="py-16 sm:py-20 lg:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+            <Reveal>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Product seriousness</p>
+                <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
+                  Strong claims need stronger records.
+                </h2>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
+                <DataList items={constructionEvidence} compact />
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
         <Container className="py-16 sm:py-20 lg:py-28">
           <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:gap-14">
             <Reveal>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Praeliator VIS
-                </p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Praeliator VIS</p>
                 <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
                   The flagship, in one line.
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   16 oz. Lace-up. Top-grain cowhide. Technical sparring and disciplined training.
-                  Nothing else on the site should compete with that.
+                  The atmosphere opens the door. The product closes the case.
                 </p>
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
@@ -1100,14 +1183,14 @@ export default function PraeliatorWebsite() {
   );
 
   const renderVisPage = () => (
-    <section className="border-b border-white/10">
+    <section className="border-b border-white/10 bg-[#080808]">
       <Container className="py-16 sm:py-20 lg:py-28">
         <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start lg:gap-14">
           <Reveal>
             <SectionHeading
               eyebrow="Praeliator VIS"
-              title="A flagship training glove shaped by restraint, structure, and intent."
-              description="Praeliator VIS is built for disciplined training and technical sparring. It is materially specific, visually controlled, and presented through direct acquisition."
+              title="A flagship training glove built with specific standards and a clear service life."
+              description="Praeliator VIS is made for disciplined training and technical sparring. The page should show what the glove is, how it is built, and how ownership continues after delivery."
             />
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -1142,7 +1225,7 @@ export default function PraeliatorWebsite() {
                     Praeliator VIS
                   </p>
                   <p className="mt-4 max-w-[13ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                    Minimal branding. Controlled presence.
+                    Minimal branding. Concrete standards.
                   </p>
                 </>
               }
@@ -1154,10 +1237,7 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <div className="max-w-2xl">
               <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                A 16 oz lace-up training glove built in top-grain cowhide leather with a
-                soft satin finish and a restrained two-tone character. Deep black remains
-                the primary visual read, while a subtle espresso tone reveals itself when
-                light moves across the surface.
+                A 16 oz lace-up training glove built in top-grain cowhide leather with a soft satin finish and a restrained two-tone character. Deep black remains the primary visual read, while a subtle espresso tone appears when light moves across the surface.
               </p>
             </div>
           </Reveal>
@@ -1225,7 +1305,7 @@ export default function PraeliatorWebsite() {
               <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
                 Four-layer impact structure
               </h3>
-              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                 {visPaddingLayers.map((layer, index) => (
                   <div
                     key={`${layer}-${index}`}
@@ -1247,18 +1327,45 @@ export default function PraeliatorWebsite() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
           <Reveal>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Presentation
-              </p>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Ownership seriousness</p>
               <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                The object extends beyond the glove.
+                Ownership should stay recorded.
               </h3>
-              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
+              <div className="mt-6 rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8">
+                <DataList items={ownershipSignals} compact />
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Aftercare</p>
+              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                Praeliator Legacy Refresh
+              </h3>
+              <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                Available after the first year, this service supports longevity through maintenance rather than replacement culture.
+              </p>
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                {visService.map((item) => (
+                  <div key={item} className="py-4">
+                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
+          <Reveal>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Presentation</p>
+              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">The object extends beyond the glove.</h3>
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                 {visPackaging.map((item) => (
                   <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
-                      {item}
-                    </p>
+                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
                   </div>
                 ))}
               </div>
@@ -1266,23 +1373,13 @@ export default function PraeliatorWebsite() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Aftercare
-              </p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                Praeliator Legacy Refresh
-              </h3>
-              <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                Available after the first year, this service supports longevity through
-                maintenance rather than replacement culture.
-              </p>
-              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-                {visService.map((item) => (
-                  <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
-                      {item}
-                    </p>
+            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Proof architecture</p>
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                {constructionEvidence.map((item) => (
+                  <div key={item.label} className="py-5">
+                    <h3 className="text-lg font-medium text-[#f4efe7]">{item.label}</h3>
+                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -1294,33 +1391,22 @@ export default function PraeliatorWebsite() {
   );
 
   const renderAcquisitionPage = () => (
-    <section className="border-b border-white/10">
+    <section className="border-b border-white/10 bg-[#090909]">
       <Container className="py-16 sm:py-20 lg:py-28">
         <SectionHeading
           eyebrow="Acquisition"
-          title="The acquisition model is direct, controlled, and personal."
-          description="Praeliator does not operate like conventional ecommerce. The website is a filter, a statement, and an entry point into direct communication."
+          title="The acquisition model should feel direct, recorded, and dependable."
+          description="Praeliator does not operate like conventional ecommerce. The route stays private, but the underlying record should be stronger than an email thread."
         />
 
         <div className="mt-12 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
           <Reveal>
             <div className="divide-y divide-white/10 border-t border-white/10">
               {[
-                [
-                  "01",
-                  "Inquiry",
-                  "Clients enter through WhatsApp or email rather than conventional checkout.",
-                ],
-                [
-                  "02",
-                  "Clarification",
-                  "Product interest, timing, destination, and availability are confirmed directly.",
-                ],
-                [
-                  "03",
-                  "Acquisition",
-                  "Purchase is completed privately, with communication kept personal and controlled.",
-                ],
+                ["01", "Inquiry", "The client enters by WhatsApp, email, or the private intake form rather than conventional checkout."],
+                ["02", "Record creation", "The inquiry becomes a persistent client record with a reference number, route status, and follow-up ownership."],
+                ["03", "Review and allocation", "Product interest, timing, destination, and allocation status are clarified before payment and dispatch."],
+                ["04", "Delivery and aftercare", "Delivery progress and future service history continue under the same record after purchase."],
               ].map(([step, title, text]) => (
                 <div key={step} className="grid gap-4 py-5 sm:grid-cols-[90px_1fr] sm:gap-6 sm:py-6">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
@@ -1341,33 +1427,12 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Notes
-              </p>
-              <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-                {[
-                  {
-                    title: "Availability",
-                    text: "VIS availability is confirmed directly rather than exposed through stock logic.",
-                  },
-                  {
-                    title: "Shipping",
-                    text: "Delivery scope is clarified during inquiry based on destination.",
-                  },
-                  {
-                    title: "Presentation",
-                    text: "The glove arrives with its full presentation system rather than generic packaging.",
-                  },
-                  {
-                    title: "Aftercare",
-                    text: "Legacy Refresh extends the life and finish of the glove after purchase.",
-                  },
-                ].map((item) => (
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Trust architecture</p>
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                {trustArchitecture.map((item) => (
                   <div key={item.title} className="py-5">
-                    <h3 className="text-lg font-medium sm:text-xl">{item.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                      {item.text}
-                    </p>
+                    <h3 className="text-lg font-medium text-[#f4efe7]">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -1378,16 +1443,16 @@ export default function PraeliatorWebsite() {
                   className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                    Private Purchase Inquiry
+                    Begin Inquiry
                   </a>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => goTo("/contact")}
+                  onClick={() => goTo("/waitlist")}
                   className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                 >
-                  Contact Channels
+                  Join Waitlist
                 </Button>
               </div>
             </div>
@@ -1398,9 +1463,9 @@ export default function PraeliatorWebsite() {
   );
 
   const renderWaitlistPage = () => (
-    <section className="border-b border-white/10">
-      <Container className="pt-2 pb-14 sm:pt-4 sm:pb-16 lg:pt-6 lg:pb-20">
-        <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-12">
+    <section className="border-b border-white/10 bg-[#090909]">
+      <Container className="pt-0 pb-14 sm:pt-1 sm:pb-16 lg:pt-2 lg:pb-20">
+        <div className="grid gap-5 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-10">
           <Reveal>
             <SectionHeading
               eyebrow="Waitlist"
@@ -1408,17 +1473,14 @@ export default function PraeliatorWebsite() {
               description="The waitlist exists for future releases, collector interest, and clients who prefer to enter the house before a direct purchase conversation."
             />
 
+            <div className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              The form is intentionally restrained, but the system behind it should not be lightweight. Once submitted, the inquiry should open a real client record, return a reference, and move into review without relying on inbox memory.
+            </div>
+
             <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-              {[
-                "Search country by name or dial code.",
-                "Type a dial code manually if you prefer.",
-                "Use a formal title if it matters to you.",
-                "The inquiry is routed directly to Praeliator.",
-              ].map((item) => (
+              {serviceStandards.map((item) => (
                 <div key={item} className="py-4">
-                  <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                    {item}
-                  </p>
+                  <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item}</p>
                 </div>
               ))}
             </div>
@@ -1462,8 +1524,36 @@ export default function PraeliatorWebsite() {
                     <option value="Sheikh">Sheikh</option>
                     <option value="Sheikha">Sheikha</option>
                     <option value="H.E.">H.E.</option>
+                    <option value="H.E. Dr.">H.E. Dr.</option>
+                    <option value="H.E. Mr.">H.E. Mr.</option>
+                    <option value="H.E. Mrs.">H.E. Mrs.</option>
                     <option value="H.H.">H.H.</option>
+                    <option value="H.H. Prince">H.H. Prince</option>
+                    <option value="H.H. Sheikh">H.H. Sheikh</option>
+                    <option value="H.H. Sheikha">H.H. Sheikha</option>
                     <option value="H.R.H.">H.R.H.</option>
+                    <option value="H.R.H. Prince">H.R.H. Prince</option>
+                    <option value="H.R.H. Princess">H.R.H. Princess</option>
+                    <option value="Esq.">Esq.</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Chief">Chief</option>
+                    <option value="Dato">Dato</option>
+                    <option value="Dato Sri">Dato Sri</option>
+                    <option value="Datin">Datin</option>
+                    <option value="Datin Sri">Datin Sri</option>
+                    <option value="Puan Sri">Puan Sri</option>
+                    <option value="Tan Sri">Tan Sri</option>
+                    <option value="Reverend">Reverend</option>
+                    <option value="Herr">Herr</option>
+                    <option value="Frau">Frau</option>
+                    <option value="Mdm.">Mdm.</option>
+                    <option value="Monsieur">Monsieur</option>
+                    <option value="Madame">Madame</option>
+                    <option value="Señor">Señor</option>
+                    <option value="Señora">Señora</option>
+                    <option value="Señorita">Señorita</option>
+                    <option value="先生">先生</option>
+                    <option value="女士">女士</option>
                   </SelectField>
 
                   <InputField
@@ -1493,36 +1583,22 @@ export default function PraeliatorWebsite() {
                       phoneCountryCode: matchedOption ? matchedOption.code : current.phoneCountryCode,
                     }));
                   }}
-                  options={countryOptions}
-                  placeholder="Country *"
+                  options={countryOptions.map((option) => ({ label: option.label, code: option.code }))}
+                  placeholder="Country or dial code *"
                   exactMatchUpdates
                 />
 
-                <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
-                  <SearchPicker
+                <div className="grid gap-4 sm:grid-cols-[0.82fr_1.18fr]">
+                  <InputField
+                    name="phoneCountryCode"
                     value={waitlistForm.phoneCountryCode}
-                    onChange={(value, matchedOption) => {
-                      const cleanedCode = value.replace(/[^\d+]/g, "");
-                      const normalizedCode = cleanedCode
-                        ? cleanedCode.startsWith("+")
-                          ? cleanedCode
-                          : `+${cleanedCode}`
-                        : "";
-
-                      setWaitlistForm((current) => ({
-                        ...current,
-                        phoneCountryCode: normalizedCode,
-                        country: matchedOption && current.country === "Mexico" ? matchedOption.label : current.country,
-                      }));
-                    }}
-                    options={dialCodeSuggestions}
-                    placeholder="Code *"
-                    inputMode="tel"
+                    onChange={handleWaitlistChange}
+                    autoComplete="tel-country-code"
+                    placeholder="Dial code *"
                   />
 
                   <InputField
                     name="whatsapp"
-                    type="tel"
                     value={waitlistForm.whatsapp}
                     onChange={handleWaitlistChange}
                     autoComplete="tel-national"
@@ -1537,9 +1613,9 @@ export default function PraeliatorWebsite() {
                 >
                   <option value="">Interest *</option>
                   <option value="Praeliator VIS">Praeliator VIS</option>
-                  <option value="Future Releases">Future releases</option>
-                  <option value="Collector Interest">Collector interest</option>
-                  <option value="General Brand Interest">General brand interest</option>
+                  <option value="Future releases">Future releases</option>
+                  <option value="Collector interest">Collector interest</option>
+                  <option value="General brand inquiry">General brand inquiry</option>
                 </SelectField>
 
                 <SelectField
@@ -1560,7 +1636,7 @@ export default function PraeliatorWebsite() {
                   onChange={handleWaitlistChange}
                 >
                   <option value="">Preferred contact method *</option>
-                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Phone">Phone</option>
                   <option value="Email">Email</option>
                   <option value="Either">Either</option>
                 </SelectField>
@@ -1582,9 +1658,14 @@ export default function PraeliatorWebsite() {
                 </Button>
 
                 {waitlistState.success ? (
-                  <p className="text-sm leading-6 text-[#d7c5ae]">
-                    You are on the list. Your submission has been routed to Praeliator.
-                  </p>
+                  <div className="rounded-2xl border border-[#2f241d] bg-[#0d0b0a] px-5 py-4">
+                    <p className="text-sm leading-6 text-[#d7c5ae]">
+                      Inquiry received{waitlistState.reference ? ` · ${waitlistState.reference}` : ""}.
+                    </p>
+                    {waitlistState.serviceMessage ? (
+                      <p className="mt-2 text-sm leading-6 text-white/55">{waitlistState.serviceMessage}</p>
+                    ) : null}
+                  </div>
                 ) : null}
 
                 {waitlistState.error ? (
