@@ -145,8 +145,7 @@ const countryOptions = [
   { code: "+245", label: "Guinea-Bissau" },
   { code: "+592", label: "Guyana" },
   { code: "+509", label: "Haiti" },
-  { code: "+", label: "Heard Island and McDonald Islands" },
-  { code: "+504", label: "Honduras" },
+    { code: "+504", label: "Honduras" },
   { code: "+852", label: "Hong Kong" },
   { code: "+36", label: "Hungary" },
   { code: "+354", label: "Iceland" },
@@ -161,7 +160,7 @@ const countryOptions = [
   { code: "+81", label: "Japan" },
   { code: "+44", label: "Jersey" },
   { code: "+962", label: "Jordan" },
-  { code: "+76", label: "Kazakhstan" },
+  { code: "+7", label: "Kazakhstan" },
   { code: "+254", label: "Kenya" },
   { code: "+686", label: "Kiribati" },
   { code: "+965", label: "Kuwait" },
@@ -244,7 +243,7 @@ const countryOptions = [
   { code: "+94", label: "Sri Lanka" },
   { code: "+249", label: "Sudan" },
   { code: "+597", label: "Suriname" },
-  { code: "+4779", label: "Svalbard and Jan Mayen" },
+  { code: "+47", label: "Svalbard and Jan Mayen" },
   { code: "+46", label: "Sweden" },
   { code: "+41", label: "Switzerland" },
   { code: "+963", label: "Syrian Arab Republic" },
@@ -277,6 +276,7 @@ const dialCodeSuggestions = Array.from(
 );
 
 const initialWaitlistForm = {
+  title: "",
   fullName: "",
   email: "",
   phoneCountryCode: "+52",
@@ -544,6 +544,101 @@ function SelectField({
   );
 }
 
+function SearchPicker({
+  value,
+  onChange,
+  options,
+  placeholder,
+  exactMatchUpdates,
+  inputMode,
+}: {
+  value: string;
+  onChange: (value: string, matchedOption?: { label: string; code: string }) => void;
+  options: Array<{ label: string; code: string }>;
+  placeholder: string;
+  exactMatchUpdates?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const query = value.trim().toLowerCase();
+    if (!query) return options.slice(0, 12);
+
+    return options
+      .filter((option) => {
+        const label = option.label.toLowerCase();
+        const code = option.code.toLowerCase();
+        return label.includes(query) || code.includes(query);
+      })
+      .slice(0, 12);
+  }, [options, value]);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <input
+        value={value}
+        onChange={(event) => {
+          const next = event.target.value;
+          const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : next;
+          const matchedOption = options.find(
+            (option) =>
+              option.label.toLowerCase() === cleaned.trim().toLowerCase() ||
+              option.code.toLowerCase() === cleaned.trim().toLowerCase()
+          );
+
+          if (exactMatchUpdates) {
+            onChange(cleaned, matchedOption);
+          } else {
+            onChange(cleaned);
+          }
+
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        inputMode={inputMode}
+        className="h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+        placeholder={placeholder}
+      />
+
+      {open && filtered.length > 0 ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          <div className="max-h-72 overflow-y-auto py-2">
+            {filtered.map((option) => (
+              <button
+                key={`${option.code}-${option.label}`}
+                type="button"
+                onClick={() => {
+                  onChange(inputMode === "tel" ? option.code : option.label, option);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 hover:bg-white/[0.04]"
+              >
+                <span className="truncate text-sm text-[#f4efe7]">{option.label}</span>
+                <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                  {option.code}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
@@ -666,32 +761,6 @@ export default function PraeliatorWebsite() {
   ) => {
     const { name, value } = event.target;
 
-    if (name === "country") {
-      const normalizedValue = value.trim().toLowerCase();
-      const selectedCountry = countryOptions.find(
-        (option) => option.label.toLowerCase() === normalizedValue
-      );
-
-      setWaitlistForm((current) => ({
-        ...current,
-        country: value,
-        phoneCountryCode: selectedCountry ? selectedCountry.code : current.phoneCountryCode,
-      }));
-      return;
-    }
-
-    if (name === "phoneCountryCode") {
-      const cleanedCode = value.replace(/[^\d+]/g, "");
-      const normalizedCode = cleanedCode
-        ? cleanedCode.startsWith("+")
-          ? cleanedCode
-          : `+${cleanedCode}`
-        : "";
-
-      setWaitlistForm((current) => ({ ...current, phoneCountryCode: normalizedCode }));
-      return;
-    }
-
     if (name === "whatsapp") {
       const cleanedNumber = value.replace(/[^\d]/g, "");
       setWaitlistForm((current) => ({ ...current, whatsapp: cleanedNumber }));
@@ -707,6 +776,7 @@ export default function PraeliatorWebsite() {
     setWaitlistState({ loading: true, success: false, error: "" });
 
     const payload = {
+      title: waitlistForm.title.trim(),
       fullName: waitlistForm.fullName.trim(),
       email: waitlistForm.email.trim(),
       phoneCountryCode: waitlistForm.phoneCountryCode.trim(),
@@ -1014,7 +1084,7 @@ export default function PraeliatorWebsite() {
     </>
   );
 
-  const renderVisPage = (
+  const renderVisPage = () => (
     <section className="border-b border-white/10">
       <Container className="py-16 sm:py-20 lg:py-28">
         <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start lg:gap-14">
@@ -1353,13 +1423,33 @@ export default function PraeliatorWebsite() {
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
               <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
-                <InputField
-                  name="fullName"
-                  value={waitlistForm.fullName}
-                  onChange={handleWaitlistChange}
-                  autoComplete="name"
-                  placeholder="Full name *"
-                />
+                <div className="grid gap-4 sm:grid-cols-[0.72fr_1.28fr]">
+                  <SelectField
+                    name="title"
+                    value={waitlistForm.title}
+                    onChange={handleWaitlistChange}
+                  >
+                    <option value="">Title</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Miss">Miss</option>
+                    <option value="Sir">Sir</option>
+                    <option value="Prince">Prince</option>
+                    <option value="Princess">Princess</option>
+                    <option value="Lord">Lord</option>
+                    <option value="Lady">Lady</option>
+                    <option value="Dr.">Dr.</option>
+                  </SelectField>
+
+                  <InputField
+                    name="fullName"
+                    value={waitlistForm.fullName}
+                    onChange={handleWaitlistChange}
+                    autoComplete="name"
+                    placeholder="Full name *"
+                  />
+                </div>
 
                 <InputField
                   name="email"
@@ -1370,40 +1460,41 @@ export default function PraeliatorWebsite() {
                   placeholder="Email address *"
                 />
 
-                <div className="grid gap-2">
-                  <input
-                    list="praeliator-country-options"
-                    name="country"
-                    value={waitlistForm.country}
-                    onChange={handleWaitlistChange}
-                    className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
-                    placeholder="Country *"
-                  />
-                  <datalist id="praeliator-country-options">
-                    {countryOptions.map((option) => (
-                      <option key={option.label} value={option.label} />
-                    ))}
-                  </datalist>
-                </div>
+                <SearchPicker
+                  value={waitlistForm.country}
+                  onChange={(value, matchedOption) => {
+                    setWaitlistForm((current) => ({
+                      ...current,
+                      country: value,
+                      phoneCountryCode: matchedOption ? matchedOption.code : current.phoneCountryCode,
+                    }));
+                  }}
+                  options={countryOptions}
+                  placeholder="Country *"
+                  exactMatchUpdates
+                />
 
                 <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
-                  <div className="grid gap-2">
-                    <input
-                      list="praeliator-dial-code-options"
-                      name="phoneCountryCode"
-                      value={waitlistForm.phoneCountryCode}
-                      onChange={handleWaitlistChange}
-                      className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
-                      placeholder="Code *"
-                    />
-                    <datalist id="praeliator-dial-code-options">
-                      {dialCodeSuggestions.map((option) => (
-                        <option key={`${option.code}-${option.label}`} value={option.code}>
-                          {`${option.code} · ${option.label}`}
-                        </option>
-                      ))}
-                    </datalist>
-                  </div>
+                  <SearchPicker
+                    value={waitlistForm.phoneCountryCode}
+                    onChange={(value, matchedOption) => {
+                      const cleanedCode = value.replace(/[^\d+]/g, "");
+                      const normalizedCode = cleanedCode
+                        ? cleanedCode.startsWith("+")
+                          ? cleanedCode
+                          : `+${cleanedCode}`
+                        : "";
+
+                      setWaitlistForm((current) => ({
+                        ...current,
+                        phoneCountryCode: normalizedCode,
+                        country: matchedOption && current.country === "Mexico" ? matchedOption.label : current.country,
+                      }));
+                    }}
+                    options={dialCodeSuggestions}
+                    placeholder="Code *"
+                    inputMode="tel"
+                  />
 
                   <InputField
                     name="whatsapp"
