@@ -122,149 +122,79 @@ const homeCinematicMedia = {
 const customVideoLoaderIcon = "/images/video-loader.svg";
 
 const brandAssetPaths = {
-  wordmarkPreferred: "/brand/header/wordmark-full.svg",
-  wordmarkLegacy: "/logo-header.png",
-  optionalHeaderMonogram: "/brand/header/monogram-mark.svg",
-  optionalHeaderLaurel: "/brand/header/laurel-mark.svg",
-  optionalMenuClubmark: "/brand/menu/menu-clubmark.svg",
+  wordmark: "/logo-header.png",
+  monogram: {
+    leftOuter: "/brand/monogram/leaf-left-outer.svg",
+    leftUpper: "/brand/monogram/leaf-left-upper.svg",
+    leftLower: "/brand/monogram/leaf-left-lower.svg",
+    rightUpper: "/brand/monogram/leaf-right-upper.svg",
+    rightLower: "/brand/monogram/leaf-right-lower.svg",
+    rightOuter: "/brand/monogram/leaf-right-outer.svg",
+    center: "/brand/monogram/leaf-center.svg",
+  },
 };
 
-const tempBrandVectors = {
-  leaf:
-    "M50 6C36 10 24 20 17 33C10 46 13 65 29 83C31 85 35 85 37 83C54 66 66 49 68 33C69 20 61 10 52 6C51.3 5.7 50.7 5.7 50 6Z",
-};
+type MonogramMode = "closed" | "hover" | "open";
 
-type MenuClubmarkMode = "rest" | "hover" | "open";
-type HeaderIdentityMode = "wordmark" | "ritual" | "monogram";
-type HeaderCrestMode = "hidden" | "arrival" | "settled";
-
-type CrestPose = {
-  x: number;
-  y: number;
-  rotate: number;
-  scale: number;
-  opacity: number;
-};
-
-const menuClubmarkPieces = [
+const monogramPieces = [
   {
     key: "left-outer",
-    kind: "leaf" as const,
-    tone: "#dcc0a0",
-    rest: { x: -18, y: 0, rotate: -74, scale: 0.72, opacity: 0.96 },
-    hover: { x: -19, y: -1, rotate: -78, scale: 0.76, opacity: 1 },
-    open: { x: -26, y: 1, rotate: -92, scale: 0.82, opacity: 1 },
+    src: brandAssetPaths.monogram.leftOuter,
+    size: 24,
+    closed: { x: -14, y: 0, rotate: -28, scale: 0.94, opacity: 0.96 },
+    hover: { x: -15, y: -1, rotate: -32, scale: 0.98, opacity: 1 },
+    open: { x: -22, y: 1, rotate: -42, scale: 1.02, opacity: 1 },
   },
   {
     key: "left-upper",
-    kind: "leaf" as const,
-    tone: "#e0c5a7",
-    rest: { x: -10, y: -14, rotate: -28, scale: 0.7, opacity: 0.96 },
-    hover: { x: -11, y: -15, rotate: -32, scale: 0.74, opacity: 1 },
-    open: { x: -16, y: -21, rotate: -40, scale: 0.8, opacity: 1 },
+    src: brandAssetPaths.monogram.leftUpper,
+    size: 21,
+    closed: { x: -7, y: -11, rotate: -12, scale: 0.94, opacity: 0.96 },
+    hover: { x: -8, y: -12, rotate: -16, scale: 0.98, opacity: 1 },
+    open: { x: -13, y: -17, rotate: -24, scale: 1.04, opacity: 1 },
   },
   {
     key: "left-lower",
-    kind: "leaf" as const,
-    tone: "#d8bb99",
-    rest: { x: -10, y: 14, rotate: -118, scale: 0.72, opacity: 0.96 },
-    hover: { x: -11, y: 15, rotate: -122, scale: 0.75, opacity: 1 },
-    open: { x: -16, y: 22, rotate: -136, scale: 0.82, opacity: 1 },
+    src: brandAssetPaths.monogram.leftLower,
+    size: 22,
+    closed: { x: -7, y: 11, rotate: -46, scale: 0.94, opacity: 0.96 },
+    hover: { x: -8, y: 12, rotate: -50, scale: 0.98, opacity: 1 },
+    open: { x: -14, y: 18, rotate: -64, scale: 1.04, opacity: 1 },
   },
   {
     key: "right-upper",
-    kind: "leaf" as const,
-    tone: "#e0c5a7",
-    rest: { x: 10, y: -14, rotate: 28, scale: 0.7, opacity: 0.96 },
-    hover: { x: 11, y: -15, rotate: 32, scale: 0.74, opacity: 1 },
-    open: { x: 16, y: -21, rotate: 40, scale: 0.8, opacity: 1 },
+    src: brandAssetPaths.monogram.rightUpper,
+    size: 21,
+    closed: { x: 7, y: -11, rotate: 12, scale: 0.94, opacity: 0.96 },
+    hover: { x: 8, y: -12, rotate: 16, scale: 0.98, opacity: 1 },
+    open: { x: 13, y: -17, rotate: 24, scale: 1.04, opacity: 1 },
   },
   {
     key: "right-lower",
-    kind: "leaf" as const,
-    tone: "#d8bb99",
-    rest: { x: 10, y: 14, rotate: 118, scale: 0.72, opacity: 0.96 },
-    hover: { x: 11, y: 15, rotate: 122, scale: 0.75, opacity: 1 },
-    open: { x: 16, y: 22, rotate: 136, scale: 0.82, opacity: 1 },
+    src: brandAssetPaths.monogram.rightLower,
+    size: 22,
+    closed: { x: 7, y: 11, rotate: 46, scale: 0.94, opacity: 0.96 },
+    hover: { x: 8, y: 12, rotate: 50, scale: 0.98, opacity: 1 },
+    open: { x: 14, y: 18, rotate: 64, scale: 1.04, opacity: 1 },
   },
   {
     key: "right-outer",
-    kind: "leaf" as const,
-    tone: "#dcc0a0",
-    rest: { x: 18, y: 0, rotate: 74, scale: 0.72, opacity: 0.96 },
-    hover: { x: 19, y: -1, rotate: 78, scale: 0.76, opacity: 1 },
-    open: { x: 26, y: 1, rotate: 92, scale: 0.82, opacity: 1 },
+    src: brandAssetPaths.monogram.rightOuter,
+    size: 24,
+    closed: { x: 14, y: 0, rotate: 28, scale: 0.94, opacity: 0.96 },
+    hover: { x: 15, y: -1, rotate: 32, scale: 0.98, opacity: 1 },
+    open: { x: 22, y: 1, rotate: 42, scale: 1.02, opacity: 1 },
   },
   {
     key: "center",
-    kind: "circle" as const,
-    tone: "#f2e3cf",
-    radius: 5.2,
-    rest: { x: 0, y: 0, rotate: 0, scale: 0.84, opacity: 0.92 },
-    hover: { x: 0, y: 0, rotate: 0, scale: 0.98, opacity: 1 },
-    open: { x: 0, y: 0, rotate: 0, scale: 1.08, opacity: 1 },
+    src: brandAssetPaths.monogram.center,
+    size: 12,
+    closed: { x: 0, y: 0, rotate: 0, scale: 0.88, opacity: 0.9 },
+    hover: { x: 0, y: 0, rotate: 0, scale: 0.96, opacity: 1 },
+    open: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
   },
 ] as const;
 
-const headerClubmarkPieces = [
-  {
-    key: "left-outer",
-    kind: "leaf" as const,
-    tone: "#ddc1a2",
-    hidden: { x: -8, y: -22, rotate: -18, scale: 0.6, opacity: 0 },
-    arrival: { x: -25, y: -9, rotate: -54, scale: 0.9, opacity: 0.88 },
-    settled: { x: -31, y: -2, rotate: -70, scale: 1, opacity: 1 },
-  },
-  {
-    key: "left-upper",
-    kind: "leaf" as const,
-    tone: "#e6ccb0",
-    hidden: { x: -5, y: -24, rotate: -6, scale: 0.58, opacity: 0 },
-    arrival: { x: -15, y: -18, rotate: -22, scale: 0.86, opacity: 0.92 },
-    settled: { x: -19, y: -16, rotate: -32, scale: 0.96, opacity: 1 },
-  },
-  {
-    key: "left-lower",
-    kind: "leaf" as const,
-    tone: "#d7b996",
-    hidden: { x: -7, y: -21, rotate: -74, scale: 0.58, opacity: 0 },
-    arrival: { x: -15, y: 4, rotate: -104, scale: 0.86, opacity: 0.9 },
-    settled: { x: -19, y: 16, rotate: -118, scale: 0.96, opacity: 1 },
-  },
-  {
-    key: "right-upper",
-    kind: "leaf" as const,
-    tone: "#e6ccb0",
-    hidden: { x: 5, y: -24, rotate: 6, scale: 0.58, opacity: 0 },
-    arrival: { x: 15, y: -18, rotate: 22, scale: 0.86, opacity: 0.92 },
-    settled: { x: 19, y: -16, rotate: 32, scale: 0.96, opacity: 1 },
-  },
-  {
-    key: "right-lower",
-    kind: "leaf" as const,
-    tone: "#d7b996",
-    hidden: { x: 7, y: -21, rotate: 74, scale: 0.58, opacity: 0 },
-    arrival: { x: 15, y: 4, rotate: 104, scale: 0.86, opacity: 0.9 },
-    settled: { x: 19, y: 16, rotate: 118, scale: 0.96, opacity: 1 },
-  },
-  {
-    key: "right-outer",
-    kind: "leaf" as const,
-    tone: "#ddc1a2",
-    hidden: { x: 8, y: -22, rotate: 18, scale: 0.6, opacity: 0 },
-    arrival: { x: 25, y: -9, rotate: 54, scale: 0.9, opacity: 0.88 },
-    settled: { x: 31, y: -2, rotate: 70, scale: 1, opacity: 1 },
-  },
-  {
-    key: "center",
-    kind: "circle" as const,
-    tone: "#f5ead9",
-    radius: 5.8,
-    hidden: { x: 0, y: -12, rotate: 0, scale: 0.4, opacity: 0 },
-    arrival: { x: 0, y: -1, rotate: 0, scale: 0.84, opacity: 0.9 },
-    settled: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
-  },
-] as const;
 
 const countryOptions = [
   { code: "+93", label: "Afghanistan" },
@@ -2436,141 +2366,19 @@ function HomeTailScene({
 }
 
 
-function ResponsiveBrandWordmark({
-  className = "h-9 w-auto object-contain opacity-95 sm:h-10",
-  broken,
-  onError,
+function PraeliatorMonogramIcon({
+  open = false,
+  className = "",
+  iconToneClassName = "bg-[#d4b08b]",
+  glow = true,
 }: {
+  open?: boolean;
   className?: string;
-  broken: boolean;
-  onError: () => void;
-}) {
-  const sources = [brandAssetPaths.wordmarkPreferred, brandAssetPaths.wordmarkLegacy];
-  const [sourceIndex, setSourceIndex] = useState(0);
-
-  useEffect(() => {
-    setSourceIndex(0);
-  }, []);
-
-  if (broken) {
-    return (
-      <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
-        P
-      </span>
-    );
-  }
-
-  return (
-    <img
-      src={sources[sourceIndex]}
-      alt="Praeliator"
-      className={className}
-      onError={() => {
-        if (sourceIndex < sources.length - 1) {
-          setSourceIndex((current) => current + 1);
-          return;
-        }
-
-        onError();
-      }}
-    />
-  );
-}
-
-function ClubmarkVector({
-  pieces,
-  state,
-  className = "h-full w-full",
-}: {
-  pieces: ReadonlyArray<
-    | {
-        key: string;
-        kind: "leaf";
-        tone: string;
-        rest?: CrestPose;
-        hover?: CrestPose;
-        open?: CrestPose;
-        hidden?: CrestPose;
-        arrival?: CrestPose;
-        settled?: CrestPose;
-      }
-    | {
-        key: string;
-        kind: "circle";
-        tone: string;
-        radius: number;
-        rest?: CrestPose;
-        hover?: CrestPose;
-        open?: CrestPose;
-        hidden?: CrestPose;
-        arrival?: CrestPose;
-        settled?: CrestPose;
-      }
-  >;
-  state: MenuClubmarkMode | HeaderCrestMode;
-  className?: string;
-}) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
-      {pieces.map((piece, index) => {
-        const pose =
-          state in piece
-            ? ((piece as unknown as Record<string, CrestPose>)[state] as CrestPose)
-            : piece.kind === "circle"
-              ? piece.rest!
-              : piece.rest!;
-
-        if (piece.kind === "circle") {
-          return (
-            <motion.circle
-              key={piece.key}
-              cx="50"
-              cy="50"
-              r={piece.radius}
-              fill={piece.tone}
-              style={{ transformOrigin: "50px 50px", willChange: "transform, opacity" }}
-              animate={{
-                x: pose.x,
-                y: pose.y,
-                rotate: pose.rotate,
-                scale: pose.scale,
-                opacity: pose.opacity,
-              }}
-              transition={{ duration: 0.78, delay: index * 0.02, ease: easeLuxury }}
-            />
-          );
-        }
-
-        return (
-          <motion.path
-            key={piece.key}
-            d={tempBrandVectors.leaf}
-            fill={piece.tone}
-            style={{ transformOrigin: "50px 50px", willChange: "transform, opacity" }}
-            animate={{
-              x: pose.x,
-              y: pose.y,
-              rotate: pose.rotate,
-              scale: pose.scale,
-              opacity: pose.opacity,
-            }}
-            transition={{ duration: 0.82, delay: index * 0.024, ease: easeLuxury }}
-          />
-        );
-      })}
-    </svg>
-  );
-}
-
-function PraeliatorMenuTriggerIcon({
-  open,
-  className = "h-9 w-9",
-}: {
-  open: boolean;
-  className?: string;
+  iconToneClassName?: string;
+  glow?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
-  const state: MenuClubmarkMode = open ? "open" : hovered ? "hover" : "rest";
+  const mode: MonogramMode = open ? "open" : hovered ? "hover" : "closed";
 
   return (
     <div
@@ -2579,107 +2387,70 @@ function PraeliatorMenuTriggerIcon({
       onMouseLeave={() => setHovered(false)}
       aria-hidden="true"
     >
-      <motion.div
-        className="absolute inset-[8%] rounded-full border border-white/[0.08]"
-        animate={{
-          opacity: open ? 0.82 : hovered ? 0.54 : 0.34,
-          scale: open ? 1.08 : hovered ? 1.02 : 0.96,
-          rotate: open ? 16 : hovered ? 6 : 0,
-        }}
-        transition={{ duration: 0.72, ease: easeLuxury }}
-      />
-      <motion.div
-        className="absolute inset-[22%] rounded-full bg-[radial-gradient(circle,rgba(218,189,156,0.24),rgba(218,189,156,0.04)_65%,transparent_78%)] blur-[10px]"
-        animate={{
-          opacity: open ? 1 : hovered ? 0.72 : 0.46,
-          scale: open ? 1.22 : hovered ? 1.06 : 0.9,
-        }}
-        transition={{ duration: 0.72, ease: easeLuxury }}
-      />
-      <motion.div
-        className="absolute inset-[26%]"
-        animate={{ scale: open ? 1.03 : 1, y: open ? 1 : 0 }}
-        transition={{ duration: 0.72, ease: easeLuxury }}
-      >
-        <ClubmarkVector pieces={menuClubmarkPieces} state={state} />
-      </motion.div>
-      <motion.div
-        className="absolute inset-x-[26%] bottom-[10%] h-px rounded-full bg-gradient-to-r from-transparent via-[#cfb08d]/80 to-transparent"
-        animate={{
-          opacity: open ? 0.92 : hovered ? 0.54 : 0.18,
-          scaleX: open ? 1.16 : hovered ? 1.04 : 0.82,
-        }}
-        transition={{ duration: 0.72, ease: easeLuxury }}
-      />
-    </div>
-  );
-}
-
-function PraeliatorHeaderCrest({
-  mode,
-  reduceMotion,
-  className = "h-14 w-16 sm:h-[3.75rem] sm:w-[4.5rem]",
-}: {
-  mode: HeaderCrestMode;
-  reduceMotion: boolean;
-  className?: string;
-}) {
-  return (
-    <div className={`relative isolate ${className}`} aria-hidden="true">
-      <motion.div
-        className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,rgba(220,191,157,0.22),rgba(220,191,157,0.08)_52%,transparent_74%)] blur-[14px]"
-        animate={{
-          opacity: mode === "hidden" ? 0 : mode === "arrival" ? 0.84 : 0.64,
-          scale: mode === "hidden" ? 0.72 : mode === "arrival" ? 1.08 : 1,
-        }}
-        transition={{ duration: reduceMotion ? 0.28 : 0.84, ease: easeLuxury }}
-      />
-
-      <motion.div
-        className="absolute inset-[4%] rounded-full border border-white/[0.06]"
-        animate={{
-          opacity: mode === "hidden" ? 0 : mode === "arrival" ? 0.5 : 0.22,
-          scale: mode === "hidden" ? 0.78 : mode === "arrival" ? 1.04 : 1,
-        }}
-        transition={{ duration: reduceMotion ? 0.28 : 0.84, ease: easeLuxury }}
-      />
-
-      <motion.div
-        className="absolute inset-0"
-        animate={{
-          opacity: mode === "hidden" ? 0 : mode === "arrival" ? 0.94 : 1,
-          y: mode === "hidden" ? -16 : mode === "arrival" ? -4 : 0,
-          scale: mode === "hidden" ? 0.84 : mode === "arrival" ? 0.94 : 1,
-        }}
-        transition={{ duration: reduceMotion ? 0.28 : 0.9, ease: easeLuxury }}
-      >
-        <ClubmarkVector
-          pieces={headerClubmarkPieces}
-          state={mode}
-          className="h-full w-full drop-shadow-[0_14px_26px_rgba(0,0,0,0.22)]"
+      {glow ? (
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#caa57f]/20 blur-xl"
+          animate={{
+            opacity: open ? 0.95 : hovered ? 0.72 : 0.42,
+            scale: open ? 1.18 : hovered ? 1.06 : 0.9,
+          }}
+          transition={{ duration: 0.6, ease: easeLuxury }}
         />
-      </motion.div>
+      ) : null}
+
+      <div className="relative h-full w-full">
+        {monogramPieces.map((piece, index) => {
+          const pose = piece[mode];
+
+          return (
+            <motion.span
+              key={piece.key}
+              className={`absolute left-1/2 top-1/2 block ${iconToneClassName}`}
+              style={{
+                width: piece.size,
+                height: piece.size,
+                WebkitMaskImage: `url(${piece.src})`,
+                maskImage: `url(${piece.src})`,
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                transformOrigin: "center center",
+                willChange: "transform, opacity",
+              }}
+              animate={{
+                x: pose.x,
+                y: pose.y,
+                rotate: pose.rotate,
+                scale: pose.scale,
+                opacity: pose.opacity,
+              }}
+              transition={{
+                duration: 0.72,
+                delay: index * 0.018,
+                ease: easeLuxury,
+              }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function HeaderBrandSystem({
-  mode,
+function HeaderBrandMark({
+  useMonogram,
   onClick,
   wordmarkBroken,
   onWordmarkError,
-  reduceMotion,
 }: {
-  mode: HeaderIdentityMode;
+  useMonogram: boolean;
   onClick: () => void;
   wordmarkBroken: boolean;
   onWordmarkError: () => void;
-  reduceMotion: boolean;
 }) {
-  const crestMode: HeaderCrestMode =
-    mode === "wordmark" ? "hidden" : mode === "ritual" ? "arrival" : "settled";
-  const compactWordmark = mode !== "wordmark";
-
   return (
     <motion.button
       type="button"
@@ -2687,233 +2458,46 @@ function HeaderBrandSystem({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex h-14 w-[min(68vw,21rem)] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-visible"
+      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       aria-label="Praeliator home"
     >
-      <div className="relative h-full w-full overflow-visible">
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-11 w-[18rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden sm:w-[20rem]"
-          animate={{
-            clipPath:
-              mode === "wordmark"
-                ? "inset(0% 0% 0% 0% round 999px)"
-                : mode === "ritual"
-                  ? "inset(0% 61% 0% 0% round 999px)"
-                  : "inset(0% 84% 0% 0% round 999px)",
-          }}
-          transition={{ duration: reduceMotion ? 0.28 : 0.96, ease: easeLuxury }}
-        >
+      <AnimatePresence mode="wait" initial={false}>
+        {useMonogram ? (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            animate={{
-              x: mode === "wordmark" ? 0 : mode === "ritual" ? -86 : -104,
-              opacity: mode === "wordmark" ? 1 : mode === "ritual" ? 0.9 : 0.18,
-              filter:
-                mode === "wordmark"
-                  ? "blur(0px)"
-                  : mode === "ritual"
-                    ? "blur(1.6px)"
-                    : "blur(5px)",
-              scale: mode === "wordmark" ? 1 : mode === "ritual" ? 0.986 : 0.965,
-            }}
-            transition={{ duration: reduceMotion ? 0.28 : 1.02, ease: easeLuxury }}
+            key="header-monogram"
+            initial={{ opacity: 0, scale: 0.84, y: 8, filter: "blur(8px)" }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.9, y: -6, filter: "blur(6px)" }}
+            transition={{ duration: 0.72, ease: easeLuxury }}
+            className="flex h-12 w-12 items-center justify-center"
           >
-            <ResponsiveBrandWordmark
-              broken={wordmarkBroken}
-              onError={onWordmarkError}
-              className="h-9 w-auto object-contain opacity-95 sm:h-10"
-            />
+            <PraeliatorMonogramIcon open className="h-10 w-10 sm:h-11 sm:w-11" />
           </motion.div>
-
+        ) : (
           <motion.div
-            className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-[#090909] via-[#090909]/92 to-transparent"
-            animate={{ opacity: mode === "wordmark" ? 0 : mode === "ritual" ? 0.74 : 1 }}
-            transition={{ duration: reduceMotion ? 0.22 : 0.88, ease: easeLuxury }}
-          />
-        </motion.div>
-
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-8 w-px -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-transparent via-[#d9b892] to-transparent"
-          animate={{
-            opacity: mode === "wordmark" ? 0 : mode === "ritual" ? 0.72 : 0.18,
-            scaleY: mode === "wordmark" ? 0.4 : mode === "ritual" ? 1.18 : 0.72,
-          }}
-          transition={{ duration: reduceMotion ? 0.24 : 0.8, ease: easeLuxury }}
-        />
-
-        <motion.div
-          className="absolute left-1/2 top-1/2 flex h-16 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-[4.25rem] sm:w-[5rem]"
-          animate={{
-            opacity: mode === "wordmark" ? 0 : 1,
-            y: mode === "wordmark" ? -18 : mode === "ritual" ? -4 : 0,
-            scale: mode === "wordmark" ? 0.82 : mode === "ritual" ? 0.95 : 1,
-            filter:
-              mode === "wordmark"
-                ? "blur(10px)"
-                : mode === "ritual"
-                  ? "blur(1.5px)"
-                  : "blur(0px)",
-          }}
-          transition={{ duration: reduceMotion ? 0.28 : 0.96, ease: easeLuxury }}
-        >
-          <PraeliatorHeaderCrest mode={crestMode} reduceMotion={reduceMotion} />
-        </motion.div>
-
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(227,203,173,0.18),rgba(227,203,173,0.06)_48%,transparent_76%)] blur-[12px]"
-          animate={{
-            opacity: compactWordmark ? (mode === "ritual" ? 0.92 : 0.56) : 0,
-            scale: mode === "ritual" ? 1.1 : compactWordmark ? 0.92 : 0.7,
-          }}
-          transition={{ duration: reduceMotion ? 0.24 : 0.84, ease: easeLuxury }}
-        />
-      </div>
+            key="header-wordmark"
+            initial={{ opacity: 0, scale: 0.96, y: 8, filter: "blur(8px)" }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.98, y: -6, filter: "blur(6px)" }}
+            transition={{ duration: 0.72, ease: easeLuxury }}
+            className="flex items-center justify-center"
+          >
+            {!wordmarkBroken ? (
+              <img
+                src={brandAssetPaths.wordmark}
+                alt="Praeliator"
+                className="h-9 w-auto object-contain opacity-92 sm:h-10"
+                onError={onWordmarkError}
+              />
+            ) : (
+              <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
+                P
+              </span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.button>
-  );
-}
-
-function getMenuDescriptor(path: Route) {
-  switch (path) {
-    case "/praeliator-vis":
-      return "Flagship object";
-    case "/acquisition":
-      return "Private route";
-    case "/waitlist":
-      return "Future access";
-    case "/contact":
-      return "Direct contact";
-    default:
-      return "Praeliator";
-  }
-}
-
-function HeaderNavigationPanel({
-  open,
-  goTo,
-  currentPurchaseLink,
-  whatsappGeneralLink,
-  instagramLink,
-  emailLink,
-}: {
-  open: boolean;
-  goTo: (nextRoute: Route) => void;
-  currentPurchaseLink: string;
-  whatsappGeneralLink: string;
-  instagramLink: string;
-  emailLink: string;
-}) {
-  return (
-    <AnimatePresence initial={false}>
-      {open ? (
-        <motion.div
-          initial={{ opacity: 0, y: -12, clipPath: "inset(0% 0% 100% 0% round 2rem)" }}
-          animate={{ opacity: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 2rem)" }}
-          exit={{ opacity: 0, y: -8, clipPath: "inset(0% 0% 100% 0% round 2rem)" }}
-          transition={{ duration: 0.7, ease: easeLuxury }}
-          className="pointer-events-auto mt-3 overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(12,11,10,0.96),rgba(8,7,7,0.98))] shadow-[0_38px_110px_rgba(0,0,0,0.38)]"
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(191,152,118,0.12),transparent_34%)]" />
-          <div className="relative grid gap-8 p-5 sm:p-6 lg:grid-cols-[0.9fr_1.1fr] lg:p-8">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.54, delay: 0.06, ease: easeLuxury }}
-              className="rounded-[1.55rem] border border-white/[0.08] bg-white/[0.025] p-5 sm:p-6"
-            >
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#c4a889] sm:text-[11px]">
-                Praeliator
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-[2rem]">
-                Controlled navigation.
-              </h2>
-              <p className="mt-4 max-w-md text-sm leading-7 text-white/58 sm:text-[15px] sm:leading-8">
-                The menu should feel like a private club object, not a utility drawer. Every route stays deliberate, quiet, and direct.
-              </p>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {[
-                  { label: "Identity", value: "Calm motion" },
-                  { label: "Route", value: "Private inquiry" },
-                  { label: "Signal", value: "Controlled release" },
-                ].map((item, index) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.48, delay: 0.12 + index * 0.05, ease: easeLuxury }}
-                    className="rounded-[1.2rem] border border-white/[0.08] bg-black/20 px-4 py-4"
-                  >
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#bfa180]">
-                      {item.label}
-                    </p>
-                    <p className="mt-2 text-sm text-white/72">{item.value}</p>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <a
-                  href={currentPurchaseLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-3 text-[11px] uppercase tracking-[0.28em] text-white/80 transition duration-500 hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white"
-                >
-                  Private Inquiry
-                </a>
-                <div className="flex items-center gap-3">
-                  {[
-                    { href: instagramLink, icon: Instagram, label: "Instagram" },
-                    { href: emailLink, icon: Mail, label: "Email" },
-                    { href: whatsappGeneralLink, icon: MessageCircle, label: "WhatsApp" },
-                  ].map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      target={item.href.startsWith("mailto:") ? undefined : "_blank"}
-                      rel={item.href.startsWith("mailto:") ? undefined : "noreferrer"}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.025] text-white/72 transition duration-500 hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
-                      aria-label={item.label}
-                    >
-                      <item.icon className="h-4 w-4" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            <div className="grid gap-2">
-              {navItems.map((item, index) => (
-                <motion.button
-                  key={item.path}
-                  type="button"
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.54, delay: 0.08 + index * 0.05, ease: easeLuxury }}
-                  onClick={() => goTo(item.path)}
-                  className="group flex min-h-[6.8rem] items-end justify-between gap-6 rounded-[1.55rem] border border-white/[0.08] bg-white/[0.02] px-5 py-5 text-left transition duration-500 hover:-translate-y-[1px] hover:border-white/[0.16] hover:bg-white/[0.05]"
-                >
-                  <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#bfa180]">
-                      {String(index + 1).padStart(2, "0")}
-                    </p>
-                    <p className="mt-4 text-[clamp(1.2rem,2.4vw,2.3rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
-                      {item.label}
-                    </p>
-                    <p className="mt-3 text-[11px] uppercase tracking-[0.24em] text-white/34 transition duration-500 group-hover:text-[#bca081]">
-                      {getMenuDescriptor(item.path)}
-                    </p>
-                  </div>
-                  <ChevronRight className="mb-1 h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
-                </motion.button>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
   );
 }
 
@@ -3444,8 +3028,7 @@ export default function PraeliatorWebsite() {
     return whatsappGeneralLink;
   }, [route]);
 
-  const headerIdentityMode: HeaderIdentityMode =
-    route !== "/" ? "monogram" : homeSectionIndex === 0 ? "wordmark" : homeSectionIndex === 1 ? "ritual" : "monogram";
+  const useMonogramHeader = route !== "/" || homeSectionIndex > 0;
 
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
@@ -4735,117 +4318,113 @@ export default function PraeliatorWebsite() {
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
 
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-        <AnimatePresence initial={false}>
-          {mobileMenuOpen ? (
+      <header className="fixed inset-x-0 top-0 z-50">
+        <motion.div
+          animate={{
+            backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.46)" : "rgba(5,5,5,0)",
+            backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+          }}
+          transition={{ duration: 0.55, ease: easeLuxury }}
+          className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+        >
+          <Container className="relative flex items-center justify-between py-5 sm:py-6">
             <motion.button
               type="button"
-              aria-label="Close menu overlay"
-              onClick={() => setMobileMenuOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: easeLuxury }}
-              className="pointer-events-auto fixed inset-0 bg-[rgba(4,4,4,0.58)] backdrop-blur-[14px]"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: easeLuxury }}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMobileMenuOpen((current) => !current)}
+              className="group inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.09] bg-white/[0.03] text-white/82 shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white"
+            >
+              <motion.span
+                animate={{
+                  rotate: mobileMenuOpen ? 180 : 0,
+                  scale: mobileMenuOpen ? 1.03 : 1,
+                }}
+                transition={{ duration: 0.7, ease: easeLuxury }}
+                className="flex items-center justify-center"
+              >
+                <PraeliatorMonogramIcon
+                  open={mobileMenuOpen}
+                  className="h-7 w-7"
+                  iconToneClassName="bg-[#dbc0a0]"
+                />
+              </motion.span>
+              <span className="sr-only">{mobileMenuOpen ? "Close menu" : "Open menu"}</span>
+            </motion.button>
+
+            <HeaderBrandMark
+              useMonogram={useMonogramHeader}
+              onClick={() => goTo("/")}
+              wordmarkBroken={headerLogoBroken}
+              onWordmarkError={() => setHeaderLogoBroken(true)}
             />
-          ) : null}
-        </AnimatePresence>
 
-        <Container className="pointer-events-none pt-3 sm:pt-4">
-          <motion.div
-            animate={{
-              backgroundColor:
-                mobileMenuOpen
-                  ? "rgba(11,10,9,0.82)"
-                  : route !== "/"
-                    ? "rgba(10,9,8,0.68)"
-                    : homeSectionIndex === 0
-                      ? "rgba(10,9,8,0.22)"
-                      : homeSectionIndex === 1
-                        ? "rgba(10,9,8,0.44)"
-                        : "rgba(10,9,8,0.62)",
-              backdropFilter:
-                mobileMenuOpen
-                  ? "blur(22px)"
-                  : route !== "/"
-                    ? "blur(18px)"
-                    : homeSectionIndex === 0
-                      ? "blur(10px)"
-                      : "blur(18px)",
-              boxShadow:
-                mobileMenuOpen
-                  ? "0 24px 90px rgba(0,0,0,0.34)"
-                  : route !== "/" || homeSectionIndex > 0
-                    ? "0 18px 70px rgba(0,0,0,0.26)"
-                    : "0 10px 36px rgba(0,0,0,0.16)",
-              borderColor:
-                mobileMenuOpen || route !== "/" || homeSectionIndex > 0
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(255,255,255,0.05)",
-            }}
-            transition={{ duration: 0.62, ease: easeLuxury }}
-            className="pointer-events-auto relative overflow-hidden rounded-[1.85rem] border"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(193,155,120,0.12),transparent_34%)]" />
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.18] to-transparent" />
+            <motion.a
+              href={currentPurchaseLink}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+            >
+              Private Inquiry
+            </motion.a>
+          </Container>
 
-            <div className="relative flex items-center justify-between px-3 py-3 sm:px-4 sm:py-4 lg:px-5">
-              <motion.button
-                type="button"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: easeLuxury }}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                onClick={() => setMobileMenuOpen((current) => !current)}
-                className="group relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] shadow-[0_14px_36px_rgba(0,0,0,0.22)] transition duration-500 hover:-translate-y-0.5 hover:border-white/[0.14] hover:bg-white/[0.05]"
+          <AnimatePresence initial={false}>
+            {mobileMenuOpen ? (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.6, ease: easeLuxury }}
+                className="overflow-hidden"
               >
-                <PraeliatorMenuTriggerIcon open={mobileMenuOpen} className="h-8 w-8" />
-                <span className="sr-only">{mobileMenuOpen ? "Close menu" : "Open menu"}</span>
-              </motion.button>
-
-              <HeaderBrandSystem
-                mode={headerIdentityMode}
-                onClick={() => goTo("/")}
-                wordmarkBroken={headerLogoBroken}
-                onWordmarkError={() => setHeaderLogoBroken(true)}
-                reduceMotion={!!reduceMotion}
-              />
-
-              <motion.a
-                href={currentPurchaseLink}
-                target="_blank"
-                rel="noreferrer"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="hidden rounded-full border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-white/74 transition duration-500 hover:border-white/[0.14] hover:bg-white/[0.05] hover:text-white sm:inline-flex"
-              >
-                Private Inquiry
-              </motion.a>
-
-              <motion.a
-                href={currentPurchaseLink}
-                target="_blank"
-                rel="noreferrer"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="inline-flex h-12 items-center rounded-full px-3 text-[10px] uppercase tracking-[0.28em] text-white/68 transition duration-500 hover:text-white sm:hidden"
-              >
-                Inquiry
-              </motion.a>
-            </div>
-          </motion.div>
-
-          <HeaderNavigationPanel
-            open={mobileMenuOpen}
-            goTo={goTo}
-            currentPurchaseLink={currentPurchaseLink}
-            whatsappGeneralLink={whatsappGeneralLink}
-            instagramLink={instagramLink}
-            emailLink={emailLink}
-          />
-        </Container>
+                <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
+                  <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
+                    <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
+                      {navItems.map((item, index) => (
+                        <motion.button
+                          key={item.path}
+                          type="button"
+                          initial={{ opacity: 0, y: 18 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: index * 0.045,
+                            ease: easeLuxury,
+                          }}
+                          onClick={() => goTo(item.path)}
+                          className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
+                              {item.label}
+                            </p>
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
+                              {item.label === "VIS"
+                                ? "Flagship"
+                                : item.label === "Acquisition"
+                                  ? "Private route"
+                                  : item.label === "Waitlist"
+                                    ? "Future access"
+                                    : "Direct contact"}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                </Container>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </motion.div>
       </header>
 
       <main
