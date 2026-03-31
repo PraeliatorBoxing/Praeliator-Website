@@ -1355,7 +1355,7 @@ function CinematicScene({
   return (
     <section
       ref={sectionRef}
-      className={`relative isolate overflow-hidden ${index === 0 ? "h-[100svh]" : "-mt-[22svh] h-[100svh]"}`}
+      className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
     >
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -1385,7 +1385,7 @@ function CinematicScene({
         <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
       </div>
 
-      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-24 sm:px-10 sm:pt-28 lg:px-16 lg:pt-32">
+      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
         <motion.div
           animate={{
             opacity: inView ? 1 : 0,
@@ -1398,7 +1398,7 @@ function CinematicScene({
           <motion.p
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
             transition={{ duration: 0.8, delay: inView ? 0.34 : 0, ease: easeLuxury }}
-            className="text-[clamp(3.8rem,12vw,11rem)] font-light uppercase leading-[0.88] tracking-[0.16em] text-white/96"
+            className="max-w-[92vw] text-[clamp(2.4rem,7.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.12em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -1407,7 +1407,7 @@ function CinematicScene({
             <motion.p
               animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
               transition={{ duration: 0.78, delay: inView ? 0.48 : 0, ease: easeLuxury }}
-              className="mt-5 max-w-[34rem] text-[clamp(0.9rem,1.7vw,1.15rem)] leading-7 tracking-[0.08em] text-white/74 sm:leading-8"
+              className="mt-4 max-w-[28rem] text-[clamp(0.8rem,1.1vw,0.98rem)] leading-6 tracking-[0.1em] text-white/72 sm:leading-7"
             >
               {section.line}
             </motion.p>
@@ -1421,7 +1421,7 @@ function CinematicScene({
             {section.href ? (
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-8 py-6 text-[12px] uppercase tracking-[0.26em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
                   {section.cta}
@@ -1431,7 +1431,7 @@ function CinematicScene({
               <Button
                 type="button"
                 onClick={section.action}
-                className="rounded-full bg-[#efe5d7] px-8 py-6 text-[12px] uppercase tracking-[0.26em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 {section.cta}
               </Button>
@@ -2071,7 +2071,7 @@ export default function PraeliatorWebsite() {
     ];
 
     return (
-      <div className="relative bg-[#040404]">
+      <div className="relative snap-y snap-mandatory overflow-y-auto bg-[#040404]">
         {cinematicSections.map((section, index) => (
           <CinematicScene
             key={section.key}
