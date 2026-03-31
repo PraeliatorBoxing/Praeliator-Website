@@ -1,13 +1,6 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Lenis from "lenis";
 import {
   ArrowLeft,
@@ -211,7 +204,7 @@ const countryOptions = [
   { code: "+245", label: "Guinea-Bissau" },
   { code: "+592", label: "Guyana" },
   { code: "+509", label: "Haiti" },
-    { code: "+504", label: "Honduras" },
+  { code: "+504", label: "Honduras" },
   { code: "+852", label: "Hong Kong" },
   { code: "+36", label: "Hungary" },
   { code: "+354", label: "Iceland" },
@@ -425,6 +418,19 @@ const contactPreferenceOptions = [
 
 type WaitlistFieldName = keyof typeof initialWaitlistForm;
 type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
+type Route =
+  | "/"
+  | "/praeliator-vis"
+  | "/acquisition"
+  | "/waitlist"
+  | "/contact";
+
+type HeroAction = {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  variant?: "primary" | "secondary";
+};
 
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
@@ -443,28 +449,168 @@ const waitlistRequiredFields: WaitlistFieldName[] = [
   "contactPreference",
 ];
 
-const normalizeInlineText = (value: string) => value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
+const routeTitles: Record<Route, string> = {
+  "/": "Home",
+  "/praeliator-vis": "Praeliator VIS",
+  "/acquisition": "Acquisition",
+  "/waitlist": "Waitlist",
+  "/contact": "Contact",
+};
+
+const navItems: Array<{ label: string; path: Route }> = [
+  { label: "VIS", path: "/praeliator-vis" },
+  { label: "Acquisition", path: "/acquisition" },
+  { label: "Waitlist", path: "/waitlist" },
+  { label: "Contact", path: "/contact" },
+];
+
+const pageHeroStats: Record<Exclude<Route, "/">, Array<{ label: string; value: string }>> = {
+  "/praeliator-vis": [
+    { label: "Format", value: "16 oz lace-up" },
+    { label: "Material", value: "Top-grain cowhide" },
+    { label: "Use", value: "Training · Technical sparring" },
+    { label: "Finish", value: "Soft satin" },
+  ],
+  "/acquisition": [
+    { label: "Method", value: "Direct inquiry" },
+    { label: "Review", value: "Qualified screening" },
+    { label: "Record", value: "Client reference" },
+    { label: "Continuation", value: "Delivery · aftercare" },
+  ],
+  "/waitlist": [
+    { label: "Use", value: "Future access" },
+    { label: "Return", value: "Client reference" },
+    { label: "Review", value: "Private follow-up" },
+    { label: "Route", value: "Waitlist · WhatsApp" },
+  ],
+  "/contact": [
+    { label: "Primary", value: "WhatsApp" },
+    { label: "Secondary", value: "Email" },
+    { label: "Social", value: "Instagram" },
+    { label: "Scope", value: "Private client communication" },
+  ],
+};
+
+const acquisitionSteps = [
+  {
+    step: "01",
+    title: "Inquiry",
+    text:
+      "The route begins through WhatsApp, email, or the intake form. There is no conventional checkout layer between the client and the brand.",
+  },
+  {
+    step: "02",
+    title: "Client record",
+    text:
+      "Each qualified inquiry becomes a persistent record with reference, route status, ownership context, and follow-up visibility.",
+  },
+  {
+    step: "03",
+    title: "Review and allocation",
+    text:
+      "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the brand, not the cart.",
+  },
+  {
+    step: "04",
+    title: "Delivery and aftercare",
+    text:
+      "Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.",
+  },
+];
+
+const visEditorialBlocks = [
+  {
+    title: "Material discipline",
+    text:
+      "The glove is built in top-grain cowhide with a restrained finish that reads deep black first and espresso second. It avoids the loud shine that makes luxury feel synthetic.",
+  },
+  {
+    title: "Engineered structure",
+    text:
+      "The silhouette is meant to feel sculpted rather than swollen. Palm ventilation, an integrated grip bar, attached thumb, and the extended cuff all work inside the same visual system.",
+  },
+  {
+    title: "Object quality",
+    text:
+      "Presentation was not treated like a separate afterthought. Packaging, ownership, and aftercare all continue the same tone as the glove itself.",
+  },
+];
+
+const clubFooterColumns = [
+  {
+    title: "Explore",
+    links: [
+      { label: "VIS", route: "/praeliator-vis" as Route },
+      { label: "Acquisition", route: "/acquisition" as Route },
+      { label: "Waitlist", route: "/waitlist" as Route },
+      { label: "Contact", route: "/contact" as Route },
+    ],
+  },
+  {
+    title: "Signals",
+    notes: [
+      "Private acquisition",
+      "Controlled releases",
+      "Ownership continuity",
+      "Aftercare retention",
+    ],
+  },
+];
+
+const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const pageTransition = {
+  initial: { opacity: 0, y: 12, filter: "blur(6px)" },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.9, ease: easeLuxury },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    filter: "blur(4px)",
+    transition: { duration: 0.45, ease: easeLuxury },
+  },
+};
+
+const formFieldBaseClass =
+  "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
+const formPanelClass =
+  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
+const formOptionRowClass =
+  "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
+
+const normalizeInlineText = (value: string) =>
+  value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
 const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
 const normalizeDialCode = (value: string) => {
   const digits = value.replace(/[^\d]/g, "").slice(0, 4);
   if (!digits && !value.includes("+")) return "";
   return `+${digits}`;
 };
-const normalizePhoneNumber = (value: string) => value.replace(/[^\d]/g, "").slice(0, 15);
+const normalizePhoneNumber = (value: string) =>
+  value.replace(/[^\d]/g, "").slice(0, 15);
 const normalizeEmailInline = (value: string) => value.replace(/\s+/g, "");
-const normalizeEmailFinal = (value: string) => value.replace(/\s+/g, "").trim().toLowerCase();
+const normalizeEmailFinal = (value: string) =>
+  value.replace(/\s+/g, "").trim().toLowerCase();
 
 const normalizeWaitlistFieldValue = (
   field: WaitlistFieldName,
   value: string,
   stage: "change" | "blur" | "submit" = "change"
 ) => {
-  if (field === "fullName") return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
-  if (field === "email") return stage === "change" ? normalizeEmailInline(value) : normalizeEmailFinal(value);
+  if (field === "fullName")
+    return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+  if (field === "email")
+    return stage === "change" ? normalizeEmailInline(value) : normalizeEmailFinal(value);
   if (field === "phoneCountryCode") return normalizeDialCode(value);
   if (field === "whatsapp") return normalizePhoneNumber(value);
-  if (field === "country") return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
-  if (field === "note") return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
+  if (field === "country")
+    return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+  if (field === "note")
+    return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
   return stage === "change" ? value : value.trim();
 };
 
@@ -472,12 +618,20 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   title: normalizeWaitlistFieldValue("title", form.title, "submit"),
   fullName: normalizeWaitlistFieldValue("fullName", form.fullName, "submit"),
   email: normalizeWaitlistFieldValue("email", form.email, "submit"),
-  phoneCountryCode: normalizeWaitlistFieldValue("phoneCountryCode", form.phoneCountryCode, "submit"),
+  phoneCountryCode: normalizeWaitlistFieldValue(
+    "phoneCountryCode",
+    form.phoneCountryCode,
+    "submit"
+  ),
   whatsapp: normalizeWaitlistFieldValue("whatsapp", form.whatsapp, "submit"),
   country: normalizeWaitlistFieldValue("country", form.country, "submit"),
   interest: normalizeWaitlistFieldValue("interest", form.interest, "submit"),
   timeline: normalizeWaitlistFieldValue("timeline", form.timeline, "submit"),
-  contactPreference: normalizeWaitlistFieldValue("contactPreference", form.contactPreference, "submit"),
+  contactPreference: normalizeWaitlistFieldValue(
+    "contactPreference",
+    form.contactPreference,
+    "submit"
+  ),
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
 
@@ -496,7 +650,13 @@ const getDialCodePhoneRule = (dialCode: string) => {
     "+91": { min: 10, max: 10, message: "Indian numbers should be 10 digits." },
   };
 
-  return rules[normalizedDialCode] || { min: 7, max: 15, message: "Enter a valid phone number." };
+  return (
+    rules[normalizedDialCode] || {
+      min: 7,
+      max: 15,
+      message: "Enter a valid phone number.",
+    }
+  );
 };
 
 const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors => {
@@ -538,54 +698,11 @@ const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors 
 
   if (!normalizedForm.interest) errors.interest = "Select an interest.";
   if (!normalizedForm.timeline) errors.timeline = "Select a timeline.";
-  if (!normalizedForm.contactPreference) errors.contactPreference = "Select a preferred contact method.";
+  if (!normalizedForm.contactPreference)
+    errors.contactPreference = "Select a preferred contact method.";
 
   return errors;
 };
-
-type Route =
-  | "/"
-  | "/praeliator-vis"
-  | "/acquisition"
-  | "/waitlist"
-  | "/contact";
-
-const routeTitles: Record<Route, string> = {
-  "/": "Home",
-  "/praeliator-vis": "Praeliator VIS",
-  "/acquisition": "Acquisition",
-  "/waitlist": "Waitlist",
-  "/contact": "Contact",
-};
-
-const navItems: Array<{ label: string; path: Route }> = [
-  { label: "VIS", path: "/praeliator-vis" },
-  { label: "Acquisition", path: "/acquisition" },
-  { label: "Waitlist", path: "/waitlist" },
-  { label: "Contact", path: "/contact" },
-];
-
-const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-const pageTransition = {
-  initial: { opacity: 0, y: 12, filter: "blur(6px)" },
-  animate: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.9, ease: easeLuxury },
-  },
-  exit: {
-    opacity: 0,
-    y: 8,
-    filter: "blur(4px)",
-    transition: { duration: 0.45, ease: easeLuxury },
-  },
-};
-
-const formFieldBaseClass = "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
-const formPanelClass = "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
-const formOptionRowClass = "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
 
 function getFormFieldStateClasses({
   invalid = false,
@@ -598,7 +715,8 @@ function getFormFieldStateClasses({
 }) {
   if (invalid) return "border-[#805148] bg-[#120f0e] focus:border-[#b06d61]";
   if (success) return "border-[#7d6753] bg-[#100e0c] focus:border-[#b9a18d]";
-  if (active) return "border-[#6a5545] bg-[#100f0e] shadow-[0_16px_36px_rgba(0,0,0,0.2)]";
+  if (active)
+    return "border-[#6a5545] bg-[#100f0e] shadow-[0_16px_36px_rgba(0,0,0,0.2)]";
   return "border-white/[0.08] bg-[#0c0b0a] hover:border-white/[0.12] focus:border-[#6a5545]";
 }
 
@@ -633,7 +751,11 @@ function Container({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>;
+  return (
+    <div className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 function SectionHeading({
@@ -698,7 +820,9 @@ function DataList({
       {items.map((item) => (
         <div
           key={item.label}
-          className={`grid gap-2 py-4 ${compact ? "sm:grid-cols-[110px_1fr]" : "sm:grid-cols-[160px_1fr]"} sm:items-start`}
+          className={`grid gap-2 py-4 ${
+            compact ? "sm:grid-cols-[110px_1fr]" : "sm:grid-cols-[160px_1fr]"
+          } sm:items-start`}
         >
           <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
             {item.label}
@@ -712,17 +836,30 @@ function DataList({
   );
 }
 
-function ImageSurface({
+function MediaSurface({
   src,
   alt,
   className = "",
   priorityCopy,
+  video,
+  dim = "medium",
 }: {
   src: string;
   alt: string;
   className?: string;
   priorityCopy?: React.ReactNode;
+  video?: string;
+  dim?: "light" | "medium" | "heavy";
 }) {
+  const overlayMap = {
+    light:
+      "bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.46))]",
+    medium:
+      "bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.62))]",
+    heavy:
+      "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
+  };
+
   return (
     <div
       className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
@@ -733,7 +870,20 @@ function ImageSurface({
         aria-label={alt}
         role="img"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.62))]" />
+      {video ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={src}
+          preload="metadata"
+        >
+          <source src={video} type="video/mp4" />
+        </video>
+      ) : null}
+      <div className={`absolute inset-0 ${overlayMap[dim]}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
       {priorityCopy ? (
         <div className="relative z-10 flex h-full items-end p-6 sm:p-8 lg:p-10">
@@ -758,8 +908,371 @@ function QuietLinkButton({
       className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.24em] text-white/58 transition duration-500 hover:text-white"
     >
       <span>{children}</span>
-      <span className="block h-px w-8 bg-white/28 transition duration-500 hover:w-10" />
+      <span className="block h-px w-8 bg-white/28 transition duration-500 group-hover:w-10" />
     </button>
+  );
+}
+
+function PageStatStrip({
+  items,
+}: {
+  items: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {items.map((item, index) => (
+        <Reveal key={`${item.label}-${index}`} delay={0.12 + index * 0.04}>
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              {item.label}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-white/78">{item.value}</p>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+  );
+}
+
+function PageHeroBanner({
+  eyebrow,
+  title,
+  description,
+  actions,
+  media,
+  stats,
+  note,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  actions: HeroAction[];
+  media: {
+    image: string;
+    alt: string;
+    video?: string;
+    badge?: string;
+    overlayTitle?: string;
+    overlayText?: string;
+  };
+  stats: Array<{ label: string; value: string }>;
+  note?: string;
+}) {
+  return (
+    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+      <Container className="relative">
+        <div className="rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-5 shadow-[0_36px_120px_rgba(0,0,0,0.42)] sm:p-7 lg:p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
+            <Reveal className="flex">
+              <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                    {eyebrow}
+                  </p>
+                  <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
+                    {title}
+                  </h1>
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    {description}
+                  </p>
+                  {note ? (
+                    <p className="mt-6 max-w-xl text-[11px] uppercase tracking-[0.24em] text-white/34">
+                      {note}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  {actions.map((action) =>
+                    action.href ? (
+                      <Button
+                        key={action.label}
+                        asChild
+                        variant={action.variant === "secondary" ? "outline" : undefined}
+                        className={
+                          action.variant === "secondary"
+                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                        }
+                      >
+                        <a href={action.href} target="_blank" rel="noreferrer">
+                          {action.label}
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button
+                        key={action.label}
+                        type="button"
+                        variant={action.variant === "secondary" ? "outline" : undefined}
+                        onClick={action.onClick}
+                        className={
+                          action.variant === "secondary"
+                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                        }
+                      >
+                        {action.label}
+                      </Button>
+                    )
+                  )}
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <MediaSurface
+                src={media.image}
+                alt={media.alt}
+                video={media.video}
+                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+                priorityCopy={
+                  <>
+                    {media.badge ? (
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                        {media.badge}
+                      </p>
+                    ) : null}
+                    {media.overlayTitle ? (
+                      <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                        {media.overlayTitle}
+                      </p>
+                    ) : null}
+                    {media.overlayText ? (
+                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
+                        {media.overlayText}
+                      </p>
+                    ) : null}
+                  </>
+                }
+              />
+            </Reveal>
+          </div>
+
+          <div className="mt-5 sm:mt-6">
+            <PageStatStrip items={stats} />
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function EditorialBlock({
+  eyebrow,
+  title,
+  text,
+  media,
+  reverse = false,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  media: {
+    image: string;
+    alt: string;
+    video?: string;
+    overlayTitle?: string;
+    overlayText?: string;
+  };
+  reverse?: boolean;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="relative py-8 sm:py-10 lg:py-12">
+      <Container>
+        <div
+          className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${
+            reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""
+          }`}
+        >
+          <Reveal>
+            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                {eyebrow}
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl">
+                {title}
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                {text}
+              </p>
+              {children ? <div className="mt-7">{children}</div> : null}
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <MediaSurface
+              src={media.image}
+              alt={media.alt}
+              video={media.video}
+              className="min-h-[20rem] sm:min-h-[30rem] lg:min-h-[36rem]"
+              priorityCopy={
+                media.overlayTitle || media.overlayText ? (
+                  <>
+                    {media.overlayTitle ? (
+                      <p className="text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                        {media.overlayTitle}
+                      </p>
+                    ) : null}
+                    {media.overlayText ? (
+                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
+                        {media.overlayText}
+                      </p>
+                    ) : null}
+                  </>
+                ) : undefined
+              }
+            />
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function ClubFooter({
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
+}: {
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
+}) {
+  return (
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
+      <Container className="relative">
+        <div className="overflow-hidden rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
+          <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Private client club
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-4xl">
+                Praeliator Club
+              </h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                A quieter continuation of the brand: controlled access, direct contact, and ownership carried with continuity.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  asChild
+                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                >
+                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                    Private Inquiry
+                  </a>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => goTo("/waitlist")}
+                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  Join Waitlist
+                </Button>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  "Private acquisition",
+                  "Controlled release rhythm",
+                  "Ownership continuity",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-0 sm:grid-cols-2">
+              {clubFooterColumns.map((column) => (
+                <div
+                  key={column.title}
+                  className="border-b border-white/[0.08] p-6 last:border-b-0 sm:border-b-0 sm:first:border-r sm:p-8 lg:p-10"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    {column.title}
+                  </p>
+
+                  {"links" in column ? (
+                    <div className="mt-6 space-y-4">
+                      {column.links.map((item) => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => goTo(item.route)}
+                          className="group flex w-full items-center justify-between text-left text-sm text-white/78 transition duration-500 hover:text-white"
+                        >
+                          <span>{item.label}</span>
+                          <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-6 space-y-4">
+                      {column.notes.map((item) => (
+                        <p key={item} className="text-sm text-white/58">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div className="border-t border-white/[0.08] p-6 sm:col-span-2 sm:p-8 lg:p-10">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                      Direct contact
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-white/56">
+                      WhatsApp remains primary. Email and Instagram stay available for slower paths.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <a
+                      href={instagramLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                    <a
+                      href={emailLink}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      <Mail className="h-5 w-5" />
+                    </a>
+                    <a
+                      href={whatsappGeneralLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </footer>
   );
 }
 
@@ -807,7 +1320,10 @@ function InputField({
       maxLength={maxLength}
       aria-invalid={invalid}
       aria-describedby={describedBy}
-      className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
+      className={`${formFieldBaseClass} ${getFormFieldStateClasses({
+        invalid,
+        success,
+      })}`}
       placeholder={placeholder}
     />
   );
@@ -865,8 +1381,14 @@ function SelectField({
     });
   }, [options, query, searchable]);
 
-  const activeOptionId = open && filteredOptions[highlightedIndex] ? `${name}-option-${highlightedIndex}` : undefined;
-  const selectedIndex = Math.max(0, filteredOptions.findIndex((option) => option.value === value));
+  const activeOptionId =
+    open && filteredOptions[highlightedIndex]
+      ? `${name}-option-${highlightedIndex}`
+      : undefined;
+  const selectedIndex = Math.max(
+    0,
+    filteredOptions.findIndex((option) => option.value === value)
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -898,7 +1420,9 @@ function SelectField({
   }, [open, searchable]);
 
   const commitValue = (nextValue: string) => {
-    onChange({ target: { name, value: nextValue } } as React.ChangeEvent<HTMLSelectElement>);
+    onChange({
+      target: { name, value: nextValue },
+    } as React.ChangeEvent<HTMLSelectElement>);
     onBlur?.();
     setOpen(false);
     setQuery("");
@@ -990,19 +1514,36 @@ function SelectField({
         aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
+        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({
+          invalid,
+          success,
+          active: open,
+        })}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
-            <span id={labelId} className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/30"}`}>
+            <span
+              id={labelId}
+              className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${
+                selectedOption || open ? "text-[#b9a18d]" : "text-white/30"
+              }`}
+            >
               {fieldLabel}
             </span>
           ) : null}
-          <span className={`block truncate text-[16px] sm:text-sm ${selectedOption ? "text-[#f4efe7]" : "text-white/24"}`}>
+          <span
+            className={`block truncate text-[16px] sm:text-sm ${
+              selectedOption ? "text-[#f4efe7]" : "text-white/24"
+            }`}
+          >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
-        <ChevronRight className={`h-4 w-4 shrink-0 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/34"}`} />
+        <ChevronRight
+          className={`h-4 w-4 shrink-0 transition duration-300 ${
+            open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/34"
+          }`}
+        />
       </button>
 
       <AnimatePresence>
@@ -1057,10 +1598,20 @@ function SelectField({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitValue(option.value)}
-                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
+                    className={`${formOptionRowClass} ${
+                      isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"
+                    }`}
                   >
-                    <span className={`truncate text-[15px] sm:text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/72"}`}>{option.label}</span>
-                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
+                    <span
+                      className={`truncate text-[15px] sm:text-sm ${
+                        isSelected ? "text-[#f4efe7]" : "text-white/72"
+                      }`}
+                    >
+                      {option.label}
+                    </span>
+                    {isSelected ? (
+                      <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" />
+                    ) : null}
                   </button>
                 );
               })}
@@ -1119,7 +1670,10 @@ function SearchPicker({
       .slice(0, 16);
   }, [options, value]);
 
-  const activeOptionId = open && filtered[highlightedIndex] ? `${name}-picker-option-${highlightedIndex}` : undefined;
+  const activeOptionId =
+    open && filtered[highlightedIndex]
+      ? `${name}-picker-option-${highlightedIndex}`
+      : undefined;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -1135,7 +1689,11 @@ function SearchPicker({
 
   const selectedIndex = Math.max(
     0,
-    filtered.findIndex((option) => option.label.toLowerCase() === value.trim().toLowerCase() || option.code.toLowerCase() === value.trim().toLowerCase())
+    filtered.findIndex(
+      (option) =>
+        option.label.toLowerCase() === value.trim().toLowerCase() ||
+        option.code.toLowerCase() === value.trim().toLowerCase()
+    )
   );
 
   useEffect(() => {
@@ -1162,11 +1720,20 @@ function SearchPicker({
   return (
     <div ref={wrapperRef} className="relative">
       {fieldLabel ? (
-        <p id={labelId} className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/30"}`}>
+        <p
+          id={labelId}
+          className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${
+            value ? "text-[#b9a18d]" : "text-white/30"
+          }`}
+        >
           {fieldLabel}
         </p>
       ) : null}
-      <ChevronRight className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${open ? "top-[2.6rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.6rem] rotate-90 text-white/34"}`} />
+      <ChevronRight
+        className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${
+          open ? "top-[2.6rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.6rem] rotate-90 text-white/34"
+        }`}
+      />
       <input
         ref={inputRef}
         value={value}
@@ -1180,7 +1747,8 @@ function SearchPicker({
         aria-activedescendant={activeOptionId}
         onChange={(event) => {
           const next = event.target.value;
-          const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : normalizeInlineText(next);
+          const cleaned =
+            inputMode === "tel" ? next.replace(/[^\d+]/g, "") : normalizeInlineText(next);
           const matchedOption = options.find(
             (option) =>
               option.label.toLowerCase() === cleaned.trim().toLowerCase() ||
@@ -1256,7 +1824,11 @@ function SearchPicker({
           }
         }}
         inputMode={inputMode}
-        className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
+        className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({
+          invalid,
+          success,
+          active: open,
+        })}`}
         placeholder={placeholder}
       />
 
@@ -1282,7 +1854,9 @@ function SearchPicker({
               }}
             >
               {filtered.map((option, index) => {
-                const isSelected = option.label.toLowerCase() === value.trim().toLowerCase() || option.code.toLowerCase() === value.trim().toLowerCase();
+                const isSelected =
+                  option.label.toLowerCase() === value.trim().toLowerCase() ||
+                  option.code.toLowerCase() === value.trim().toLowerCase();
                 const isHighlighted = index === highlightedIndex;
 
                 return (
@@ -1294,13 +1868,21 @@ function SearchPicker({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitSelection(option)}
-                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
+                    className={`${formOptionRowClass} ${
+                      isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"
+                    }`}
                   >
                     <div className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] text-[#f4efe7] sm:text-sm">{option.label}</span>
-                      <span className="mt-1 block text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">{option.code}</span>
+                      <span className="block truncate text-[15px] text-[#f4efe7] sm:text-sm">
+                        {option.label}
+                      </span>
+                      <span className="mt-1 block text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                        {option.code}
+                      </span>
                     </div>
-                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
+                    {isSelected ? (
+                      <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" />
+                    ) : null}
                   </button>
                 );
               })}
@@ -1321,7 +1903,11 @@ function FieldError({
 }) {
   if (!message) return null;
 
-  return <p id={id} className="mt-2 text-[13px] leading-5 text-[#c98f82]">{message}</p>;
+  return (
+    <p id={id} className="mt-2 text-[13px] leading-5 text-[#c98f82]">
+      {message}
+    </p>
+  );
 }
 
 function FieldNote({
@@ -1334,7 +1920,6 @@ function FieldNote({
 
 function CinematicScene({
   section,
-  index,
   active,
 }: {
   section: {
@@ -1347,7 +1932,6 @@ function CinematicScene({
     video: string;
     poster: string;
   };
-  index: number;
   active: boolean;
 }) {
   const inView = active;
@@ -1383,9 +1967,7 @@ function CinematicScene({
   };
 
   return (
-    <section
-      className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
-    >
+    <section className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start">
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
           animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
@@ -1551,7 +2133,11 @@ function ExploreFurtherScene({
               type="button"
               onClick={() => goTo(card.route)}
               animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
-              transition={{ duration: 0.8, delay: 0.12 + index * 0.08, ease: easeLuxury }}
+              transition={{
+                duration: 0.8,
+                delay: 0.12 + index * 0.08,
+                ease: easeLuxury,
+              }}
               className="group overflow-hidden border-l border-white/18 bg-transparent text-left"
             >
               <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
@@ -1594,7 +2180,11 @@ function HomeFooterScene({
       <div className="relative z-10 mx-auto w-full max-w-[120rem]">
         <div className="border-t border-white/18 pt-14">
           <div className="text-center">
-            <img src="/logo-header.png" alt="Praeliator" className="mx-auto h-14 w-auto object-contain opacity-95" />
+            <img
+              src="/logo-header.png"
+              alt="Praeliator"
+              className="mx-auto h-14 w-auto object-contain opacity-95"
+            />
             <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/54">
               Praeliator
             </p>
@@ -1602,30 +2192,85 @@ function HomeFooterScene({
 
           <div className="mt-14 grid gap-10 md:grid-cols-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto]">
             <div className="space-y-5">
-              <button type="button" onClick={() => goTo("/praeliator-vis")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">VIS</button>
-              <button type="button" onClick={() => goTo("/acquisition")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Acquisition</button>
-              <button type="button" onClick={() => goTo("/waitlist")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Waitlist</button>
+              <button
+                type="button"
+                onClick={() => goTo("/praeliator-vis")}
+                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
+              >
+                VIS
+              </button>
+              <button
+                type="button"
+                onClick={() => goTo("/acquisition")}
+                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
+              >
+                Acquisition
+              </button>
+              <button
+                type="button"
+                onClick={() => goTo("/waitlist")}
+                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
+              >
+                Waitlist
+              </button>
             </div>
 
             <div className="space-y-5">
-              <button type="button" onClick={() => goTo("/contact")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Contact</button>
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer" className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Private Inquiry</a>
+              <button
+                type="button"
+                onClick={() => goTo("/contact")}
+                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
+              >
+                Contact
+              </button>
+              <a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
+              >
+                Private Inquiry
+              </a>
             </div>
 
             <div className="space-y-5">
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Presentation</p>
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Ownership</p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
+                Presentation
+              </p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
+                Ownership
+              </p>
             </div>
 
             <div className="space-y-5">
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Hand-assembled</p>
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Top-grain leather</p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
+                Hand-assembled
+              </p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
+                Top-grain leather
+              </p>
             </div>
 
             <div className="flex items-start justify-start gap-5 md:justify-end">
-              <a href={instagramLink} target="_blank" rel="noreferrer" className="text-white/72 transition hover:text-white"><Instagram className="h-6 w-6" /></a>
-              <a href={emailLink} className="text-white/72 transition hover:text-white"><Mail className="h-6 w-6" /></a>
-              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer" className="text-white/72 transition hover:text-white"><MessageCircle className="h-6 w-6" /></a>
+              <a
+                href={instagramLink}
+                target="_blank"
+                rel="noreferrer"
+                className="text-white/72 transition hover:text-white"
+              >
+                <Instagram className="h-6 w-6" />
+              </a>
+              <a href={emailLink} className="text-white/72 transition hover:text-white">
+                <Mail className="h-6 w-6" />
+              </a>
+              <a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                className="text-white/72 transition hover:text-white"
+              >
+                <MessageCircle className="h-6 w-6" />
+              </a>
             </div>
           </div>
         </div>
@@ -1746,7 +2391,8 @@ function FullScreenCinematicHomepage({
 
       if (inTail && tailNode) {
         const atTop = tailNode.scrollTop <= 2;
-        const atBottom = tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
+        const atBottom =
+          tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
 
         if (event.deltaY > 0 && !atBottom) {
           return;
@@ -1774,7 +2420,8 @@ function FullScreenCinematicHomepage({
       const inTail = tailIndex >= 0 && activeIndex === tailIndex;
       if (inTail && tailNode) {
         const atTop = tailNode.scrollTop <= 2;
-        const atBottom = tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
+        const atBottom =
+          tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
 
         if (["ArrowDown", "PageDown", " "].includes(event.key) && !atBottom) {
           return;
@@ -1790,7 +2437,11 @@ function FullScreenCinematicHomepage({
       }
 
       if (isAnimating) {
-        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+        if (
+          ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(
+            event.key
+          )
+        ) {
           event.preventDefault();
         }
         return;
@@ -1854,7 +2505,7 @@ function FullScreenCinematicHomepage({
     >
       <motion.div
         animate={{ y: `-${activeIndex * 100}svh` }}
-        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1.1, ease: easeLuxury }}
         className="will-change-transform"
       >
         {sections.map((section, index) => {
@@ -1863,7 +2514,6 @@ function FullScreenCinematicHomepage({
               <CinematicScene
                 key={section.key}
                 section={section}
-                index={index}
                 active={index === activeIndex}
               />
             );
@@ -2038,7 +2688,9 @@ export default function PraeliatorWebsite() {
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [waitlistForm, setWaitlistForm] = useState(initialWaitlistForm);
   const [waitlistErrors, setWaitlistErrors] = useState<WaitlistErrors>({});
-  const [waitlistTouched, setWaitlistTouched] = useState<Partial<Record<WaitlistFieldName, boolean>>>({});
+  const [waitlistTouched, setWaitlistTouched] = useState<
+    Partial<Record<WaitlistFieldName, boolean>>
+  >({});
   const [waitlistState, setWaitlistState] = useState({
     loading: false,
     success: false,
@@ -2053,20 +2705,6 @@ export default function PraeliatorWebsite() {
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
 
   const reduceMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const heroTextRef = useRef<HTMLDivElement | null>(null);
-
-  const heroMediaY = useTransform(
-    scrollY,
-    [0, 900],
-    reduceMotion ? [0, 0] : [0, 24]
-  );
-
-  const heroTextY = useTransform(
-    scrollY,
-    [0, 900],
-    reduceMotion ? [0, 0] : [0, -10]
-  );
 
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
@@ -2091,9 +2729,10 @@ export default function PraeliatorWebsite() {
   );
 
   useEffect(() => {
-    const storedCooldown = typeof window !== "undefined"
-      ? Number(window.localStorage.getItem(WAITLIST_COOLDOWN_KEY) || "0")
-      : 0;
+    const storedCooldown =
+      typeof window !== "undefined"
+        ? Number(window.localStorage.getItem(WAITLIST_COOLDOWN_KEY) || "0")
+        : 0;
 
     if (storedCooldown > Date.now()) {
       setWaitlistCooldownUntil(storedCooldown);
@@ -2103,6 +2742,10 @@ export default function PraeliatorWebsite() {
       waitlistRequestControllerRef.current?.abort();
     };
   }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [route]);
 
   useEffect(() => {
     if (route !== "/waitlist") return;
@@ -2146,7 +2789,7 @@ export default function PraeliatorWebsite() {
   }, [route]);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || route === "/") return;
 
     const isTouchDevice =
       typeof window !== "undefined" &&
@@ -2175,7 +2818,7 @@ export default function PraeliatorWebsite() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, route]);
 
   const currentPurchaseLink = useMemo(() => {
     if (route === "/praeliator-vis") return whatsappVisLink;
@@ -2201,7 +2844,9 @@ export default function PraeliatorWebsite() {
   };
 
   const getWaitlistCooldownSeconds = () =>
-    waitlistCooldownUntil > Date.now() ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000) : 0;
+    waitlistCooldownUntil > Date.now()
+      ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000)
+      : 0;
 
   const markWaitlistStarted = (source: string) => {
     if (waitlistStarted) return;
@@ -2278,7 +2923,10 @@ export default function PraeliatorWebsite() {
       const nextErrors = validateWaitlistForm(normalized);
       setWaitlistErrors(nextErrors);
       if (nextErrors[field]) {
-        trackWaitlistEvent("waitlist_field_invalid", { field, message: nextErrors[field] });
+        trackWaitlistEvent("waitlist_field_invalid", {
+          field,
+          message: nextErrors[field],
+        });
       }
       return normalized;
     });
@@ -2293,7 +2941,10 @@ export default function PraeliatorWebsite() {
     handleWaitlistChange(event);
   };
 
-  const handleCountryChange = (value: string, matchedOption?: { label: string; code: string }) => {
+  const handleCountryChange = (
+    value: string,
+    matchedOption?: { label: string; code: string }
+  ) => {
     markWaitlistStarted("field:country");
     updateWaitlistForm((current) => {
       const next = {
@@ -2318,7 +2969,11 @@ export default function PraeliatorWebsite() {
       const normalized = {
         ...current,
         country: normalizeWaitlistFieldValue("country", current.country, "blur"),
-        phoneCountryCode: normalizeWaitlistFieldValue("phoneCountryCode", current.phoneCountryCode, "blur"),
+        phoneCountryCode: normalizeWaitlistFieldValue(
+          "phoneCountryCode",
+          current.phoneCountryCode,
+          "blur"
+        ),
       };
       const nextErrors = validateWaitlistForm(normalized);
       setWaitlistErrors(nextErrors);
@@ -2345,7 +3000,10 @@ export default function PraeliatorWebsite() {
         reference: "",
         serviceMessage: "",
       });
-      trackWaitlistEvent("waitlist_submit_blocked", { reason: "cooldown", seconds_remaining: cooldownSeconds });
+      trackWaitlistEvent("waitlist_submit_blocked", {
+        reason: "cooldown",
+        seconds_remaining: cooldownSeconds,
+      });
       return;
     }
 
@@ -2399,7 +3057,10 @@ export default function PraeliatorWebsite() {
     const controller = new AbortController();
     waitlistRequestControllerRef.current?.abort();
     waitlistRequestControllerRef.current = controller;
-    const timeoutId = window.setTimeout(() => controller.abort(), WAITLIST_REQUEST_TIMEOUT_MS);
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      WAITLIST_REQUEST_TIMEOUT_MS
+    );
 
     const payload = {
       title: normalizedForm.title,
@@ -2415,8 +3076,14 @@ export default function PraeliatorWebsite() {
       note: normalizedForm.note,
       sourceRoute: route,
       clientTimestamp: new Date().toISOString(),
-      viewport: typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : undefined,
-      timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined,
+      viewport:
+        typeof window !== "undefined"
+          ? `${window.innerWidth}x${window.innerHeight}`
+          : undefined,
+      timezone:
+        typeof window !== "undefined"
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : undefined,
     };
 
     try {
@@ -2443,7 +3110,9 @@ export default function PraeliatorWebsite() {
       }
       setWaitlistCooldownUntil(nextCooldownUntil);
 
-      const completionSeconds = waitlistStartedAt ? Math.max(1, Math.round((Date.now() - waitlistStartedAt) / 1000)) : undefined;
+      const completionSeconds = waitlistStartedAt
+        ? Math.max(1, Math.round((Date.now() - waitlistStartedAt) / 1000))
+        : undefined;
 
       setWaitlistState({
         loading: false,
@@ -2536,677 +3205,897 @@ export default function PraeliatorWebsite() {
   };
 
   const renderVisPage = () => (
-    <section className="border-b border-white/10 bg-[#080808]">
-      <Container className="py-16 sm:py-20 lg:py-28">
-        <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start lg:gap-14">
-          <Reveal>
-            <SectionHeading
-              eyebrow="Praeliator VIS"
-              title="A flagship training glove built with discipline."
-              description="Made for disciplined training and technical sparring."
-            />
+    <>
+      <PageHeroBanner
+        eyebrow="Praeliator VIS"
+        title="A flagship training glove built with discipline."
+        description="Praeliator VIS is a 16 oz lace-up training glove made for disciplined training and technical sparring. The page keeps the cinematic restraint of the homepage while giving the object the detail it actually needs."
+        note="Training glove · 16 oz · Lace-up only"
+        actions={[
+          {
+            label: "Private Purchase Inquiry",
+            href: whatsappVisLink,
+            variant: "primary",
+          },
+          {
+            label: "Join Waitlist",
+            onClick: () => goTo("/waitlist"),
+            variant: "secondary",
+          },
+        ]}
+        media={{
+          image: visImageSources.hero,
+          alt: "Praeliator VIS",
+          video: homeCinematicMedia.vis.video,
+          badge: "Praeliator VIS",
+          overlayTitle: "Restrained by design.",
+          overlayText: "A controlled silhouette for disciplined training and technical sparring.",
+        }}
+        stats={pageHeroStats["/praeliator-vis"]}
+      />
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-              >
-                <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                  Private Purchase Inquiry
-                </a>
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/waitlist")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                Join Waitlist
-              </Button>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <ImageSurface
-              src={visImageSources.hero}
-              alt="Praeliator VIS"
-              className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[44rem]"
-              priorityCopy={
-                <>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">
-                    Praeliator VIS
-                  </p>
-                  <p className="mt-4 max-w-[13ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                    Restrained by design. Precise in execution.
-                  </p>
-                </>
-              }
-            />
-          </Reveal>
-        </div>
-
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
-          <Reveal>
-            <div className="max-w-2xl">
-              <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                A 16 oz lace-up training glove in top-grain cowhide with a soft satin finish. Deep black leads. Espresso reveals itself in the light.
+      <EditorialBlock
+        eyebrow="Material"
+        title="Luxury is not louder. It is more resolved."
+        text="VIS is built in top-grain cowhide with a soft satin finish, a sculpted structure, and a restrained visual language that avoids excess. Every surface is meant to feel deliberate rather than decorated."
+        media={{
+          image: visImageSources.leather,
+          alt: "Praeliator VIS leather",
+          video: homeCinematicMedia.material.video,
+          overlayTitle: "Top-grain cowhide.",
+          overlayText: "Soft satin finish. Deep black first. Espresso second.",
+        }}
+      >
+        <div className="grid gap-4">
+          {visEditorialBlocks.map((block) => (
+            <div
+              key={block.title}
+              className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5"
+            >
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                {block.title}
               </p>
+              <p className="mt-3 text-sm leading-7 text-white/62">{block.text}</p>
             </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <DataList
-                items={[
-                  { label: "Primary tone", value: "Deep black" },
-                  { label: "Secondary tone", value: "Espresso brown" },
-                  { label: "Branding", value: "Debossed PRAELIATOR wrist plate" },
-                  { label: "Finish", value: "Soft satin" },
-                ]}
-                compact
-              />
-            </div>
-          </Reveal>
+          ))}
         </div>
+      </EditorialBlock>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Reveal>
-            <ImageSurface
-              src={visImageSources.leather}
-              alt="Praeliator VIS leather"
-              className="min-h-[22rem] sm:min-h-[26rem] lg:min-h-[34rem]"
-            />
-          </Reveal>
-
-          <div className="grid gap-6">
-            <Reveal delay={0.06}>
-              <ImageSurface
-                src={visImageSources.plate}
-                alt="Praeliator VIS plate"
-                className="min-h-[15rem] sm:min-h-[16rem]"
-              />
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[1.04fr_0.96fr]">
+            <Reveal>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Specifications
+                </p>
+                <div className="mt-6">
+                  <DataList items={visSpecifications} />
+                </div>
+              </div>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <ImageSurface
-                src={visImageSources.packaging}
-                alt="Praeliator VIS packaging"
-                className="min-h-[15rem] sm:min-h-[16rem]"
-              />
-            </Reveal>
+            <div className="grid gap-8">
+              <Reveal delay={0.08}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                    Padding system
+                  </p>
+                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                    Four-layer impact structure
+                  </h3>
+                  <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                    {visPaddingLayers.map((layer, index) => (
+                      <div
+                        key={`${layer}-${index}`}
+                        className="grid gap-2 py-4 sm:grid-cols-[92px_1fr] sm:items-center"
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
+                          Layer {index + 1}
+                        </p>
+                        <p className="text-sm leading-7 text-white/80 sm:text-[15px] sm:leading-8">
+                          {layer}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.12}>
+                <MediaSurface
+                  src={visImageSources.plate}
+                  alt="Praeliator VIS logo detail"
+                  className="min-h-[16rem] sm:min-h-[18rem]"
+                  priorityCopy={
+                    <>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b]">
+                        Branding
+                      </p>
+                      <p className="mt-4 text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
+                        Debossed. Controlled. Quiet.
+                      </p>
+                    </>
+                  }
+                />
+              </Reveal>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <EditorialBlock
+        eyebrow="Presentation"
+        title="The object extends beyond the glove."
+        text="Presentation, ownership, and aftercare are part of the same system. VIS is not treated as product alone, but as an object with entry, delivery, and continued service."
+        media={{
+          image: visImageSources.packaging,
+          alt: "Praeliator packaging",
+          video: homeCinematicMedia.ownership.video,
+          overlayTitle: "Presentation and ownership.",
+          overlayText: "Not separate systems. One same language.",
+        }}
+        reverse
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Presentation
+            </p>
+            <div className="mt-4 space-y-3">
+              {visPackaging.map((item) => (
+                <p key={item} className="text-sm leading-7 text-white/62">
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Ownership
+            </p>
+            <div className="mt-4">
+              <DataList items={ownershipSignals} compact />
+            </div>
           </div>
         </div>
+      </EditorialBlock>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1fr] lg:gap-10">
-          <Reveal>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Specifications
-              </p>
-              <div className="mt-6">
-                <DataList items={visSpecifications} />
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
+            <Reveal>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Proof architecture
+                </p>
+                <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                  {constructionEvidence.map((item) => (
+                    <div key={item.label} className="py-5">
+                      <h3 className="text-lg font-medium text-[#f4efe7]">{item.label}</h3>
+                      <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
 
-          <Reveal delay={0.08}>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Padding system
-              </p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                Four-layer impact structure
-              </h3>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                {visPaddingLayers.map((layer, index) => (
-                  <div
-                    key={`${layer}-${index}`}
-                    className="grid gap-2 py-4 sm:grid-cols-[92px_1fr] sm:items-center"
+            <Reveal delay={0.08}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Aftercare
+                </p>
+                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                  Praeliator Legacy Refresh
+                </h3>
+                <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                  Available after the first year, this service supports longevity through maintenance rather than replacement culture.
+                </p>
+                <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                  {visService.map((item) => (
+                    <div key={item} className="py-4">
+                      <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8">
+                  <Button
+                    asChild
+                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
-                      Layer {index + 1}
-                    </p>
-                    <p className="text-sm leading-7 text-white/80 sm:text-[15px] sm:leading-8">
-                      {layer}
-                    </p>
-                  </div>
-                ))}
+                    <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+                      Inquire about VIS
+                    </a>
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
-          <Reveal>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Ownership</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                Allocation, delivery, aftercare.
-              </h3>
-              <div className="mt-6 rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8">
-                <DataList items={ownershipSignals} compact />
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Aftercare</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                Praeliator Legacy Refresh
-              </h3>
-              <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                Available after the first year, this service supports longevity through maintenance rather than replacement culture.
-              </p>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                {visService.map((item) => (
-                  <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
-          <Reveal>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Presentation</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">The object extends beyond the glove.</h3>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                {visPackaging.map((item) => (
-                  <div key={item} className="py-4">
-                    <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Proof architecture</p>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                {constructionEvidence.map((item) => (
-                  <div key={item.label} className="py-5">
-                    <h3 className="text-lg font-medium text-[#f4efe7]">{item.label}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </Container>
-    </section>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 
   const renderAcquisitionPage = () => (
-    <section className="border-b border-white/10 bg-[#090909]">
-      <Container className="py-16 sm:py-20 lg:py-28">
-        <SectionHeading
-          eyebrow="Acquisition"
-          title="Private acquisition, handled directly."
-          description="Each qualified inquiry is reviewed and carried through direct contact."
-        />
+    <>
+      <PageHeroBanner
+        eyebrow="Acquisition"
+        title="Private acquisition, handled directly."
+        description="Each qualified inquiry is reviewed and carried through direct contact. The route stays controlled from first contact to delivery and aftercare."
+        note="Inquiry · review · allocation · delivery"
+        actions={[
+          { label: "Begin Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+        ]}
+        media={{
+          image: visImageSources.packaging,
+          alt: "Private acquisition",
+          video: homeCinematicMedia.acquisition.video,
+          badge: "Private route",
+          overlayTitle: "Handled directly.",
+          overlayText: "No marketplace layer. No noisy commerce language.",
+        }}
+        stats={pageHeroStats["/acquisition"]}
+      />
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
-          <Reveal>
-            <div className="divide-y divide-white/10 border-t border-white/10">
-              {[
-                ["01", "Inquiry", "The client enters by WhatsApp, email, or the private intake form rather than conventional checkout."],
-                ["02", "Record creation", "The inquiry becomes a persistent client record with a reference number, route status, and follow-up ownership."],
-                ["03", "Review and allocation", "Product interest, timing, destination, and allocation status are clarified before payment and dispatch."],
-                ["04", "Delivery and aftercare", "Delivery progress and future service history continue under the same record after purchase."],
-              ].map(([step, title, text]) => (
-                <div key={step} className="grid gap-4 py-5 sm:grid-cols-[90px_1fr] sm:gap-6 sm:py-6">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d] sm:text-[11px]">
-                    {step}
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+            {acquisitionSteps.map((item, index) => (
+              <Reveal key={item.step} delay={index * 0.05}>
+                <div className="h-full rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_28px_72px_rgba(0,0,0,0.24)] sm:p-7">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    {item.step}
                   </p>
-                  <div>
-                    <h3 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">
-                      {title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                      {text}
-                    </p>
-                  </div>
+                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
                 </div>
-              ))}
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
 
-          <Reveal delay={0.08}>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Trust architecture</p>
-              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                {trustArchitecture.map((item) => (
-                  <div key={item.title} className="py-5">
-                    <h3 className="text-lg font-medium text-[#f4efe7]">{item.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button
-                  asChild
-                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                >
-                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                    Begin Inquiry
-                  </a>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => goTo("/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                >
-                  Join Waitlist
-                </Button>
-              </div>
+      <EditorialBlock
+        eyebrow="Trust architecture"
+        title="Control matters before the product arrives."
+        text="Praeliator does not treat acquisition as a generic checkout function. Inquiry, review, allocation, and continuation all stay inside one clear route."
+        media={{
+          image: visImageSources.hero,
+          alt: "Praeliator acquisition media",
+          overlayTitle: "Allocation with continuity.",
+          overlayText: "The route stays recorded from first contact to aftercare.",
+        }}
+      >
+        <div className="grid gap-4">
+          {trustArchitecture.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-5"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
             </div>
-          </Reveal>
+          ))}
         </div>
-      </Container>
-    </section>
+      </EditorialBlock>
+
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+            <Reveal>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Ownership signals
+                </p>
+                <div className="mt-6">
+                  <DataList items={ownershipSignals} compact />
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Decide the route
+                </p>
+                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+                  Direct inquiry or quiet registration
+                </h3>
+                <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                  Some clients want immediate contact. Others want a recorded path into future releases. Both options remain available within the same brand language.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    asChild
+                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                  >
+                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                      Begin Inquiry
+                    </a>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => goTo("/waitlist")}
+                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    Enter Waitlist
+                  </Button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 
   const renderWaitlistPage = () => (
-    <section className="border-b border-white/10 bg-[#090909]">
-      <Container className="pt-0 pb-14 sm:pt-1 sm:pb-16 lg:pt-2 lg:pb-20">
-        <div className="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start lg:gap-12">
-          <Reveal>
-            <SectionHeading
-              eyebrow="Waitlist"
-              title="A quieter route into future access."
-              description="For future releases, collector interest, and private access."
-            />
+    <>
+      <PageHeroBanner
+        eyebrow="Waitlist"
+        title="A quieter route into future access."
+        description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
+        note="Future releases · collector interest · private follow-up"
+        actions={[
+          { label: "Direct Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Contact", onClick: () => goTo("/contact"), variant: "secondary" },
+        ]}
+        media={{
+          image: homeImageSources.presentation,
+          alt: "Praeliator waitlist",
+          video: homeCinematicMedia.ownership.video,
+          badge: "Future access",
+          overlayTitle: "A quieter route in.",
+          overlayText: "Collector interest, future access, and controlled follow-up.",
+        }}
+        stats={pageHeroStats["/waitlist"]}
+      />
 
-            <div className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-              Client reference returned after submission.
-            </div>
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-10">
+            <Reveal>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <SectionHeading
+                  eyebrow="Waitlist"
+                  title="A quieter route into future access."
+                  description="For future releases, collector interest, and private access."
+                />
 
-            <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-              {serviceStandards.map((item) => (
-                <div key={item} className="py-4">
-                  <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{item}</p>
+                <div className="mt-6 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  Client reference returned after submission.
                 </div>
-              ))}
-            </div>
 
-            <div className="mt-6 rounded-[1.65rem] border border-white/[0.08] bg-[#0d0b0a] p-5 shadow-[0_18px_42px_rgba(0,0,0,0.16)]">
-              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">What happens next</p>
-              <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                {[
-                  { title: "Review", text: "Every qualified inquiry is reviewed before contact continues." },
-                  { title: "Reference", text: "Your returned reference stays attached to the intake record." },
-                  { title: "Continuation", text: "If needed, the route continues directly through WhatsApp." },
-                ].map((item) => (
-                  <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.02] p-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">{item.title}</p>
-                    <p className="mt-3 text-sm leading-6 text-white/64">{item.text}</p>
-                  </div>
-                ))}
+                <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                  {serviceStandards.map((item) => (
+                    <div key={item} className="py-4">
+                      <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 grid gap-4">
+                  {[
+                    {
+                      title: "Review",
+                      text:
+                        "Every qualified inquiry is reviewed before contact continues.",
+                    },
+                    {
+                      title: "Reference",
+                      text:
+                        "Your returned reference stays attached to the intake record.",
+                    },
+                    {
+                      title: "Continuation",
+                      text:
+                        "If timing matters, the route can continue directly on WhatsApp.",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-5"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    <a
+                      href={whatsappGeneralLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() =>
+                        trackWaitlistEvent("waitlist_direct_inquiry_click", {
+                          location: "sidebar",
+                        })
+                      }
+                    >
+                      Prefer direct inquiry instead
+                    </a>
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Reveal>
 
-            <div className="mt-5">
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                <a
-                  href={whatsappGeneralLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => trackWaitlistEvent("waitlist_direct_inquiry_click", { location: "sidebar" })}
+            <Reveal delay={0.08}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
+                <form
+                  className="grid gap-4 sm:gap-4 lg:gap-5"
+                  onSubmit={handleWaitlistSubmit}
+                  noValidate
                 >
-                  Prefer direct inquiry instead
-                </a>
-              </Button>
-            </div>
-          </Reveal>
+                  <div className="hidden" aria-hidden="true">
+                    <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
+                    <input
+                      id={WAITLIST_HONEYPOT_FIELD}
+                      name={WAITLIST_HONEYPOT_FIELD}
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={waitlistHoneypot}
+                      onChange={(event) => setWaitlistHoneypot(event.target.value)}
+                      className="browser-form-element h-0 w-0 opacity-0 pointer-events-none"
+                    />
+                  </div>
 
-          <Reveal delay={0.08}>
-            <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <form className="grid gap-4 sm:gap-4 lg:gap-5" onSubmit={handleWaitlistSubmit} noValidate>
-                <div className="hidden" aria-hidden="true">
-                  <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
-                  <input
-                    id={WAITLIST_HONEYPOT_FIELD}
-                    name={WAITLIST_HONEYPOT_FIELD}
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={waitlistHoneypot}
-                    onChange={(event) => setWaitlistHoneypot(event.target.value)}
-                    className="browser-form-element h-0 w-0 opacity-0 pointer-events-none"
-                  />
-                </div>
+                  <div className="grid gap-4 sm:grid-cols-[0.76fr_1.24fr] sm:items-start">
+                    <div>
+                      <SelectField
+                        name="title"
+                        value={waitlistForm.title}
+                        onChange={(event) => handleWaitlistSelectChange("title", event)}
+                        onBlur={() => handleWaitlistBlur("title")}
+                        placeholder="Title"
+                        searchable
+                        searchPlaceholder="Search title"
+                        fieldLabel="Honorific"
+                        options={titleOptions}
+                        success={getFieldSuccess("title")}
+                        describedBy={getFieldDescribedBy("title")}
+                      />
+                    </div>
 
-                <div className="grid gap-4 sm:grid-cols-[0.76fr_1.24fr] sm:items-start">
+                    <div>
+                      <InputField
+                        name="fullName"
+                        value={waitlistForm.fullName}
+                        onChange={handleWaitlistChange}
+                        onBlur={() => handleWaitlistBlur("fullName")}
+                        autoComplete="name"
+                        placeholder="Full name *"
+                        invalid={Boolean(getVisibleFieldError("fullName"))}
+                        success={getFieldSuccess("fullName")}
+                        describedBy={getFieldDescribedBy("fullName")}
+                      />
+                      <FieldError
+                        id="fullName-error"
+                        message={getVisibleFieldError("fullName")}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <InputField
+                      name="email"
+                      type="email"
+                      value={waitlistForm.email}
+                      onChange={handleWaitlistChange}
+                      onBlur={() => handleWaitlistBlur("email")}
+                      autoComplete="email"
+                      autoCapitalize="none"
+                      placeholder="Email address *"
+                      invalid={Boolean(getVisibleFieldError("email"))}
+                      success={getFieldSuccess("email")}
+                      describedBy={getFieldDescribedBy("email")}
+                    />
+                    <FieldError id="email-error" message={getVisibleFieldError("email")} />
+                  </div>
+
+                  <div>
+                    <SearchPicker
+                      name="country"
+                      value={waitlistForm.country}
+                      onChange={handleCountryChange}
+                      onBlur={handleCountryBlur}
+                      options={countryOptions.map((option) => ({
+                        label: option.label,
+                        code: option.code,
+                      }))}
+                      placeholder="Country or dial code *"
+                      exactMatchUpdates
+                      fieldLabel="Country"
+                      invalid={Boolean(getVisibleFieldError("country"))}
+                      success={getFieldSuccess("country")}
+                      describedBy={getFieldDescribedBy("country")}
+                    />
+                    <FieldError
+                      id="country-error"
+                      message={getVisibleFieldError("country")}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr] sm:items-start">
+                    <div>
+                      <InputField
+                        name="phoneCountryCode"
+                        value={waitlistForm.phoneCountryCode}
+                        onChange={handleWaitlistChange}
+                        onBlur={() => handleWaitlistBlur("phoneCountryCode")}
+                        autoComplete="tel-country-code"
+                        inputMode="tel"
+                        maxLength={5}
+                        placeholder="Dial code *"
+                        invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
+                        success={getFieldSuccess("phoneCountryCode")}
+                        describedBy={getFieldDescribedBy("phoneCountryCode")}
+                      />
+                      <FieldError
+                        id="phoneCountryCode-error"
+                        message={getVisibleFieldError("phoneCountryCode")}
+                      />
+                    </div>
+
+                    <div>
+                      <InputField
+                        name="whatsapp"
+                        value={waitlistForm.whatsapp}
+                        onChange={handleWaitlistChange}
+                        onBlur={() => handleWaitlistBlur("whatsapp")}
+                        autoComplete="tel-national"
+                        inputMode="tel"
+                        maxLength={15}
+                        placeholder="Phone number *"
+                        invalid={Boolean(getVisibleFieldError("whatsapp"))}
+                        success={getFieldSuccess("whatsapp")}
+                        describedBy={getFieldDescribedBy("whatsapp")}
+                      />
+                      <FieldError
+                        id="whatsapp-error"
+                        message={getVisibleFieldError("whatsapp")}
+                      />
+                      {!getVisibleFieldError("whatsapp") ? (
+                        <FieldNote>
+                          Use the number where a private follow-up should continue.
+                        </FieldNote>
+                      ) : null}
+                    </div>
+                  </div>
+
                   <div>
                     <SelectField
-                      name="title"
-                      value={waitlistForm.title}
-                      onChange={(event) => handleWaitlistSelectChange("title", event)}
-                      onBlur={() => handleWaitlistBlur("title")}
-                      placeholder="Title"
-                      searchable
-                      searchPlaceholder="Search title"
-                      fieldLabel="Honorific"
-                      options={titleOptions}
-                      success={getFieldSuccess("title")}
-                      describedBy={getFieldDescribedBy("title")}
+                      name="interest"
+                      value={waitlistForm.interest}
+                      onChange={(event) => handleWaitlistSelectChange("interest", event)}
+                      onBlur={() => handleWaitlistBlur("interest")}
+                      placeholder="Interest *"
+                      options={interestOptions}
+                      invalid={Boolean(getVisibleFieldError("interest"))}
+                      success={getFieldSuccess("interest")}
+                      describedBy={getFieldDescribedBy("interest")}
+                    />
+                    <FieldError
+                      id="interest-error"
+                      message={getVisibleFieldError("interest")}
                     />
                   </div>
 
                   <div>
-                    <InputField
-                      name="fullName"
-                      value={waitlistForm.fullName}
-                      onChange={handleWaitlistChange}
-                      onBlur={() => handleWaitlistBlur("fullName")}
-                      autoComplete="name"
-                      placeholder="Full name *"
-                      invalid={Boolean(getVisibleFieldError("fullName"))}
-                      success={getFieldSuccess("fullName")}
-                      describedBy={getFieldDescribedBy("fullName")}
+                    <SelectField
+                      name="timeline"
+                      value={waitlistForm.timeline}
+                      onChange={(event) => handleWaitlistSelectChange("timeline", event)}
+                      onBlur={() => handleWaitlistBlur("timeline")}
+                      placeholder="Timeline *"
+                      options={timelineOptions}
+                      invalid={Boolean(getVisibleFieldError("timeline"))}
+                      success={getFieldSuccess("timeline")}
+                      describedBy={getFieldDescribedBy("timeline")}
                     />
-                    <FieldError id="fullName-error" message={getVisibleFieldError("fullName")} />
-                  </div>
-                </div>
-
-                <div>
-                  <InputField
-                    name="email"
-                    type="email"
-                    value={waitlistForm.email}
-                    onChange={handleWaitlistChange}
-                    onBlur={() => handleWaitlistBlur("email")}
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    placeholder="Email address *"
-                    invalid={Boolean(getVisibleFieldError("email"))}
-                    success={getFieldSuccess("email")}
-                    describedBy={getFieldDescribedBy("email")}
-                  />
-                  <FieldError id="email-error" message={getVisibleFieldError("email")} />
-                </div>
-
-                <div>
-                  <SearchPicker
-                    name="country"
-                    value={waitlistForm.country}
-                    onChange={handleCountryChange}
-                    onBlur={handleCountryBlur}
-                    options={countryOptions.map((option) => ({ label: option.label, code: option.code }))}
-                    placeholder="Country or dial code *"
-                    exactMatchUpdates
-                    fieldLabel="Country"
-                    invalid={Boolean(getVisibleFieldError("country"))}
-                    success={getFieldSuccess("country")}
-                    describedBy={getFieldDescribedBy("country")}
-                  />
-                  <FieldError id="country-error" message={getVisibleFieldError("country")} />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr] sm:items-start">
-                  <div>
-                    <InputField
-                      name="phoneCountryCode"
-                      value={waitlistForm.phoneCountryCode}
-                      onChange={handleWaitlistChange}
-                      onBlur={() => handleWaitlistBlur("phoneCountryCode")}
-                      autoComplete="tel-country-code"
-                      inputMode="tel"
-                      maxLength={5}
-                      placeholder="Dial code *"
-                      invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
-                      success={getFieldSuccess("phoneCountryCode")}
-                      describedBy={getFieldDescribedBy("phoneCountryCode")}
+                    <FieldError
+                      id="timeline-error"
+                      message={getVisibleFieldError("timeline")}
                     />
-                    <FieldError id="phoneCountryCode-error" message={getVisibleFieldError("phoneCountryCode")} />
                   </div>
 
                   <div>
-                    <InputField
-                      name="whatsapp"
-                      value={waitlistForm.whatsapp}
-                      onChange={handleWaitlistChange}
-                      onBlur={() => handleWaitlistBlur("whatsapp")}
-                      autoComplete="tel-national"
-                      inputMode="tel"
-                      maxLength={15}
-                      placeholder="Phone number *"
-                      invalid={Boolean(getVisibleFieldError("whatsapp"))}
-                      success={getFieldSuccess("whatsapp")}
-                      describedBy={getFieldDescribedBy("whatsapp")}
+                    <SelectField
+                      name="contactPreference"
+                      value={waitlistForm.contactPreference}
+                      onChange={(event) =>
+                        handleWaitlistSelectChange("contactPreference", event)
+                      }
+                      onBlur={() => handleWaitlistBlur("contactPreference")}
+                      placeholder="Preferred contact method *"
+                      options={contactPreferenceOptions}
+                      invalid={Boolean(getVisibleFieldError("contactPreference"))}
+                      success={getFieldSuccess("contactPreference")}
+                      describedBy={getFieldDescribedBy("contactPreference")}
                     />
-                    <FieldError id="whatsapp-error" message={getVisibleFieldError("whatsapp")} />
-                    {!getVisibleFieldError("whatsapp") ? <FieldNote>Use the number where a private follow-up should continue.</FieldNote> : null}
+                    <FieldError
+                      id="contactPreference-error"
+                      message={getVisibleFieldError("contactPreference")}
+                    />
                   </div>
-                </div>
 
-                <div>
-                  <SelectField
-                    name="interest"
-                    value={waitlistForm.interest}
-                    onChange={(event) => handleWaitlistSelectChange("interest", event)}
-                    onBlur={() => handleWaitlistBlur("interest")}
-                    placeholder="Interest *"
-                    options={interestOptions}
-                    invalid={Boolean(getVisibleFieldError("interest"))}
-                    success={getFieldSuccess("interest")}
-                    describedBy={getFieldDescribedBy("interest")}
-                  />
-                  <FieldError id="interest-error" message={getVisibleFieldError("interest")} />
-                </div>
+                  <div>
+                    <textarea
+                      name="note"
+                      value={waitlistForm.note}
+                      onChange={handleWaitlistChange}
+                      onBlur={() => handleWaitlistBlur("note")}
+                      rows={6}
+                      className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses(
+                        {}
+                      )}`}
+                      placeholder="Optional note"
+                    />
+                    <FieldNote>
+                      Any detail that affects timing, use, or preferred contact can go here.
+                    </FieldNote>
+                  </div>
 
-                <div>
-                  <SelectField
-                    name="timeline"
-                    value={waitlistForm.timeline}
-                    onChange={(event) => handleWaitlistSelectChange("timeline", event)}
-                    onBlur={() => handleWaitlistBlur("timeline")}
-                    placeholder="Timeline *"
-                    options={timelineOptions}
-                    invalid={Boolean(getVisibleFieldError("timeline"))}
-                    success={getFieldSuccess("timeline")}
-                    describedBy={getFieldDescribedBy("timeline")}
-                  />
-                  <FieldError id="timeline-error" message={getVisibleFieldError("timeline")} />
-                </div>
-
-                <div>
-                  <SelectField
-                    name="contactPreference"
-                    value={waitlistForm.contactPreference}
-                    onChange={(event) => handleWaitlistSelectChange("contactPreference", event)}
-                    onBlur={() => handleWaitlistBlur("contactPreference")}
-                    placeholder="Preferred contact method *"
-                    options={contactPreferenceOptions}
-                    invalid={Boolean(getVisibleFieldError("contactPreference"))}
-                    success={getFieldSuccess("contactPreference")}
-                    describedBy={getFieldDescribedBy("contactPreference")}
-                  />
-                  <FieldError id="contactPreference-error" message={getVisibleFieldError("contactPreference")} />
-                </div>
-
-                <div>
-                  <textarea
-                    name="note"
-                    value={waitlistForm.note}
-                    onChange={handleWaitlistChange}
-                    onBlur={() => handleWaitlistBlur("note")}
-                    rows={6}
-                    className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
-                    placeholder="Optional note"
-                  />
-                  <FieldNote>Any detail that affects timing, use, or preferred contact can go here.</FieldNote>
-                </div>
-
-                <div className="pt-2">
-                  <Button
-                    type="submit"
-                    disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
-                    className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_16px_36px_rgba(239,229,215,0.2)] disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      {waitlistState.loading ? <span className="browser-submit-spinner" aria-hidden="true" /> : null}
-                      <span>
-                        {waitlistState.loading
-                          ? "Submitting..."
-                          : getWaitlistCooldownSeconds() > 0
-                            ? `Wait ${getWaitlistCooldownSeconds()}s`
-                            : "Join Waitlist"}
-                      </span>
-                    </span>
-                  </Button>
-                  <FieldNote>Private review typically continues within one business day.</FieldNote>
-                </div>
-
-                <AnimatePresence>
-                  {waitlistState.success ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 6 }}
-                      transition={{ duration: 0.22, ease: easeLuxury }}
-                      className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
-                      aria-live="polite"
+                  <div className="pt-2">
+                    <Button
+                      type="submit"
+                      disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
+                      className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_16px_36px_rgba(239,229,215,0.2)] disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
-                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Inquiry received</p>
-                        <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
-                          {waitlistState.reference || "Client reference pending"}
-                        </p>
-                      </div>
-                      <div className="space-y-4 px-5 py-5 sm:px-6">
-                        <p className="text-sm leading-6 text-white/62">{waitlistState.serviceMessage}</p>
-                        <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
-                          Private review usually follows within one business day. If timing matters, continue directly on WhatsApp and include your reference.
+                      <span className="inline-flex items-center gap-3">
+                        {waitlistState.loading ? (
+                          <span className="browser-submit-spinner" aria-hidden="true" />
+                        ) : null}
+                        <span>
+                          {waitlistState.loading
+                            ? "Submitting..."
+                            : getWaitlistCooldownSeconds() > 0
+                              ? `Wait ${getWaitlistCooldownSeconds()}s`
+                              : "Join Waitlist"}
+                        </span>
+                      </span>
+                    </Button>
+                    <FieldNote>
+                      Private review typically continues within one business day.
+                    </FieldNote>
+                  </div>
+
+                  <AnimatePresence>
+                    {waitlistState.success ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.22, ease: easeLuxury }}
+                        className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                        aria-live="polite"
+                      >
+                        <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
+                          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                            Inquiry received
+                          </p>
+                          <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
+                            {waitlistState.reference || "Client reference pending"}
+                          </p>
                         </div>
-                        <div className="flex flex-col gap-3 sm:flex-row">
-                          <Button
-                            asChild
-                            className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
-                          >
-                            <a
-                              href={whatsappWaitlistFollowUpLink}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={() => trackWaitlistEvent("waitlist_success_whatsapp_click", { reference: waitlistState.reference || "pending" })}
+                        <div className="space-y-4 px-5 py-5 sm:px-6">
+                          <p className="text-sm leading-6 text-white/62">
+                            {waitlistState.serviceMessage}
+                          </p>
+                          <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                            Private review usually follows within one business day. If timing
+                            matters, continue directly on WhatsApp and include your reference.
+                          </div>
+                          <div className="flex flex-col gap-3 sm:flex-row">
+                            <Button
+                              asChild
+                              className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                             >
-                              Continue on WhatsApp
-                            </a>
-                          </Button>
+                              <a
+                                href={whatsappWaitlistFollowUpLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={() =>
+                                  trackWaitlistEvent(
+                                    "waitlist_success_whatsapp_click",
+                                    {
+                                      reference: waitlistState.reference || "pending",
+                                    }
+                                  )
+                                }
+                              >
+                                Continue on WhatsApp
+                              </a>
+                            </Button>
 
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => goTo("/")}
-                            className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                          >
-                            Return Home
-                          </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => goTo("/")}
+                              className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                            >
+                              Return Home
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
 
-                {waitlistState.error ? (
-                  <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">{waitlistState.error}</p>
-                ) : null}
-              </form>
-            </div>
-          </Reveal>
-        </div>
-      </Container>
-    </section>
+                  {waitlistState.error ? (
+                    <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">
+                      {waitlistState.error}
+                    </p>
+                  ) : null}
+                </form>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 
   const renderContactPage = () => (
-    <section className="border-b border-white/10">
-      <Container className="py-16 sm:py-20 lg:py-28">
-        <SectionHeading
-          eyebrow="Contact"
-          title="Direct contact for private clients."
-          description="WhatsApp remains the primary route for purchase inquiries."
-        />
+    <>
+      <PageHeroBanner
+        eyebrow="Contact"
+        title="Direct contact for private clients."
+        description="WhatsApp remains the primary route for private purchase inquiries, with email and Instagram available when a slower path makes more sense."
+        note="Primary route: WhatsApp"
+        actions={[
+          { label: "Private Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+        ]}
+        media={{
+          image: visImageSources.packaging,
+          alt: "Praeliator contact",
+          video: homeCinematicMedia.acquisition.video,
+          badge: "Direct communication",
+          overlayTitle: "Speak to the brand directly.",
+          overlayText: "No marketplace layer. No generic support center feel.",
+        }}
+        stats={pageHeroStats["/contact"]}
+      />
 
-        <div className="mt-12 divide-y divide-white/10 border-t border-white/10">
-          <Reveal>
-            <a
-              href={whatsappGeneralLink}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-            >
-              <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
-                  <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium sm:text-base">WhatsApp</p>
-                  <p className="text-sm text-white/45">
-                    Preferred for private purchase inquiries
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <Reveal>
+              <a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex h-full flex-col justify-between rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_28px_72px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-1 hover:border-white/16"
+              >
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                    <MessageCircle className="h-5 w-5 text-[#b9a18d]" />
+                  </div>
+                  <p className="mt-6 text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                    Primary
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                    WhatsApp
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/62">
+                    Preferred for private purchase inquiries and faster continuation.
                   </p>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-            </a>
-          </Reveal>
-
-          <Reveal delay={0.06}>
-            <a
-              href={emailLink}
-              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-            >
-              <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
-                  <Mail className="h-5 w-5 text-[#b9a18d]" />
+                <div className="mt-8 flex items-center justify-between text-sm text-white/72">
+                  <span>Open route</span>
+                  <ChevronRight className="h-4 w-4 transition duration-500 group-hover:translate-x-0.5" />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium sm:text-base">Email</p>
-                  <p className="text-sm text-white/45">
-                    
+              </a>
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <a
+                href={emailLink}
+                className="group flex h-full flex-col justify-between rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_28px_72px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-1 hover:border-white/16"
+              >
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                    <Mail className="h-5 w-5 text-[#b9a18d]" />
+                  </div>
+                  <p className="mt-6 text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                    Secondary
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                    Email
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/62">
+                    Slower, quieter, and still appropriate when the inquiry does not need immediate back and forth.
                   </p>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-            </a>
-          </Reveal>
-
-          <Reveal delay={0.12}>
-            <a
-              href={instagramLink}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-between gap-4 py-5 transition duration-500 hover:bg-white/[0.02] sm:py-6"
-            >
-              <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/20">
-                  <Instagram className="h-5 w-5 text-[#b9a18d]" />
+                <div className="mt-8 flex items-center justify-between text-sm text-white/72">
+                  <span>Write email</span>
+                  <ChevronRight className="h-4 w-4 transition duration-500 group-hover:translate-x-0.5" />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium sm:text-base">Instagram</p>
-                  <p className="text-sm text-white/45">
-                    
+              </a>
+            </Reveal>
+
+            <Reveal delay={0.12}>
+              <a
+                href={instagramLink}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex h-full flex-col justify-between rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_28px_72px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-1 hover:border-white/16"
+              >
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20">
+                    <Instagram className="h-5 w-5 text-[#b9a18d]" />
+                  </div>
+                  <p className="mt-6 text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                    Social
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+                    Instagram
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/62">
+                    Useful for brand presence and lighter contact, but not the main purchase route.
                   </p>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-white/35" />
-            </a>
-          </Reveal>
+                <div className="mt-8 flex items-center justify-between text-sm text-white/72">
+                  <span>Visit profile</span>
+                  <ChevronRight className="h-4 w-4 transition duration-500 group-hover:translate-x-0.5" />
+                </div>
+              </a>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <EditorialBlock
+        eyebrow="Communication standard"
+        title="One route, multiple speeds."
+        text="WhatsApp stays primary for direct inquiry. Email and Instagram remain available where a slower or lighter contact path is more appropriate. The hierarchy is clear, but the system remains flexible."
+        media={{
+          image: visImageSources.hero,
+          alt: "Praeliator communication standard",
+          overlayTitle: "One voice across all pages.",
+          overlayText: "Calm, direct, controlled.",
+        }}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Primary route
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/62">
+              WhatsApp remains the preferred channel for private client purchase inquiries.
+            </p>
+          </div>
+          <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Secondary routes
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/62">
+              Email and Instagram stay available, with clear roles and less visual noise.
+            </p>
+          </div>
         </div>
-      </Container>
-    </section>
+      </EditorialBlock>
+    </>
   );
 
   const renderPage = () => {
@@ -3225,21 +4114,18 @@ export default function PraeliatorWebsite() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
+    <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-      <header
-        className={route === "/"
-          ? "fixed inset-x-0 top-0 z-50 bg-[linear-gradient(180deg,rgba(5,5,5,0.74),rgba(5,5,5,0.2),transparent)]"
-          : "sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl"}
-      >
+
+      <header className="fixed inset-x-0 top-0 z-50">
         {route === "/" ? (
           <motion.div
             animate={{
-              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.40)" : "rgba(5,5,5,0)",
+              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.46)" : "rgba(5,5,5,0)",
               backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
             }}
             transition={{ duration: 0.55, ease: easeLuxury }}
-            className="overflow-hidden border-b border-white/[0.06]"
+            className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
           >
             <Container className="relative flex items-center justify-between py-5 sm:py-6">
               <motion.button
@@ -3309,7 +4195,11 @@ export default function PraeliatorWebsite() {
                             initial={{ opacity: 0, y: 18 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.5, delay: index * 0.045, ease: easeLuxury }}
+                            transition={{
+                              duration: 0.5,
+                              delay: index * 0.045,
+                              ease: easeLuxury,
+                            }}
                             onClick={() => goTo(item.path)}
                             className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
                           >
@@ -3338,40 +4228,47 @@ export default function PraeliatorWebsite() {
             </AnimatePresence>
           </motion.div>
         ) : (
-          <>
-            <Container className="flex items-center justify-between py-3 sm:py-4">
-              <button
-                type="button"
-                onClick={() => goTo("/")}
-                className="group flex min-w-0 items-center gap-3 text-left"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
-                  <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
-                    <img
-                      src="/logo-header.png"
-                      alt="Praeliator"
-                      className="h-full w-full object-contain object-center"
-                    />
+          <div className="border-b border-white/[0.08] bg-[linear-gradient(180deg,rgba(11,10,10,0.9),rgba(11,10,10,0.68))] backdrop-blur-xl">
+            <Container className="flex items-center justify-between gap-4 py-4 sm:py-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => goTo("/")}
+                  className="group flex min-w-0 items-center gap-3 text-left"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] sm:h-11 sm:w-11">
+                    {!headerLogoBroken ? (
+                      <img
+                        src="/logo-header.png"
+                        alt="Praeliator"
+                        className="h-6 w-auto object-contain sm:h-7"
+                        onError={() => setHeaderLogoBroken(true)}
+                      />
+                    ) : (
+                      <span className="font-serif text-lg text-[#d7b797]">P</span>
+                    )}
                   </div>
-                </div>
 
-                <div className="min-w-0">
-                  <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
-                    Praeliator
-                  </p>
-                  <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
-                    {currentPageTitle}
-                  </p>
-                </div>
-              </button>
+                  <div className="min-w-0">
+                    <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
+                      Praeliator
+                    </p>
+                    <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
+                      {currentPageTitle}
+                    </p>
+                  </div>
+                </button>
+              </div>
 
-              <nav className="hidden items-center gap-7 text-sm text-white/66 lg:flex">
+              <nav className="hidden items-center gap-7 text-sm text-white/60 xl:flex">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
                     type="button"
                     onClick={() => goTo(item.path)}
-                    className={`transition duration-500 hover:text-white ${route === item.path ? "text-white" : ""}`}
+                    className={`transition duration-500 hover:text-white ${
+                      route === item.path ? "text-white" : ""
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -3379,17 +4276,15 @@ export default function PraeliatorWebsite() {
               </nav>
 
               <div className="hidden items-center gap-3 lg:flex">
-                {route !== "/" ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/")}
-                    className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Home
-                  </Button>
-                ) : null}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => goTo("/")}
+                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
 
                 <Button
                   asChild
@@ -3429,7 +4324,7 @@ export default function PraeliatorWebsite() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.55, ease: easeLuxury }}
-                  className="overflow-hidden border-t border-white/10 bg-[#0a0a0a] lg:hidden"
+                  className="overflow-hidden border-t border-white/10 bg-[#0a0a0a]/98 lg:hidden"
                 >
                   <Container className="grid gap-2 py-4">
                     {navItems.map((item) => (
@@ -3437,32 +4332,36 @@ export default function PraeliatorWebsite() {
                         key={item.path}
                         type="button"
                         onClick={() => goTo(item.path)}
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/10"
+                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/[0.08]"
                       >
                         <span>{item.label}</span>
                         <ChevronRight className="h-4 w-4 text-white/35" />
                       </button>
                     ))}
 
-                    {route !== "/" ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => goTo("/")}
-                        className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                      >
-                        Return Home
-                      </Button>
-                    ) : null}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => goTo("/")}
+                      className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      Return Home
+                    </Button>
                   </Container>
                 </motion.div>
               ) : null}
             </AnimatePresence>
-          </>
+          </div>
         )}
       </header>
 
-      <main className={route === "/" ? "overflow-x-hidden bg-[#040404]" : "overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_28%)]"}>
+      <main
+        className={
+          route === "/"
+            ? "overflow-x-hidden bg-[#040404]"
+            : "overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.1),transparent_24%),linear-gradient(180deg,#090909_0%,#070707_100%)]"
+        }
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={route}
@@ -3477,29 +4376,12 @@ export default function PraeliatorWebsite() {
       </main>
 
       {route === "/" ? null : (
-        <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-          <Container className="flex flex-col gap-5 py-8 text-sm text-white/42 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Praeliator
-              </p>
-              <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
-            </div>
-
-            <div className="flex flex-wrap gap-4 sm:gap-6">
-              {navItems.map((item) => (
-                <button
-                  key={item.path}
-                  type="button"
-                  onClick={() => goTo(item.path)}
-                  className="transition duration-500 hover:text-white"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </Container>
-        </footer>
+        <ClubFooter
+          goTo={goTo}
+          whatsappGeneralLink={whatsappGeneralLink}
+          instagramLink={instagramLink}
+          emailLink={emailLink}
+        />
       )}
     </div>
   );
