@@ -4,6 +4,7 @@ import { Button } from "./components/ui/button";
 import {
   AnimatePresence,
   motion,
+  useInView,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -1330,6 +1331,118 @@ function FieldNote({
   return <p className="mt-2 text-[13px] leading-5 text-white/36">{children}</p>;
 }
 
+function CinematicScene({
+  section,
+  index,
+  onNavigate,
+}: {
+  section: {
+    key: string;
+    word: string;
+    line?: string;
+    cta: string;
+    href?: string;
+    action?: () => void;
+    video: string;
+    poster: string;
+  };
+  index: number;
+  onNavigate: (path: Route) => void;
+}) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const inView = useInView(sectionRef, { amount: 0.68 });
+
+  return (
+    <section
+      ref={sectionRef}
+      className={`relative isolate overflow-hidden ${index === 0 ? "h-[100svh]" : "-mt-[22svh] h-[100svh]"}`}
+    >
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          animate={{ scale: inView ? 1 : 1.03, opacity: 1 }}
+          transition={{ duration: 1.35, ease: easeLuxury }}
+          className="absolute inset-0"
+        >
+          <div
+            className="absolute inset-0 scale-[1.02] bg-cover bg-center"
+            style={{ backgroundImage: `url(${section.poster})` }}
+            aria-hidden="true"
+          />
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={section.poster}
+          >
+            <source src={section.video} type="video/mp4" />
+          </video>
+        </motion.div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_42%,rgba(0,0,0,0.52)_74%,rgba(0,0,0,0.78))]" />
+        <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
+      </div>
+
+      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-24 sm:px-10 sm:pt-28 lg:px-16 lg:pt-32">
+        <motion.div
+          animate={{
+            opacity: inView ? 1 : 0,
+            y: inView ? 0 : 42,
+            filter: inView ? "blur(0px)" : "blur(12px)",
+          }}
+          transition={{ duration: 0.85, delay: inView ? 0.28 : 0, ease: easeLuxury }}
+          className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
+        >
+          <motion.p
+            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
+            transition={{ duration: 0.8, delay: inView ? 0.34 : 0, ease: easeLuxury }}
+            className="text-[clamp(3.8rem,12vw,11rem)] font-light uppercase leading-[0.88] tracking-[0.16em] text-white/96"
+          >
+            {section.word}
+          </motion.p>
+
+          {section.line ? (
+            <motion.p
+              animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
+              transition={{ duration: 0.78, delay: inView ? 0.48 : 0, ease: easeLuxury }}
+              className="mt-5 max-w-[34rem] text-[clamp(0.9rem,1.7vw,1.15rem)] leading-7 tracking-[0.08em] text-white/74 sm:leading-8"
+            >
+              {section.line}
+            </motion.p>
+          ) : null}
+
+          <motion.div
+            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 14 }}
+            transition={{ duration: 0.76, delay: inView ? 0.62 : 0, ease: easeLuxury }}
+            className="mt-8"
+          >
+            {section.href ? (
+              <Button
+                asChild
+                className="rounded-full bg-[#efe5d7] px-8 py-6 text-[12px] uppercase tracking-[0.26em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+              >
+                <a href={section.href} target="_blank" rel="noreferrer">
+                  {section.cta}
+                </a>
+              </Button>
+            ) : section.action ? (
+              <Button
+                type="button"
+                onClick={section.action}
+                className="rounded-full bg-[#efe5d7] px-8 py-6 text-[12px] uppercase tracking-[0.26em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+              >
+                {section.cta}
+              </Button>
+            ) : null}
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function BrowserFormStyles() {
   return (
     <style>{`
@@ -1960,91 +2073,12 @@ export default function PraeliatorWebsite() {
     return (
       <div className="relative bg-[#040404]">
         {cinematicSections.map((section, index) => (
-          <section
+          <CinematicScene
             key={section.key}
-            className={`relative isolate overflow-hidden ${index === 0 ? "min-h-screen" : "-mt-[16vh] min-h-screen"}`}
-          >
-            <div className="absolute inset-0 overflow-hidden">
-              <div
-                className="absolute inset-0 scale-[1.04] bg-cover bg-center"
-                style={{ backgroundImage: `url(${section.poster})` }}
-                aria-hidden="true"
-              />
-              <video
-                className="absolute inset-0 h-full w-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                poster={section.poster}
-              >
-                <source src={section.video} type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.38)_60%,rgba(0,0,0,0.72))]" />
-              <div className="absolute inset-x-0 top-0 h-[28vh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
-              <div className="absolute inset-x-0 bottom-0 h-[32vh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.26),rgba(4,4,4,0.88))]" />
-            </div>
-
-            <div className="relative z-10 flex min-h-screen items-center justify-center px-6 pb-12 pt-24 sm:px-10 sm:pb-16 sm:pt-28 lg:px-16 lg:pb-20 lg:pt-32">
-              <motion.div
-                initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
-                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                viewport={{ once: true, amount: 0.55 }}
-                transition={{ duration: 1.05, delay: 0.45, ease: easeLuxury }}
-                className="mx-auto flex max-w-[28rem] flex-col items-center text-center"
-              >
-                <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.9, delay: 0.62, ease: easeLuxury }}
-                  className="text-[11px] uppercase tracking-[0.42em] text-[#f4efe7]/92 sm:text-xs"
-                >
-                  {section.word}
-                </motion.p>
-
-                {section.line ? (
-                  <motion.p
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.9, delay: 0.76, ease: easeLuxury }}
-                    className="mt-4 max-w-[22rem] text-sm leading-7 text-white/72 sm:text-[15px] sm:leading-8"
-                  >
-                    {section.line}
-                  </motion.p>
-                ) : null}
-
-                <motion.div
-                  initial={{ opacity: 0, y: 14 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.9, delay: 0.9, ease: easeLuxury }}
-                  className="mt-8"
-                >
-                  {section.href ? (
-                    <Button
-                      asChild
-                      className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
-                    >
-                      <a href={section.href} target="_blank" rel="noreferrer">
-                        {section.cta}
-                      </a>
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={section.action}
-                      className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
-                    >
-                      {section.cta}
-                    </Button>
-                  )}
-                </motion.div>
-              </motion.div>
-            </div>
-          </section>
+            section={section}
+            index={index}
+            onNavigate={goTo}
+          />
         ))}
       </div>
     );
