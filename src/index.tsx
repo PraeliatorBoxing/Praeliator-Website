@@ -1440,19 +1440,172 @@ function CinematicScene({
   );
 }
 
+function ExploreFurtherScene({
+  active,
+  goTo,
+}: {
+  active: boolean;
+  goTo: (nextRoute: Route) => void;
+}) {
+  const cards = [
+    {
+      key: "vis",
+      title: "Discover VIS",
+      text: "The flagship training glove.",
+      image: visImageSources.hero,
+      route: "/praeliator-vis" as Route,
+    },
+    {
+      key: "acquisition",
+      title: "Private Acquisition",
+      text: "Handled directly, with control.",
+      image: visImageSources.packaging,
+      route: "/acquisition" as Route,
+    },
+    {
+      key: "waitlist",
+      title: "Join Waitlist",
+      text: "Future access, recorded properly.",
+      image: homeImageSources.presentation,
+      route: "/waitlist" as Route,
+    },
+  ];
+
+  return (
+    <section className="relative isolate flex min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
+      <motion.div
+        animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
+        transition={{ duration: 0.8, ease: easeLuxury }}
+        className="relative z-10 mx-auto w-full max-w-[120rem]"
+      >
+        <div className="text-center">
+          <p className="text-[clamp(1.25rem,2.8vw,2.4rem)] font-light uppercase tracking-[0.18em] text-white/92">
+            Explore Further
+          </p>
+          <p className="mt-3 text-[clamp(0.8rem,1vw,1rem)] uppercase tracking-[0.14em] text-white/62">
+            Continue your journey
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
+          {cards.map((card, index) => (
+            <motion.button
+              key={card.key}
+              type="button"
+              onClick={() => goTo(card.route)}
+              animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+              transition={{ duration: 0.8, delay: 0.12 + index * 0.08, ease: easeLuxury }}
+              className="group overflow-hidden border-l border-white/18 bg-transparent text-left"
+            >
+              <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
+                  style={{ backgroundImage: `url(${card.image})` }}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.22))]" />
+              </div>
+              <div className="px-7 py-7">
+                <p className="text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
+                  {card.title}
+                </p>
+                <p className="mt-4 max-w-[24rem] text-[clamp(0.88rem,0.95vw,1rem)] leading-7 text-white/68">
+                  {card.text}
+                </p>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+function HomeFooterScene({
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
+}: {
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
+}) {
+  return (
+    <section className="relative isolate flex min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
+      <div className="relative z-10 mx-auto w-full max-w-[120rem]">
+        <div className="border-t border-white/18 pt-14">
+          <div className="text-center">
+            <img src="/logo-header.png" alt="Praeliator" className="mx-auto h-14 w-auto object-contain opacity-95" />
+            <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/54">
+              Praeliator
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-10 md:grid-cols-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto]">
+            <div className="space-y-5">
+              <button type="button" onClick={() => goTo("/praeliator-vis")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">VIS</button>
+              <button type="button" onClick={() => goTo("/acquisition")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Acquisition</button>
+              <button type="button" onClick={() => goTo("/waitlist")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Waitlist</button>
+            </div>
+
+            <div className="space-y-5">
+              <button type="button" onClick={() => goTo("/contact")} className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Contact</button>
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer" className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white">Private Inquiry</a>
+            </div>
+
+            <div className="space-y-5">
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Presentation</p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Ownership</p>
+            </div>
+
+            <div className="space-y-5">
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Hand-assembled</p>
+              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">Top-grain leather</p>
+            </div>
+
+            <div className="flex items-start justify-start gap-5 md:justify-end">
+              <a href={instagramLink} target="_blank" rel="noreferrer" className="text-white/72 transition hover:text-white"><Instagram className="h-6 w-6" /></a>
+              <a href={emailLink} className="text-white/72 transition hover:text-white"><Mail className="h-6 w-6" /></a>
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer" className="text-white/72 transition hover:text-white"><MessageCircle className="h-6 w-6" /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FullScreenCinematicHomepage({
   sections,
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
 }: {
-  sections: Array<{
-    key: string;
-    word: string;
-    line?: string;
-    cta: string;
-    href?: string;
-    action?: () => void;
-    video: string;
-    poster: string;
-  }>;
+  sections: Array<
+    | {
+        key: string;
+        kind: "video";
+        word: string;
+        line?: string;
+        cta: string;
+        href?: string;
+        action?: () => void;
+        video: string;
+        poster: string;
+      }
+    | {
+        key: string;
+        kind: "explore" | "footer";
+      }
+  >;
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -1556,14 +1709,24 @@ function FullScreenCinematicHomepage({
         transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
         className="will-change-transform"
       >
-        {sections.map((section, index) => (
-          <CinematicScene
-            key={section.key}
-            section={section}
-            index={index}
-            active={index === activeIndex}
-          />
-        ))}
+        {sections.map((section, index) => {
+          if (section.kind === "video") {
+            return (
+              <CinematicScene
+                key={section.key}
+                section={section}
+                index={index}
+                active={index === activeIndex}
+              />
+            );
+          }
+
+          if (section.kind === "explore") {
+            return <ExploreFurtherScene key={section.key} active={index === activeIndex} goTo={goTo} />;
+          }
+
+          return <HomeFooterScene key={section.key} goTo={goTo} whatsappGeneralLink={whatsappGeneralLink} instagramLink={instagramLink} emailLink={emailLink} />;
+        })}
       </motion.div>
     </div>
   );
@@ -2151,6 +2314,7 @@ export default function PraeliatorWebsite() {
     const cinematicSections = [
       {
         key: "hero",
+        kind: "video" as const,
         word: "Praeliator",
         line: "Equipment for those who treat boxing as art.",
         cta: "Discover",
@@ -2160,6 +2324,7 @@ export default function PraeliatorWebsite() {
       },
       {
         key: "vis",
+        kind: "video" as const,
         word: "VIS",
         line: "16 oz · Lace-up · Top-grain cowhide",
         cta: "Enter VIS",
@@ -2168,25 +2333,8 @@ export default function PraeliatorWebsite() {
         poster: homeCinematicMedia.vis.poster,
       },
       {
-        key: "material",
-        word: "Material",
-        line: "Soft satin finish.",
-        cta: "Construction",
-        action: () => goTo("/praeliator-vis"),
-        video: homeCinematicMedia.material.video,
-        poster: homeCinematicMedia.material.poster,
-      },
-      {
-        key: "ownership",
-        word: "Ownership",
-        line: "From presentation to aftercare.",
-        cta: "Experience",
-        action: () => goTo("/acquisition"),
-        video: homeCinematicMedia.ownership.video,
-        poster: homeCinematicMedia.ownership.poster,
-      },
-      {
         key: "acquisition",
+        kind: "video" as const,
         word: "Acquisition",
         line: "Handled directly.",
         cta: "Private Inquiry",
@@ -2194,9 +2342,25 @@ export default function PraeliatorWebsite() {
         video: homeCinematicMedia.acquisition.video,
         poster: homeCinematicMedia.acquisition.poster,
       },
+      {
+        key: "explore",
+        kind: "explore" as const,
+      },
+      {
+        key: "footer",
+        kind: "footer" as const,
+      },
     ];
 
-    return <FullScreenCinematicHomepage sections={cinematicSections} />;
+    return (
+      <FullScreenCinematicHomepage
+        sections={cinematicSections}
+        goTo={goTo}
+        whatsappGeneralLink={whatsappGeneralLink}
+        instagramLink={instagramLink}
+        emailLink={emailLink}
+      />
+    );
   };
 
   const renderVisPage = () => (
@@ -3111,29 +3275,31 @@ export default function PraeliatorWebsite() {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <Container className="flex flex-col gap-5 py-8 text-sm text-white/42 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-              Praeliator
-            </p>
-            <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
-          </div>
+      {route === "/" ? null : (
+        <footer className="border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
+          <Container className="flex flex-col gap-5 py-8 text-sm text-white/42 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Praeliator
+              </p>
+              <p className="mt-2">Luxury boxing brand. Private client acquisition.</p>
+            </div>
 
-          <div className="flex flex-wrap gap-4 sm:gap-6">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => goTo(item.path)}
-                className="transition duration-500 hover:text-white"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </Container>
-      </footer>
+            <div className="flex flex-wrap gap-4 sm:gap-6">
+              {navItems.map((item) => (
+                <button
+                  key={item.path}
+                  type="button"
+                  onClick={() => goTo(item.path)}
+                  className="transition duration-500 hover:text-white"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </Container>
+        </footer>
+      )}
     </div>
   );
 }
