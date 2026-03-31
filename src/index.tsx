@@ -110,7 +110,7 @@ const brandAssetPaths = {
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
-  headerWordmarkPCrop: "/wordmark-p-crop.png",
+  headerWordmarkPCrop: "/wordmark-p-crop.svg",
   menuMiniLaurel: "/menu-mini-laurel.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
