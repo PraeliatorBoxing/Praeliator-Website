@@ -1509,6 +1509,45 @@ export default function PraeliatorWebsite() {
                     <option value="Mx.">Mx.</option>
                     <option value="Dr.">Dr.</option>
                     <option value="Prof.">Prof.</option>
+                    <option value="Sir">Sir</option>
+                    <option value="Dame">Dame</option>
+                    <option value="Lord">Lord</option>
+                    <option value="Lady">Lady</option>
+                    <option value="Prince">Prince</option>
+                    <option value="Princess">Princess</option>
+                    <option value="Sheikh">Sheikh</option>
+                    <option value="Sheikha">Sheikha</option>
+                    <option value="H.E.">H.E.</option>
+                    <option value="H.E. Dr.">H.E. Dr.</option>
+                    <option value="H.E. Mr.">H.E. Mr.</option>
+                    <option value="H.E. Mrs.">H.E. Mrs.</option>
+                    <option value="H.H.">H.H.</option>
+                    <option value="H.H. Prince">H.H. Prince</option>
+                    <option value="H.H. Sheikh">H.H. Sheikh</option>
+                    <option value="H.H. Sheikha">H.H. Sheikha</option>
+                    <option value="H.R.H.">H.R.H.</option>
+                    <option value="H.R.H. Prince">H.R.H. Prince</option>
+                    <option value="H.R.H. Princess">H.R.H. Princess</option>
+                    <option value="Esq.">Esq.</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Chief">Chief</option>
+                    <option value="Dato">Dato</option>
+                    <option value="Dato Sri">Dato Sri</option>
+                    <option value="Datin">Datin</option>
+                    <option value="Datin Sri">Datin Sri</option>
+                    <option value="Puan Sri">Puan Sri</option>
+                    <option value="Tan Sri">Tan Sri</option>
+                    <option value="Reverend">Reverend</option>
+                    <option value="Herr">Herr</option>
+                    <option value="Frau">Frau</option>
+                    <option value="Mdm.">Mdm.</option>
+                    <option value="Monsieur">Monsieur</option>
+                    <option value="Madame">Madame</option>
+                    <option value="Señor">Señor</option>
+                    <option value="Señora">Señora</option>
+                    <option value="Señorita">Señorita</option>
+                    <option value="先生">先生</option>
+                    <option value="女士">女士</option>
                   </SelectField>
 
                   <InputField
