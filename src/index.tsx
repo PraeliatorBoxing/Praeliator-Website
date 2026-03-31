@@ -1426,7 +1426,7 @@ function CinematicScene({
                 <img
                   src={customVideoLoaderIcon}
                   alt="Loading"
-                  className="h-14 w-14 animate-pulse object-contain opacity-92 sm:h-16 sm:w-16"
+                  className="video-loader-logo h-14 w-14 object-contain sm:h-16 sm:w-16"
                 />
               </div>
             </motion.div>
@@ -1980,9 +1980,30 @@ function BrowserFormStyles() {
         animation: browser-spin 0.8s linear infinite;
       }
 
+      .video-loader-logo {
+        animation: praeliatorLoaderPulse 2.8s ease-in-out infinite;
+      }
+
       @keyframes browser-spin {
         to {
           transform: rotate(360deg);
+        }
+      }
+
+      @keyframes praeliatorLoaderPulse {
+        0% {
+          opacity: 0.68;
+          transform: scale(0.965);
+        }
+
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        100% {
+          opacity: 0.68;
+          transform: scale(0.965);
         }
       }
     `}</style>
