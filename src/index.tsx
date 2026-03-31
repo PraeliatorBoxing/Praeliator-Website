@@ -578,26 +578,135 @@ function SelectField({
   name,
   value,
   onChange,
-  children,
+  options,
+  placeholder,
 }: {
   name: string;
   value: string;
   onChange: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
-  children: React.ReactNode;
+  options: Array<{ value: string; label: string }>;
+  placeholder: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const selectedOption = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setHighlightedIndex(selectedIndex);
+  }, [selectedIndex, open]);
+
+  const commitValue = (nextValue: string) => {
+    onChange({ target: { name, value: nextValue } } as React.ChangeEvent<HTMLSelectElement>);
+    setOpen(false);
+  };
+
   return (
-    <div className="relative">
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="browser-form-element h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 focus:border-[#705645] focus:bg-[#11100f]"
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!open) {
+              setOpen(true);
+              return;
+            }
+            setHighlightedIndex((current) => Math.min(current + 1, options.length - 1));
+            return;
+          }
+
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!open) {
+              setOpen(true);
+              return;
+            }
+            setHighlightedIndex((current) => Math.max(current - 1, 0));
+            return;
+          }
+
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            if (!open) {
+              setOpen(true);
+              return;
+            }
+            const highlighted = options[highlightedIndex];
+            if (highlighted) {
+              commitValue(highlighted.value);
+            }
+            return;
+          }
+
+          if (event.key === "Escape") {
+            setOpen(false);
+          }
+        }}
+        className={`group flex h-14 w-full items-center justify-between rounded-2xl border bg-[#0d0b0a] px-5 text-left text-sm outline-none transition duration-300 ${open ? "border-[#705645] bg-[#11100f]" : "border-white/10"}`}
       >
-        {children}
-      </select>
-      <ChevronRight className="pointer-events-none absolute right-5 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-white/38" />
+        <span className={selectedOption ? "text-[#f4efe7]" : "text-white/28"}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronRight className={`h-4 w-4 shrink-0 text-white/38 transition duration-300 ${open ? "rotate-[270deg]" : "rotate-90"}`} />
+      </button>
+
+      {open ? (
+        <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          <div
+            className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
+            role="listbox"
+            aria-label={name}
+            onWheelCapture={(event) => {
+              event.stopPropagation();
+            }}
+            onTouchMoveCapture={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            {options.map((option, index) => {
+              const isSelected = option.value === value;
+              const isHighlighted = index === highlightedIndex;
+
+              return (
+                <button
+                  key={`${name}-${option.value || option.label}`}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                  onClick={() => commitValue(option.value)}
+                  className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.04]"}`}
+                >
+                  <span className={`truncate text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/78"}`}>{option.label}</span>
+                  {isSelected ? (
+                    <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                      Selected
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1578,55 +1687,56 @@ export default function PraeliatorWebsite() {
                     name="title"
                     value={waitlistForm.title}
                     onChange={handleWaitlistChange}
-                  >
-                    <option value="">Title</option>
-                    <option value="Mr.">Mr.</option>
-                    <option value="Mrs.">Mrs.</option>
-                    <option value="Ms.">Ms.</option>
-                    <option value="Miss">Miss</option>
-                    <option value="Mx.">Mx.</option>
-                    <option value="Dr.">Dr.</option>
-                    <option value="Prof.">Prof.</option>
-                    <option value="Sir">Sir</option>
-                    <option value="Dame">Dame</option>
-                    <option value="Lord">Lord</option>
-                    <option value="Lady">Lady</option>
-                    <option value="Prince">Prince</option>
-                    <option value="Princess">Princess</option>
-                    <option value="Sheikh">Sheikh</option>
-                    <option value="Sheikha">Sheikha</option>
-                    <option value="H.E.">H.E.</option>
-                    <option value="H.E. Dr.">H.E. Dr.</option>
-                    <option value="H.E. Mr.">H.E. Mr.</option>
-                    <option value="H.E. Mrs.">H.E. Mrs.</option>
-                    <option value="H.H.">H.H.</option>
-                    <option value="H.H. Prince">H.H. Prince</option>
-                    <option value="H.H. Sheikh">H.H. Sheikh</option>
-                    <option value="H.H. Sheikha">H.H. Sheikha</option>
-                    <option value="H.R.H.">H.R.H.</option>
-                    <option value="H.R.H. Prince">H.R.H. Prince</option>
-                    <option value="H.R.H. Princess">H.R.H. Princess</option>
-                    <option value="Esq.">Esq.</option>
-                    <option value="Captain">Captain</option>
-                    <option value="Chief">Chief</option>
-                    <option value="Dato">Dato</option>
-                    <option value="Dato Sri">Dato Sri</option>
-                    <option value="Datin">Datin</option>
-                    <option value="Datin Sri">Datin Sri</option>
-                    <option value="Puan Sri">Puan Sri</option>
-                    <option value="Tan Sri">Tan Sri</option>
-                    <option value="Reverend">Reverend</option>
-                    <option value="Herr">Herr</option>
-                    <option value="Frau">Frau</option>
-                    <option value="Mdm.">Mdm.</option>
-                    <option value="Monsieur">Monsieur</option>
-                    <option value="Madame">Madame</option>
-                    <option value="Señor">Señor</option>
-                    <option value="Señora">Señora</option>
-                    <option value="Señorita">Señorita</option>
-                    <option value="先生">先生</option>
-                    <option value="女士">女士</option>
-                  </SelectField>
+                    placeholder="Title"
+                    options={[
+                      { value: "Mr.", label: "Mr." },
+                      { value: "Mrs.", label: "Mrs." },
+                      { value: "Ms.", label: "Ms." },
+                      { value: "Miss", label: "Miss" },
+                      { value: "Mx.", label: "Mx." },
+                      { value: "Dr.", label: "Dr." },
+                      { value: "Prof.", label: "Prof." },
+                      { value: "Sir", label: "Sir" },
+                      { value: "Dame", label: "Dame" },
+                      { value: "Lord", label: "Lord" },
+                      { value: "Lady", label: "Lady" },
+                      { value: "Prince", label: "Prince" },
+                      { value: "Princess", label: "Princess" },
+                      { value: "Sheikh", label: "Sheikh" },
+                      { value: "Sheikha", label: "Sheikha" },
+                      { value: "H.E.", label: "H.E." },
+                      { value: "H.E. Dr.", label: "H.E. Dr." },
+                      { value: "H.E. Mr.", label: "H.E. Mr." },
+                      { value: "H.E. Mrs.", label: "H.E. Mrs." },
+                      { value: "H.H.", label: "H.H." },
+                      { value: "H.H. Prince", label: "H.H. Prince" },
+                      { value: "H.H. Sheikh", label: "H.H. Sheikh" },
+                      { value: "H.H. Sheikha", label: "H.H. Sheikha" },
+                      { value: "H.R.H.", label: "H.R.H." },
+                      { value: "H.R.H. Prince", label: "H.R.H. Prince" },
+                      { value: "H.R.H. Princess", label: "H.R.H. Princess" },
+                      { value: "Esq.", label: "Esq." },
+                      { value: "Captain", label: "Captain" },
+                      { value: "Chief", label: "Chief" },
+                      { value: "Dato", label: "Dato" },
+                      { value: "Dato Sri", label: "Dato Sri" },
+                      { value: "Datin", label: "Datin" },
+                      { value: "Datin Sri", label: "Datin Sri" },
+                      { value: "Puan Sri", label: "Puan Sri" },
+                      { value: "Tan Sri", label: "Tan Sri" },
+                      { value: "Reverend", label: "Reverend" },
+                      { value: "Herr", label: "Herr" },
+                      { value: "Frau", label: "Frau" },
+                      { value: "Mdm.", label: "Mdm." },
+                      { value: "Monsieur", label: "Monsieur" },
+                      { value: "Madame", label: "Madame" },
+                      { value: "Señor", label: "Señor" },
+                      { value: "Señora", label: "Señora" },
+                      { value: "Señorita", label: "Señorita" },
+                      { value: "先生", label: "先生" },
+                      { value: "女士", label: "女士" },
+                    ]}
+                  />
 
                   <InputField
                     name="fullName"
@@ -1682,36 +1792,39 @@ export default function PraeliatorWebsite() {
                   name="interest"
                   value={waitlistForm.interest}
                   onChange={handleWaitlistChange}
-                >
-                  <option value="">Interest *</option>
-                  <option value="Praeliator VIS">Praeliator VIS</option>
-                  <option value="Future releases">Future releases</option>
-                  <option value="Collector interest">Collector interest</option>
-                  <option value="General brand inquiry">General brand inquiry</option>
-                </SelectField>
+                  placeholder="Interest *"
+                  options={[
+                    { value: "Praeliator VIS", label: "Praeliator VIS" },
+                    { value: "Future releases", label: "Future releases" },
+                    { value: "Collector interest", label: "Collector interest" },
+                    { value: "General brand inquiry", label: "General brand inquiry" },
+                  ]}
+                />
 
                 <SelectField
                   name="timeline"
                   value={waitlistForm.timeline}
                   onChange={handleWaitlistChange}
-                >
-                  <option value="">Timeline *</option>
-                  <option value="Ready now">Ready now</option>
-                  <option value="Within 30 days">Within 30 days</option>
-                  <option value="Within 3 months">Within 3 months</option>
-                  <option value="Researching only">Researching only</option>
-                </SelectField>
+                  placeholder="Timeline *"
+                  options={[
+                    { value: "Ready now", label: "Ready now" },
+                    { value: "Within 30 days", label: "Within 30 days" },
+                    { value: "Within 3 months", label: "Within 3 months" },
+                    { value: "Researching only", label: "Researching only" },
+                  ]}
+                />
 
                 <SelectField
                   name="contactPreference"
                   value={waitlistForm.contactPreference}
                   onChange={handleWaitlistChange}
-                >
-                  <option value="">Preferred contact method *</option>
-                  <option value="Phone">Phone</option>
-                  <option value="Email">Email</option>
-                  <option value="Either">Either</option>
-                </SelectField>
+                  placeholder="Preferred contact method *"
+                  options={[
+                    { value: "Phone", label: "Phone" },
+                    { value: "Email", label: "Email" },
+                    { value: "Either", label: "Either" },
+                  ]}
+                />
 
                 <textarea
                   name="note"
