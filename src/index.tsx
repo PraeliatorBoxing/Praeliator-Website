@@ -11,6 +11,7 @@ import {
 import Lenis from "lenis";
 import {
   ArrowLeft,
+  Check,
   ChevronRight,
   Instagram,
   Mail,
@@ -343,6 +344,167 @@ const initialWaitlistForm = {
   note: "",
 };
 
+const titleOptions = [
+  { value: "Mr.", label: "Mr." },
+  { value: "Mrs.", label: "Mrs." },
+  { value: "Ms.", label: "Ms." },
+  { value: "Miss", label: "Miss" },
+  { value: "Mx.", label: "Mx." },
+  { value: "Dr.", label: "Dr." },
+  { value: "Prof.", label: "Prof." },
+  { value: "Sir", label: "Sir" },
+  { value: "Dame", label: "Dame" },
+  { value: "Lord", label: "Lord" },
+  { value: "Lady", label: "Lady" },
+  { value: "Prince", label: "Prince" },
+  { value: "Princess", label: "Princess" },
+  { value: "Sheikh", label: "Sheikh" },
+  { value: "Sheikha", label: "Sheikha" },
+  { value: "H.E.", label: "H.E." },
+  { value: "H.E. Dr.", label: "H.E. Dr." },
+  { value: "H.E. Mr.", label: "H.E. Mr." },
+  { value: "H.E. Mrs.", label: "H.E. Mrs." },
+  { value: "H.H.", label: "H.H." },
+  { value: "H.H. Prince", label: "H.H. Prince" },
+  { value: "H.H. Sheikh", label: "H.H. Sheikh" },
+  { value: "H.H. Sheikha", label: "H.H. Sheikha" },
+  { value: "H.R.H.", label: "H.R.H." },
+  { value: "H.R.H. Prince", label: "H.R.H. Prince" },
+  { value: "H.R.H. Princess", label: "H.R.H. Princess" },
+  { value: "Esq.", label: "Esq." },
+  { value: "Captain", label: "Captain" },
+  { value: "Chief", label: "Chief" },
+  { value: "Dato", label: "Dato" },
+  { value: "Dato Sri", label: "Dato Sri" },
+  { value: "Datin", label: "Datin" },
+  { value: "Datin Sri", label: "Datin Sri" },
+  { value: "Puan Sri", label: "Puan Sri" },
+  { value: "Tan Sri", label: "Tan Sri" },
+  { value: "Reverend", label: "Reverend" },
+  { value: "Herr", label: "Herr" },
+  { value: "Frau", label: "Frau" },
+  { value: "Mdm.", label: "Mdm." },
+  { value: "Monsieur", label: "Monsieur" },
+  { value: "Madame", label: "Madame" },
+  { value: "Señor", label: "Señor" },
+  { value: "Señora", label: "Señora" },
+  { value: "Señorita", label: "Señorita" },
+  { value: "先生", label: "先生" },
+  { value: "女士", label: "女士" },
+];
+
+const interestOptions = [
+  { value: "Praeliator VIS", label: "Praeliator VIS" },
+  { value: "Future releases", label: "Future releases" },
+  { value: "Collector interest", label: "Collector interest" },
+  { value: "General brand inquiry", label: "General brand inquiry" },
+];
+
+const timelineOptions = [
+  { value: "Ready now", label: "Ready now" },
+  { value: "Within 30 days", label: "Within 30 days" },
+  { value: "Within 3 months", label: "Within 3 months" },
+  { value: "Researching only", label: "Researching only" },
+];
+
+const contactPreferenceOptions = [
+  { value: "Phone", label: "Phone" },
+  { value: "Email", label: "Email" },
+  { value: "Either", label: "Either" },
+];
+
+type WaitlistFieldName = keyof typeof initialWaitlistForm;
+type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
+
+const waitlistRequiredFields: WaitlistFieldName[] = [
+  "fullName",
+  "email",
+  "phoneCountryCode",
+  "whatsapp",
+  "country",
+  "interest",
+  "timeline",
+  "contactPreference",
+];
+
+const normalizeInlineText = (value: string) => value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
+const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
+const normalizeDialCode = (value: string) => {
+  const digits = value.replace(/[^\d]/g, "").slice(0, 4);
+  if (!digits && !value.includes("+")) return "";
+  return `+${digits}`;
+};
+const normalizePhoneNumber = (value: string) => value.replace(/[^\d]/g, "").slice(0, 15);
+const normalizeEmailInline = (value: string) => value.replace(/\s+/g, "");
+const normalizeEmailFinal = (value: string) => value.replace(/\s+/g, "").trim().toLowerCase();
+
+const normalizeWaitlistFieldValue = (
+  field: WaitlistFieldName,
+  value: string,
+  stage: "change" | "blur" | "submit" = "change"
+) => {
+  if (field === "fullName") return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+  if (field === "email") return stage === "change" ? normalizeEmailInline(value) : normalizeEmailFinal(value);
+  if (field === "phoneCountryCode") return normalizeDialCode(value);
+  if (field === "whatsapp") return normalizePhoneNumber(value);
+  if (field === "country") return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+  if (field === "note") return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
+  return stage === "change" ? value : value.trim();
+};
+
+const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
+  title: normalizeWaitlistFieldValue("title", form.title, "submit"),
+  fullName: normalizeWaitlistFieldValue("fullName", form.fullName, "submit"),
+  email: normalizeWaitlistFieldValue("email", form.email, "submit"),
+  phoneCountryCode: normalizeWaitlistFieldValue("phoneCountryCode", form.phoneCountryCode, "submit"),
+  whatsapp: normalizeWaitlistFieldValue("whatsapp", form.whatsapp, "submit"),
+  country: normalizeWaitlistFieldValue("country", form.country, "submit"),
+  interest: normalizeWaitlistFieldValue("interest", form.interest, "submit"),
+  timeline: normalizeWaitlistFieldValue("timeline", form.timeline, "submit"),
+  contactPreference: normalizeWaitlistFieldValue("contactPreference", form.contactPreference, "submit"),
+  note: normalizeWaitlistFieldValue("note", form.note, "submit"),
+});
+
+const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors => {
+  const normalizedForm = normalizeWaitlistForm(form);
+  const errors: WaitlistErrors = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!normalizedForm.fullName) {
+    errors.fullName = "Full name is required.";
+  } else if (normalizedForm.fullName.length < 2) {
+    errors.fullName = "Enter a valid full name.";
+  }
+
+  if (!normalizedForm.email) {
+    errors.email = "Email is required.";
+  } else if (!emailPattern.test(normalizedForm.email)) {
+    errors.email = "Enter a valid email address.";
+  }
+
+  if (!normalizedForm.country) {
+    errors.country = "Country is required.";
+  }
+
+  if (!normalizedForm.phoneCountryCode) {
+    errors.phoneCountryCode = "Dial code is required.";
+  } else if (!/^\+\d{1,4}$/.test(normalizedForm.phoneCountryCode)) {
+    errors.phoneCountryCode = "Enter a valid dial code.";
+  }
+
+  if (!normalizedForm.whatsapp) {
+    errors.whatsapp = "Phone number is required.";
+  } else if (normalizedForm.whatsapp.length < 7) {
+    errors.whatsapp = "Enter a valid phone number.";
+  }
+
+  if (!normalizedForm.interest) errors.interest = "Select an interest.";
+  if (!normalizedForm.timeline) errors.timeline = "Select a timeline.";
+  if (!normalizedForm.contactPreference) errors.contactPreference = "Select a preferred contact method.";
+
+  return errors;
+};
+
 type Route =
   | "/"
   | "/praeliator-vis"
@@ -548,18 +710,28 @@ function InputField({
   name,
   value,
   onChange,
+  onBlur,
   placeholder,
   type = "text",
   autoComplete,
+  inputMode,
+  autoCapitalize,
+  invalid = false,
+  maxLength,
 }: {
   name: string;
   value: string;
   onChange: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   placeholder: string;
   type?: string;
   autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  autoCapitalize?: string;
+  invalid?: boolean;
+  maxLength?: number;
 }) {
   return (
     <input
@@ -567,8 +739,13 @@ function InputField({
       type={type}
       value={value}
       onChange={onChange}
+      onBlur={onBlur}
       autoComplete={autoComplete}
-      className="browser-form-element h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+      inputMode={inputMode}
+      autoCapitalize={autoCapitalize}
+      maxLength={maxLength}
+      aria-invalid={invalid}
+      className={`browser-form-element h-14 rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
       placeholder={placeholder}
     />
   );
@@ -578,39 +755,46 @@ function SelectField({
   name,
   value,
   onChange,
+  onBlur,
   options,
   placeholder,
   searchable = false,
   searchPlaceholder = "Search",
   fieldLabel,
+  invalid = false,
 }: {
   name: string;
   value: string;
   onChange: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
+  onBlur?: () => void;
   options: Array<{ value: string; label: string }>;
   placeholder: string;
   searchable?: boolean;
   searchPlaceholder?: string;
   fieldLabel?: string;
+  invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const listboxId = `${name}-listbox`;
   const selectedOption = options.find((option) => option.value === value);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
+        if (open) onBlur?.();
         setOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [open, onBlur]);
 
   const filteredOptions = useMemo(() => {
     if (!searchable) return options;
@@ -628,19 +812,78 @@ function SelectField({
   const selectedIndex = Math.max(0, filteredOptions.findIndex((option) => option.value === value));
 
   useEffect(() => {
-    setHighlightedIndex(selectedIndex);
+    setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
   }, [selectedIndex, open]);
 
   useEffect(() => {
     if (!open) {
       setQuery("");
+      return;
     }
-  }, [open]);
+
+    if (searchable) {
+      window.setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 0);
+    }
+  }, [open, searchable]);
 
   const commitValue = (nextValue: string) => {
     onChange({ target: { name, value: nextValue } } as React.ChangeEvent<HTMLSelectElement>);
+    onBlur?.();
     setOpen(false);
     setQuery("");
+  };
+
+  const moveHighlight = (direction: 1 | -1) => {
+    if (!filteredOptions.length) return;
+    setHighlightedIndex((current) => {
+      const nextIndex = current + direction;
+      if (nextIndex < 0) return filteredOptions.length - 1;
+      if (nextIndex >= filteredOptions.length) return 0;
+      return nextIndex;
+    });
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      moveHighlight(1);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      moveHighlight(-1);
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!open) {
+        setOpen(true);
+        return;
+      }
+      const highlighted = filteredOptions[highlightedIndex];
+      if (highlighted) commitValue(highlighted.value);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      if (open) {
+        event.preventDefault();
+        setOpen(false);
+        onBlur?.();
+      }
+    }
   };
 
   return (
@@ -648,47 +891,12 @@ function SelectField({
       <button
         type="button"
         aria-haspopup="listbox"
+        aria-controls={listboxId}
         aria-expanded={open}
+        aria-invalid={invalid}
         onClick={() => setOpen((current) => !current)}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            if (!open) {
-              setOpen(true);
-              return;
-            }
-            setHighlightedIndex((current) => Math.min(current + 1, filteredOptions.length - 1));
-            return;
-          }
-
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            if (!open) {
-              setOpen(true);
-              return;
-            }
-            setHighlightedIndex((current) => Math.max(current - 1, 0));
-            return;
-          }
-
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            if (!open) {
-              setOpen(true);
-              return;
-            }
-            const highlighted = filteredOptions[highlightedIndex];
-            if (highlighted) {
-              commitValue(highlighted.value);
-            }
-            return;
-          }
-
-          if (event.key === "Escape") {
-            setOpen(false);
-          }
-        }}
-        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border bg-[#0d0b0a] px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "border-[#705645] bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "border-white/10"}`}
+        onKeyDown={handleKeyDown}
+        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "bg-[#0d0b0a]"} ${invalid ? "border-[#8a4b43] bg-[#140e0d]" : open ? "border-[#705645]" : "border-white/10"}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
@@ -700,101 +908,119 @@ function SelectField({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
-        <ChevronRight className={`h-4 w-4 shrink-0 text-white/38 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90"}`} />
+        <ChevronRight className={`h-4 w-4 shrink-0 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/38"}`} />
       </button>
 
-      {open ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-          {searchable ? (
-            <div className="border-b border-white/10 p-3">
-              <input
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setHighlightedIndex(0);
-                }}
-                autoFocus
-                placeholder={searchPlaceholder}
-                className="browser-form-element h-11 w-full rounded-xl border border-white/10 bg-[#11100f] px-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645]"
-              />
-            </div>
-          ) : null}
-          <div
-            className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
-            role="listbox"
-            aria-label={name}
-            onWheelCapture={(event) => {
-              event.stopPropagation();
-            }}
-            onTouchMoveCapture={(event) => {
-              event.stopPropagation();
-            }}
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.985 }}
+            transition={{ duration: 0.18, ease: easeLuxury }}
+            className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
           >
-            {filteredOptions.length === 0 ? (
-              <div className="px-4 py-4 text-sm text-white/42">No matches found.</div>
+            {searchable ? (
+              <div className="border-b border-white/10 p-3">
+                <input
+                  ref={searchInputRef}
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setHighlightedIndex(0);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder={searchPlaceholder}
+                  className="browser-form-element h-11 w-full rounded-xl border border-white/10 bg-[#11100f] px-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645]"
+                />
+              </div>
             ) : null}
-            {filteredOptions.map((option, index) => {
-              const isSelected = option.value === value;
-              const isHighlighted = index === highlightedIndex;
+            <div
+              id={listboxId}
+              className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
+              role="listbox"
+              aria-label={name}
+              onWheelCapture={(event) => {
+                event.stopPropagation();
+              }}
+              onTouchMoveCapture={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              {filteredOptions.length === 0 ? (
+                <div className="px-4 py-4 text-sm text-white/42">No matches found.</div>
+              ) : null}
+              {filteredOptions.map((option, index) => {
+                const isSelected = option.value === value;
+                const isHighlighted = index === highlightedIndex;
 
-              return (
-                <button
-                  key={`${name}-${option.value || option.label}`}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  onMouseEnter={() => setHighlightedIndex(index)}
-                  onClick={() => commitValue(option.value)}
-                  className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.04]"}`}
-                >
-                  <span className={`truncate text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/78"}`}>{option.label}</span>
-                  {isSelected ? (
-                    <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
-                      Selected
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
+                return (
+                  <button
+                    key={`${name}-${option.value || option.label}`}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                    onClick={() => commitValue(option.value)}
+                    className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"}`}
+                  >
+                    <span className={`truncate text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/78"}`}>{option.label}</span>
+                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
 
 function SearchPicker({
+  name,
   value,
   onChange,
+  onBlur,
   options,
   placeholder,
   exactMatchUpdates,
   inputMode,
+  fieldLabel,
+  invalid = false,
 }: {
+  name: string;
   value: string;
   onChange: (value: string, matchedOption?: { label: string; code: string }) => void;
+  onBlur?: () => void;
   options: Array<{ label: string; code: string }>;
   placeholder: string;
   exactMatchUpdates?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  fieldLabel?: string;
+  invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const listboxId = `${name}-picker-listbox`;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
+        if (open) onBlur?.();
         setOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [open, onBlur]);
 
   const filtered = useMemo(() => {
     const query = value.trim().toLowerCase();
-    if (!query) return options.slice(0, 12);
+    if (!query) return options.slice(0, 16);
 
     return options
       .filter((option) => {
@@ -802,17 +1028,48 @@ function SearchPicker({
         const code = option.code.toLowerCase();
         return label.includes(query) || code.includes(query);
       })
-      .slice(0, 12);
+      .slice(0, 16);
   }, [options, value]);
+
+  const selectedIndex = Math.max(
+    0,
+    filtered.findIndex((option) => option.label.toLowerCase() === value.trim().toLowerCase() || option.code.toLowerCase() === value.trim().toLowerCase())
+  );
+
+  useEffect(() => {
+    setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
+  }, [selectedIndex, open]);
+
+  const commitSelection = (option: { label: string; code: string }) => {
+    onChange(inputMode === "tel" ? option.code : option.label, option);
+    onBlur?.();
+    setOpen(false);
+  };
+
+  const moveHighlight = (direction: 1 | -1) => {
+    if (!filtered.length) return;
+    setHighlightedIndex((current) => {
+      const nextIndex = current + direction;
+      if (nextIndex < 0) return filtered.length - 1;
+      if (nextIndex >= filtered.length) return 0;
+      return nextIndex;
+    });
+  };
 
   return (
     <div ref={wrapperRef} className="relative">
-      <ChevronRight className="pointer-events-none absolute right-5 top-7 z-10 h-4 w-4 -translate-y-1/2 rotate-90 text-white/38" />
+      {fieldLabel ? (
+        <p className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/34"}`}>
+          {fieldLabel}
+        </p>
+      ) : null}
+      <ChevronRight className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${open ? "top-[2.55rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.55rem] rotate-90 text-white/38"}`} />
       <input
+        ref={inputRef}
         value={value}
         onChange={(event) => {
           const next = event.target.value;
-          const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : next;
+          const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : normalizeInlineText(next);
           const matchedOption = options.find(
             (option) =>
               option.label.toLowerCase() === cleaned.trim().toLowerCase() ||
@@ -828,43 +1085,114 @@ function SearchPicker({
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => {
+          window.setTimeout(() => {
+            if (!wrapperRef.current?.contains(document.activeElement)) {
+              onBlur?.();
+            }
+          }, 0);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!open) {
+              setOpen(true);
+              return;
+            }
+            moveHighlight(1);
+            return;
+          }
+
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!open) {
+              setOpen(true);
+              return;
+            }
+            moveHighlight(-1);
+            return;
+          }
+
+          if (event.key === "Enter" && open) {
+            event.preventDefault();
+            const highlighted = filtered[highlightedIndex];
+            if (highlighted) commitSelection(highlighted);
+            return;
+          }
+
+          if (event.key === "Escape" && open) {
+            event.preventDefault();
+            setOpen(false);
+            onBlur?.();
+          }
+        }}
         inputMode={inputMode}
-        className="browser-form-element h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+        aria-invalid={invalid}
+        aria-controls={listboxId}
+        aria-expanded={open}
+        className={`browser-form-element h-14 w-full rounded-2xl border px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
         placeholder={placeholder}
       />
 
-      {open && filtered.length > 0 ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-          <div
-            className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
-            onWheelCapture={(event) => {
-              event.stopPropagation();
-            }}
-            onTouchMoveCapture={(event) => {
-              event.stopPropagation();
-            }}
+      <AnimatePresence>
+        {open && filtered.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.985 }}
+            transition={{ duration: 0.18, ease: easeLuxury }}
+            className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
           >
-            {filtered.map((option) => (
-              <button
-                key={`${option.code}-${option.label}`}
-                type="button"
-                onClick={() => {
-                  onChange(inputMode === "tel" ? option.code : option.label, option);
-                  setOpen(false);
-                }}
-                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 hover:bg-white/[0.04]"
-              >
-                <span className="truncate text-sm text-[#f4efe7]">{option.label}</span>
-                <span className="shrink-0 text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">
-                  {option.code}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
+            <div
+              id={listboxId}
+              className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
+              role="listbox"
+              aria-label={name}
+              onWheelCapture={(event) => {
+                event.stopPropagation();
+              }}
+              onTouchMoveCapture={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              {filtered.map((option, index) => {
+                const isSelected = option.label.toLowerCase() === value.trim().toLowerCase() || option.code.toLowerCase() === value.trim().toLowerCase();
+                const isHighlighted = index === highlightedIndex;
+
+                return (
+                  <button
+                    key={`${option.code}-${option.label}`}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                    onClick={() => commitSelection(option)}
+                    className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className="block truncate text-sm text-[#f4efe7]">{option.label}</span>
+                      <span className="mt-1 block text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">{option.code}</span>
+                    </div>
+                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
+}
+
+function FieldError({
+  message,
+}: {
+  message?: string;
+}) {
+  if (!message) return null;
+
+  return <p className="mt-2 text-[13px] leading-5 text-[#d99b8d]">{message}</p>;
 }
 
 function BrowserFormStyles() {
@@ -937,6 +1265,21 @@ function BrowserFormStyles() {
       .browser-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgba(244, 239, 231, 0.28);
       }
+
+      .browser-submit-spinner {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 9999px;
+        border: 2px solid rgba(21, 18, 16, 0.22);
+        border-top-color: #151210;
+        animation: browser-spin 0.8s linear infinite;
+      }
+
+      @keyframes browser-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
     `}</style>
   );
 }
@@ -967,6 +1310,8 @@ export default function PraeliatorWebsite() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [waitlistForm, setWaitlistForm] = useState(initialWaitlistForm);
+  const [waitlistErrors, setWaitlistErrors] = useState<WaitlistErrors>({});
+  const [waitlistTouched, setWaitlistTouched] = useState<Partial<Record<WaitlistFieldName, boolean>>>({});
   const [waitlistState, setWaitlistState] = useState({
     loading: false,
     success: false,
@@ -1060,22 +1405,124 @@ export default function PraeliatorWebsite() {
     setMobileMenuOpen(false);
   };
 
+  const markWaitlistFieldTouched = (field: WaitlistFieldName) => {
+    setWaitlistTouched((current) => ({ ...current, [field]: true }));
+  };
+
+  const markWaitlistFieldsTouched = (fields: WaitlistFieldName[]) => {
+    setWaitlistTouched((current) => ({
+      ...current,
+      ...Object.fromEntries(fields.map((field) => [field, true])),
+    }));
+  };
+
+  const getVisibleFieldError = (field: WaitlistFieldName) =>
+    waitlistTouched[field] ? waitlistErrors[field] : undefined;
+
+  const updateWaitlistForm = (
+    updater: (current: typeof initialWaitlistForm) => typeof initialWaitlistForm
+  ) => {
+    setWaitlistForm((current) => {
+      const next = updater(current);
+
+      if (waitlistState.success || waitlistState.error) {
+        setWaitlistState((state) => ({
+          ...state,
+          success: false,
+          error: "",
+          reference: "",
+          serviceMessage: "",
+        }));
+      }
+
+      if (Object.keys(waitlistTouched).length > 0) {
+        setWaitlistErrors(validateWaitlistForm(next));
+      }
+
+      return next;
+    });
+  };
+
   const handleWaitlistChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
+    const field = event.target.name as WaitlistFieldName;
+    const value = normalizeWaitlistFieldValue(field, event.target.value, "change");
 
-    if (name === "whatsapp") {
-      const cleanedNumber = value.replace(/[^\d]/g, "");
-      setWaitlistForm((current) => ({ ...current, whatsapp: cleanedNumber }));
-      return;
-    }
+    updateWaitlistForm((current) => ({ ...current, [field]: value }));
+  };
 
-    setWaitlistForm((current) => ({ ...current, [name]: value }));
+  const handleWaitlistBlur = (field: WaitlistFieldName) => {
+    markWaitlistFieldTouched(field);
+    updateWaitlistForm((current) => {
+      const normalized = {
+        ...current,
+        [field]: normalizeWaitlistFieldValue(field, current[field], "blur"),
+      };
+      setWaitlistErrors(validateWaitlistForm(normalized));
+      return normalized;
+    });
+  };
+
+  const handleWaitlistSelectChange = (
+    field: WaitlistFieldName,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    markWaitlistFieldTouched(field);
+    handleWaitlistChange(event);
+  };
+
+  const handleCountryChange = (value: string, matchedOption?: { label: string; code: string }) => {
+    updateWaitlistForm((current) => {
+      const next = {
+        ...current,
+        country: normalizeWaitlistFieldValue("country", value, "change"),
+        phoneCountryCode: matchedOption
+          ? normalizeWaitlistFieldValue("phoneCountryCode", matchedOption.code, "change")
+          : current.phoneCountryCode,
+      };
+
+      if (waitlistTouched.country || waitlistTouched.phoneCountryCode) {
+        setWaitlistErrors(validateWaitlistForm(next));
+      }
+
+      return next;
+    });
+  };
+
+  const handleCountryBlur = () => {
+    markWaitlistFieldsTouched(["country", "phoneCountryCode"]);
+    updateWaitlistForm((current) => {
+      const normalized = {
+        ...current,
+        country: normalizeWaitlistFieldValue("country", current.country, "blur"),
+        phoneCountryCode: normalizeWaitlistFieldValue("phoneCountryCode", current.phoneCountryCode, "blur"),
+      };
+      setWaitlistErrors(validateWaitlistForm(normalized));
+      return normalized;
+    });
   };
 
   const handleWaitlistSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const normalizedForm = normalizeWaitlistForm(waitlistForm);
+    const nextErrors = validateWaitlistForm(normalizedForm);
+
+    setWaitlistForm(normalizedForm);
+    setWaitlistErrors(nextErrors);
+    markWaitlistFieldsTouched(waitlistRequiredFields);
+
+    if (Object.keys(nextErrors).length > 0) {
+      setWaitlistState({
+        loading: false,
+        success: false,
+        error: "Please correct the highlighted fields.",
+        reference: "",
+        serviceMessage: "",
+      });
+      return;
+    }
 
     setWaitlistState({
       loading: true,
@@ -1086,39 +1533,19 @@ export default function PraeliatorWebsite() {
     });
 
     const payload = {
-      title: waitlistForm.title.trim(),
-      fullName: waitlistForm.fullName.trim(),
-      email: waitlistForm.email.trim(),
-      phoneCountryCode: waitlistForm.phoneCountryCode.trim(),
-      phoneNumber: waitlistForm.whatsapp.trim(),
-      fullPhone: `${waitlistForm.phoneCountryCode} ${waitlistForm.whatsapp.trim()}`.trim(),
-      country: waitlistForm.country.trim(),
-      interest: waitlistForm.interest.trim(),
-      timeline: waitlistForm.timeline.trim(),
-      contactPreference: waitlistForm.contactPreference.trim(),
-      note: waitlistForm.note.trim(),
+      title: normalizedForm.title,
+      fullName: normalizedForm.fullName,
+      email: normalizedForm.email,
+      phoneCountryCode: normalizedForm.phoneCountryCode,
+      phoneNumber: normalizedForm.whatsapp,
+      fullPhone: `${normalizedForm.phoneCountryCode} ${normalizedForm.whatsapp}`.trim(),
+      country: normalizedForm.country,
+      interest: normalizedForm.interest,
+      timeline: normalizedForm.timeline,
+      contactPreference: normalizedForm.contactPreference,
+      note: normalizedForm.note,
       sourceRoute: route,
     };
-
-    if (
-      !payload.fullName ||
-      !payload.email ||
-      !payload.phoneCountryCode ||
-      !payload.phoneNumber ||
-      !payload.country ||
-      !payload.interest ||
-      !payload.timeline ||
-      !payload.contactPreference
-    ) {
-      setWaitlistState({
-        loading: false,
-        success: false,
-        error: "Please complete all required fields.",
-        reference: "",
-        serviceMessage: "",
-      });
-      return;
-    }
 
     try {
       const response = await fetch(waitlistEndpoint, {
@@ -1146,6 +1573,8 @@ export default function PraeliatorWebsite() {
           "A private reply will follow after review.",
       });
       setWaitlistForm(initialWaitlistForm);
+      setWaitlistErrors({});
+      setWaitlistTouched({});
     } catch (error) {
       setWaitlistState({
         loading: false,
@@ -1733,180 +2162,180 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <form className="grid gap-4" onSubmit={handleWaitlistSubmit}>
+              <form className="grid gap-4" onSubmit={handleWaitlistSubmit} noValidate>
                 <div className="grid gap-4 sm:grid-cols-[0.72fr_1.28fr]">
-                  <SelectField
-                    name="title"
-                    value={waitlistForm.title}
-                    onChange={handleWaitlistChange}
-                    placeholder="Title"
-                    searchable
-                    searchPlaceholder="Search title"
-                    fieldLabel="Honorific"
-                    options={[
-                      { value: "Mr.", label: "Mr." },
-                      { value: "Mrs.", label: "Mrs." },
-                      { value: "Ms.", label: "Ms." },
-                      { value: "Miss", label: "Miss" },
-                      { value: "Mx.", label: "Mx." },
-                      { value: "Dr.", label: "Dr." },
-                      { value: "Prof.", label: "Prof." },
-                      { value: "Sir", label: "Sir" },
-                      { value: "Dame", label: "Dame" },
-                      { value: "Lord", label: "Lord" },
-                      { value: "Lady", label: "Lady" },
-                      { value: "Prince", label: "Prince" },
-                      { value: "Princess", label: "Princess" },
-                      { value: "Sheikh", label: "Sheikh" },
-                      { value: "Sheikha", label: "Sheikha" },
-                      { value: "H.E.", label: "H.E." },
-                      { value: "H.E. Dr.", label: "H.E. Dr." },
-                      { value: "H.E. Mr.", label: "H.E. Mr." },
-                      { value: "H.E. Mrs.", label: "H.E. Mrs." },
-                      { value: "H.H.", label: "H.H." },
-                      { value: "H.H. Prince", label: "H.H. Prince" },
-                      { value: "H.H. Sheikh", label: "H.H. Sheikh" },
-                      { value: "H.H. Sheikha", label: "H.H. Sheikha" },
-                      { value: "H.R.H.", label: "H.R.H." },
-                      { value: "H.R.H. Prince", label: "H.R.H. Prince" },
-                      { value: "H.R.H. Princess", label: "H.R.H. Princess" },
-                      { value: "Esq.", label: "Esq." },
-                      { value: "Captain", label: "Captain" },
-                      { value: "Chief", label: "Chief" },
-                      { value: "Dato", label: "Dato" },
-                      { value: "Dato Sri", label: "Dato Sri" },
-                      { value: "Datin", label: "Datin" },
-                      { value: "Datin Sri", label: "Datin Sri" },
-                      { value: "Puan Sri", label: "Puan Sri" },
-                      { value: "Tan Sri", label: "Tan Sri" },
-                      { value: "Reverend", label: "Reverend" },
-                      { value: "Herr", label: "Herr" },
-                      { value: "Frau", label: "Frau" },
-                      { value: "Mdm.", label: "Mdm." },
-                      { value: "Monsieur", label: "Monsieur" },
-                      { value: "Madame", label: "Madame" },
-                      { value: "Señor", label: "Señor" },
-                      { value: "Señora", label: "Señora" },
-                      { value: "Señorita", label: "Señorita" },
-                      { value: "先生", label: "先生" },
-                      { value: "女士", label: "女士" },
-                    ]}
-                  />
+                  <div>
+                    <SelectField
+                      name="title"
+                      value={waitlistForm.title}
+                      onChange={(event) => handleWaitlistSelectChange("title", event)}
+                      onBlur={() => handleWaitlistBlur("title")}
+                      placeholder="Title"
+                      searchable
+                      searchPlaceholder="Search title"
+                      fieldLabel="Honorific"
+                      options={titleOptions}
+                    />
+                  </div>
 
-                  <InputField
-                    name="fullName"
-                    value={waitlistForm.fullName}
-                    onChange={handleWaitlistChange}
-                    autoComplete="name"
-                    placeholder="Full name *"
-                  />
+                  <div>
+                    <InputField
+                      name="fullName"
+                      value={waitlistForm.fullName}
+                      onChange={handleWaitlistChange}
+                      onBlur={() => handleWaitlistBlur("fullName")}
+                      autoComplete="name"
+                      placeholder="Full name *"
+                      invalid={Boolean(getVisibleFieldError("fullName"))}
+                    />
+                    <FieldError message={getVisibleFieldError("fullName")} />
+                  </div>
                 </div>
 
-                <InputField
-                  name="email"
-                  type="email"
-                  value={waitlistForm.email}
-                  onChange={handleWaitlistChange}
-                  autoComplete="email"
-                  placeholder="Email address *"
-                />
+                <div>
+                  <InputField
+                    name="email"
+                    type="email"
+                    value={waitlistForm.email}
+                    onChange={handleWaitlistChange}
+                    onBlur={() => handleWaitlistBlur("email")}
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    placeholder="Email address *"
+                    invalid={Boolean(getVisibleFieldError("email"))}
+                  />
+                  <FieldError message={getVisibleFieldError("email")} />
+                </div>
 
-                <SearchPicker
-                  value={waitlistForm.country}
-                  onChange={(value, matchedOption) => {
-                    setWaitlistForm((current) => ({
-                      ...current,
-                      country: value,
-                      phoneCountryCode: matchedOption ? matchedOption.code : current.phoneCountryCode,
-                    }));
-                  }}
-                  options={countryOptions.map((option) => ({ label: option.label, code: option.code }))}
-                  placeholder="Country or dial code *"
-                  exactMatchUpdates
-                />
+                <div>
+                  <SearchPicker
+                    name="country"
+                    value={waitlistForm.country}
+                    onChange={handleCountryChange}
+                    onBlur={handleCountryBlur}
+                    options={countryOptions.map((option) => ({ label: option.label, code: option.code }))}
+                    placeholder="Country or dial code *"
+                    exactMatchUpdates
+                    fieldLabel="Country"
+                    invalid={Boolean(getVisibleFieldError("country"))}
+                  />
+                  <FieldError message={getVisibleFieldError("country")} />
+                </div>
 
                 <div className="grid gap-4 sm:grid-cols-[0.82fr_1.18fr]">
-                  <InputField
-                    name="phoneCountryCode"
-                    value={waitlistForm.phoneCountryCode}
-                    onChange={handleWaitlistChange}
-                    autoComplete="tel-country-code"
-                    placeholder="Dial code *"
-                  />
+                  <div>
+                    <InputField
+                      name="phoneCountryCode"
+                      value={waitlistForm.phoneCountryCode}
+                      onChange={handleWaitlistChange}
+                      onBlur={() => handleWaitlistBlur("phoneCountryCode")}
+                      autoComplete="tel-country-code"
+                      inputMode="tel"
+                      maxLength={5}
+                      placeholder="Dial code *"
+                      invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
+                    />
+                    <FieldError message={getVisibleFieldError("phoneCountryCode")} />
+                  </div>
 
-                  <InputField
-                    name="whatsapp"
-                    value={waitlistForm.whatsapp}
-                    onChange={handleWaitlistChange}
-                    autoComplete="tel-national"
-                    placeholder="Phone number *"
-                  />
+                  <div>
+                    <InputField
+                      name="whatsapp"
+                      value={waitlistForm.whatsapp}
+                      onChange={handleWaitlistChange}
+                      onBlur={() => handleWaitlistBlur("whatsapp")}
+                      autoComplete="tel-national"
+                      inputMode="tel"
+                      maxLength={15}
+                      placeholder="Phone number *"
+                      invalid={Boolean(getVisibleFieldError("whatsapp"))}
+                    />
+                    <FieldError message={getVisibleFieldError("whatsapp")} />
+                  </div>
                 </div>
 
-                <SelectField
-                  name="interest"
-                  value={waitlistForm.interest}
-                  onChange={handleWaitlistChange}
-                  placeholder="Interest *"
-                  options={[
-                    { value: "Praeliator VIS", label: "Praeliator VIS" },
-                    { value: "Future releases", label: "Future releases" },
-                    { value: "Collector interest", label: "Collector interest" },
-                    { value: "General brand inquiry", label: "General brand inquiry" },
-                  ]}
-                />
+                <div>
+                  <SelectField
+                    name="interest"
+                    value={waitlistForm.interest}
+                    onChange={(event) => handleWaitlistSelectChange("interest", event)}
+                    onBlur={() => handleWaitlistBlur("interest")}
+                    placeholder="Interest *"
+                    options={interestOptions}
+                    invalid={Boolean(getVisibleFieldError("interest"))}
+                  />
+                  <FieldError message={getVisibleFieldError("interest")} />
+                </div>
 
-                <SelectField
-                  name="timeline"
-                  value={waitlistForm.timeline}
-                  onChange={handleWaitlistChange}
-                  placeholder="Timeline *"
-                  options={[
-                    { value: "Ready now", label: "Ready now" },
-                    { value: "Within 30 days", label: "Within 30 days" },
-                    { value: "Within 3 months", label: "Within 3 months" },
-                    { value: "Researching only", label: "Researching only" },
-                  ]}
-                />
+                <div>
+                  <SelectField
+                    name="timeline"
+                    value={waitlistForm.timeline}
+                    onChange={(event) => handleWaitlistSelectChange("timeline", event)}
+                    onBlur={() => handleWaitlistBlur("timeline")}
+                    placeholder="Timeline *"
+                    options={timelineOptions}
+                    invalid={Boolean(getVisibleFieldError("timeline"))}
+                  />
+                  <FieldError message={getVisibleFieldError("timeline")} />
+                </div>
 
-                <SelectField
-                  name="contactPreference"
-                  value={waitlistForm.contactPreference}
-                  onChange={handleWaitlistChange}
-                  placeholder="Preferred contact method *"
-                  options={[
-                    { value: "Phone", label: "Phone" },
-                    { value: "Email", label: "Email" },
-                    { value: "Either", label: "Either" },
-                  ]}
-                />
+                <div>
+                  <SelectField
+                    name="contactPreference"
+                    value={waitlistForm.contactPreference}
+                    onChange={(event) => handleWaitlistSelectChange("contactPreference", event)}
+                    onBlur={() => handleWaitlistBlur("contactPreference")}
+                    placeholder="Preferred contact method *"
+                    options={contactPreferenceOptions}
+                    invalid={Boolean(getVisibleFieldError("contactPreference"))}
+                  />
+                  <FieldError message={getVisibleFieldError("contactPreference")} />
+                </div>
 
-                <textarea
-                  name="note"
-                  value={waitlistForm.note}
-                  onChange={handleWaitlistChange}
-                  className="browser-form-element min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
-                  placeholder="Optional note"
-                />
+                <div>
+                  <textarea
+                    name="note"
+                    value={waitlistForm.note}
+                    onChange={handleWaitlistChange}
+                    onBlur={() => handleWaitlistBlur("note")}
+                    className="browser-form-element min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                    placeholder="Optional note"
+                  />
+                </div>
 
                 <Button
                   type="submit"
                   disabled={waitlistState.loading}
                   className="h-14 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {waitlistState.loading ? "Submitting..." : "Join Waitlist"}
+                  <span className="inline-flex items-center gap-3">
+                    {waitlistState.loading ? <span className="browser-submit-spinner" aria-hidden="true" /> : null}
+                    <span>{waitlistState.loading ? "Submitting..." : "Join Waitlist"}</span>
+                  </span>
                 </Button>
 
-                {waitlistState.success ? (
-                  <div className="rounded-2xl border border-[#2f241d] bg-[#0d0b0a] px-5 py-4">
-                    <p className="text-sm leading-6 text-[#d7c5ae]">
-                      Inquiry received{waitlistState.reference ? ` · ${waitlistState.reference}` : ""}.
-                    </p>
-                    {waitlistState.serviceMessage ? (
-                      <p className="mt-2 text-sm leading-6 text-white/55">{waitlistState.serviceMessage}</p>
-                    ) : null}
-                  </div>
-                ) : null}
+                <AnimatePresence>
+                  {waitlistState.success ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.22, ease: easeLuxury }}
+                      className="overflow-hidden rounded-[1.6rem] border border-[#2f241d] bg-[#0d0b0a]"
+                    >
+                      <div className="border-b border-white/10 px-5 py-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Inquiry received</p>
+                        <p className="mt-3 text-lg font-medium text-[#f4efe7]">
+                          {waitlistState.reference || "Client reference pending"}
+                        </p>
+                      </div>
+                      <div className="px-5 py-4">
+                        <p className="text-sm leading-6 text-white/62">{waitlistState.serviceMessage}</p>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
 
                 {waitlistState.error ? (
                   <p className="text-sm leading-6 text-[#d99b8d]">{waitlistState.error}</p>
