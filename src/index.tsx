@@ -580,6 +580,9 @@ function SelectField({
   onChange,
   options,
   placeholder,
+  searchable = false,
+  searchPlaceholder = "Search",
+  fieldLabel,
 }: {
   name: string;
   value: string;
@@ -588,11 +591,14 @@ function SelectField({
   ) => void;
   options: Array<{ value: string; label: string }>;
   placeholder: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  fieldLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
   const selectedOption = options.find((option) => option.value === value);
 
   useEffect(() => {
@@ -606,13 +612,35 @@ function SelectField({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const filteredOptions = useMemo(() => {
+    if (!searchable) return options;
+
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return options;
+
+    return options.filter((option) => {
+      const label = option.label.toLowerCase();
+      const optionValue = option.value.toLowerCase();
+      return label.includes(normalizedQuery) || optionValue.includes(normalizedQuery);
+    });
+  }, [options, query, searchable]);
+
+  const selectedIndex = Math.max(0, filteredOptions.findIndex((option) => option.value === value));
+
   useEffect(() => {
     setHighlightedIndex(selectedIndex);
   }, [selectedIndex, open]);
 
+  useEffect(() => {
+    if (!open) {
+      setQuery("");
+    }
+  }, [open]);
+
   const commitValue = (nextValue: string) => {
     onChange({ target: { name, value: nextValue } } as React.ChangeEvent<HTMLSelectElement>);
     setOpen(false);
+    setQuery("");
   };
 
   return (
@@ -629,7 +657,7 @@ function SelectField({
               setOpen(true);
               return;
             }
-            setHighlightedIndex((current) => Math.min(current + 1, options.length - 1));
+            setHighlightedIndex((current) => Math.min(current + 1, filteredOptions.length - 1));
             return;
           }
 
@@ -649,7 +677,7 @@ function SelectField({
               setOpen(true);
               return;
             }
-            const highlighted = options[highlightedIndex];
+            const highlighted = filteredOptions[highlightedIndex];
             if (highlighted) {
               commitValue(highlighted.value);
             }
@@ -660,16 +688,37 @@ function SelectField({
             setOpen(false);
           }
         }}
-        className={`group flex h-14 w-full items-center justify-between rounded-2xl border bg-[#0d0b0a] px-5 text-left text-sm outline-none transition duration-300 ${open ? "border-[#705645] bg-[#11100f]" : "border-white/10"}`}
+        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border bg-[#0d0b0a] px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "border-[#705645] bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "border-white/10"}`}
       >
-        <span className={selectedOption ? "text-[#f4efe7]" : "text-white/28"}>
-          {selectedOption ? selectedOption.label : placeholder}
+        <span className="min-w-0 flex-1">
+          {fieldLabel ? (
+            <span className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/28"}`}>
+              {fieldLabel}
+            </span>
+          ) : null}
+          <span className={`block truncate ${selectedOption ? "text-[#f4efe7]" : "text-white/28"}`}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
         </span>
-        <ChevronRight className={`h-4 w-4 shrink-0 text-white/38 transition duration-300 ${open ? "rotate-[270deg]" : "rotate-90"}`} />
+        <ChevronRight className={`h-4 w-4 shrink-0 text-white/38 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90"}`} />
       </button>
 
       {open ? (
         <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          {searchable ? (
+            <div className="border-b border-white/10 p-3">
+              <input
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setHighlightedIndex(0);
+                }}
+                autoFocus
+                placeholder={searchPlaceholder}
+                className="browser-form-element h-11 w-full rounded-xl border border-white/10 bg-[#11100f] px-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645]"
+              />
+            </div>
+          ) : null}
           <div
             className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
             role="listbox"
@@ -681,7 +730,10 @@ function SelectField({
               event.stopPropagation();
             }}
           >
-            {options.map((option, index) => {
+            {filteredOptions.length === 0 ? (
+              <div className="px-4 py-4 text-sm text-white/42">No matches found.</div>
+            ) : null}
+            {filteredOptions.map((option, index) => {
               const isSelected = option.value === value;
               const isHighlighted = index === highlightedIndex;
 
@@ -1688,6 +1740,9 @@ export default function PraeliatorWebsite() {
                     value={waitlistForm.title}
                     onChange={handleWaitlistChange}
                     placeholder="Title"
+                    searchable
+                    searchPlaceholder="Search title"
+                    fieldLabel="Honorific"
                     options={[
                       { value: "Mr.", label: "Mr." },
                       { value: "Mrs.", label: "Mrs." },
