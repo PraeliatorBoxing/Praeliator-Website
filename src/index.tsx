@@ -107,9 +107,10 @@ const homeCinematicMedia = {
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
   wordmark: "/logo-header.png",
-  headerWordmark: "/wordmark-full.svg",
+  headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
+  menuMiniLaurel: "/menu-mini-laurel.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
     leftUpper: "/brand/monogram/leaf-left-upper.svg",
@@ -2349,73 +2350,11 @@ function PraeliatorMonogramIcon({
 function PraeliatorMenuWreathIcon({
   open = false,
   className = "",
-  iconToneClassName = "bg-[#dbc0a0]",
 }: {
   open?: boolean;
   className?: string;
-  iconToneClassName?: string;
 }) {
   const [hovered, setHovered] = useState(false);
-  const mode: MonogramMode = open ? "open" : hovered ? "hover" : "closed";
-
-  const menuPieces = [
-    {
-      key: "left-outer",
-      src: brandAssetPaths.monogram.leftOuter,
-      size: 12,
-      closed: { x: -8.9, y: 1.2, rotate: -54, scale: 1, opacity: 0.98 },
-      hover: { x: -9.6, y: 0.8, rotate: -57, scale: 1.02, opacity: 1 },
-      open: { x: -10.7, y: 0.2, rotate: -61, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "left-upper",
-      src: brandAssetPaths.monogram.leftUpper,
-      size: 12,
-      closed: { x: -5.9, y: -5.6, rotate: -23, scale: 1, opacity: 0.98 },
-      hover: { x: -6.2, y: -6.1, rotate: -26, scale: 1.02, opacity: 1 },
-      open: { x: -6.9, y: -6.9, rotate: -30, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "left-lower",
-      src: brandAssetPaths.monogram.leftLower,
-      size: 12,
-      closed: { x: -5.7, y: 7.1, rotate: -82, scale: 1, opacity: 0.98 },
-      hover: { x: -6.1, y: 7.6, rotate: -85, scale: 1.02, opacity: 1 },
-      open: { x: -6.8, y: 8.5, rotate: -90, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "right-upper",
-      src: brandAssetPaths.monogram.rightUpper,
-      size: 12,
-      closed: { x: 5.9, y: -5.6, rotate: 23, scale: 1, opacity: 0.98 },
-      hover: { x: 6.2, y: -6.1, rotate: 26, scale: 1.02, opacity: 1 },
-      open: { x: 6.9, y: -6.9, rotate: 30, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "right-lower",
-      src: brandAssetPaths.monogram.rightLower,
-      size: 12,
-      closed: { x: 5.7, y: 7.1, rotate: 82, scale: 1, opacity: 0.98 },
-      hover: { x: 6.1, y: 7.6, rotate: 85, scale: 1.02, opacity: 1 },
-      open: { x: 6.8, y: 8.5, rotate: 90, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "right-outer",
-      src: brandAssetPaths.monogram.rightOuter,
-      size: 12,
-      closed: { x: 8.9, y: 1.2, rotate: 54, scale: 1, opacity: 0.98 },
-      hover: { x: 9.6, y: 0.8, rotate: 57, scale: 1.02, opacity: 1 },
-      open: { x: 10.7, y: 0.2, rotate: 61, scale: 1.03, opacity: 1 },
-    },
-    {
-      key: "center",
-      src: brandAssetPaths.monogram.center,
-      size: 4.8,
-      closed: { x: 0, y: 2.3, rotate: 0, scale: 0.98, opacity: 0.96 },
-      hover: { x: 0, y: 2.2, rotate: 0, scale: 1.04, opacity: 1 },
-      open: { x: 0, y: 2.1, rotate: 0, scale: 1.08, opacity: 1 },
-    },
-  ] as const;
 
   return (
     <motion.div
@@ -2424,58 +2363,37 @@ function PraeliatorMenuWreathIcon({
       onMouseLeave={() => setHovered(false)}
       aria-hidden="true"
       animate={{
-        scale: open ? 1.03 : hovered ? 1.015 : 1,
-        y: hovered ? -0.25 : 0,
+        scale: open ? 1.035 : hovered ? 1.018 : 1,
+        y: open ? 0 : hovered ? -0.2 : 0,
+        rotate: open ? 0 : hovered ? -0.5 : 0,
       }}
-      transition={{ duration: 0.72, ease: easeLuxury }}
+      transition={{ duration: 0.78, ease: easeLuxury }}
     >
       <motion.div
-        className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d2b18b]/12 blur-lg"
+        className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d2b18b]/10 blur-lg"
         animate={{
-          opacity: open ? 0.7 : hovered ? 0.52 : 0.28,
-          scale: open ? 1.15 : hovered ? 1.04 : 0.9,
+          opacity: open ? 0.38 : hovered ? 0.22 : 0.12,
+          scale: open ? 1.08 : hovered ? 1.02 : 0.92,
         }}
-        transition={{ duration: 0.72, ease: easeLuxury }}
+        transition={{ duration: 0.78, ease: easeLuxury }}
       />
 
-      <div className="relative h-full w-full">
-        {menuPieces.map((piece, index) => {
-          const pose = piece[mode];
-          return (
-            <motion.span
-              key={piece.key}
-              className={`absolute left-1/2 top-1/2 block ${iconToneClassName}`}
-              style={{
-                width: piece.size,
-                height: piece.size,
-                WebkitMaskImage: `url(${piece.src})`,
-                maskImage: `url(${piece.src})`,
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                transformOrigin: "center center",
-                willChange: "transform, opacity",
-                filter: "drop-shadow(0 0 8px rgba(212,176,139,0.06))",
-              }}
-              animate={{
-                x: pose.x,
-                y: pose.y,
-                rotate: pose.rotate,
-                scale: pose.scale,
-                opacity: pose.opacity,
-              }}
-              transition={{
-                duration: open ? 0.92 : 0.74,
-                delay: index * 0.018,
-                ease: easeLuxury,
-              }}
-            />
-          );
-        })}
-      </div>
+      <motion.img
+        src={brandAssetPaths.menuMiniLaurel}
+        alt=""
+        className="relative block h-full w-full select-none object-contain"
+        draggable={false}
+        animate={{
+          opacity: open ? 1 : hovered ? 0.96 : 0.92,
+          scale: open ? 1.02 : hovered ? 1.01 : 1,
+          filter: open
+            ? "drop-shadow(0 0 10px rgba(219,192,160,0.12))"
+            : hovered
+              ? "drop-shadow(0 0 8px rgba(219,192,160,0.08))"
+              : "drop-shadow(0 0 6px rgba(219,192,160,0.04))",
+        }}
+        transition={{ duration: 0.78, ease: easeLuxury }}
+      />
     </motion.div>
   );
 }
@@ -2496,31 +2414,23 @@ function HeaderBrandMark({
   const isAssemblyMode = mode === "assembly";
   const isMonogramMode = mode === "monogram";
 
-  const wordmarkWidth = prefersReducedMotion
+  const wordmarkWrapperWidth = prefersReducedMotion
     ? isWordmarkMode
-      ? "13.4rem"
+      ? "13.08rem"
       : "0rem"
     : isWordmarkMode
-      ? "13.4rem"
+      ? "13.08rem"
       : isAssemblyMode
         ? "3.24rem"
         : "0rem";
 
-  const wordmarkOffsetX = prefersReducedMotion
-    ? "0%"
+  const wordmarkImageX = prefersReducedMotion
+    ? "0rem"
     : isWordmarkMode
-      ? "0%"
-      : "29.75%";
-
-  const maskBaseStyle = {
-    WebkitMaskRepeat: "no-repeat" as const,
-    maskRepeat: "no-repeat" as const,
-    WebkitMaskSize: "contain" as const,
-    maskSize: "contain" as const,
-    WebkitMaskPosition: "center" as const,
-    maskPosition: "center" as const,
-    willChange: "transform, opacity",
-  };
+      ? "0rem"
+      : isAssemblyMode
+        ? "-0.68rem"
+        : "-0.68rem";
 
   if (assetsBroken) {
     return (
@@ -2534,7 +2444,12 @@ function HeaderBrandMark({
         aria-label="Praeliator home"
       >
         {isMonogramMode ? (
-          <PraeliatorMonogramIcon open className="h-10 w-10 sm:h-11 sm:w-11" />
+          <img
+            src={brandAssetPaths.headerMonogramMark}
+            alt="Praeliator"
+            className="h-10 w-10 object-contain"
+            onError={onAssetError}
+          />
         ) : (
           <img
             src={brandAssetPaths.wordmark}
@@ -2561,33 +2476,29 @@ function HeaderBrandMark({
         <motion.div
           className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
           animate={{
-            width: wordmarkWidth,
+            width: wordmarkWrapperWidth,
             opacity: isMonogramMode ? 0 : 1,
             filter: isMonogramMode ? "blur(10px)" : "blur(0px)",
           }}
           transition={{
-            duration: prefersReducedMotion ? 0.42 : 1.42,
+            duration: prefersReducedMotion ? 0.42 : 1.56,
             ease: easeLuxury,
           }}
         >
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-y-0 left-0 block bg-[#f4c12e]"
-            onAnimationStart={() => undefined}
-            style={{
-              width: "13.4rem",
-              ...maskBaseStyle,
-              WebkitMaskImage: `url(${brandAssetPaths.headerWordmark})`,
-              maskImage: `url(${brandAssetPaths.headerWordmark})`,
-              filter: "drop-shadow(0 0 10px rgba(244,193,46,0.08))",
-            }}
+          <motion.img
+            src={brandAssetPaths.headerWordmark}
+            alt=""
+            draggable={false}
+            onError={onAssetError}
+            className="absolute left-0 top-1/2 block h-10 w-auto max-w-none -translate-y-1/2 select-none"
+            style={{ width: "13.08rem" }}
             animate={{
-              x: wordmarkOffsetX,
-              scale: isWordmarkMode ? 1 : 0.992,
-              opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.96 : 1,
+              x: wordmarkImageX,
+              opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.98 : 1,
+              scale: isWordmarkMode ? 1 : 0.996,
             }}
             transition={{
-              duration: prefersReducedMotion ? 0.42 : 1.42,
+              duration: prefersReducedMotion ? 0.42 : 1.56,
               ease: easeLuxury,
             }}
           />
@@ -2597,52 +2508,52 @@ function HeaderBrandMark({
           className="pointer-events-none absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2"
           animate={{
             opacity: isWordmarkMode ? 0 : 1,
-            scale: isAssemblyMode ? 1.02 : 1,
+            scale: isAssemblyMode ? 1.018 : 1,
             filter: isWordmarkMode ? "blur(10px)" : "blur(0px)",
           }}
           transition={{
-            duration: prefersReducedMotion ? 0.42 : 1.24,
+            duration: prefersReducedMotion ? 0.42 : 1.28,
             ease: easeLuxury,
           }}
         >
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 block bg-[#f4c12e]"
-            style={{
-              ...maskBaseStyle,
-              WebkitMaskImage: `url(${brandAssetPaths.headerMonogramMark})`,
-              maskImage: `url(${brandAssetPaths.headerMonogramMark})`,
-              filter: "drop-shadow(0 0 10px rgba(244,193,46,0.08))",
-            }}
+          <motion.img
+            src={brandAssetPaths.headerMonogramMark}
+            alt=""
+            draggable={false}
+            onError={onAssetError}
+            className="absolute inset-0 block h-full w-full select-none object-contain"
             animate={{
               opacity: isWordmarkMode ? 0 : 1,
               scale: isAssemblyMode ? 1.008 : 1,
-              y: isAssemblyMode ? -0.45 : 0,
+              y: isAssemblyMode ? -0.38 : 0,
+              filter: isAssemblyMode
+                ? "drop-shadow(0 0 10px rgba(244,193,46,0.08))"
+                : "drop-shadow(0 0 8px rgba(244,193,46,0.06))",
             }}
             transition={{
-              duration: prefersReducedMotion ? 0.38 : 1.08,
-              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.08 : 0,
+              duration: prefersReducedMotion ? 0.38 : 1.12,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.1 : 0,
               ease: easeLuxury,
             }}
           />
 
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 block bg-[#f4c12e]"
-            style={{
-              ...maskBaseStyle,
-              WebkitMaskImage: `url(${brandAssetPaths.headerLaurelMark})`,
-              maskImage: `url(${brandAssetPaths.headerLaurelMark})`,
-              filter: "drop-shadow(0 0 10px rgba(244,193,46,0.08))",
-            }}
+          <motion.img
+            src={brandAssetPaths.headerLaurelMark}
+            alt=""
+            draggable={false}
+            onError={onAssetError}
+            className="absolute inset-0 block h-full w-full select-none object-contain"
             animate={{
               opacity: isWordmarkMode ? 0 : 1,
-              y: isAssemblyMode ? 1.2 : 0,
-              scale: isAssemblyMode ? 1.016 : 1,
+              y: isAssemblyMode ? -0.22 : 0,
+              scale: isAssemblyMode ? 1.01 : 1,
+              filter: isAssemblyMode
+                ? "drop-shadow(0 0 10px rgba(244,193,46,0.08))"
+                : "drop-shadow(0 0 8px rgba(244,193,46,0.06))",
             }}
             transition={{
-              duration: prefersReducedMotion ? 0.4 : 1.28,
-              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.22 : 0,
+              duration: prefersReducedMotion ? 0.4 : 1.32,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.24 : 0,
               ease: easeLuxury,
             }}
           />
@@ -4353,7 +4264,6 @@ export default function PraeliatorWebsite() {
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
                   className="h-8 w-8"
-                  iconToneClassName="bg-[#dbc0a0]"
                 />
               </motion.span>
               <span className="sr-only">
