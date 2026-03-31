@@ -745,7 +745,7 @@ function InputField({
       autoCapitalize={autoCapitalize}
       maxLength={maxLength}
       aria-invalid={invalid}
-      className={`browser-form-element h-14 rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
+      className={`browser-form-element h-14 w-full rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
       placeholder={placeholder}
     />
   );
@@ -2299,7 +2299,7 @@ export default function PraeliatorWebsite() {
                     value={waitlistForm.note}
                     onChange={handleWaitlistChange}
                     onBlur={() => handleWaitlistBlur("note")}
-                    className="browser-form-element min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                    className="browser-form-element min-h-[130px] w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
                     placeholder="Optional note"
                   />
                 </div>
