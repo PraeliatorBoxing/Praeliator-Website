@@ -2014,6 +2014,7 @@ export default function PraeliatorWebsite() {
   });
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [waitlistForm, setWaitlistForm] = useState(initialWaitlistForm);
   const [waitlistErrors, setWaitlistErrors] = useState<WaitlistErrors>({});
   const [waitlistTouched, setWaitlistTouched] = useState<Partial<Record<WaitlistFieldName, boolean>>>({});
@@ -3213,7 +3214,7 @@ export default function PraeliatorWebsite() {
         {route === "/" ? (
           <motion.div
             animate={{
-              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.52)" : "rgba(5,5,5,0)",
+              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.40)" : "rgba(5,5,5,0)",
               backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
             }}
             transition={{ duration: 0.55, ease: easeLuxury }}
@@ -3241,11 +3242,18 @@ export default function PraeliatorWebsite() {
                 transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
                 className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               >
-                <img
-                  src={mobileMenuOpen ? "/logo-header-light.png" : "/logo-header.png"}
-                  alt="Praeliator"
-                  className="h-9 w-auto object-contain opacity-92 sm:h-10"
-                />
+                {!headerLogoBroken ? (
+                  <img
+                    src="/logo-header.png"
+                    alt="Praeliator"
+                    className="h-9 w-auto object-contain opacity-92 sm:h-10"
+                    onError={() => setHeaderLogoBroken(true)}
+                  />
+                ) : (
+                  <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
+                    P
+                  </span>
+                )}
               </motion.button>
 
               <motion.a
@@ -3272,27 +3280,33 @@ export default function PraeliatorWebsite() {
                 >
                   <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
                     <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
-                      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2 xl:grid-cols-4 xl:gap-5">
+                      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
                         {navItems.map((item, index) => (
                           <motion.button
                             key={item.path}
                             type="button"
-                            initial={{ opacity: 0, y: 12 }}
+                            initial={{ opacity: 0, y: 18 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.45, delay: index * 0.04, ease: easeLuxury }}
+                            transition={{ duration: 0.5, delay: index * 0.045, ease: easeLuxury }}
                             onClick={() => goTo(item.path)}
-                            className="group rounded-[1.6rem] border border-white/[0.08] bg-white/[0.02] px-5 py-5 text-left transition duration-500 hover:border-white/[0.14] hover:bg-white/[0.05]"
+                            className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
                           >
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-[clamp(1rem,1.25vw,1.35rem)] uppercase tracking-[0.12em] text-white/88">
+                            <div className="min-w-0">
+                              <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
                                 {item.label}
-                              </span>
-                              <ChevronRight className="h-4 w-4 text-white/26 transition duration-500 group-hover:translate-x-1 group-hover:text-white/56" />
+                              </p>
+                              <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
+                                {item.label === "VIS"
+                                  ? "Flagship"
+                                  : item.label === "Acquisition"
+                                    ? "Private route"
+                                    : item.label === "Waitlist"
+                                      ? "Future access"
+                                      : "Direct contact"}
+                              </p>
                             </div>
-                            <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-white/34">
-                              {item.label === "VIS" ? "Flagship" : item.label === "Acquisition" ? "Private route" : item.label === "Waitlist" ? "Future access" : "Direct contact"}
-                            </p>
+                            <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
                           </motion.button>
                         ))}
                       </div>
