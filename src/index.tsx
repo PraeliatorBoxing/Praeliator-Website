@@ -110,6 +110,7 @@ const brandAssetPaths = {
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
+  headerWordmarkPCrop: "/wordmark-p-crop.png",
   menuMiniLaurel: "/menu-mini-laurel.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
@@ -2358,13 +2359,13 @@ function PraeliatorMenuWreathIcon({
 
   return (
     <motion.div
-      className={`relative isolate ${className}`}
+      className={`relative isolate overflow-hidden ${className}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       aria-hidden="true"
       animate={{
-        scale: open ? 1.035 : hovered ? 1.018 : 1,
-        y: open ? 0 : hovered ? -0.2 : 0,
+        scale: open ? 1.04 : hovered ? 1.022 : 1,
+        y: open ? 0 : hovered ? -0.22 : 0,
         rotate: open ? 0 : hovered ? -0.5 : 0,
       }}
       transition={{ duration: 0.78, ease: easeLuxury }}
@@ -2373,10 +2374,11 @@ function PraeliatorMenuWreathIcon({
         src={brandAssetPaths.menuMiniLaurel}
         alt=""
         className="relative block h-full w-full select-none object-contain"
+        style={{ clipPath: "inset(14% 14% 14% 14%)" }}
         draggable={false}
         animate={{
-          opacity: open ? 1 : hovered ? 0.97 : 0.94,
-          scale: open ? 1.03 : hovered ? 1.015 : 1,
+          opacity: open ? 1 : hovered ? 0.98 : 0.95,
+          scale: open ? 1.18 : hovered ? 1.13 : 1.1,
           filter: open
             ? "drop-shadow(0 0 10px rgba(219,192,160,0.1))"
             : hovered
@@ -2411,17 +2413,13 @@ function HeaderBrandMark({
       : "0rem"
     : isWordmarkMode
       ? "13.08rem"
-      : isAssemblyMode
-        ? "2.12rem"
-        : "0rem";
+      : "0rem";
 
   const wordmarkImageX = prefersReducedMotion
     ? "0rem"
     : isWordmarkMode
       ? "0rem"
-      : isAssemblyMode
-        ? "-0.32rem"
-        : "-0.32rem";
+      : "-0.52rem";
 
   if (assetsBroken) {
     return (
@@ -2468,7 +2466,7 @@ function HeaderBrandMark({
           className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
           animate={{
             width: wordmarkWrapperWidth,
-            opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.9 : 1,
+            opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
             filter: isMonogramMode ? "blur(10px)" : isAssemblyMode ? "blur(0.4px)" : "blur(0px)",
           }}
           transition={{
@@ -2485,11 +2483,42 @@ function HeaderBrandMark({
             style={{ width: "13.08rem" }}
             animate={{
               x: wordmarkImageX,
-              opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.6 : 1,
+              opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
               scale: isWordmarkMode ? 1 : 0.994,
             }}
             transition={{
               duration: prefersReducedMotion ? 0.42 : 1.56,
+              ease: easeLuxury,
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="pointer-events-none absolute left-1/2 top-1/2 h-10 w-[2.35rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+          animate={{
+            opacity: isAssemblyMode ? 1 : 0,
+            scale: isAssemblyMode ? 1.004 : 0.985,
+            filter: isAssemblyMode ? "blur(0px)" : "blur(9px)",
+          }}
+          transition={{
+            duration: prefersReducedMotion ? 0.32 : 0.92,
+            ease: easeLuxury,
+          }}
+        >
+          <motion.img
+            src={brandAssetPaths.headerWordmarkPCrop}
+            alt=""
+            draggable={false}
+            onError={onAssetError}
+            className="absolute left-1/2 top-1/2 block h-10 w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none"
+            animate={{
+              opacity: isAssemblyMode ? 0.96 : 0,
+              y: isAssemblyMode ? -0.04 : 0.08,
+              scale: isAssemblyMode ? 1 : 0.985,
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.32 : 0.9,
+              delay: prefersReducedMotion ? 0 : 0.08,
               ease: easeLuxury,
             }}
           />
@@ -2523,7 +2552,7 @@ function HeaderBrandMark({
             }}
             transition={{
               duration: prefersReducedMotion ? 0.38 : 1.12,
-              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.18 : 0,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.24 : 0,
               ease: easeLuxury,
             }}
           />
@@ -4254,7 +4283,7 @@ export default function PraeliatorWebsite() {
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-9 w-9"
+                  className="h-10 w-10"
                 />
               </motion.span>
               <span className="sr-only">
