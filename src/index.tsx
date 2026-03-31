@@ -568,7 +568,7 @@ function InputField({
       value={value}
       onChange={onChange}
       autoComplete={autoComplete}
-      className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+      className="browser-form-element h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
       placeholder={placeholder}
     />
   );
@@ -588,14 +588,17 @@ function SelectField({
   children: React.ReactNode;
 }) {
   return (
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="h-14 rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 focus:border-[#705645] focus:bg-[#11100f]"
-    >
-      {children}
-    </select>
+    <div className="relative">
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="browser-form-element h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 focus:border-[#705645] focus:bg-[#11100f]"
+      >
+        {children}
+      </select>
+      <ChevronRight className="pointer-events-none absolute right-5 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-white/38" />
+    </div>
   );
 }
 
@@ -643,6 +646,7 @@ function SearchPicker({
 
   return (
     <div ref={wrapperRef} className="relative">
+      <ChevronRight className="pointer-events-none absolute right-5 top-7 z-10 h-4 w-4 -translate-y-1/2 rotate-90 text-white/38" />
       <input
         value={value}
         onChange={(event) => {
@@ -664,14 +668,14 @@ function SearchPicker({
         }}
         onFocus={() => setOpen(true)}
         inputMode={inputMode}
-        className="h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+        className="browser-form-element h-14 w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
         placeholder={placeholder}
       />
 
       {open && filtered.length > 0 ? (
         <div className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
           <div
-            className="max-h-72 overflow-y-auto overscroll-contain py-2"
+            className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
             onWheelCapture={(event) => {
               event.stopPropagation();
             }}
@@ -699,6 +703,80 @@ function SearchPicker({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function BrowserFormStyles() {
+  return (
+    <style>{`
+      .browser-form-element {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        color-scheme: dark;
+      }
+
+      .browser-form-element:-webkit-autofill,
+      .browser-form-element:-webkit-autofill:hover,
+      .browser-form-element:-webkit-autofill:focus,
+      .browser-form-element:-webkit-autofill:active {
+        -webkit-text-fill-color: #f4efe7;
+        caret-color: #f4efe7;
+        box-shadow: 0 0 0 1000px #0d0b0a inset;
+        -webkit-box-shadow: 0 0 0 1000px #0d0b0a inset;
+        border-color: rgba(255, 255, 255, 0.1);
+        transition: background-color 999999s ease-out 0s;
+      }
+
+      .browser-form-element::selection {
+        background: rgba(239, 229, 215, 0.18);
+        color: #f4efe7;
+      }
+
+      .browser-form-element::-webkit-calendar-picker-indicator {
+        filter: invert(0.92) opacity(0.72);
+      }
+
+      .browser-form-element::-ms-reveal,
+      .browser-form-element::-ms-clear,
+      .browser-form-element::-webkit-contacts-auto-fill-button,
+      .browser-form-element::-webkit-credentials-auto-fill-button {
+        filter: invert(0.92) opacity(0.72);
+      }
+
+      .browser-form-element[type='number']::-webkit-outer-spin-button,
+      .browser-form-element[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .browser-form-element[type='number'] {
+        -moz-appearance: textfield;
+      }
+
+      .browser-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(244, 239, 231, 0.18) #0b0a09;
+      }
+
+      .browser-scrollbar::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .browser-scrollbar::-webkit-scrollbar-track {
+        background: #0b0a09;
+      }
+
+      .browser-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(244, 239, 231, 0.18);
+        border-radius: 9999px;
+        border: 2px solid #0b0a09;
+      }
+
+      .browser-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(244, 239, 231, 0.28);
+      }
+    `}</style>
   );
 }
 
@@ -1639,7 +1717,7 @@ export default function PraeliatorWebsite() {
                   name="note"
                   value={waitlistForm.note}
                   onChange={handleWaitlistChange}
-                  className="min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                  className="browser-form-element min-h-[130px] rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
                   placeholder="Optional note"
                 />
 
@@ -1768,6 +1846,7 @@ export default function PraeliatorWebsite() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
+      <BrowserFormStyles />
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl">
         <Container className="flex items-center justify-between py-3 sm:py-4">
           <button
