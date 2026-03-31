@@ -1902,277 +1902,221 @@ export default function PraeliatorWebsite() {
 
   const renderHomePage = () => (
     <>
-      <section className="relative overflow-hidden border-b border-white/10 bg-[#060606]">
+      <section className="relative min-h-[100svh] overflow-hidden bg-[#040404]">
         <motion.div
           style={{ y: heroMediaY }}
-          className="absolute inset-0 bg-cover bg-center opacity-55"
+          className="absolute inset-0"
           aria-hidden="true"
         >
-          <div
-            className="h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${homeImageSources.hero})` }}
-          />
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={homeImageSources.hero}
+          >
+            <source src="/videos/praeliator-film.mp4" type="video/mp4" />
+          </video>
         </motion.div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.12),transparent_32%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.68)_56%,rgba(0,0,0,0.94))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.14),transparent_30%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_48%,rgba(0,0,0,0.86)_100%)]" />
 
-        <Container className="relative py-10 sm:py-12 lg:py-16">
+        <Container className="relative flex min-h-[100svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
           <motion.div
             style={{ y: heroTextY }}
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.95, ease: easeLuxury }}
-            className="flex min-h-[82svh] max-w-[70rem] flex-col justify-end pb-6 sm:pb-10 lg:min-h-[88svh] lg:pb-14"
+            className="w-full"
           >
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
-              Praeliator
-            </p>
+            <div className="max-w-[20rem] sm:max-w-[28rem] lg:max-w-[38rem]">
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
+                Praeliator
+              </p>
+              <h1 className="mt-4 text-5xl font-semibold leading-[0.84] tracking-[-0.08em] text-[#f4efe7] sm:text-6xl md:text-7xl lg:text-[7.2rem] xl:text-[8rem]">
+                VIS
+              </h1>
+              <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/68 sm:text-xs sm:tracking-[0.34em]">
+                Equipment for those who treat boxing as art.
+              </p>
+            </div>
 
-            <div className="mt-5 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:gap-14">
-              <div>
-                <h1 className="max-w-[10ch] text-5xl font-semibold leading-[0.84] tracking-[-0.07em] sm:text-6xl md:text-7xl lg:text-[6.2rem] xl:text-[6.8rem]">
-                  Equipment for those who treat boxing as art.
-                </h1>
-                <p className="mt-6 max-w-[34rem] text-sm leading-7 text-white/58 sm:text-base sm:leading-8 md:text-lg">
-                  Praeliator builds luxury boxing equipment for disciplined work, exact handling, and private acquisition. The house is introduced through control, not excess.
-                </p>
-              </div>
-
-              <div className="rounded-[2rem] border border-white/[0.08] bg-black/20 p-6 shadow-[0_28px_72px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-[11px]">
-                  Flagship introduction
-                </p>
-                <p className="mt-4 max-w-[20rem] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                  Praeliator VIS
-                </p>
-                <p className="mt-4 max-w-[28rem] text-sm leading-7 text-white/56 sm:text-base sm:leading-8">
-                  A 16 oz lace-up training glove in top-grain cowhide, built for disciplined training and technical sparring.
-                </p>
-                <div className="mt-6 grid gap-px overflow-hidden rounded-[1.45rem] border border-white/[0.08] bg-white/[0.08] sm:grid-cols-3">
-                  {[
-                    { label: "Weight", value: "16 oz" },
-                    { label: "Closure", value: "Lace-up" },
-                    { label: "Use", value: "Training · Technical sparring" },
-                  ].map((item) => (
-                    <div key={item.label} className="bg-[#0f0e0d] px-4 py-4 sm:px-5">
-                      <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">{item.label}</p>
-                      <p className="mt-2 text-sm text-[#f4efe7] sm:text-[15px]">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    type="button"
-                    onClick={() => goTo("/praeliator-vis")}
-                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                  >
-                    View VIS
-                  </Button>
-
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Private Inquiry
-                    </a>
-                  </Button>
-                </div>
-              </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button
+                type="button"
+                onClick={() => goTo('/praeliator-vis')}
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+              >
+                Discover VIS
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  Private Inquiry
+                </a>
+              </Button>
             </div>
           </motion.div>
         </Container>
       </section>
 
-      <section className="border-b border-white/10 bg-[#090909]">
-        <Container className="py-10 sm:py-12 lg:py-16">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
-            <Reveal>
-              <div className="overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_42px_120px_rgba(0,0,0,0.45)]">
-                <div className="relative aspect-[4/5] w-full sm:aspect-[4/3] lg:aspect-[16/9]">
-                  <video
-                    className="h-full w-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    poster={visImageSources.videoPoster}
-                  >
-                    <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-                  </video>
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.36))]" />
+      <section className="bg-[#050505] py-4 sm:py-5 lg:py-6">
+        <Container>
+          <Reveal>
+            <div className="grid gap-px overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-white/[0.08] sm:grid-cols-3">
+              {[
+                { label: 'Weight', value: '16 oz' },
+                { label: 'Closure', value: 'Lace-up' },
+                { label: 'Material', value: 'Top-grain cowhide' },
+              ].map((item) => (
+                <div key={item.label} className="bg-[#0c0b0a] px-6 py-5 sm:px-7 sm:py-6 lg:px-8">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-[11px]">{item.label}</p>
+                  <p className="mt-3 text-lg font-medium tracking-[-0.04em] text-[#f4efe7] sm:text-xl">{item.value}</p>
                 </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">The flagship</p>
-                <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  One glove should define the standard.
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/58 sm:text-base sm:leading-8">
-                  VIS carries the house in one expression: restrained finish, disciplined construction, and a quieter route into ownership.
-                </p>
-                <div className="mt-8 rounded-[1.8rem] border border-white/[0.08] bg-[#11100f] p-5 shadow-[0_24px_56px_rgba(0,0,0,0.24)] sm:p-7">
-                  <DataList
-                    compact
-                    items={[
-                      { label: "Leather", value: "Top-grain cowhide · 0.9–1.0 mm" },
-                      { label: "Finish", value: "Soft satin with a restrained two-tone character" },
-                      { label: "Presentation", value: "Rigid box, silk dust bag, authenticity card, and care card" },
-                    ]}
-                  />
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="border-b border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#080808_100%)]">
-        <Container className="py-16 sm:py-20 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
-            <Reveal>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Proof</p>
-                <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  Strong claims need visible standards.
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/58 sm:text-base sm:leading-8">
-                  The homepage should move beyond atmosphere. Construction, presentation, and ownership have to be stated directly.
-                </p>
-                <div className="mt-8 rounded-[2rem] border border-white/[0.08] bg-[#11100f] p-5 shadow-[0_24px_56px_rgba(0,0,0,0.24)] sm:p-7 lg:p-9">
-                  <DataList items={constructionEvidence} compact />
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Acquisition</p>
-                <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  Private acquisition, handled directly.
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/58 sm:text-base sm:leading-8">
-                  Qualified inquiries move through direct review, allocation, and continued service rather than conventional checkout flow.
-                </p>
-                <div className="mt-8 grid gap-4">
-                  {trustArchitecture.map((item, index) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, y: 14 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.14 }}
-                      transition={{ duration: 0.7, delay: index * 0.06, ease: easeLuxury }}
-                      className="rounded-[1.8rem] border border-white/[0.08] bg-[#11100f] p-5 shadow-[0_20px_46px_rgba(0,0,0,0.2)] sm:p-6"
-                    >
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">{item.title}</p>
-                      <p className="mt-3 text-sm leading-7 text-white/72 sm:text-[15px] sm:leading-8">{item.text}</p>
-                    </motion.div>
-                  ))}
-                </div>
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    type="button"
-                    onClick={() => goTo("/acquisition")}
-                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                  >
-                    Explore Acquisition
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/waitlist")}
-                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    Join Waitlist
-                  </Button>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="border-b border-white/10 bg-[#070707]">
-        <Container className="py-16 sm:py-20 lg:py-24">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
-            <Reveal>
-              <ImageSurface
-                src={homeImageSources.hero}
-                alt="Praeliator editorial still"
-                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[46rem]"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Approach</p>
-                    <p className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
-                      Boxing, reduced to essentials.
-                    </p>
-                  </>
-                }
-              />
-            </Reveal>
-
-            <div className="grid gap-6 lg:gap-8">
-              <Reveal delay={0.06}>
-                <ImageSurface
-                  src={homeImageSources.material}
-                  alt="Praeliator editorial material detail"
-                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
-                  priorityCopy={
-                    <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Material</p>
-                      <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        Top-grain leather. Soft satin finish.
-                      </p>
-                    </>
-                  }
-                />
-              </Reveal>
-
-              <Reveal delay={0.12}>
-                <ImageSurface
-                  src={homeImageSources.presentation}
-                  alt="Praeliator editorial presentation"
-                  className="min-h-[16rem] sm:min-h-[18rem] lg:min-h-[22rem]"
-                  priorityCopy={
-                    <>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Ownership</p>
-                      <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        From presentation to aftercare.
-                      </p>
-                    </>
-                  }
-                />
-              </Reveal>
+              ))}
             </div>
-          </div>
+          </Reveal>
         </Container>
       </section>
 
-      <section className="border-t border-white/10 bg-[#070707]">
-        <Container className="py-16 sm:py-20 lg:py-24">
-          <div className="flex items-end justify-between gap-6">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Editorial</p>
-              <h2 className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                The atmosphere supports the record.
-              </h2>
+      <section className="relative min-h-[92svh] overflow-hidden bg-[#050505]">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${visImageSources.hero})` }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_45%,rgba(0,0,0,0.8)_100%)]" />
+
+        <Container className="relative flex min-h-[92svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
+          <Reveal className="max-w-[24rem] sm:max-w-[30rem]">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
+              The flagship
+            </p>
+            <h2 className="mt-4 text-4xl font-semibold leading-[0.88] tracking-[-0.08em] text-[#f4efe7] sm:text-5xl md:text-6xl lg:text-[6rem]">
+              Praeliator VIS
+            </h2>
+            <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/64 sm:text-xs sm:tracking-[0.32em]">
+              16 oz · Lace-up · Technical sparring
+            </p>
+            <div className="mt-7">
+              <QuietLinkButton onClick={() => goTo('/praeliator-vis')}>Enter VIS</QuietLinkButton>
             </div>
-          </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {galleryImages.map((src, index) => (
-              <Reveal key={src} delay={index * 0.05}>
-                <div className={`relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.3)] ${index % 2 === 0 ? "aspect-[4/5]" : "aspect-square"}`}>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="bg-[#050505] py-4 sm:py-5 lg:py-6">
+        <Container>
+          <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:gap-4">
+            <Reveal>
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+                <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/11]">
                   <div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${src})` }}
+                    style={{ backgroundImage: `url(${visImageSources.leather})` }}
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.35))]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.56))]" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Material</p>
+                    <p className="mt-3 text-2xl font-semibold tracking-[-0.06em] text-[#f4efe7] sm:text-3xl lg:text-4xl">Top-grain cowhide.</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="grid gap-4">
+              <Reveal delay={0.05}>
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.24)]">
+                  <div className="relative aspect-[16/10] sm:aspect-[16/8]">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${visImageSources.packaging})` }}
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.54))]" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Presentation</p>
+                      <p className="mt-3 text-xl font-semibold tracking-[-0.05em] text-[#f4efe7] sm:text-2xl">Quietly resolved.</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#0c0b0a] p-6 shadow-[0_22px_64px_rgba(0,0,0,0.24)] sm:p-7 lg:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Private acquisition</p>
+                  <p className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-4xl">
+                    Direct. Controlled. Personal.
+                  </p>
+                  <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Button
+                      type="button"
+                      onClick={() => goTo('/acquisition')}
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                    >
+                      Explore Acquisition
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => goTo('/waitlist')}
+                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      Join Waitlist
+                    </Button>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="relative min-h-[88svh] overflow-hidden bg-[#050505]">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${galleryImages[3]})` }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1),rgba(0,0,0,0.36)_42%,rgba(0,0,0,0.84)_100%)]" />
+
+        <Container className="relative flex min-h-[88svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
+          <Reveal className="max-w-[24rem] sm:max-w-[28rem]">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">Aftercare</p>
+            <h2 className="mt-4 text-4xl font-semibold leading-[0.88] tracking-[-0.08em] text-[#f4efe7] sm:text-5xl md:text-6xl lg:text-[5.5rem]">
+              Ownership continues.
+            </h2>
+            <div className="mt-7">
+              <QuietLinkButton onClick={() => goTo('/waitlist')}>Request Access</QuietLinkButton>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="bg-[#050505] pb-8 pt-4 sm:pb-10 sm:pt-5 lg:pb-14 lg:pt-6">
+        <Container>
+          <div className="grid gap-4 md:grid-cols-3 lg:gap-4">
+            {[
+              { src: galleryImages[0], label: 'Presence' },
+              { src: visImageSources.plate, label: 'Marking' },
+              { src: galleryImages[1], label: 'Craft' },
+            ].map((item, index) => (
+              <Reveal key={item.label} delay={index * 0.05}>
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.24)]">
+                  <div className="relative aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${item.src})` }}
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.44))]" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">{item.label}</p>
+                    </div>
+                  </div>
                 </div>
               </Reveal>
             ))}
