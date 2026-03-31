@@ -110,7 +110,7 @@ const brandAssetPaths = {
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
-  headerWordmarkPCrop: "/wordmark-p-crop.svg",
+  headerWordmarkPCrop: "/wordmark-p-crop.png",
   menuMiniLaurel: "/menu-mini-laurel.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
@@ -2359,14 +2359,14 @@ function PraeliatorMenuWreathIcon({
 
   return (
     <motion.div
-      className={`relative isolate overflow-hidden ${className}`}
+      className={`relative isolate ${className}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       aria-hidden="true"
       animate={{
-        scale: open ? 1.04 : hovered ? 1.022 : 1,
-        y: open ? 0 : hovered ? -0.22 : 0,
-        rotate: open ? 0 : hovered ? -0.5 : 0,
+        scale: open ? 1.08 : hovered ? 1.04 : 1,
+        y: open ? 0.2 : hovered ? -0.15 : 0,
+        rotate: open ? 0 : hovered ? -0.35 : 0,
       }}
       transition={{ duration: 0.78, ease: easeLuxury }}
     >
@@ -2374,16 +2374,15 @@ function PraeliatorMenuWreathIcon({
         src={brandAssetPaths.menuMiniLaurel}
         alt=""
         className="relative block h-full w-full select-none object-contain"
-        style={{ clipPath: "inset(14% 14% 14% 14%)" }}
         draggable={false}
         animate={{
-          opacity: open ? 1 : hovered ? 0.98 : 0.95,
-          scale: open ? 1.18 : hovered ? 1.13 : 1.1,
+          opacity: open ? 1 : hovered ? 0.985 : 0.96,
+          scale: open ? 1.06 : hovered ? 1.03 : 1,
           filter: open
-            ? "drop-shadow(0 0 10px rgba(219,192,160,0.1))"
+            ? "drop-shadow(0 0 10px rgba(219,192,160,0.08))"
             : hovered
-              ? "drop-shadow(0 0 8px rgba(219,192,160,0.07))"
-              : "drop-shadow(0 0 6px rgba(219,192,160,0.03))",
+              ? "drop-shadow(0 0 8px rgba(219,192,160,0.05))"
+              : "drop-shadow(0 0 6px rgba(219,192,160,0.02))",
         }}
         transition={{ duration: 0.78, ease: easeLuxury }}
       />
@@ -2432,7 +2431,7 @@ function HeaderBrandMark({
         className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
         aria-label="Praeliator home"
       >
-        {isMonogramMode ? (
+        {isMonogramMode || isAssemblyMode ? (
           <img
             src={brandAssetPaths.headerMonogramMark}
             alt="Praeliator"
@@ -2488,37 +2487,6 @@ function HeaderBrandMark({
             }}
             transition={{
               duration: prefersReducedMotion ? 0.42 : 1.56,
-              ease: easeLuxury,
-            }}
-          />
-        </motion.div>
-
-        <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-10 w-[2.35rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden"
-          animate={{
-            opacity: isAssemblyMode ? 1 : 0,
-            scale: isAssemblyMode ? 1.004 : 0.985,
-            filter: isAssemblyMode ? "blur(0px)" : "blur(9px)",
-          }}
-          transition={{
-            duration: prefersReducedMotion ? 0.32 : 0.92,
-            ease: easeLuxury,
-          }}
-        >
-          <motion.img
-            src={brandAssetPaths.headerWordmarkPCrop}
-            alt=""
-            draggable={false}
-            onError={onAssetError}
-            className="absolute left-1/2 top-1/2 block h-10 w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none"
-            animate={{
-              opacity: isAssemblyMode ? 0.96 : 0,
-              y: isAssemblyMode ? -0.04 : 0.08,
-              scale: isAssemblyMode ? 1 : 0.985,
-            }}
-            transition={{
-              duration: prefersReducedMotion ? 0.32 : 0.9,
-              delay: prefersReducedMotion ? 0 : 0.08,
               ease: easeLuxury,
             }}
           />
@@ -4283,7 +4251,7 @@ export default function PraeliatorWebsite() {
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-10 w-10"
+                  className="h-[2.9rem] w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
