@@ -4,7 +4,6 @@ import { Button } from "./components/ui/button";
 import {
   AnimatePresence,
   motion,
-  useInView,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -1334,7 +1333,7 @@ function FieldNote({
 function CinematicScene({
   section,
   index,
-  onNavigate,
+  active,
 }: {
   section: {
     key: string;
@@ -1347,14 +1346,12 @@ function CinematicScene({
     poster: string;
   };
   index: number;
-  onNavigate: (path: Route) => void;
+  active: boolean;
 }) {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const inView = useInView(sectionRef, { amount: 0.68 });
+  const inView = active;
 
   return (
     <section
-      ref={sectionRef}
       className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
     >
       <div className="absolute inset-0 overflow-hidden">
@@ -1440,6 +1437,135 @@ function CinematicScene({
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function FullScreenCinematicHomepage({
+  sections,
+}: {
+  sections: Array<{
+    key: string;
+    word: string;
+    line?: string;
+    cta: string;
+    href?: string;
+    action?: () => void;
+    video: string;
+    poster: string;
+  }>;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const unlockTimerRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  const goToIndex = (nextIndex: number) => {
+    const clamped = Math.max(0, Math.min(sections.length - 1, nextIndex));
+    if (clamped === activeIndex || isAnimating) return;
+
+    setIsAnimating(true);
+    setActiveIndex(clamped);
+
+    if (unlockTimerRef.current) {
+      window.clearTimeout(unlockTimerRef.current);
+    }
+
+    unlockTimerRef.current = window.setTimeout(() => {
+      setIsAnimating(false);
+      unlockTimerRef.current = null;
+    }, 950);
+  };
+
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (isAnimating || Math.abs(event.deltaY) < 24) return;
+      goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1));
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+      if (isAnimating) {
+        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+          event.preventDefault();
+        }
+        return;
+      }
+
+      if (["ArrowDown", "PageDown", " "].includes(event.key)) {
+        event.preventDefault();
+        goToIndex(activeIndex + 1);
+      } else if (["ArrowUp", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        goToIndex(activeIndex - 1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        goToIndex(0);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        goToIndex(sections.length - 1);
+      }
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [activeIndex, isAnimating, sections.length]);
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartYRef.current = event.touches[0]?.clientY ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startY = touchStartYRef.current;
+    const endY = event.changedTouches[0]?.clientY ?? null;
+    touchStartYRef.current = null;
+
+    if (startY === null || endY === null || isAnimating) return;
+
+    const deltaY = startY - endY;
+    if (Math.abs(deltaY) < 42) return;
+    goToIndex(activeIndex + (deltaY > 0 ? 1 : -1));
+  };
+
+  return (
+    <div
+      className="relative h-[100svh] overflow-hidden bg-[#040404]"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <motion.div
+        animate={{ y: `-${activeIndex * 100}svh` }}
+        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+        className="will-change-transform"
+      >
+        {sections.map((section, index) => (
+          <CinematicScene
+            key={section.key}
+            section={section}
+            index={index}
+            active={index === activeIndex}
+          />
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
@@ -2070,18 +2196,7 @@ export default function PraeliatorWebsite() {
       },
     ];
 
-    return (
-      <div className="relative snap-y snap-mandatory overflow-y-auto bg-[#040404]">
-        {cinematicSections.map((section, index) => (
-          <CinematicScene
-            key={section.key}
-            section={section}
-            index={index}
-            onNavigate={goTo}
-          />
-        ))}
-      </div>
-    );
+    return <FullScreenCinematicHomepage sections={cinematicSections} />;
   };
 
   const renderVisPage = () => (
