@@ -2784,6 +2784,8 @@ export default function PraeliatorWebsite() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [homeSectionIndex, setHomeSectionIndex] = useState(0);
+  const [secondaryPageHeaderLifted, setSecondaryPageHeaderLifted] =
+    useState(false);
   const [waitlistForm, setWaitlistForm] = useState(initialWaitlistForm);
   const [waitlistErrors, setWaitlistErrors] = useState<WaitlistErrors>({});
   const [waitlistTouched, setWaitlistTouched] = useState<
@@ -2843,6 +2845,7 @@ export default function PraeliatorWebsite() {
     if (route !== "/") {
       setHomeSectionIndex(0);
     }
+    setSecondaryPageHeaderLifted(false);
   }, [route]);
   useEffect(() => {
     if (route !== "/waitlist") return;
@@ -2902,6 +2905,37 @@ export default function PraeliatorWebsite() {
       lenis.destroy();
     };
   }, [reduceMotion, route]);
+  useEffect(() => {
+    if (typeof window === "undefined" || route === "/") {
+      setSecondaryPageHeaderLifted(false);
+      return;
+    }
+    if (mobileMenuOpen) {
+      setSecondaryPageHeaderLifted(false);
+      return;
+    }
+    let ticking = false;
+    let lastY = window.scrollY;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const currentY = window.scrollY;
+        const delta = currentY - lastY;
+        if (currentY <= 32) {
+          setSecondaryPageHeaderLifted(false);
+        } else if (delta > 6 && currentY > 96) {
+          setSecondaryPageHeaderLifted(true);
+        } else if (delta < -6) {
+          setSecondaryPageHeaderLifted(false);
+        }
+        lastY = currentY;
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [mobileMenuOpen, route]);
   const currentPurchaseLink = useMemo(() => {
     if (route === "/praeliator-vis") return whatsappVisLink;
     if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
@@ -2915,8 +2949,10 @@ export default function PraeliatorWebsite() {
         : homeSectionIndex === 1
           ? "assembly"
           : "monogram";
-  const homeHeaderLifted =
-    route === "/" && homeSectionIndex >= 3 && !mobileMenuOpen;
+  const headerLifted =
+    !mobileMenuOpen &&
+    ((route === "/" && homeSectionIndex >= 3) ||
+      (route !== "/" && secondaryPageHeaderLifted));
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
@@ -4223,10 +4259,10 @@ export default function PraeliatorWebsite() {
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
       <motion.header
-        className={`fixed inset-x-0 top-0 z-50 ${homeHeaderLifted ? "pointer-events-none" : ""}`}
+        className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
         animate={{
-          y: homeHeaderLifted ? "-118%" : "0%",
-          opacity: homeHeaderLifted ? 0 : 1,
+          y: headerLifted ? "-118%" : "0%",
+          opacity: headerLifted ? 0 : 1,
         }}
         transition={{ duration: 1.05, ease: easeLuxury }}
       >
