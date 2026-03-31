@@ -3,7 +3,6 @@ import { Button } from "./components/ui/button";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Lenis from "lenis";
 import {
-  ArrowLeft,
   Check,
   ChevronRight,
   Instagram,
@@ -891,25 +890,6 @@ function MediaSurface({
         </div>
       ) : null}
     </div>
-  );
-}
-
-function QuietLinkButton({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.24em] text-white/58 transition duration-500 hover:text-white"
-    >
-      <span>{children}</span>
-      <span className="block h-px w-8 bg-white/28 transition duration-500 group-hover:w-10" />
-    </button>
   );
 }
 
@@ -2826,8 +2806,6 @@ export default function PraeliatorWebsite() {
     return whatsappGeneralLink;
   }, [route]);
 
-  const currentPageTitle = routeTitles[route];
-
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
@@ -3344,9 +3322,7 @@ export default function PraeliatorWebsite() {
             </p>
             <div className="mt-4 space-y-3">
               {visPackaging.map((item) => (
-                <p key={item} className="text-sm leading-7 text-white/62">
-                  {item}
-                </p>
+                <p key={item} className="text-sm leading-7 text-white/62">{item}</p>
               ))}
             </div>
           </div>
@@ -4118,241 +4094,114 @@ export default function PraeliatorWebsite() {
       <BrowserFormStyles />
 
       <header className="fixed inset-x-0 top-0 z-50">
-        {route === "/" ? (
-          <motion.div
-            animate={{
-              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.46)" : "rgba(5,5,5,0)",
-              backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
-            }}
-            transition={{ duration: 0.55, ease: easeLuxury }}
-            className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
-          >
-            <Container className="relative flex items-center justify-between py-5 sm:py-6">
-              <motion.button
-                type="button"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: easeLuxury }}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                onClick={() => setMobileMenuOpen((current) => !current)}
-                className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
-              >
-                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-                <span>Menu</span>
-              </motion.button>
+        <motion.div
+          animate={{
+            backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.46)" : "rgba(5,5,5,0)",
+            backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+          }}
+          transition={{ duration: 0.55, ease: easeLuxury }}
+          className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+        >
+          <Container className="relative flex items-center justify-between py-5 sm:py-6">
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: easeLuxury }}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMobileMenuOpen((current) => !current)}
+              className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+            >
+              {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              <span>Menu</span>
+            </motion.button>
 
-              <motion.button
-                type="button"
-                onClick={() => goTo("/")}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-              >
-                {!headerLogoBroken ? (
-                  <img
-                    src="/logo-header.png"
-                    alt="Praeliator"
-                    className="h-9 w-auto object-contain opacity-92 sm:h-10"
-                    onError={() => setHeaderLogoBroken(true)}
-                  />
-                ) : (
-                  <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
-                    P
-                  </span>
-                )}
-              </motion.button>
+            <motion.button
+              type="button"
+              onClick={() => goTo("/")}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
+              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+            >
+              {!headerLogoBroken ? (
+                <img
+                  src="/logo-header.png"
+                  alt="Praeliator"
+                  className="h-9 w-auto object-contain opacity-92 sm:h-10"
+                  onError={() => setHeaderLogoBroken(true)}
+                />
+              ) : (
+                <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
+                  P
+                </span>
+              )}
+            </motion.button>
 
-              <motion.a
-                href={whatsappGeneralLink}
-                target="_blank"
-                rel="noreferrer"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
-              >
-                Private Inquiry
-              </motion.a>
-            </Container>
+            <motion.a
+              href={currentPurchaseLink}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+            >
+              Private Inquiry
+            </motion.a>
+          </Container>
 
-            <AnimatePresence initial={false}>
-              {mobileMenuOpen ? (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: easeLuxury }}
-                  className="overflow-hidden"
-                >
-                  <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
-                    <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
-                      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
-                        {navItems.map((item, index) => (
-                          <motion.button
-                            key={item.path}
-                            type="button"
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{
-                              duration: 0.5,
-                              delay: index * 0.045,
-                              ease: easeLuxury,
-                            }}
-                            onClick={() => goTo(item.path)}
-                            className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
-                          >
-                            <div className="min-w-0">
-                              <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
-                                {item.label}
-                              </p>
-                              <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
-                                {item.label === "VIS"
-                                  ? "Flagship"
-                                  : item.label === "Acquisition"
-                                    ? "Private route"
-                                    : item.label === "Waitlist"
-                                      ? "Future access"
-                                      : "Direct contact"}
-                              </p>
-                            </div>
-                            <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
-                          </motion.button>
-                        ))}
-                      </div>
+          <AnimatePresence initial={false}>
+            {mobileMenuOpen ? (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.6, ease: easeLuxury }}
+                className="overflow-hidden"
+              >
+                <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
+                  <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
+                    <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
+                      {navItems.map((item, index) => (
+                        <motion.button
+                          key={item.path}
+                          type="button"
+                          initial={{ opacity: 0, y: 18 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: index * 0.045,
+                            ease: easeLuxury,
+                          }}
+                          onClick={() => goTo(item.path)}
+                          className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
+                              {item.label}
+                            </p>
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
+                              {item.label === "VIS"
+                                ? "Flagship"
+                                : item.label === "Acquisition"
+                                  ? "Private route"
+                                  : item.label === "Waitlist"
+                                    ? "Future access"
+                                    : "Direct contact"}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
+                        </motion.button>
+                      ))}
                     </div>
-                  </Container>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </motion.div>
-        ) : (
-          <div className="border-b border-white/[0.08] bg-[linear-gradient(180deg,rgba(11,10,10,0.9),rgba(11,10,10,0.68))] backdrop-blur-xl">
-            <Container className="flex items-center justify-between gap-4 py-4 sm:py-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => goTo("/")}
-                  className="group flex min-w-0 items-center gap-3 text-left"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] sm:h-11 sm:w-11">
-                    {!headerLogoBroken ? (
-                      <img
-                        src="/logo-header.png"
-                        alt="Praeliator"
-                        className="h-6 w-auto object-contain sm:h-7"
-                        onError={() => setHeaderLogoBroken(true)}
-                      />
-                    ) : (
-                      <span className="font-serif text-lg text-[#d7b797]">P</span>
-                    )}
                   </div>
-
-                  <div className="min-w-0">
-                    <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
-                      Praeliator
-                    </p>
-                    <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
-                      {currentPageTitle}
-                    </p>
-                  </div>
-                </button>
-              </div>
-
-              <nav className="hidden items-center gap-7 text-sm text-white/60 xl:flex">
-                {navItems.map((item) => (
-                  <button
-                    key={item.path}
-                    type="button"
-                    onClick={() => goTo(item.path)}
-                    className={`transition duration-500 hover:text-white ${
-                      route === item.path ? "text-white" : ""
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-
-              <div className="hidden items-center gap-3 lg:flex">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => goTo("/")}
-                  className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Home
-                </Button>
-
-                <Button
-                  asChild
-                  className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
-                >
-                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
-                    Private Inquiry
-                  </a>
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 lg:hidden">
-                <Button
-                  asChild
-                  className="rounded-full bg-[#efe5d7] px-3 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:px-5"
-                >
-                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
-                    Inquire
-                  </a>
-                </Button>
-
-                <button
-                  type="button"
-                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                  onClick={() => setMobileMenuOpen((current) => !current)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition duration-500 hover:bg-white/10"
-                >
-                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
-              </div>
-            </Container>
-
-            <AnimatePresence>
-              {mobileMenuOpen ? (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.55, ease: easeLuxury }}
-                  className="overflow-hidden border-t border-white/10 bg-[#0a0a0a]/98 lg:hidden"
-                >
-                  <Container className="grid gap-2 py-4">
-                    {navItems.map((item) => (
-                      <button
-                        key={item.path}
-                        type="button"
-                        onClick={() => goTo(item.path)}
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/[0.08]"
-                      >
-                        <span>{item.label}</span>
-                        <ChevronRight className="h-4 w-4 text-white/35" />
-                      </button>
-                    ))}
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => goTo("/")}
-                      className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                    >
-                      Return Home
-                    </Button>
-                  </Container>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
-        )}
+                </Container>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </motion.div>
       </header>
 
       <main
