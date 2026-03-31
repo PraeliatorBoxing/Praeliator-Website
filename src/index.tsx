@@ -2369,28 +2369,19 @@ function PraeliatorMenuWreathIcon({
       }}
       transition={{ duration: 0.78, ease: easeLuxury }}
     >
-      <motion.div
-        className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d2b18b]/10 blur-lg"
-        animate={{
-          opacity: open ? 0.38 : hovered ? 0.22 : 0.12,
-          scale: open ? 1.08 : hovered ? 1.02 : 0.92,
-        }}
-        transition={{ duration: 0.78, ease: easeLuxury }}
-      />
-
       <motion.img
         src={brandAssetPaths.menuMiniLaurel}
         alt=""
         className="relative block h-full w-full select-none object-contain"
         draggable={false}
         animate={{
-          opacity: open ? 1 : hovered ? 0.96 : 0.92,
-          scale: open ? 1.02 : hovered ? 1.01 : 1,
+          opacity: open ? 1 : hovered ? 0.97 : 0.94,
+          scale: open ? 1.03 : hovered ? 1.015 : 1,
           filter: open
-            ? "drop-shadow(0 0 10px rgba(219,192,160,0.12))"
+            ? "drop-shadow(0 0 10px rgba(219,192,160,0.1))"
             : hovered
-              ? "drop-shadow(0 0 8px rgba(219,192,160,0.08))"
-              : "drop-shadow(0 0 6px rgba(219,192,160,0.04))",
+              ? "drop-shadow(0 0 8px rgba(219,192,160,0.07))"
+              : "drop-shadow(0 0 6px rgba(219,192,160,0.03))",
         }}
         transition={{ duration: 0.78, ease: easeLuxury }}
       />
@@ -2421,7 +2412,7 @@ function HeaderBrandMark({
     : isWordmarkMode
       ? "13.08rem"
       : isAssemblyMode
-        ? "3.24rem"
+        ? "2.12rem"
         : "0rem";
 
   const wordmarkImageX = prefersReducedMotion
@@ -2429,8 +2420,8 @@ function HeaderBrandMark({
     : isWordmarkMode
       ? "0rem"
       : isAssemblyMode
-        ? "-0.68rem"
-        : "-0.68rem";
+        ? "-0.32rem"
+        : "-0.32rem";
 
   if (assetsBroken) {
     return (
@@ -2477,8 +2468,8 @@ function HeaderBrandMark({
           className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
           animate={{
             width: wordmarkWrapperWidth,
-            opacity: isMonogramMode ? 0 : 1,
-            filter: isMonogramMode ? "blur(10px)" : "blur(0px)",
+            opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.9 : 1,
+            filter: isMonogramMode ? "blur(10px)" : isAssemblyMode ? "blur(0.4px)" : "blur(0px)",
           }}
           transition={{
             duration: prefersReducedMotion ? 0.42 : 1.56,
@@ -2494,8 +2485,8 @@ function HeaderBrandMark({
             style={{ width: "13.08rem" }}
             animate={{
               x: wordmarkImageX,
-              opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.98 : 1,
-              scale: isWordmarkMode ? 1 : 0.996,
+              opacity: isMonogramMode ? 0 : isAssemblyMode ? 0.6 : 1,
+              scale: isWordmarkMode ? 1 : 0.994,
             }}
             transition={{
               duration: prefersReducedMotion ? 0.42 : 1.56,
@@ -2532,7 +2523,7 @@ function HeaderBrandMark({
             }}
             transition={{
               duration: prefersReducedMotion ? 0.38 : 1.12,
-              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.1 : 0,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.18 : 0,
               ease: easeLuxury,
             }}
           />
@@ -2553,7 +2544,7 @@ function HeaderBrandMark({
             }}
             transition={{
               duration: prefersReducedMotion ? 0.4 : 1.32,
-              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.24 : 0,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.3 : 0,
               ease: easeLuxury,
             }}
           />
@@ -4251,7 +4242,7 @@ export default function PraeliatorWebsite() {
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.09] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.055),rgba(255,255,255,0.018))] text-white/82 shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-0.5 hover:border-[#d7b797]/24 hover:bg-[radial-gradient(circle_at_center,rgba(215,183,151,0.12),rgba(255,255,255,0.025))] hover:text-white"
+              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
             >
               <motion.span
                 animate={{
@@ -4263,7 +4254,7 @@ export default function PraeliatorWebsite() {
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-8 w-8"
+                  className="h-9 w-9"
                 />
               </motion.span>
               <span className="sr-only">
