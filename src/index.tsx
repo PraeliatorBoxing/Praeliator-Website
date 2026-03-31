@@ -129,6 +129,8 @@ const homeCinematicMedia = {
   acquisition: { video: "/videos/home-acquisition.mp4", poster: homeImageSources.presentation },
 };
 
+const customVideoLoaderIcon = "/images/video-loader.svg";
+
 const countryOptions = [
   { code: "+93", label: "Afghanistan" },
   { code: "+355", label: "Albania" },
@@ -1349,14 +1351,44 @@ function CinematicScene({
   active: boolean;
 }) {
   const inView = active;
+  const [videoReady, setVideoReady] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const loaderTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setVideoReady(false);
+    setShowLoader(false);
+    if (loaderTimerRef.current) {
+      window.clearTimeout(loaderTimerRef.current);
+    }
+    loaderTimerRef.current = window.setTimeout(() => {
+      setShowLoader(true);
+    }, 220);
+
+    return () => {
+      if (loaderTimerRef.current) {
+        window.clearTimeout(loaderTimerRef.current);
+        loaderTimerRef.current = null;
+      }
+    };
+  }, [section.video]);
+
+  const markVideoReady = () => {
+    setVideoReady(true);
+    setShowLoader(false);
+    if (loaderTimerRef.current) {
+      window.clearTimeout(loaderTimerRef.current);
+      loaderTimerRef.current = null;
+    }
+  };
 
   return (
     <section
       className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
     >
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
-          animate={{ scale: inView ? 1 : 1.03, opacity: 1 }}
+          animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
           transition={{ duration: 1.35, ease: easeLuxury }}
           className="absolute inset-0"
         >
@@ -1373,10 +1405,34 @@ function CinematicScene({
             playsInline
             preload="auto"
             poster={section.poster}
+            onCanPlay={markVideoReady}
+            onLoadedData={markVideoReady}
+            onPlaying={markVideoReady}
           >
             <source src={section.video} type="video/mp4" />
           </video>
         </motion.div>
+
+        <AnimatePresence>
+          {!videoReady && showLoader ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: easeLuxury }}
+              className="absolute inset-0 z-[1] flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(8,8,8,0.16),rgba(4,4,4,0.48)_56%,rgba(4,4,4,0.78))]"
+            >
+              <div className="flex flex-col items-center gap-4">
+                <img
+                  src={customVideoLoaderIcon}
+                  alt="Loading"
+                  className="h-14 w-14 animate-pulse object-contain opacity-92 sm:h-16 sm:w-16"
+                />
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_42%,rgba(0,0,0,0.52)_74%,rgba(0,0,0,0.78))]" />
         <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
@@ -3155,7 +3211,14 @@ export default function PraeliatorWebsite() {
           : "sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl"}
       >
         {route === "/" ? (
-          <>
+          <motion.div
+            animate={{
+              backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.52)" : "rgba(5,5,5,0)",
+              backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+            }}
+            transition={{ duration: 0.55, ease: easeLuxury }}
+            className="overflow-hidden border-b border-white/[0.06]"
+          >
             <Container className="relative flex items-center justify-between py-5 sm:py-6">
               <motion.button
                 type="button"
@@ -3179,7 +3242,7 @@ export default function PraeliatorWebsite() {
                 className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               >
                 <img
-                  src="/logo-header.png"
+                  src={mobileMenuOpen ? "/logo-header-light.png" : "/logo-header.png"}
                   alt="Praeliator"
                   className="h-9 w-auto object-contain opacity-92 sm:h-10"
                 />
@@ -3198,38 +3261,47 @@ export default function PraeliatorWebsite() {
               </motion.a>
             </Container>
 
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               {mobileMenuOpen ? (
                 <motion.div
-                  initial={{ opacity: 0, y: -18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -14 }}
-                  transition={{ duration: 0.55, ease: easeLuxury }}
-                  className="border-t border-white/[0.08] bg-[linear-gradient(180deg,rgba(7,7,7,0.92),rgba(7,7,7,0.8))] backdrop-blur-2xl"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: easeLuxury }}
+                  className="overflow-hidden"
                 >
-                  <Container className="py-6 sm:py-8 lg:py-10">
-                    <div className="grid gap-1 sm:gap-2 lg:grid-cols-2 xl:grid-cols-4">
-                      {navItems.map((item, index) => (
-                        <motion.button
-                          key={item.path}
-                          type="button"
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.45, delay: index * 0.04, ease: easeLuxury }}
-                          onClick={() => goTo(item.path)}
-                          className="group flex items-center justify-between border-b border-white/[0.08] py-4 text-left text-base tracking-[0.08em] text-white/82 transition duration-500 hover:text-white sm:text-lg"
-                        >
-                          <span>{item.label}</span>
-                          <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-1 group-hover:text-white/56" />
-                        </motion.button>
-                      ))}
+                  <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
+                    <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
+                      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2 xl:grid-cols-4 xl:gap-5">
+                        {navItems.map((item, index) => (
+                          <motion.button
+                            key={item.path}
+                            type="button"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.45, delay: index * 0.04, ease: easeLuxury }}
+                            onClick={() => goTo(item.path)}
+                            className="group rounded-[1.6rem] border border-white/[0.08] bg-white/[0.02] px-5 py-5 text-left transition duration-500 hover:border-white/[0.14] hover:bg-white/[0.05]"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[clamp(1rem,1.25vw,1.35rem)] uppercase tracking-[0.12em] text-white/88">
+                                {item.label}
+                              </span>
+                              <ChevronRight className="h-4 w-4 text-white/26 transition duration-500 group-hover:translate-x-1 group-hover:text-white/56" />
+                            </div>
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-white/34">
+                              {item.label === "VIS" ? "Flagship" : item.label === "Acquisition" ? "Private route" : item.label === "Waitlist" ? "Future access" : "Direct contact"}
+                            </p>
+                          </motion.button>
+                        ))}
+                      </div>
                     </div>
                   </Container>
                 </motion.div>
               ) : null}
             </AnimatePresence>
-          </>
+          </motion.div>
         ) : (
           <>
             <Container className="flex items-center justify-between py-3 sm:py-4">
