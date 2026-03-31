@@ -416,6 +416,12 @@ const contactPreferenceOptions = [
 type WaitlistFieldName = keyof typeof initialWaitlistForm;
 type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
 
+const WAITLIST_COOLDOWN_MS = 45_000;
+const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
+const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
+const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
+const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
+
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -465,10 +471,29 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
 
+const getDialCodePhoneRule = (dialCode: string) => {
+  const normalizedDialCode = normalizeDialCode(dialCode);
+  const rules: Record<string, { min: number; max: number; message: string }> = {
+    "+1": { min: 10, max: 10, message: "US and Canadian numbers should be 10 digits." },
+    "+33": { min: 9, max: 9, message: "French numbers should be 9 digits." },
+    "+34": { min: 9, max: 9, message: "Spanish numbers should be 9 digits." },
+    "+44": { min: 10, max: 11, message: "UK numbers are usually 10 to 11 digits." },
+    "+49": { min: 10, max: 13, message: "German numbers are usually 10 to 13 digits." },
+    "+52": { min: 10, max: 10, message: "Mexican numbers should be 10 digits." },
+    "+55": { min: 10, max: 11, message: "Brazilian numbers are usually 10 to 11 digits." },
+    "+61": { min: 9, max: 9, message: "Australian numbers should be 9 digits." },
+    "+81": { min: 10, max: 10, message: "Japanese mobile numbers are usually 10 digits." },
+    "+91": { min: 10, max: 10, message: "Indian numbers should be 10 digits." },
+  };
+
+  return rules[normalizedDialCode] || { min: 7, max: 15, message: "Enter a valid phone number." };
+};
+
 const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors => {
   const normalizedForm = normalizeWaitlistForm(form);
   const errors: WaitlistErrors = {};
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRule = getDialCodePhoneRule(normalizedForm.phoneCountryCode);
 
   if (!normalizedForm.fullName) {
     errors.fullName = "Full name is required.";
@@ -494,8 +519,11 @@ const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors 
 
   if (!normalizedForm.whatsapp) {
     errors.whatsapp = "Phone number is required.";
-  } else if (normalizedForm.whatsapp.length < 7) {
-    errors.whatsapp = "Enter a valid phone number.";
+  } else if (
+    normalizedForm.whatsapp.length < phoneRule.min ||
+    normalizedForm.whatsapp.length > phoneRule.max
+  ) {
+    errors.whatsapp = phoneRule.message;
   }
 
   if (!normalizedForm.interest) errors.interest = "Select an interest.";
@@ -717,6 +745,8 @@ function InputField({
   inputMode,
   autoCapitalize,
   invalid = false,
+  success = false,
+  describedBy,
   maxLength,
 }: {
   name: string;
@@ -731,6 +761,8 @@ function InputField({
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   autoCapitalize?: string;
   invalid?: boolean;
+  success?: boolean;
+  describedBy?: string;
   maxLength?: number;
 }) {
   return (
@@ -745,7 +777,8 @@ function InputField({
       autoCapitalize={autoCapitalize}
       maxLength={maxLength}
       aria-invalid={invalid}
-      className={`browser-form-element h-14 w-full rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
+      aria-describedby={describedBy}
+      className={`browser-form-element h-14 w-full rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : success ? "border-[#8b7259] bg-[#110e0c] focus:border-[#b9a18d]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
       placeholder={placeholder}
     />
   );
@@ -762,6 +795,8 @@ function SelectField({
   searchPlaceholder = "Search",
   fieldLabel,
   invalid = false,
+  success = false,
+  describedBy,
 }: {
   name: string;
   value: string;
@@ -775,26 +810,18 @@ function SelectField({
   searchPlaceholder?: string;
   fieldLabel?: string;
   invalid?: boolean;
+  success?: boolean;
+  describedBy?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [query, setQuery] = useState("");
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const listboxId = `${name}-listbox`;
+  const labelId = fieldLabel ? `${name}-label` : undefined;
   const selectedOption = options.find((option) => option.value === value);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) {
-        if (open) onBlur?.();
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open, onBlur]);
 
   const filteredOptions = useMemo(() => {
     if (!searchable) return options;
@@ -809,7 +836,20 @@ function SelectField({
     });
   }, [options, query, searchable]);
 
+  const activeOptionId = open && filteredOptions[highlightedIndex] ? `${name}-option-${highlightedIndex}` : undefined;
   const selectedIndex = Math.max(0, filteredOptions.findIndex((option) => option.value === value));
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        if (open) onBlur?.();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open, onBlur]);
 
   useEffect(() => {
     setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
@@ -833,6 +873,7 @@ function SelectField({
     onBlur?.();
     setOpen(false);
     setQuery("");
+    window.setTimeout(() => triggerRef.current?.focus(), 0);
   };
 
   const moveHighlight = (direction: 1 | -1) => {
@@ -866,7 +907,19 @@ function SelectField({
       return;
     }
 
-    if (event.key === "Enter") {
+    if (event.key === "Home" && open) {
+      event.preventDefault();
+      setHighlightedIndex(0);
+      return;
+    }
+
+    if (event.key === "End" && open) {
+      event.preventDefault();
+      setHighlightedIndex(Math.max(0, filteredOptions.length - 1));
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (!open) {
         setOpen(true);
@@ -882,25 +935,37 @@ function SelectField({
         event.preventDefault();
         setOpen(false);
         onBlur?.();
+        window.setTimeout(() => triggerRef.current?.focus(), 0);
       }
+      return;
+    }
+
+    if (event.key === "Tab" && open) {
+      setOpen(false);
+      onBlur?.();
     }
   };
 
   return (
     <div ref={wrapperRef} className="relative">
       <button
+        ref={triggerRef}
         type="button"
+        role="combobox"
         aria-haspopup="listbox"
         aria-controls={listboxId}
         aria-expanded={open}
         aria-invalid={invalid}
+        aria-describedby={describedBy}
+        aria-labelledby={labelId}
+        aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "bg-[#0d0b0a]"} ${invalid ? "border-[#8a4b43] bg-[#140e0d]" : open ? "border-[#705645]" : "border-white/10"}`}
+        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "bg-[#0d0b0a]"} ${invalid ? "border-[#8a4b43] bg-[#140e0d]" : success ? "border-[#8b7259] bg-[#110e0c]" : open ? "border-[#705645]" : "border-white/10"}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
-            <span className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/28"}`}>
+            <span id={labelId} className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/28"}`}>
               {fieldLabel}
             </span>
           ) : null}
@@ -939,7 +1004,7 @@ function SelectField({
               id={listboxId}
               className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
               role="listbox"
-              aria-label={name}
+              aria-labelledby={labelId}
               onWheelCapture={(event) => {
                 event.stopPropagation();
               }}
@@ -956,6 +1021,7 @@ function SelectField({
 
                 return (
                   <button
+                    id={`${name}-option-${index}`}
                     key={`${name}-${option.value || option.label}`}
                     type="button"
                     role="option"
@@ -988,35 +1054,28 @@ function SearchPicker({
   inputMode,
   fieldLabel,
   invalid = false,
+  success = false,
+  describedBy,
 }: {
   name: string;
-  value: string;
   onChange: (value: string, matchedOption?: { label: string; code: string }) => void;
   onBlur?: () => void;
   options: Array<{ label: string; code: string }>;
+  value: string;
   placeholder: string;
   exactMatchUpdates?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   fieldLabel?: string;
   invalid?: boolean;
+  success?: boolean;
+  describedBy?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listboxId = `${name}-picker-listbox`;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) {
-        if (open) onBlur?.();
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open, onBlur]);
+  const labelId = fieldLabel ? `${name}-picker-label` : undefined;
 
   const filtered = useMemo(() => {
     const query = value.trim().toLowerCase();
@@ -1031,6 +1090,20 @@ function SearchPicker({
       .slice(0, 16);
   }, [options, value]);
 
+  const activeOptionId = open && filtered[highlightedIndex] ? `${name}-picker-option-${highlightedIndex}` : undefined;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        if (open) onBlur?.();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open, onBlur]);
+
   const selectedIndex = Math.max(
     0,
     filtered.findIndex((option) => option.label.toLowerCase() === value.trim().toLowerCase() || option.code.toLowerCase() === value.trim().toLowerCase())
@@ -1044,6 +1117,7 @@ function SearchPicker({
     onChange(inputMode === "tel" ? option.code : option.label, option);
     onBlur?.();
     setOpen(false);
+    window.setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const moveHighlight = (direction: 1 | -1) => {
@@ -1059,7 +1133,7 @@ function SearchPicker({
   return (
     <div ref={wrapperRef} className="relative">
       {fieldLabel ? (
-        <p className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/34"}`}>
+        <p id={labelId} className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/34"}`}>
           {fieldLabel}
         </p>
       ) : null}
@@ -1067,6 +1141,14 @@ function SearchPicker({
       <input
         ref={inputRef}
         value={value}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls={listboxId}
+        aria-expanded={open}
+        aria-invalid={invalid}
+        aria-describedby={describedBy}
+        aria-labelledby={labelId}
+        aria-activedescendant={activeOptionId}
         onChange={(event) => {
           const next = event.target.value;
           const cleaned = inputMode === "tel" ? next.replace(/[^\d+]/g, "") : normalizeInlineText(next);
@@ -1113,6 +1195,18 @@ function SearchPicker({
             return;
           }
 
+          if (event.key === "Home" && open) {
+            event.preventDefault();
+            setHighlightedIndex(0);
+            return;
+          }
+
+          if (event.key === "End" && open) {
+            event.preventDefault();
+            setHighlightedIndex(Math.max(0, filtered.length - 1));
+            return;
+          }
+
           if (event.key === "Enter" && open) {
             event.preventDefault();
             const highlighted = filtered[highlightedIndex];
@@ -1124,13 +1218,16 @@ function SearchPicker({
             event.preventDefault();
             setOpen(false);
             onBlur?.();
+            return;
+          }
+
+          if (event.key === "Tab" && open) {
+            setOpen(false);
+            onBlur?.();
           }
         }}
         inputMode={inputMode}
-        aria-invalid={invalid}
-        aria-controls={listboxId}
-        aria-expanded={open}
-        className={`browser-form-element h-14 w-full rounded-2xl border px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
+        className={`browser-form-element h-14 w-full rounded-2xl border px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : success ? "border-[#8b7259] bg-[#110e0c] focus:border-[#b9a18d]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
         placeholder={placeholder}
       />
 
@@ -1147,7 +1244,7 @@ function SearchPicker({
               id={listboxId}
               className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
               role="listbox"
-              aria-label={name}
+              aria-labelledby={labelId}
               onWheelCapture={(event) => {
                 event.stopPropagation();
               }}
@@ -1161,6 +1258,7 @@ function SearchPicker({
 
                 return (
                   <button
+                    id={`${name}-picker-option-${index}`}
                     key={`${option.code}-${option.label}`}
                     type="button"
                     role="option"
@@ -1186,13 +1284,15 @@ function SearchPicker({
 }
 
 function FieldError({
+  id,
   message,
 }: {
+  id?: string;
   message?: string;
 }) {
   if (!message) return null;
 
-  return <p className="mt-2 text-[13px] leading-5 text-[#d99b8d]">{message}</p>;
+  return <p id={id} className="mt-2 text-[13px] leading-5 text-[#d99b8d]">{message}</p>;
 }
 
 function BrowserFormStyles() {
@@ -1203,6 +1303,13 @@ function BrowserFormStyles() {
         -moz-appearance: none;
         appearance: none;
         color-scheme: dark;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+
+      .browser-form-element:focus-visible,
+      button[role='combobox']:focus-visible {
+        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.42), 0 0 0 4px rgba(185, 161, 141, 0.08);
       }
 
       .browser-form-element:-webkit-autofill,
@@ -1319,6 +1426,11 @@ export default function PraeliatorWebsite() {
     reference: "",
     serviceMessage: "",
   });
+  const [waitlistHoneypot, setWaitlistHoneypot] = useState("");
+  const [waitlistCooldownUntil, setWaitlistCooldownUntil] = useState(0);
+  const [waitlistStarted, setWaitlistStarted] = useState(false);
+  const [waitlistStartedAt, setWaitlistStartedAt] = useState<number | null>(null);
+  const waitlistRequestControllerRef = useRef<AbortController | null>(null);
 
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
@@ -1335,6 +1447,69 @@ export default function PraeliatorWebsite() {
     [0, 900],
     reduceMotion ? [0, 0] : [0, -10]
   );
+
+  const trackWaitlistEvent = React.useCallback(
+    (name: string, detail: Record<string, unknown> = {}) => {
+      if (typeof window === "undefined") return;
+
+      const payload = {
+        event: WAITLIST_ANALYTICS_EVENT,
+        event_name: name,
+        route,
+        timestamp: Date.now(),
+        ...detail,
+      };
+
+      const analyticsWindow = window as Window & {
+        dataLayer?: Array<Record<string, unknown>>;
+      };
+
+      analyticsWindow.dataLayer?.push(payload);
+      window.dispatchEvent(new CustomEvent("praeliator:analytics", { detail: payload }));
+    },
+    [route]
+  );
+
+  useEffect(() => {
+    const storedCooldown = typeof window !== "undefined"
+      ? Number(window.localStorage.getItem(WAITLIST_COOLDOWN_KEY) || "0")
+      : 0;
+
+    if (storedCooldown > Date.now()) {
+      setWaitlistCooldownUntil(storedCooldown);
+    }
+
+    return () => {
+      waitlistRequestControllerRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (route !== "/waitlist") return;
+    trackWaitlistEvent("waitlist_view");
+  }, [route, trackWaitlistEvent]);
+
+  useEffect(() => {
+    if (!waitlistCooldownUntil) return;
+    if (waitlistCooldownUntil <= Date.now()) {
+      setWaitlistCooldownUntil(0);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(WAITLIST_COOLDOWN_KEY);
+      }
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      if (waitlistCooldownUntil <= Date.now()) {
+        setWaitlistCooldownUntil(0);
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem(WAITLIST_COOLDOWN_KEY);
+        }
+      }
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [waitlistCooldownUntil]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -1405,6 +1580,17 @@ export default function PraeliatorWebsite() {
     setMobileMenuOpen(false);
   };
 
+  const getWaitlistCooldownSeconds = () =>
+    waitlistCooldownUntil > Date.now() ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000) : 0;
+
+  const markWaitlistStarted = (source: string) => {
+    if (waitlistStarted) return;
+    const startedAt = Date.now();
+    setWaitlistStarted(true);
+    setWaitlistStartedAt(startedAt);
+    trackWaitlistEvent("waitlist_started", { source });
+  };
+
   const markWaitlistFieldTouched = (field: WaitlistFieldName) => {
     setWaitlistTouched((current) => ({ ...current, [field]: true }));
   };
@@ -1418,6 +1604,16 @@ export default function PraeliatorWebsite() {
 
   const getVisibleFieldError = (field: WaitlistFieldName) =>
     waitlistTouched[field] ? waitlistErrors[field] : undefined;
+
+  const getFieldDescribedBy = (field: WaitlistFieldName) =>
+    getVisibleFieldError(field) ? `${field}-error` : undefined;
+
+  const getFieldSuccess = (field: WaitlistFieldName) => {
+    if (!waitlistTouched[field]) return false;
+    if (waitlistErrors[field]) return false;
+    const value = waitlistForm[field];
+    return typeof value === "string" ? value.trim().length > 0 : false;
+  };
 
   const updateWaitlistForm = (
     updater: (current: typeof initialWaitlistForm) => typeof initialWaitlistForm
@@ -1448,7 +1644,7 @@ export default function PraeliatorWebsite() {
   ) => {
     const field = event.target.name as WaitlistFieldName;
     const value = normalizeWaitlistFieldValue(field, event.target.value, "change");
-
+    markWaitlistStarted(`field:${field}`);
     updateWaitlistForm((current) => ({ ...current, [field]: value }));
   };
 
@@ -1459,7 +1655,11 @@ export default function PraeliatorWebsite() {
         ...current,
         [field]: normalizeWaitlistFieldValue(field, current[field], "blur"),
       };
-      setWaitlistErrors(validateWaitlistForm(normalized));
+      const nextErrors = validateWaitlistForm(normalized);
+      setWaitlistErrors(nextErrors);
+      if (nextErrors[field]) {
+        trackWaitlistEvent("waitlist_field_invalid", { field, message: nextErrors[field] });
+      }
       return normalized;
     });
   };
@@ -1469,10 +1669,12 @@ export default function PraeliatorWebsite() {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     markWaitlistFieldTouched(field);
+    markWaitlistStarted(`select:${field}`);
     handleWaitlistChange(event);
   };
 
   const handleCountryChange = (value: string, matchedOption?: { label: string; code: string }) => {
+    markWaitlistStarted("field:country");
     updateWaitlistForm((current) => {
       const next = {
         ...current,
@@ -1498,13 +1700,46 @@ export default function PraeliatorWebsite() {
         country: normalizeWaitlistFieldValue("country", current.country, "blur"),
         phoneCountryCode: normalizeWaitlistFieldValue("phoneCountryCode", current.phoneCountryCode, "blur"),
       };
-      setWaitlistErrors(validateWaitlistForm(normalized));
+      const nextErrors = validateWaitlistForm(normalized);
+      setWaitlistErrors(nextErrors);
+      if (nextErrors.country || nextErrors.phoneCountryCode) {
+        trackWaitlistEvent("waitlist_field_invalid", {
+          field: nextErrors.country ? "country" : "phoneCountryCode",
+          message: nextErrors.country || nextErrors.phoneCountryCode,
+        });
+      }
       return normalized;
     });
   };
 
   const handleWaitlistSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    markWaitlistStarted("submit");
+
+    const cooldownSeconds = getWaitlistCooldownSeconds();
+    if (cooldownSeconds > 0) {
+      setWaitlistState({
+        loading: false,
+        success: false,
+        error: `Please wait ${cooldownSeconds}s before submitting again.`,
+        reference: "",
+        serviceMessage: "",
+      });
+      trackWaitlistEvent("waitlist_submit_blocked", { reason: "cooldown", seconds_remaining: cooldownSeconds });
+      return;
+    }
+
+    if (waitlistHoneypot.trim()) {
+      setWaitlistState({
+        loading: false,
+        success: false,
+        error: "Submission could not be completed.",
+        reference: "",
+        serviceMessage: "",
+      });
+      trackWaitlistEvent("waitlist_submit_blocked", { reason: "honeypot" });
+      return;
+    }
 
     const normalizedForm = normalizeWaitlistForm(waitlistForm);
     const nextErrors = validateWaitlistForm(normalizedForm);
@@ -1521,6 +1756,9 @@ export default function PraeliatorWebsite() {
         reference: "",
         serviceMessage: "",
       });
+      trackWaitlistEvent("waitlist_submit_invalid", {
+        fields: Object.keys(nextErrors),
+      });
       return;
     }
 
@@ -1531,6 +1769,17 @@ export default function PraeliatorWebsite() {
       reference: "",
       serviceMessage: "",
     });
+
+    trackWaitlistEvent("waitlist_submit_attempt", {
+      interest: normalizedForm.interest,
+      timeline: normalizedForm.timeline,
+      contactPreference: normalizedForm.contactPreference,
+    });
+
+    const controller = new AbortController();
+    waitlistRequestControllerRef.current?.abort();
+    waitlistRequestControllerRef.current = controller;
+    const timeoutId = window.setTimeout(() => controller.abort(), WAITLIST_REQUEST_TIMEOUT_MS);
 
     const payload = {
       title: normalizedForm.title,
@@ -1545,6 +1794,9 @@ export default function PraeliatorWebsite() {
       contactPreference: normalizedForm.contactPreference,
       note: normalizedForm.note,
       sourceRoute: route,
+      clientTimestamp: new Date().toISOString(),
+      viewport: typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : undefined,
+      timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined,
     };
 
     try {
@@ -1553,8 +1805,10 @@ export default function PraeliatorWebsite() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          "X-Praeliator-Intake": "waitlist",
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
       const result = await response.json();
@@ -1563,6 +1817,14 @@ export default function PraeliatorWebsite() {
         throw new Error(result?.error || "Submission failed.");
       }
 
+      const nextCooldownUntil = Date.now() + WAITLIST_COOLDOWN_MS;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(WAITLIST_COOLDOWN_KEY, String(nextCooldownUntil));
+      }
+      setWaitlistCooldownUntil(nextCooldownUntil);
+
+      const completionSeconds = waitlistStartedAt ? Math.max(1, Math.round((Date.now() - waitlistStartedAt) / 1000)) : undefined;
+
       setWaitlistState({
         loading: false,
         success: true,
@@ -1570,22 +1832,37 @@ export default function PraeliatorWebsite() {
         reference: result.reference || "",
         serviceMessage:
           result.serviceMessage ||
-          "A private reply will follow after review.",
+          "A private reply will follow after review. A member of the house will review your inquiry and continue directly.",
       });
       setWaitlistForm(initialWaitlistForm);
       setWaitlistErrors({});
       setWaitlistTouched({});
+      setWaitlistHoneypot("");
+      setWaitlistStarted(false);
+      setWaitlistStartedAt(null);
+      trackWaitlistEvent("waitlist_submit_success", {
+        reference: result.reference || "pending",
+        completion_seconds: completionSeconds,
+      });
     } catch (error) {
+      const message =
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Request timed out. Please try again or continue on WhatsApp."
+          : error instanceof Error
+            ? error.message
+            : "Submission failed. Please try again or contact Praeliator directly by WhatsApp.";
+
       setWaitlistState({
         loading: false,
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Submission failed. Please try again or contact Praeliator directly by WhatsApp.",
+        error: message,
         reference: "",
         serviceMessage: "",
       });
+      trackWaitlistEvent("waitlist_submit_failure", { message });
+    } finally {
+      window.clearTimeout(timeoutId);
+      waitlistRequestControllerRef.current = null;
     }
   };
 
@@ -2127,7 +2404,7 @@ export default function PraeliatorWebsite() {
   const renderWaitlistPage = () => (
     <section className="border-b border-white/10 bg-[#090909]">
       <Container className="pt-0 pb-14 sm:pt-1 sm:pb-16 lg:pt-2 lg:pb-20">
-        <div className="grid gap-5 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-10">
+        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-10">
           <Reveal>
             <SectionHeading
               eyebrow="Waitlist"
@@ -2147,13 +2424,34 @@ export default function PraeliatorWebsite() {
               ))}
             </div>
 
+            <div className="mt-5 rounded-[1.65rem] border border-white/10 bg-[#0d0b0a] p-5 shadow-[0_20px_56px_rgba(0,0,0,0.18)]">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">What happens next</p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                {[
+                  { title: "Review", text: "Every qualified inquiry is reviewed before contact continues." },
+                  { title: "Reference", text: "Your returned reference stays attached to the intake record." },
+                  { title: "Continuation", text: "If needed, the route continues directly through WhatsApp." },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.02] p-4">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">{item.title}</p>
+                    <p className="mt-3 text-sm leading-6 text-white/64">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-5">
               <Button
                 asChild
                 variant="outline"
                 className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
-                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                <a
+                  href={whatsappGeneralLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackWaitlistEvent("waitlist_direct_inquiry_click", { location: "sidebar" })}
+                >
                   Prefer direct inquiry instead
                 </a>
               </Button>
@@ -2162,7 +2460,20 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <form className="grid gap-4" onSubmit={handleWaitlistSubmit} noValidate>
+              <form className="grid gap-5" onSubmit={handleWaitlistSubmit} noValidate>
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
+                  <input
+                    id={WAITLIST_HONEYPOT_FIELD}
+                    name={WAITLIST_HONEYPOT_FIELD}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={waitlistHoneypot}
+                    onChange={(event) => setWaitlistHoneypot(event.target.value)}
+                    className="browser-form-element h-0 w-0 opacity-0 pointer-events-none"
+                  />
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-[0.72fr_1.28fr]">
                   <div>
                     <SelectField
@@ -2175,6 +2486,8 @@ export default function PraeliatorWebsite() {
                       searchPlaceholder="Search title"
                       fieldLabel="Honorific"
                       options={titleOptions}
+                      success={getFieldSuccess("title")}
+                      describedBy={getFieldDescribedBy("title")}
                     />
                   </div>
 
@@ -2187,8 +2500,10 @@ export default function PraeliatorWebsite() {
                       autoComplete="name"
                       placeholder="Full name *"
                       invalid={Boolean(getVisibleFieldError("fullName"))}
+                      success={getFieldSuccess("fullName")}
+                      describedBy={getFieldDescribedBy("fullName")}
                     />
-                    <FieldError message={getVisibleFieldError("fullName")} />
+                    <FieldError id="fullName-error" message={getVisibleFieldError("fullName")} />
                   </div>
                 </div>
 
@@ -2203,8 +2518,10 @@ export default function PraeliatorWebsite() {
                     autoCapitalize="none"
                     placeholder="Email address *"
                     invalid={Boolean(getVisibleFieldError("email"))}
+                    success={getFieldSuccess("email")}
+                    describedBy={getFieldDescribedBy("email")}
                   />
-                  <FieldError message={getVisibleFieldError("email")} />
+                  <FieldError id="email-error" message={getVisibleFieldError("email")} />
                 </div>
 
                 <div>
@@ -2218,8 +2535,10 @@ export default function PraeliatorWebsite() {
                     exactMatchUpdates
                     fieldLabel="Country"
                     invalid={Boolean(getVisibleFieldError("country"))}
+                    success={getFieldSuccess("country")}
+                    describedBy={getFieldDescribedBy("country")}
                   />
-                  <FieldError message={getVisibleFieldError("country")} />
+                  <FieldError id="country-error" message={getVisibleFieldError("country")} />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-[0.82fr_1.18fr]">
@@ -2234,8 +2553,10 @@ export default function PraeliatorWebsite() {
                       maxLength={5}
                       placeholder="Dial code *"
                       invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
+                      success={getFieldSuccess("phoneCountryCode")}
+                      describedBy={getFieldDescribedBy("phoneCountryCode")}
                     />
-                    <FieldError message={getVisibleFieldError("phoneCountryCode")} />
+                    <FieldError id="phoneCountryCode-error" message={getVisibleFieldError("phoneCountryCode")} />
                   </div>
 
                   <div>
@@ -2249,8 +2570,10 @@ export default function PraeliatorWebsite() {
                       maxLength={15}
                       placeholder="Phone number *"
                       invalid={Boolean(getVisibleFieldError("whatsapp"))}
+                      success={getFieldSuccess("whatsapp")}
+                      describedBy={getFieldDescribedBy("whatsapp")}
                     />
-                    <FieldError message={getVisibleFieldError("whatsapp")} />
+                    <FieldError id="whatsapp-error" message={getVisibleFieldError("whatsapp")} />
                   </div>
                 </div>
 
@@ -2263,8 +2586,10 @@ export default function PraeliatorWebsite() {
                     placeholder="Interest *"
                     options={interestOptions}
                     invalid={Boolean(getVisibleFieldError("interest"))}
+                    success={getFieldSuccess("interest")}
+                    describedBy={getFieldDescribedBy("interest")}
                   />
-                  <FieldError message={getVisibleFieldError("interest")} />
+                  <FieldError id="interest-error" message={getVisibleFieldError("interest")} />
                 </div>
 
                 <div>
@@ -2276,8 +2601,10 @@ export default function PraeliatorWebsite() {
                     placeholder="Timeline *"
                     options={timelineOptions}
                     invalid={Boolean(getVisibleFieldError("timeline"))}
+                    success={getFieldSuccess("timeline")}
+                    describedBy={getFieldDescribedBy("timeline")}
                   />
-                  <FieldError message={getVisibleFieldError("timeline")} />
+                  <FieldError id="timeline-error" message={getVisibleFieldError("timeline")} />
                 </div>
 
                 <div>
@@ -2289,8 +2616,10 @@ export default function PraeliatorWebsite() {
                     placeholder="Preferred contact method *"
                     options={contactPreferenceOptions}
                     invalid={Boolean(getVisibleFieldError("contactPreference"))}
+                    success={getFieldSuccess("contactPreference")}
+                    describedBy={getFieldDescribedBy("contactPreference")}
                   />
-                  <FieldError message={getVisibleFieldError("contactPreference")} />
+                  <FieldError id="contactPreference-error" message={getVisibleFieldError("contactPreference")} />
                 </div>
 
                 <div>
@@ -2299,19 +2628,30 @@ export default function PraeliatorWebsite() {
                     value={waitlistForm.note}
                     onChange={handleWaitlistChange}
                     onBlur={() => handleWaitlistBlur("note")}
-                    className="browser-form-element min-h-[130px] w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                    className="browser-form-element min-h-[150px] w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
                     placeholder="Optional note"
                   />
                 </div>
 
+                <div className="rounded-[1.45rem] border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm leading-6 text-white/56">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">Submission standard</p>
+                  <p className="mt-2">This form validates before submission, stores a brief cooldown after success, and routes qualified inquiries into a persistent intake record.</p>
+                </div>
+
                 <Button
                   type="submit"
-                  disabled={waitlistState.loading}
+                  disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
                   className="h-14 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <span className="inline-flex items-center gap-3">
                     {waitlistState.loading ? <span className="browser-submit-spinner" aria-hidden="true" /> : null}
-                    <span>{waitlistState.loading ? "Submitting..." : "Join Waitlist"}</span>
+                    <span>
+                      {waitlistState.loading
+                        ? "Submitting..."
+                        : getWaitlistCooldownSeconds() > 0
+                          ? `Wait ${getWaitlistCooldownSeconds()}s`
+                          : "Join Waitlist"}
+                    </span>
                   </span>
                 </Button>
 
@@ -2323,6 +2663,7 @@ export default function PraeliatorWebsite() {
                       exit={{ opacity: 0, y: 6 }}
                       transition={{ duration: 0.22, ease: easeLuxury }}
                       className="overflow-hidden rounded-[1.6rem] border border-[#2f241d] bg-[#0d0b0a]"
+                      aria-live="polite"
                     >
                       <div className="border-b border-white/10 px-5 py-4">
                         <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Inquiry received</p>
@@ -2330,15 +2671,42 @@ export default function PraeliatorWebsite() {
                           {waitlistState.reference || "Client reference pending"}
                         </p>
                       </div>
-                      <div className="px-5 py-4">
+                      <div className="space-y-4 px-5 py-4">
                         <p className="text-sm leading-6 text-white/62">{waitlistState.serviceMessage}</p>
+                        <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.02] p-4 text-sm leading-6 text-white/60">
+                          Private review usually follows within one business day. If timing matters, continue directly on WhatsApp with your reference.
+                        </div>
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          <Button
+                            asChild
+                            className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                          >
+                            <a
+                              href={whatsappWaitlistFollowUpLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => trackWaitlistEvent("waitlist_success_whatsapp_click", { reference: waitlistState.reference || "pending" })}
+                            >
+                              Continue on WhatsApp
+                            </a>
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => goTo("/")}
+                            className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                          >
+                            Return Home
+                          </Button>
+                        </div>
                       </div>
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
 
                 {waitlistState.error ? (
-                  <p className="text-sm leading-6 text-[#d99b8d]">{waitlistState.error}</p>
+                  <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">{waitlistState.error}</p>
                 ) : null}
               </form>
             </div>
