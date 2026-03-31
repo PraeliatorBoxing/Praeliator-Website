@@ -573,6 +573,25 @@ const pageTransition = {
   },
 };
 
+const formFieldBaseClass = "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
+const formPanelClass = "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
+const formOptionRowClass = "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
+
+function getFormFieldStateClasses({
+  invalid = false,
+  success = false,
+  active = false,
+}: {
+  invalid?: boolean;
+  success?: boolean;
+  active?: boolean;
+}) {
+  if (invalid) return "border-[#805148] bg-[#120f0e] focus:border-[#b06d61]";
+  if (success) return "border-[#7d6753] bg-[#100e0c] focus:border-[#b9a18d]";
+  if (active) return "border-[#6a5545] bg-[#100f0e] shadow-[0_16px_36px_rgba(0,0,0,0.2)]";
+  return "border-white/[0.08] bg-[#0c0b0a] hover:border-white/[0.12] focus:border-[#6a5545]";
+}
+
 function normalizePath(pathname: string): Route {
   const clean = pathname.replace(/\/$/, "") || "/";
 
@@ -778,7 +797,7 @@ function InputField({
       maxLength={maxLength}
       aria-invalid={invalid}
       aria-describedby={describedBy}
-      className={`browser-form-element h-14 w-full rounded-2xl border px-5 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : success ? "border-[#8b7259] bg-[#110e0c] focus:border-[#b9a18d]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
+      className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
       placeholder={placeholder}
     />
   );
@@ -961,32 +980,32 @@ function SelectField({
         aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.5rem] w-full items-center justify-between gap-4 rounded-2xl border px-5 py-3 text-left text-sm outline-none transition duration-300 ${open ? "bg-[#11100f] shadow-[0_16px_40px_rgba(0,0,0,0.22)]" : "bg-[#0d0b0a]"} ${invalid ? "border-[#8a4b43] bg-[#140e0d]" : success ? "border-[#8b7259] bg-[#110e0c]" : open ? "border-[#705645]" : "border-white/10"}`}
+        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
-            <span id={labelId} className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/28"}`}>
+            <span id={labelId} className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/30"}`}>
               {fieldLabel}
             </span>
           ) : null}
-          <span className={`block truncate ${selectedOption ? "text-[#f4efe7]" : "text-white/28"}`}>
+          <span className={`block truncate text-[16px] sm:text-sm ${selectedOption ? "text-[#f4efe7]" : "text-white/24"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
-        <ChevronRight className={`h-4 w-4 shrink-0 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/38"}`} />
+        <ChevronRight className={`h-4 w-4 shrink-0 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/34"}`} />
       </button>
 
       <AnimatePresence>
         {open ? (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.985 }}
+            initial={{ opacity: 0, y: 8, scale: 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.985 }}
-            transition={{ duration: 0.18, ease: easeLuxury }}
-            className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            exit={{ opacity: 0, y: 6, scale: 0.99 }}
+            transition={{ duration: 0.2, ease: easeLuxury }}
+            className={formPanelClass}
           >
             {searchable ? (
-              <div className="border-b border-white/10 p-3">
+              <div className="border-b border-white/[0.08] p-3">
                 <input
                   ref={searchInputRef}
                   value={query}
@@ -996,13 +1015,13 @@ function SelectField({
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder={searchPlaceholder}
-                  className="browser-form-element h-11 w-full rounded-xl border border-white/10 bg-[#11100f] px-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645]"
+                  className={`${formFieldBaseClass} min-h-[3rem] rounded-[1.05rem] border-white/[0.08] bg-[#100f0e] px-4 text-[16px] placeholder:text-white/22 focus:border-[#6a5545] sm:text-sm`}
                 />
               </div>
             ) : null}
             <div
               id={listboxId}
-              className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
+              className="browser-scrollbar max-h-[min(18rem,45vh)] overflow-y-auto overscroll-contain py-2 sm:max-h-72"
               role="listbox"
               aria-labelledby={labelId}
               onWheelCapture={(event) => {
@@ -1028,9 +1047,9 @@ function SelectField({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitValue(option.value)}
-                    className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"}`}
+                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
                   >
-                    <span className={`truncate text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/78"}`}>{option.label}</span>
+                    <span className={`truncate text-[15px] sm:text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/72"}`}>{option.label}</span>
                     {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
                   </button>
                 );
@@ -1133,11 +1152,11 @@ function SearchPicker({
   return (
     <div ref={wrapperRef} className="relative">
       {fieldLabel ? (
-        <p id={labelId} className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/34"}`}>
+        <p id={labelId} className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/30"}`}>
           {fieldLabel}
         </p>
       ) : null}
-      <ChevronRight className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${open ? "top-[2.55rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.55rem] rotate-90 text-white/38"}`} />
+      <ChevronRight className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${open ? "top-[2.6rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.6rem] rotate-90 text-white/34"}`} />
       <input
         ref={inputRef}
         value={value}
@@ -1227,22 +1246,22 @@ function SearchPicker({
           }
         }}
         inputMode={inputMode}
-        className={`browser-form-element h-14 w-full rounded-2xl border px-5 pr-12 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:bg-[#11100f] ${invalid ? "border-[#8a4b43] bg-[#140e0d] focus:border-[#b3685e]" : success ? "border-[#8b7259] bg-[#110e0c] focus:border-[#b9a18d]" : "border-white/10 bg-[#0d0b0a] focus:border-[#705645]"}`}
+        className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
         placeholder={placeholder}
       />
 
       <AnimatePresence>
         {open && filtered.length > 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.985 }}
+            initial={{ opacity: 0, y: 8, scale: 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.985 }}
-            transition={{ duration: 0.18, ease: easeLuxury }}
-            className="absolute left-0 right-0 top-[calc(100%+0.55rem)] z-30 overflow-hidden rounded-[1.35rem] border border-[#2a211b] bg-[#0b0a09]/98 shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            exit={{ opacity: 0, y: 6, scale: 0.99 }}
+            transition={{ duration: 0.2, ease: easeLuxury }}
+            className={formPanelClass}
           >
             <div
               id={listboxId}
-              className="browser-scrollbar max-h-72 overflow-y-auto overscroll-contain py-2"
+              className="browser-scrollbar max-h-[min(18rem,45vh)] overflow-y-auto overscroll-contain py-2 sm:max-h-72"
               role="listbox"
               aria-labelledby={labelId}
               onWheelCapture={(event) => {
@@ -1265,10 +1284,10 @@ function SearchPicker({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitSelection(option)}
-                    className={`flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition duration-300 ${isHighlighted ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"}`}
+                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-[#f4efe7]">{option.label}</span>
+                      <span className="block truncate text-[15px] text-[#f4efe7] sm:text-sm">{option.label}</span>
                       <span className="mt-1 block text-[11px] uppercase tracking-[0.2em] text-[#b9a18d]">{option.code}</span>
                     </div>
                     {isSelected ? <Check className="h-4 w-4 shrink-0 text-[#b9a18d]" /> : null}
@@ -1292,7 +1311,15 @@ function FieldError({
 }) {
   if (!message) return null;
 
-  return <p id={id} className="mt-2 text-[13px] leading-5 text-[#d99b8d]">{message}</p>;
+  return <p id={id} className="mt-2 text-[13px] leading-5 text-[#c98f82]">{message}</p>;
+}
+
+function FieldNote({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <p className="mt-2 text-[13px] leading-5 text-white/36">{children}</p>;
 }
 
 function BrowserFormStyles() {
@@ -1305,11 +1332,18 @@ function BrowserFormStyles() {
         color-scheme: dark;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
+        font-size: 16px;
+      }
+
+      @media (min-width: 640px) {
+        .browser-form-element {
+          font-size: 0.875rem;
+        }
       }
 
       .browser-form-element:focus-visible,
       button[role='combobox']:focus-visible {
-        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.42), 0 0 0 4px rgba(185, 161, 141, 0.08);
+        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06);
       }
 
       .browser-form-element:-webkit-autofill,
@@ -1318,26 +1352,26 @@ function BrowserFormStyles() {
       .browser-form-element:-webkit-autofill:active {
         -webkit-text-fill-color: #f4efe7;
         caret-color: #f4efe7;
-        box-shadow: 0 0 0 1000px #0d0b0a inset;
-        -webkit-box-shadow: 0 0 0 1000px #0d0b0a inset;
-        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 1000px #0c0b0a inset;
+        -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
+        border-color: rgba(255, 255, 255, 0.08);
         transition: background-color 999999s ease-out 0s;
       }
 
       .browser-form-element::selection {
-        background: rgba(239, 229, 215, 0.18);
+        background: rgba(239, 229, 215, 0.16);
         color: #f4efe7;
       }
 
       .browser-form-element::-webkit-calendar-picker-indicator {
-        filter: invert(0.92) opacity(0.72);
+        filter: invert(0.92) opacity(0.68);
       }
 
       .browser-form-element::-ms-reveal,
       .browser-form-element::-ms-clear,
       .browser-form-element::-webkit-contacts-auto-fill-button,
       .browser-form-element::-webkit-credentials-auto-fill-button {
-        filter: invert(0.92) opacity(0.72);
+        filter: invert(0.92) opacity(0.68);
       }
 
       .browser-form-element[type='number']::-webkit-outer-spin-button,
@@ -1352,7 +1386,7 @@ function BrowserFormStyles() {
 
       .browser-scrollbar {
         scrollbar-width: thin;
-        scrollbar-color: rgba(244, 239, 231, 0.18) #0b0a09;
+        scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908;
       }
 
       .browser-scrollbar::-webkit-scrollbar {
@@ -1360,17 +1394,17 @@ function BrowserFormStyles() {
       }
 
       .browser-scrollbar::-webkit-scrollbar-track {
-        background: #0b0a09;
+        background: #0a0908;
       }
 
       .browser-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(244, 239, 231, 0.18);
+        background: rgba(244, 239, 231, 0.14);
         border-radius: 9999px;
-        border: 2px solid #0b0a09;
+        border: 2px solid #0a0908;
       }
 
       .browser-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(244, 239, 231, 0.28);
+        background: rgba(244, 239, 231, 0.22);
       }
 
       .browser-submit-spinner {
@@ -1832,7 +1866,7 @@ export default function PraeliatorWebsite() {
         reference: result.reference || "",
         serviceMessage:
           result.serviceMessage ||
-          "A private reply will follow after review. A member of the house will review your inquiry and continue directly.",
+          "A private reply will follow after review. Qualified inquiries continue directly with reference in place.",
       });
       setWaitlistForm(initialWaitlistForm);
       setWaitlistErrors({});
@@ -1913,7 +1947,7 @@ export default function PraeliatorWebsite() {
                   className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                 >
                   View VIS
-                </Button>
+                  </Button>
 
                 <Button
                   asChild
@@ -2041,7 +2075,7 @@ export default function PraeliatorWebsite() {
             </Reveal>
 
             <Reveal delay={0.08}>
-              <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
+              <div className="rounded-[2rem] border border-white/[0.08] bg-[#11100f] p-5 shadow-[0_24px_56px_rgba(0,0,0,0.24)] sm:p-7 lg:p-9">
                 <DataList items={constructionEvidence} compact />
               </div>
             </Reveal>
@@ -2404,7 +2438,7 @@ export default function PraeliatorWebsite() {
   const renderWaitlistPage = () => (
     <section className="border-b border-white/10 bg-[#090909]">
       <Container className="pt-0 pb-14 sm:pt-1 sm:pb-16 lg:pt-2 lg:pb-20">
-        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-10">
+        <div className="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start lg:gap-12">
           <Reveal>
             <SectionHeading
               eyebrow="Waitlist"
@@ -2424,7 +2458,7 @@ export default function PraeliatorWebsite() {
               ))}
             </div>
 
-            <div className="mt-5 rounded-[1.65rem] border border-white/10 bg-[#0d0b0a] p-5 shadow-[0_20px_56px_rgba(0,0,0,0.18)]">
+            <div className="mt-6 rounded-[1.65rem] border border-white/[0.08] bg-[#0d0b0a] p-5 shadow-[0_18px_42px_rgba(0,0,0,0.16)]">
               <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">What happens next</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 {[
@@ -2460,7 +2494,7 @@ export default function PraeliatorWebsite() {
 
           <Reveal delay={0.08}>
             <div className="rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
-              <form className="grid gap-5" onSubmit={handleWaitlistSubmit} noValidate>
+              <form className="grid gap-4 sm:gap-4 lg:gap-5" onSubmit={handleWaitlistSubmit} noValidate>
                 <div className="hidden" aria-hidden="true">
                   <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
                   <input
@@ -2474,7 +2508,7 @@ export default function PraeliatorWebsite() {
                   />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-[0.72fr_1.28fr]">
+                <div className="grid gap-4 sm:grid-cols-[0.76fr_1.24fr] sm:items-start">
                   <div>
                     <SelectField
                       name="title"
@@ -2541,7 +2575,7 @@ export default function PraeliatorWebsite() {
                   <FieldError id="country-error" message={getVisibleFieldError("country")} />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-[0.82fr_1.18fr]">
+                <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr] sm:items-start">
                   <div>
                     <InputField
                       name="phoneCountryCode"
@@ -2574,6 +2608,7 @@ export default function PraeliatorWebsite() {
                       describedBy={getFieldDescribedBy("whatsapp")}
                     />
                     <FieldError id="whatsapp-error" message={getVisibleFieldError("whatsapp")} />
+                    {!getVisibleFieldError("whatsapp") ? <FieldNote>Use the number where a private follow-up should continue.</FieldNote> : null}
                   </div>
                 </div>
 
@@ -2628,27 +2663,32 @@ export default function PraeliatorWebsite() {
                     value={waitlistForm.note}
                     onChange={handleWaitlistChange}
                     onBlur={() => handleWaitlistBlur("note")}
-                    className="browser-form-element min-h-[150px] w-full rounded-2xl border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm text-[#f4efe7] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#705645] focus:bg-[#11100f]"
+                    rows={6}
+                    className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                     placeholder="Optional note"
                   />
+                  <FieldNote>Any detail that affects timing, use, or preferred contact can go here.</FieldNote>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
-                  className="h-14 rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  <span className="inline-flex items-center gap-3">
-                    {waitlistState.loading ? <span className="browser-submit-spinner" aria-hidden="true" /> : null}
-                    <span>
-                      {waitlistState.loading
-                        ? "Submitting..."
-                        : getWaitlistCooldownSeconds() > 0
-                          ? `Wait ${getWaitlistCooldownSeconds()}s`
-                          : "Join Waitlist"}
+                <div className="pt-2">
+                  <Button
+                    type="submit"
+                    disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
+                    className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_16px_36px_rgba(239,229,215,0.2)] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <span className="inline-flex items-center gap-3">
+                      {waitlistState.loading ? <span className="browser-submit-spinner" aria-hidden="true" /> : null}
+                      <span>
+                        {waitlistState.loading
+                          ? "Submitting..."
+                          : getWaitlistCooldownSeconds() > 0
+                            ? `Wait ${getWaitlistCooldownSeconds()}s`
+                            : "Join Waitlist"}
+                      </span>
                     </span>
-                  </span>
-                </Button>
+                  </Button>
+                  <FieldNote>Private review typically continues within one business day.</FieldNote>
+                </div>
 
                 <AnimatePresence>
                   {waitlistState.success ? (
@@ -2657,19 +2697,19 @@ export default function PraeliatorWebsite() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6 }}
                       transition={{ duration: 0.22, ease: easeLuxury }}
-                      className="overflow-hidden rounded-[1.6rem] border border-[#2f241d] bg-[#0d0b0a]"
+                      className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
                       aria-live="polite"
                     >
-                      <div className="border-b border-white/10 px-5 py-4">
+                      <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
                         <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Inquiry received</p>
-                        <p className="mt-3 text-lg font-medium text-[#f4efe7]">
+                        <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
                           {waitlistState.reference || "Client reference pending"}
                         </p>
                       </div>
-                      <div className="space-y-4 px-5 py-4">
+                      <div className="space-y-4 px-5 py-5 sm:px-6">
                         <p className="text-sm leading-6 text-white/62">{waitlistState.serviceMessage}</p>
-                        <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.02] p-4 text-sm leading-6 text-white/60">
-                          Private review usually follows within one business day. If timing matters, continue directly on WhatsApp with your reference.
+                        <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                          Private review usually follows within one business day. If timing matters, continue directly on WhatsApp and include your reference.
                         </div>
                         <div className="flex flex-col gap-3 sm:flex-row">
                           <Button
