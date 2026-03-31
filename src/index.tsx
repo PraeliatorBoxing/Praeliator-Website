@@ -9,7 +9,6 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react";
-
 const visSpecifications = [
   { label: "Type", value: "Training boxing gloves" },
   { label: "Price", value: "$6,000 MXN" },
@@ -24,9 +23,12 @@ const visSpecifications = [
   { label: "Wrist", value: "Extended lace-up cuff" },
   { label: "Assembly", value: "Hand-assembled in Pakistan" },
 ];
-
-const visPaddingLayers = ["Multi-foam", "EVA", "Natural latex", "Natural latex"];
-
+const visPaddingLayers = [
+  "Multi-foam",
+  "EVA",
+  "Natural latex",
+  "Natural latex",
+];
 const visPackaging = [
   "Rigid presentation box",
   "Silk dust bag",
@@ -34,13 +36,11 @@ const visPackaging = [
   "Authenticity card",
   "Care card",
 ];
-
 const visService = [
   "Leather cleaning",
   "Leather conditioning",
   "Lace replacement",
 ];
-
 const constructionEvidence = [
   {
     label: "Construction",
@@ -52,43 +52,23 @@ const constructionEvidence = [
     value:
       "Rigid box, silk dust bag, silk wrapping, authenticity card, care card.",
   },
-  {
-    label: "Ownership",
-    value:
-      "Allocation, delivery, aftercare.",
-  },
+  { label: "Ownership", value: "Allocation, delivery, aftercare." },
 ];
-
 const trustArchitecture = [
-  {
-    title: "Inquiry",
-    text:
-      "Private review and client reference.",
-  },
-  {
-    title: "Delivery",
-    text:
-      "Allocation, dispatch, confirmation.",
-  },
-  {
-    title: "Aftercare",
-    text:
-      "Maintenance and continued service.",
-  },
+  { title: "Inquiry", text: "Private review and client reference." },
+  { title: "Delivery", text: "Allocation, dispatch, confirmation." },
+  { title: "Aftercare", text: "Maintenance and continued service." },
 ];
-
 const ownershipSignals = [
   { label: "Allocation", value: "Held under the client record." },
   { label: "Authenticity", value: "Linked to the order record." },
   { label: "Delivery", value: "Tracked through dispatch and receipt." },
   { label: "Aftercare", value: "Retained under ownership history." },
 ];
-
 const serviceStandards = [
   "Inquiry entered into the client record.",
   "Follow-up handled directly.",
 ];
-
 const visImageSources = {
   hero: "/images/vis-hero.jpg",
   leather: "/images/vis-leather.jpg",
@@ -96,33 +76,40 @@ const visImageSources = {
   packaging: "/images/vis-packaging.jpg",
   videoPoster: "/images/video-poster.jpg",
 };
-
 const galleryImages = [
   "/images/gallery-01.jpg",
   "/images/gallery-03.jpg",
   "/images/gallery-06.jpg",
   "/images/gallery-09.jpg",
 ];
-
 const homeImageSources = {
   hero: galleryImages[0],
   videoPoster: galleryImages[1],
   material: galleryImages[2],
   presentation: galleryImages[3],
 };
-
 const homeCinematicMedia = {
   hero: { video: "/videos/home-hero.mp4", poster: homeImageSources.hero },
   vis: { video: "/videos/home-vis.mp4", poster: visImageSources.hero },
-  material: { video: "/videos/home-material.mp4", poster: visImageSources.leather },
-  ownership: { video: "/videos/home-ownership.mp4", poster: visImageSources.packaging },
-  acquisition: { video: "/videos/home-acquisition.mp4", poster: homeImageSources.presentation },
+  material: {
+    video: "/videos/home-material.mp4",
+    poster: visImageSources.leather,
+  },
+  ownership: {
+    video: "/videos/home-ownership.mp4",
+    poster: visImageSources.packaging,
+  },
+  acquisition: {
+    video: "/videos/home-acquisition.mp4",
+    poster: homeImageSources.presentation,
+  },
 };
-
 const customVideoLoaderIcon = "/images/video-loader.svg";
-
 const brandAssetPaths = {
   wordmark: "/logo-header.png",
+  headerWordmark: "/wordmark-full.svg",
+  headerMonogramMark: "/monogram-mark.svg",
+  headerLaurelMark: "/laurel-mark.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
     leftUpper: "/brand/monogram/leaf-left-upper.svg",
@@ -133,9 +120,8 @@ const brandAssetPaths = {
     center: "/brand/monogram/leaf-center.svg",
   },
 };
-
 type MonogramMode = "closed" | "hover" | "open";
-
+type HeaderBrandMode = "wordmark" | "assembly" | "monogram";
 const monogramPieces = [
   {
     key: "left-outer",
@@ -194,8 +180,6 @@ const monogramPieces = [
     open: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
   },
 ] as const;
-
-
 const countryOptions = [
   { code: "+93", label: "Afghanistan" },
   { code: "+355", label: "Albania" },
@@ -401,11 +385,9 @@ const countryOptions = [
   { code: "+260", label: "Zambia" },
   { code: "+263", label: "Zimbabwe" },
 ];
-
 const dialCodeSuggestions = Array.from(
-  new Map(countryOptions.map((option) => [option.code, option])).values()
+  new Map(countryOptions.map((option) => [option.code, option])).values(),
 );
-
 const initialWaitlistForm = {
   title: "",
   fullName: "",
@@ -418,7 +400,6 @@ const initialWaitlistForm = {
   contactPreference: "",
   note: "",
 };
-
 const titleOptions = [
   { value: "Mr.", label: "Mr." },
   { value: "Mrs.", label: "Mrs." },
@@ -467,27 +448,23 @@ const titleOptions = [
   { value: "先生", label: "先生" },
   { value: "女士", label: "女士" },
 ];
-
 const interestOptions = [
   { value: "Praeliator VIS", label: "Praeliator VIS" },
   { value: "Future releases", label: "Future releases" },
   { value: "Collector interest", label: "Collector interest" },
   { value: "General brand inquiry", label: "General brand inquiry" },
 ];
-
 const timelineOptions = [
   { value: "Ready now", label: "Ready now" },
   { value: "Within 30 days", label: "Within 30 days" },
   { value: "Within 3 months", label: "Within 3 months" },
   { value: "Researching only", label: "Researching only" },
 ];
-
 const contactPreferenceOptions = [
   { value: "Phone", label: "Phone" },
   { value: "Email", label: "Email" },
   { value: "Either", label: "Either" },
 ];
-
 type WaitlistFieldName = keyof typeof initialWaitlistForm;
 type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
 type Route =
@@ -496,20 +473,17 @@ type Route =
   | "/acquisition"
   | "/waitlist"
   | "/contact";
-
 type HeroAction = {
   label: string;
   href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
 };
-
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
-
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -520,7 +494,6 @@ const waitlistRequiredFields: WaitlistFieldName[] = [
   "timeline",
   "contactPreference",
 ];
-
 const routeTitles: Record<Route, string> = {
   "/": "Home",
   "/praeliator-vis": "Praeliator VIS",
@@ -528,15 +501,16 @@ const routeTitles: Record<Route, string> = {
   "/waitlist": "Waitlist",
   "/contact": "Contact",
 };
-
 const navItems: Array<{ label: string; path: Route }> = [
   { label: "VIS", path: "/praeliator-vis" },
   { label: "Acquisition", path: "/acquisition" },
   { label: "Waitlist", path: "/waitlist" },
   { label: "Contact", path: "/contact" },
 ];
-
-const pageHeroStats: Record<Exclude<Route, "/">, Array<{ label: string; value: string }>> = {
+const pageHeroStats: Record<
+  Exclude<Route, "/">,
+  Array<{ label: string; value: string }>
+> = {
   "/praeliator-vis": [
     { label: "Format", value: "16 oz lace-up" },
     { label: "Material", value: "Top-grain cowhide" },
@@ -562,52 +536,42 @@ const pageHeroStats: Record<Exclude<Route, "/">, Array<{ label: string; value: s
     { label: "Scope", value: "Private client communication" },
   ],
 };
-
 const acquisitionSteps = [
   {
     step: "01",
     title: "Inquiry",
-    text:
-      "The route begins through WhatsApp, email, or the intake form. There is no conventional checkout layer between the client and the brand.",
+    text: "The route begins through WhatsApp, email, or the intake form. There is no conventional checkout layer between the client and the brand.",
   },
   {
     step: "02",
     title: "Client record",
-    text:
-      "Each qualified inquiry becomes a persistent record with reference, route status, ownership context, and follow-up visibility.",
+    text: "Each qualified inquiry becomes a persistent record with reference, route status, ownership context, and follow-up visibility.",
   },
   {
     step: "03",
     title: "Review and allocation",
-    text:
-      "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the brand, not the cart.",
+    text: "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the brand, not the cart.",
   },
   {
     step: "04",
     title: "Delivery and aftercare",
-    text:
-      "Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.",
+    text: "Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.",
   },
 ];
-
 const visEditorialBlocks = [
   {
     title: "Material discipline",
-    text:
-      "The glove is built in top-grain cowhide with a restrained finish that reads deep black first and espresso second. It avoids the loud shine that makes luxury feel synthetic.",
+    text: "The glove is built in top-grain cowhide with a restrained finish that reads deep black first and espresso second. It avoids the loud shine that makes luxury feel synthetic.",
   },
   {
     title: "Engineered structure",
-    text:
-      "The silhouette is meant to feel sculpted rather than swollen. Palm ventilation, an integrated grip bar, attached thumb, and the extended cuff all work inside the same visual system.",
+    text: "The silhouette is meant to feel sculpted rather than swollen. Palm ventilation, an integrated grip bar, attached thumb, and the extended cuff all work inside the same visual system.",
   },
   {
     title: "Object quality",
-    text:
-      "Presentation was not treated like a separate afterthought. Packaging, ownership, and aftercare all continue the same tone as the glove itself.",
+    text: "Presentation was not treated like a separate afterthought. Packaging, ownership, and aftercare all continue the same tone as the glove itself.",
   },
 ];
-
 const clubFooterColumns = [
   {
     title: "Explore",
@@ -628,9 +592,7 @@ const clubFooterColumns = [
     ],
   },
 ];
-
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
 const pageTransition = {
   initial: { opacity: 0, y: 12, filter: "blur(6px)" },
   animate: {
@@ -646,14 +608,12 @@ const pageTransition = {
     transition: { duration: 0.45, ease: easeLuxury },
   },
 };
-
 const formFieldBaseClass =
   "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
 const formPanelClass =
   "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
-
 const normalizeInlineText = (value: string) =>
   value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
 const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -667,25 +627,29 @@ const normalizePhoneNumber = (value: string) =>
 const normalizeEmailInline = (value: string) => value.replace(/\s+/g, "");
 const normalizeEmailFinal = (value: string) =>
   value.replace(/\s+/g, "").trim().toLowerCase();
-
 const normalizeWaitlistFieldValue = (
   field: WaitlistFieldName,
   value: string,
-  stage: "change" | "blur" | "submit" = "change"
+  stage: "change" | "blur" | "submit" = "change",
 ) => {
   if (field === "fullName")
-    return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+    return stage === "change"
+      ? normalizeInlineText(value)
+      : normalizeFinalText(value);
   if (field === "email")
-    return stage === "change" ? normalizeEmailInline(value) : normalizeEmailFinal(value);
+    return stage === "change"
+      ? normalizeEmailInline(value)
+      : normalizeEmailFinal(value);
   if (field === "phoneCountryCode") return normalizeDialCode(value);
   if (field === "whatsapp") return normalizePhoneNumber(value);
   if (field === "country")
-    return stage === "change" ? normalizeInlineText(value) : normalizeFinalText(value);
+    return stage === "change"
+      ? normalizeInlineText(value)
+      : normalizeFinalText(value);
   if (field === "note")
     return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
   return stage === "change" ? value : value.trim();
 };
-
 const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   title: normalizeWaitlistFieldValue("title", form.title, "submit"),
   fullName: normalizeWaitlistFieldValue("fullName", form.fullName, "submit"),
@@ -693,7 +657,7 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   phoneCountryCode: normalizeWaitlistFieldValue(
     "phoneCountryCode",
     form.phoneCountryCode,
-    "submit"
+    "submit",
   ),
   whatsapp: normalizeWaitlistFieldValue("whatsapp", form.whatsapp, "submit"),
   country: normalizeWaitlistFieldValue("country", form.country, "submit"),
@@ -702,26 +666,52 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   contactPreference: normalizeWaitlistFieldValue(
     "contactPreference",
     form.contactPreference,
-    "submit"
+    "submit",
   ),
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
-
 const getDialCodePhoneRule = (dialCode: string) => {
   const normalizedDialCode = normalizeDialCode(dialCode);
   const rules: Record<string, { min: number; max: number; message: string }> = {
-    "+1": { min: 10, max: 10, message: "US and Canadian numbers should be 10 digits." },
+    "+1": {
+      min: 10,
+      max: 10,
+      message: "US and Canadian numbers should be 10 digits.",
+    },
     "+33": { min: 9, max: 9, message: "French numbers should be 9 digits." },
     "+34": { min: 9, max: 9, message: "Spanish numbers should be 9 digits." },
-    "+44": { min: 10, max: 11, message: "UK numbers are usually 10 to 11 digits." },
-    "+49": { min: 10, max: 13, message: "German numbers are usually 10 to 13 digits." },
-    "+52": { min: 10, max: 10, message: "Mexican numbers should be 10 digits." },
-    "+55": { min: 10, max: 11, message: "Brazilian numbers are usually 10 to 11 digits." },
-    "+61": { min: 9, max: 9, message: "Australian numbers should be 9 digits." },
-    "+81": { min: 10, max: 10, message: "Japanese mobile numbers are usually 10 digits." },
+    "+44": {
+      min: 10,
+      max: 11,
+      message: "UK numbers are usually 10 to 11 digits.",
+    },
+    "+49": {
+      min: 10,
+      max: 13,
+      message: "German numbers are usually 10 to 13 digits.",
+    },
+    "+52": {
+      min: 10,
+      max: 10,
+      message: "Mexican numbers should be 10 digits.",
+    },
+    "+55": {
+      min: 10,
+      max: 11,
+      message: "Brazilian numbers are usually 10 to 11 digits.",
+    },
+    "+61": {
+      min: 9,
+      max: 9,
+      message: "Australian numbers should be 9 digits.",
+    },
+    "+81": {
+      min: 10,
+      max: 10,
+      message: "Japanese mobile numbers are usually 10 digits.",
+    },
     "+91": { min: 10, max: 10, message: "Indian numbers should be 10 digits." },
   };
-
   return (
     rules[normalizedDialCode] || {
       min: 7,
@@ -730,35 +720,31 @@ const getDialCodePhoneRule = (dialCode: string) => {
     }
   );
 };
-
-const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors => {
+const validateWaitlistForm = (
+  form: typeof initialWaitlistForm,
+): WaitlistErrors => {
   const normalizedForm = normalizeWaitlistForm(form);
   const errors: WaitlistErrors = {};
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRule = getDialCodePhoneRule(normalizedForm.phoneCountryCode);
-
   if (!normalizedForm.fullName) {
     errors.fullName = "Full name is required.";
   } else if (normalizedForm.fullName.length < 2) {
     errors.fullName = "Enter a valid full name.";
   }
-
   if (!normalizedForm.email) {
     errors.email = "Email is required.";
   } else if (!emailPattern.test(normalizedForm.email)) {
     errors.email = "Enter a valid email address.";
   }
-
   if (!normalizedForm.country) {
     errors.country = "Country is required.";
   }
-
   if (!normalizedForm.phoneCountryCode) {
     errors.phoneCountryCode = "Dial code is required.";
   } else if (!/^\+\d{1,4}$/.test(normalizedForm.phoneCountryCode)) {
     errors.phoneCountryCode = "Enter a valid dial code.";
   }
-
   if (!normalizedForm.whatsapp) {
     errors.whatsapp = "Phone number is required.";
   } else if (
@@ -767,15 +753,12 @@ const validateWaitlistForm = (form: typeof initialWaitlistForm): WaitlistErrors 
   ) {
     errors.whatsapp = phoneRule.message;
   }
-
   if (!normalizedForm.interest) errors.interest = "Select an interest.";
   if (!normalizedForm.timeline) errors.timeline = "Select a timeline.";
   if (!normalizedForm.contactPreference)
     errors.contactPreference = "Select a preferred contact method.";
-
   return errors;
 };
-
 function getFormFieldStateClasses({
   invalid = false,
   success = false,
@@ -791,10 +774,8 @@ function getFormFieldStateClasses({
     return "border-[#6a5545] bg-[#100f0e] shadow-[0_16px_36px_rgba(0,0,0,0.2)]";
   return "border-white/[0.08] bg-[#0c0b0a] hover:border-white/[0.12] focus:border-[#6a5545]";
 }
-
 function normalizePath(pathname: string): Route {
   const clean = pathname.replace(/\/$/, "") || "/";
-
   if (
     clean === "/" ||
     clean === "/praeliator-vis" ||
@@ -804,18 +785,14 @@ function normalizePath(pathname: string): Route {
   ) {
     return clean as Route;
   }
-
   if (clean === "/collection" || clean === "/trust" || clean === "/gallery") {
     return "/praeliator-vis";
   }
-
   if (clean === "/experience" || clean === "/clients") {
     return "/acquisition";
   }
-
   return "/";
 }
-
 function Container({
   children,
   className = "",
@@ -824,12 +801,13 @@ function Container({
   className?: string;
 }) {
   return (
-    <div className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div
+      className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}
+    >
       {children}
     </div>
   );
 }
-
 function SectionHeading({
   eyebrow,
   title,
@@ -857,7 +835,6 @@ function SectionHeading({
     </div>
   );
 }
-
 function Reveal({
   children,
   className = "",
@@ -879,7 +856,6 @@ function Reveal({
     </motion.div>
   );
 }
-
 function DataList({
   items,
   compact = false,
@@ -892,9 +868,7 @@ function DataList({
       {items.map((item) => (
         <div
           key={item.label}
-          className={`grid gap-2 py-4 ${
-            compact ? "sm:grid-cols-[110px_1fr]" : "sm:grid-cols-[160px_1fr]"
-          } sm:items-start`}
+          className={`grid gap-2 py-4 ${compact ? "sm:grid-cols-[110px_1fr]" : "sm:grid-cols-[160px_1fr]"} sm:items-start`}
         >
           <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 sm:text-[11px]">
             {item.label}
@@ -907,7 +881,6 @@ function DataList({
     </div>
   );
 }
-
 function MediaSurface({
   src,
   alt,
@@ -924,14 +897,10 @@ function MediaSurface({
   dim?: "light" | "medium" | "heavy";
 }) {
   const overlayMap = {
-    light:
-      "bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.46))]",
-    medium:
-      "bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.62))]",
-    heavy:
-      "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
+    light: "bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.46))]",
+    medium: "bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.62))]",
+    heavy: "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
   };
-
   return (
     <div
       className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
@@ -965,7 +934,6 @@ function MediaSurface({
     </div>
   );
 }
-
 function PageStatStrip({
   items,
 }: {
@@ -986,7 +954,6 @@ function PageStatStrip({
     </div>
   );
 }
-
 function PageHeroBanner({
   eyebrow,
   title,
@@ -1035,14 +1002,15 @@ function PageHeroBanner({
                     </p>
                   ) : null}
                 </div>
-
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   {actions.map((action) =>
                     action.href ? (
                       <Button
                         key={action.label}
                         asChild
-                        variant={action.variant === "secondary" ? "outline" : undefined}
+                        variant={
+                          action.variant === "secondary" ? "outline" : undefined
+                        }
                         className={
                           action.variant === "secondary"
                             ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
@@ -1057,7 +1025,9 @@ function PageHeroBanner({
                       <Button
                         key={action.label}
                         type="button"
-                        variant={action.variant === "secondary" ? "outline" : undefined}
+                        variant={
+                          action.variant === "secondary" ? "outline" : undefined
+                        }
                         onClick={action.onClick}
                         className={
                           action.variant === "secondary"
@@ -1067,12 +1037,11 @@ function PageHeroBanner({
                       >
                         {action.label}
                       </Button>
-                    )
+                    ),
                   )}
                 </div>
               </div>
             </Reveal>
-
             <Reveal delay={0.08}>
               <MediaSurface
                 src={media.image}
@@ -1101,7 +1070,6 @@ function PageHeroBanner({
               />
             </Reveal>
           </div>
-
           <div className="mt-5 sm:mt-6">
             <PageStatStrip items={stats} />
           </div>
@@ -1110,7 +1078,6 @@ function PageHeroBanner({
     </section>
   );
 }
-
 function EditorialBlock({
   eyebrow,
   title,
@@ -1136,9 +1103,7 @@ function EditorialBlock({
     <section className="relative py-8 sm:py-10 lg:py-12">
       <Container>
         <div
-          className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${
-            reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""
-          }`}
+          className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""}`}
         >
           <Reveal>
             <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
@@ -1154,7 +1119,6 @@ function EditorialBlock({
               {children ? <div className="mt-7">{children}</div> : null}
             </div>
           </Reveal>
-
           <Reveal delay={0.08}>
             <MediaSurface
               src={media.image}
@@ -1184,7 +1148,6 @@ function EditorialBlock({
     </section>
   );
 }
-
 function ClubFooter({
   goTo,
   whatsappGeneralLink,
@@ -1210,15 +1173,19 @@ function ClubFooter({
                 Praeliator Club
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                A quieter continuation of the brand: controlled access, direct contact, and ownership carried with continuity.
+                A quieter continuation of the brand: controlled access, direct
+                contact, and ownership carried with continuity.
               </p>
-
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
                   className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                 >
-                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  <a
+                    href={whatsappGeneralLink}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Private Inquiry
                   </a>
                 </Button>
@@ -1231,7 +1198,6 @@ function ClubFooter({
                   Join Waitlist
                 </Button>
               </div>
-
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 {[
                   "Private acquisition",
@@ -1247,7 +1213,6 @@ function ClubFooter({
                 ))}
               </div>
             </div>
-
             <div className="grid gap-0 sm:grid-cols-2">
               {clubFooterColumns.map((column) => (
                 <div
@@ -1257,7 +1222,6 @@ function ClubFooter({
                   <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                     {column.title}
                   </p>
-
                   {"links" in column ? (
                     <div className="mt-6 space-y-4">
                       {column.links.map((item) => (
@@ -1283,7 +1247,6 @@ function ClubFooter({
                   )}
                 </div>
               ))}
-
               <div className="border-t border-white/[0.08] p-6 sm:col-span-2 sm:p-8 lg:p-10">
                 <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                   <div>
@@ -1291,10 +1254,10 @@ function ClubFooter({
                       Direct contact
                     </p>
                     <p className="mt-3 text-sm leading-7 text-white/56">
-                      WhatsApp remains primary. Email and Instagram stay available for slower paths.
+                      WhatsApp remains primary. Email and Instagram stay
+                      available for slower paths.
                     </p>
                   </div>
-
                   <div className="flex items-center gap-4">
                     <a
                       href={instagramLink}
@@ -1328,7 +1291,6 @@ function ClubFooter({
     </footer>
   );
 }
-
 function InputField({
   name,
   value,
@@ -1347,7 +1309,9 @@ function InputField({
   name: string;
   value: string;
   onChange: (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   placeholder: string;
@@ -1373,15 +1337,11 @@ function InputField({
       maxLength={maxLength}
       aria-invalid={invalid}
       aria-describedby={describedBy}
-      className={`${formFieldBaseClass} ${getFormFieldStateClasses({
-        invalid,
-        success,
-      })}`}
+      className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
       placeholder={placeholder}
     />
   );
 }
-
 function SelectField({
   name,
   value,
@@ -1399,7 +1359,9 @@ function SelectField({
   name: string;
   value: string;
   onChange: (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => void;
   onBlur?: () => void;
   options: Array<{ value: string; label: string }>;
@@ -1420,29 +1382,26 @@ function SelectField({
   const listboxId = `${name}-listbox`;
   const labelId = fieldLabel ? `${name}-label` : undefined;
   const selectedOption = options.find((option) => option.value === value);
-
   const filteredOptions = useMemo(() => {
     if (!searchable) return options;
-
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return options;
-
     return options.filter((option) => {
       const label = option.label.toLowerCase();
       const optionValue = option.value.toLowerCase();
-      return label.includes(normalizedQuery) || optionValue.includes(normalizedQuery);
+      return (
+        label.includes(normalizedQuery) || optionValue.includes(normalizedQuery)
+      );
     });
   }, [options, query, searchable]);
-
   const activeOptionId =
     open && filteredOptions[highlightedIndex]
       ? `${name}-option-${highlightedIndex}`
       : undefined;
   const selectedIndex = Math.max(
     0,
-    filteredOptions.findIndex((option) => option.value === value)
+    filteredOptions.findIndex((option) => option.value === value),
   );
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
@@ -1450,28 +1409,23 @@ function SelectField({
         setOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onBlur]);
-
   useEffect(() => {
     setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
   }, [selectedIndex, open]);
-
   useEffect(() => {
     if (!open) {
       setQuery("");
       return;
     }
-
     if (searchable) {
       window.setTimeout(() => {
         searchInputRef.current?.focus();
       }, 0);
     }
   }, [open, searchable]);
-
   const commitValue = (nextValue: string) => {
     onChange({
       target: { name, value: nextValue },
@@ -1481,7 +1435,6 @@ function SelectField({
     setQuery("");
     window.setTimeout(() => triggerRef.current?.focus(), 0);
   };
-
   const moveHighlight = (direction: 1 | -1) => {
     if (!filteredOptions.length) return;
     setHighlightedIndex((current) => {
@@ -1491,7 +1444,6 @@ function SelectField({
       return nextIndex;
     });
   };
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
@@ -1502,7 +1454,6 @@ function SelectField({
       moveHighlight(1);
       return;
     }
-
     if (event.key === "ArrowUp") {
       event.preventDefault();
       if (!open) {
@@ -1512,19 +1463,16 @@ function SelectField({
       moveHighlight(-1);
       return;
     }
-
     if (event.key === "Home" && open) {
       event.preventDefault();
       setHighlightedIndex(0);
       return;
     }
-
     if (event.key === "End" && open) {
       event.preventDefault();
       setHighlightedIndex(Math.max(0, filteredOptions.length - 1));
       return;
     }
-
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (!open) {
@@ -1535,7 +1483,6 @@ function SelectField({
       if (highlighted) commitValue(highlighted.value);
       return;
     }
-
     if (event.key === "Escape") {
       if (open) {
         event.preventDefault();
@@ -1545,13 +1492,11 @@ function SelectField({
       }
       return;
     }
-
     if (event.key === "Tab" && open) {
       setOpen(false);
       onBlur?.();
     }
   };
-
   return (
     <div ref={wrapperRef} className="relative">
       <button
@@ -1567,38 +1512,27 @@ function SelectField({
         aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({
-          invalid,
-          success,
-          active: open,
-        })}`}
+        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
             <span
               id={labelId}
-              className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${
-                selectedOption || open ? "text-[#b9a18d]" : "text-white/30"
-              }`}
+              className={`mb-1 block text-[10px] uppercase tracking-[0.22em] ${selectedOption || open ? "text-[#b9a18d]" : "text-white/30"}`}
             >
               {fieldLabel}
             </span>
           ) : null}
           <span
-            className={`block truncate text-[16px] sm:text-sm ${
-              selectedOption ? "text-[#f4efe7]" : "text-white/24"
-            }`}
+            className={`block truncate text-[16px] sm:text-sm ${selectedOption ? "text-[#f4efe7]" : "text-white/24"}`}
           >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
         <ChevronRight
-          className={`h-4 w-4 shrink-0 transition duration-300 ${
-            open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/34"
-          }`}
+          className={`h-4 w-4 shrink-0 transition duration-300 ${open ? "rotate-[270deg] text-[#b9a18d]" : "rotate-90 text-white/34"}`}
         />
       </button>
-
       <AnimatePresence>
         {open ? (
           <motion.div
@@ -1636,12 +1570,13 @@ function SelectField({
               }}
             >
               {filteredOptions.length === 0 ? (
-                <div className="px-4 py-4 text-sm text-white/42">No matches found.</div>
+                <div className="px-4 py-4 text-sm text-white/42">
+                  No matches found.
+                </div>
               ) : null}
               {filteredOptions.map((option, index) => {
                 const isSelected = option.value === value;
                 const isHighlighted = index === highlightedIndex;
-
                 return (
                   <button
                     id={`${name}-option-${index}`}
@@ -1651,14 +1586,10 @@ function SelectField({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitValue(option.value)}
-                    className={`${formOptionRowClass} ${
-                      isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"
-                    }`}
+                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
                   >
                     <span
-                      className={`truncate text-[15px] sm:text-sm ${
-                        isSelected ? "text-[#f4efe7]" : "text-white/72"
-                      }`}
+                      className={`truncate text-[15px] sm:text-sm ${isSelected ? "text-[#f4efe7]" : "text-white/72"}`}
                     >
                       {option.label}
                     </span>
@@ -1675,7 +1606,6 @@ function SelectField({
     </div>
   );
 }
-
 function SearchPicker({
   name,
   value,
@@ -1691,7 +1621,10 @@ function SearchPicker({
   describedBy,
 }: {
   name: string;
-  onChange: (value: string, matchedOption?: { label: string; code: string }) => void;
+  onChange: (
+    value: string,
+    matchedOption?: { label: string; code: string },
+  ) => void;
   onBlur?: () => void;
   options: Array<{ label: string; code: string }>;
   value: string;
@@ -1709,11 +1642,9 @@ function SearchPicker({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listboxId = `${name}-picker-listbox`;
   const labelId = fieldLabel ? `${name}-picker-label` : undefined;
-
   const filtered = useMemo(() => {
     const query = value.trim().toLowerCase();
     if (!query) return options.slice(0, 16);
-
     return options
       .filter((option) => {
         const label = option.label.toLowerCase();
@@ -1722,12 +1653,10 @@ function SearchPicker({
       })
       .slice(0, 16);
   }, [options, value]);
-
   const activeOptionId =
     open && filtered[highlightedIndex]
       ? `${name}-picker-option-${highlightedIndex}`
       : undefined;
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
@@ -1735,31 +1664,26 @@ function SearchPicker({
         setOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onBlur]);
-
   const selectedIndex = Math.max(
     0,
     filtered.findIndex(
       (option) =>
         option.label.toLowerCase() === value.trim().toLowerCase() ||
-        option.code.toLowerCase() === value.trim().toLowerCase()
-    )
+        option.code.toLowerCase() === value.trim().toLowerCase(),
+    ),
   );
-
   useEffect(() => {
     setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
   }, [selectedIndex, open]);
-
   const commitSelection = (option: { label: string; code: string }) => {
     onChange(inputMode === "tel" ? option.code : option.label, option);
     onBlur?.();
     setOpen(false);
     window.setTimeout(() => inputRef.current?.focus(), 0);
   };
-
   const moveHighlight = (direction: 1 | -1) => {
     if (!filtered.length) return;
     setHighlightedIndex((current) => {
@@ -1769,23 +1693,18 @@ function SearchPicker({
       return nextIndex;
     });
   };
-
   return (
     <div ref={wrapperRef} className="relative">
       {fieldLabel ? (
         <p
           id={labelId}
-          className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${
-            value ? "text-[#b9a18d]" : "text-white/30"
-          }`}
+          className={`mb-2 text-[10px] uppercase tracking-[0.22em] ${value ? "text-[#b9a18d]" : "text-white/30"}`}
         >
           {fieldLabel}
         </p>
       ) : null}
       <ChevronRight
-        className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${
-          open ? "top-[2.6rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.6rem] rotate-90 text-white/34"
-        }`}
+        className={`pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${open ? "top-[2.6rem] rotate-[270deg] text-[#b9a18d]" : "top-[2.6rem] rotate-90 text-white/34"}`}
       />
       <input
         ref={inputRef}
@@ -1801,19 +1720,19 @@ function SearchPicker({
         onChange={(event) => {
           const next = event.target.value;
           const cleaned =
-            inputMode === "tel" ? next.replace(/[^\d+]/g, "") : normalizeInlineText(next);
+            inputMode === "tel"
+              ? next.replace(/[^\d+]/g, "")
+              : normalizeInlineText(next);
           const matchedOption = options.find(
             (option) =>
               option.label.toLowerCase() === cleaned.trim().toLowerCase() ||
-              option.code.toLowerCase() === cleaned.trim().toLowerCase()
+              option.code.toLowerCase() === cleaned.trim().toLowerCase(),
           );
-
           if (exactMatchUpdates) {
             onChange(cleaned, matchedOption);
           } else {
             onChange(cleaned);
           }
-
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
@@ -1834,7 +1753,6 @@ function SearchPicker({
             moveHighlight(1);
             return;
           }
-
           if (event.key === "ArrowUp") {
             event.preventDefault();
             if (!open) {
@@ -1844,47 +1762,37 @@ function SearchPicker({
             moveHighlight(-1);
             return;
           }
-
           if (event.key === "Home" && open) {
             event.preventDefault();
             setHighlightedIndex(0);
             return;
           }
-
           if (event.key === "End" && open) {
             event.preventDefault();
             setHighlightedIndex(Math.max(0, filtered.length - 1));
             return;
           }
-
           if (event.key === "Enter" && open) {
             event.preventDefault();
             const highlighted = filtered[highlightedIndex];
             if (highlighted) commitSelection(highlighted);
             return;
           }
-
           if (event.key === "Escape" && open) {
             event.preventDefault();
             setOpen(false);
             onBlur?.();
             return;
           }
-
           if (event.key === "Tab" && open) {
             setOpen(false);
             onBlur?.();
           }
         }}
         inputMode={inputMode}
-        className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({
-          invalid,
-          success,
-          active: open,
-        })}`}
+        className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
         placeholder={placeholder}
       />
-
       <AnimatePresence>
         {open && filtered.length > 0 ? (
           <motion.div
@@ -1911,7 +1819,6 @@ function SearchPicker({
                   option.label.toLowerCase() === value.trim().toLowerCase() ||
                   option.code.toLowerCase() === value.trim().toLowerCase();
                 const isHighlighted = index === highlightedIndex;
-
                 return (
                   <button
                     id={`${name}-picker-option-${index}`}
@@ -1921,9 +1828,7 @@ function SearchPicker({
                     aria-selected={isSelected}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitSelection(option)}
-                    className={`${formOptionRowClass} ${
-                      isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"
-                    }`}
+                    className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
                   >
                     <div className="min-w-0 flex-1">
                       <span className="block truncate text-[15px] text-[#f4efe7] sm:text-sm">
@@ -1946,31 +1851,17 @@ function SearchPicker({
     </div>
   );
 }
-
-function FieldError({
-  id,
-  message,
-}: {
-  id?: string;
-  message?: string;
-}) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-
   return (
     <p id={id} className="mt-2 text-[13px] leading-5 text-[#c98f82]">
       {message}
     </p>
   );
 }
-
-function FieldNote({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function FieldNote({ children }: { children: React.ReactNode }) {
   return <p className="mt-2 text-[13px] leading-5 text-white/36">{children}</p>;
 }
-
 function CinematicScene({
   section,
   active,
@@ -1991,7 +1882,6 @@ function CinematicScene({
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
-
   useEffect(() => {
     setVideoReady(false);
     setShowLoader(false);
@@ -2001,7 +1891,6 @@ function CinematicScene({
     loaderTimerRef.current = window.setTimeout(() => {
       setShowLoader(true);
     }, 220);
-
     return () => {
       if (loaderTimerRef.current) {
         window.clearTimeout(loaderTimerRef.current);
@@ -2009,7 +1898,6 @@ function CinematicScene({
       }
     };
   }, [section.video]);
-
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -2018,7 +1906,6 @@ function CinematicScene({
       loaderTimerRef.current = null;
     }
   };
-
   return (
     <section className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start">
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
@@ -2047,7 +1934,6 @@ function CinematicScene({
             <source src={section.video} type="video/mp4" />
           </video>
         </motion.div>
-
         <AnimatePresence>
           {!videoReady && showLoader ? (
             <motion.div
@@ -2067,12 +1953,10 @@ function CinematicScene({
             </motion.div>
           ) : null}
         </AnimatePresence>
-
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_42%,rgba(0,0,0,0.52)_74%,rgba(0,0,0,0.78))]" />
         <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
       </div>
-
       <div className="relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
         <motion.div
           animate={{
@@ -2080,30 +1964,44 @@ function CinematicScene({
             y: inView ? 0 : 42,
             filter: inView ? "blur(0px)" : "blur(12px)",
           }}
-          transition={{ duration: 0.85, delay: inView ? 0.28 : 0, ease: easeLuxury }}
+          transition={{
+            duration: 0.85,
+            delay: inView ? 0.28 : 0,
+            ease: easeLuxury,
+          }}
           className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
         >
           <motion.p
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
-            transition={{ duration: 0.8, delay: inView ? 0.34 : 0, ease: easeLuxury }}
+            transition={{
+              duration: 0.8,
+              delay: inView ? 0.34 : 0,
+              ease: easeLuxury,
+            }}
             className="max-w-[92vw] text-[clamp(2.4rem,7.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.12em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
-
           {section.line ? (
             <motion.p
               animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
-              transition={{ duration: 0.78, delay: inView ? 0.48 : 0, ease: easeLuxury }}
+              transition={{
+                duration: 0.78,
+                delay: inView ? 0.48 : 0,
+                ease: easeLuxury,
+              }}
               className="mt-4 max-w-[28rem] text-[clamp(0.8rem,1.1vw,0.98rem)] leading-6 tracking-[0.1em] text-white/72 sm:leading-7"
             >
               {section.line}
             </motion.p>
           ) : null}
-
           <motion.div
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 14 }}
-            transition={{ duration: 0.76, delay: inView ? 0.62 : 0, ease: easeLuxury }}
+            transition={{
+              duration: 0.76,
+              delay: inView ? 0.62 : 0,
+              ease: easeLuxury,
+            }}
             className="mt-8"
           >
             {section.href ? (
@@ -2130,7 +2028,6 @@ function CinematicScene({
     </section>
   );
 }
-
 function ExploreFurtherScene({
   active,
   goTo,
@@ -2161,7 +2058,6 @@ function ExploreFurtherScene({
       route: "/waitlist" as Route,
     },
   ];
-
   return (
     <section className="relative isolate flex min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
@@ -2178,7 +2074,6 @@ function ExploreFurtherScene({
             Continue your journey
           </p>
         </div>
-
         <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
             <motion.button
@@ -2215,7 +2110,6 @@ function ExploreFurtherScene({
     </section>
   );
 }
-
 function HomeFooterScene({
   goTo,
   whatsappGeneralLink,
@@ -2242,7 +2136,6 @@ function HomeFooterScene({
               Praeliator
             </p>
           </div>
-
           <div className="mt-14 grid gap-10 md:grid-cols-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto]">
             <div className="space-y-5">
               <button
@@ -2267,7 +2160,6 @@ function HomeFooterScene({
                 Waitlist
               </button>
             </div>
-
             <div className="space-y-5">
               <button
                 type="button"
@@ -2285,7 +2177,6 @@ function HomeFooterScene({
                 Private Inquiry
               </a>
             </div>
-
             <div className="space-y-5">
               <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
                 Presentation
@@ -2294,7 +2185,6 @@ function HomeFooterScene({
                 Ownership
               </p>
             </div>
-
             <div className="space-y-5">
               <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
                 Hand-assembled
@@ -2303,7 +2193,6 @@ function HomeFooterScene({
                 Top-grain leather
               </p>
             </div>
-
             <div className="flex items-start justify-start gap-5 md:justify-end">
               <a
                 href={instagramLink}
@@ -2313,7 +2202,10 @@ function HomeFooterScene({
               >
                 <Instagram className="h-6 w-6" />
               </a>
-              <a href={emailLink} className="text-white/72 transition hover:text-white">
+              <a
+                href={emailLink}
+                className="text-white/72 transition hover:text-white"
+              >
                 <Mail className="h-6 w-6" />
               </a>
               <a
@@ -2331,7 +2223,6 @@ function HomeFooterScene({
     </section>
   );
 }
-
 function HomeTailScene({
   active,
   goTo,
@@ -2365,7 +2256,6 @@ function HomeTailScene({
   );
 }
 
-
 function PraeliatorMonogramIcon({
   open = false,
   className = "",
@@ -2381,22 +2271,37 @@ function PraeliatorMonogramIcon({
   const mode: MonogramMode = open ? "open" : hovered ? "hover" : "closed";
 
   return (
-    <div
+    <motion.div
       className={`relative isolate ${className}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       aria-hidden="true"
+      animate={{
+        scale: open ? 1.04 : hovered ? 1.02 : 1,
+        rotate: open ? 0 : hovered ? -1.2 : 0,
+        y: open ? 0 : hovered ? -0.5 : 0,
+      }}
+      transition={{ duration: 0.7, ease: easeLuxury }}
     >
       {glow ? (
         <motion.div
           className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#caa57f]/20 blur-xl"
           animate={{
-            opacity: open ? 0.95 : hovered ? 0.72 : 0.42,
-            scale: open ? 1.18 : hovered ? 1.06 : 0.9,
+            opacity: open ? 0.98 : hovered ? 0.78 : 0.44,
+            scale: open ? 1.24 : hovered ? 1.08 : 0.9,
           }}
-          transition={{ duration: 0.6, ease: easeLuxury }}
+          transition={{ duration: 0.7, ease: easeLuxury }}
         />
       ) : null}
+
+      <motion.div
+        className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.06]"
+        animate={{
+          opacity: open ? 0.9 : hovered ? 0.42 : 0.18,
+          scale: open ? 1 : hovered ? 0.98 : 0.94,
+        }}
+        transition={{ duration: 0.7, ease: easeLuxury }}
+      />
 
       <div className="relative h-full w-full">
         {monogramPieces.map((piece, index) => {
@@ -2419,6 +2324,7 @@ function PraeliatorMonogramIcon({
                 maskPosition: "center",
                 transformOrigin: "center center",
                 willChange: "transform, opacity",
+                filter: "drop-shadow(0 0 12px rgba(212,176,139,0.08))",
               }}
               animate={{
                 x: pose.x,
@@ -2428,29 +2334,75 @@ function PraeliatorMonogramIcon({
                 opacity: pose.opacity,
               }}
               transition={{
-                duration: 0.72,
-                delay: index * 0.018,
+                duration: open ? 0.9 : 0.72,
+                delay: index * 0.02,
                 ease: easeLuxury,
               }}
             />
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 function HeaderBrandMark({
-  useMonogram,
+  mode,
   onClick,
-  wordmarkBroken,
-  onWordmarkError,
+  assetsBroken,
+  onAssetError,
 }: {
-  useMonogram: boolean;
+  mode: HeaderBrandMode;
   onClick: () => void;
-  wordmarkBroken: boolean;
-  onWordmarkError: () => void;
+  assetsBroken: boolean;
+  onAssetError: () => void;
 }) {
+  const prefersReducedMotion = useReducedMotion();
+  const isWordmarkMode = mode === "wordmark";
+  const isAssemblyMode = mode === "assembly";
+  const isMonogramMode = mode === "monogram";
+
+  const wordmarkWidth = prefersReducedMotion
+    ? isWordmarkMode
+      ? "13.4rem"
+      : "0rem"
+    : isWordmarkMode
+      ? "13.4rem"
+      : isAssemblyMode
+        ? "3.2rem"
+        : "0rem";
+
+  const wordmarkOffsetX = prefersReducedMotion
+    ? "0%"
+    : isWordmarkMode
+      ? "0%"
+      : "29.75%";
+
+  if (assetsBroken) {
+    return (
+      <motion.button
+        type="button"
+        onClick={onClick}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
+        className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+        aria-label="Praeliator home"
+      >
+        {isMonogramMode ? (
+          <PraeliatorMonogramIcon open className="h-10 w-10 sm:h-11 sm:w-11" />
+        ) : (
+          <img
+            src={brandAssetPaths.wordmark}
+            alt="Praeliator"
+            className="h-9 w-auto object-contain opacity-92 sm:h-10"
+            onError={onAssetError}
+          />
+        )}
+      </motion.button>
+    );
+  }
+
   return (
     <motion.button
       type="button"
@@ -2458,45 +2410,109 @@ function HeaderBrandMark({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+      className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       aria-label="Praeliator home"
     >
-      <AnimatePresence mode="wait" initial={false}>
-        {useMonogram ? (
+      <div className="relative flex h-12 min-w-[3rem] items-center justify-center">
+        <motion.div
+          className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+          animate={{
+            width: wordmarkWidth,
+            opacity: isMonogramMode ? 0 : 1,
+            filter: isMonogramMode ? "blur(8px)" : "blur(0px)",
+          }}
+          transition={{
+            duration: prefersReducedMotion ? 0.35 : 1.05,
+            ease: easeLuxury,
+          }}
+        >
+          <motion.img
+            src={brandAssetPaths.headerWordmark}
+            alt="Praeliator"
+            className="h-full w-auto max-w-none object-contain opacity-[0.96]"
+            onError={onAssetError}
+            animate={{
+              x: wordmarkOffsetX,
+              scale: isWordmarkMode ? 1 : 0.992,
+              opacity: isMonogramMode ? 0 : 1,
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.35 : 1.05,
+              ease: easeLuxury,
+            }}
+          />
+
           <motion.div
-            key="header-monogram"
-            initial={{ opacity: 0, scale: 0.84, y: 8, filter: "blur(8px)" }}
-            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.9, y: -6, filter: "blur(6px)" }}
-            transition={{ duration: 0.72, ease: easeLuxury }}
-            className="flex h-12 w-12 items-center justify-center"
-          >
-            <PraeliatorMonogramIcon open className="h-10 w-10 sm:h-11 sm:w-11" />
-          </motion.div>
-        ) : (
+            className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-[linear-gradient(270deg,rgba(5,5,5,0.98),rgba(5,5,5,0.74),rgba(5,5,5,0))]"
+            animate={{ opacity: isAssemblyMode ? 1 : 0 }}
+            transition={{
+              duration: prefersReducedMotion ? 0.25 : 0.8,
+              ease: easeLuxury,
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="pointer-events-none absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2"
+          animate={{
+            opacity: isWordmarkMode ? 0 : 1,
+            scale: isAssemblyMode ? 1.025 : 1,
+            filter: isWordmarkMode ? "blur(8px)" : "blur(0px)",
+          }}
+          transition={{
+            duration: prefersReducedMotion ? 0.35 : 0.9,
+            ease: easeLuxury,
+          }}
+        >
           <motion.div
-            key="header-wordmark"
-            initial={{ opacity: 0, scale: 0.96, y: 8, filter: "blur(8px)" }}
-            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.98, y: -6, filter: "blur(6px)" }}
-            transition={{ duration: 0.72, ease: easeLuxury }}
-            className="flex items-center justify-center"
-          >
-            {!wordmarkBroken ? (
-              <img
-                src={brandAssetPaths.wordmark}
-                alt="Praeliator"
-                className="h-9 w-auto object-contain opacity-92 sm:h-10"
-                onError={onWordmarkError}
-              />
-            ) : (
-              <span className="font-serif text-[1.7rem] tracking-[0.12em] text-[#d7b797] sm:text-[1.95rem]">
-                P
-              </span>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            className="absolute inset-0 rounded-full bg-[#d2b18b]/18 blur-xl"
+            animate={{
+              opacity: isWordmarkMode ? 0 : isAssemblyMode ? 0.9 : 0.72,
+              scale: isAssemblyMode ? 1.1 : 1,
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.3 : 0.8,
+              ease: easeLuxury,
+            }}
+          />
+
+          <motion.img
+            src={brandAssetPaths.headerMonogramMark}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-contain"
+            onError={onAssetError}
+            animate={{
+              opacity: isWordmarkMode ? 0 : 1,
+              scale: isAssemblyMode ? 1.01 : 1,
+              y: isAssemblyMode ? -0.5 : 0,
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.3 : 0.72,
+              ease: easeLuxury,
+            }}
+          />
+
+          <motion.img
+            src={brandAssetPaths.headerLaurelMark}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-contain"
+            onError={onAssetError}
+            animate={{
+              opacity: isWordmarkMode ? 0 : 1,
+              y: isAssemblyMode ? 5 : 0,
+              scale: isAssemblyMode ? 1.035 : 1,
+              filter: isAssemblyMode ? "blur(0px)" : "blur(0px)",
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.35 : 0.92,
+              delay: prefersReducedMotion ? 0 : isAssemblyMode ? 0.1 : 0,
+              ease: easeLuxury,
+            }}
+          />
+        </motion.div>
+      </div>
     </motion.button>
   );
 }
@@ -2521,10 +2537,7 @@ function FullScreenCinematicHomepage({
         video: string;
         poster: string;
       }
-    | {
-        key: string;
-        kind: "tail";
-      }
+    | { key: string; kind: "tail" }
   >;
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
@@ -2538,110 +2551,98 @@ function FullScreenCinematicHomepage({
   const touchStartYRef = useRef<number | null>(null);
   const tailScrollRef = useRef<HTMLDivElement | null>(null);
   const tailIndex = sections.findIndex((section) => section.kind === "tail");
-
   useEffect(() => {
     onActiveIndexChange?.(activeIndex);
   }, [activeIndex, onActiveIndexChange]);
-
   const goToIndex = (nextIndex: number) => {
     const clamped = Math.max(0, Math.min(sections.length - 1, nextIndex));
     if (clamped === activeIndex || isAnimating) return;
-
     setIsAnimating(true);
     setActiveIndex(clamped);
-
     if (unlockTimerRef.current) {
       window.clearTimeout(unlockTimerRef.current);
     }
-
     unlockTimerRef.current = window.setTimeout(() => {
       setIsAnimating(false);
       unlockTimerRef.current = null;
     }, 950);
   };
-
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
     };
   }, []);
-
   useEffect(() => {
     if (tailIndex < 0) return;
     if (activeIndex !== tailIndex && tailScrollRef.current) {
       tailScrollRef.current.scrollTo({ top: 0, behavior: "auto" });
     }
   }, [activeIndex, tailIndex]);
-
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
       const tailNode = tailScrollRef.current;
       const inTail = tailIndex >= 0 && activeIndex === tailIndex;
-
       if (inTail && tailNode) {
         const atTop = tailNode.scrollTop <= 2;
         const atBottom =
-          tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
-
+          tailNode.scrollTop + tailNode.clientHeight >=
+          tailNode.scrollHeight - 2;
         if (event.deltaY > 0 && !atBottom) {
           return;
         }
-
         if (event.deltaY < 0 && !atTop) {
           return;
         }
-
         if (event.deltaY > 0 && atBottom) {
           return;
         }
       }
-
       event.preventDefault();
       if (isAnimating || Math.abs(event.deltaY) < 24) return;
       goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1));
     };
-
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-
+      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+        return;
       const tailNode = tailScrollRef.current;
       const inTail = tailIndex >= 0 && activeIndex === tailIndex;
       if (inTail && tailNode) {
         const atTop = tailNode.scrollTop <= 2;
         const atBottom =
-          tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
-
+          tailNode.scrollTop + tailNode.clientHeight >=
+          tailNode.scrollHeight - 2;
         if (["ArrowDown", "PageDown", " "].includes(event.key) && !atBottom) {
           return;
         }
-
         if (["ArrowUp", "PageUp"].includes(event.key) && !atTop) {
           return;
         }
-
         if (event.key === "End") {
           return;
         }
       }
-
       if (isAnimating) {
         if (
-          ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(
-            event.key
-          )
+          [
+            "ArrowDown",
+            "ArrowUp",
+            "PageDown",
+            "PageUp",
+            "Home",
+            "End",
+            " ",
+          ].includes(event.key)
         ) {
           event.preventDefault();
         }
         return;
       }
-
       if (["ArrowDown", "PageDown", " "].includes(event.key)) {
         event.preventDefault();
         goToIndex(activeIndex + 1);
@@ -2656,30 +2657,23 @@ function FullScreenCinematicHomepage({
         goToIndex(sections.length - 1);
       }
     };
-
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
-
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [activeIndex, isAnimating, sections.length, tailIndex]);
-
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     touchStartYRef.current = event.touches[0]?.clientY ?? null;
   };
-
   const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
     const startY = touchStartYRef.current;
     const endY = event.changedTouches[0]?.clientY ?? null;
     touchStartYRef.current = null;
-
     if (startY === null || endY === null || isAnimating) return;
-
     const deltaY = startY - endY;
     if (Math.abs(deltaY) < 42) return;
-
     const tailNode = tailScrollRef.current;
     const inTail = tailIndex >= 0 && activeIndex === tailIndex;
     if (inTail && tailNode) {
@@ -2688,10 +2682,8 @@ function FullScreenCinematicHomepage({
         return;
       }
     }
-
     goToIndex(activeIndex + (deltaY > 0 ? 1 : -1));
   };
-
   return (
     <div
       className="relative h-[100svh] overflow-hidden bg-[#040404]"
@@ -2713,7 +2705,6 @@ function FullScreenCinematicHomepage({
               />
             );
           }
-
           return (
             <HomeTailScene
               key={section.key}
@@ -2730,155 +2721,32 @@ function FullScreenCinematicHomepage({
     </div>
   );
 }
-
 function BrowserFormStyles() {
   return (
-    <style>{`
-      .browser-form-element {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        color-scheme: dark;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-        font-size: 16px;
-      }
-
-      @media (min-width: 640px) {
-        .browser-form-element {
-          font-size: 0.875rem;
-        }
-      }
-
-      .browser-form-element:focus-visible,
-      button[role='combobox']:focus-visible {
-        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06);
-      }
-
-      .browser-form-element:-webkit-autofill,
-      .browser-form-element:-webkit-autofill:hover,
-      .browser-form-element:-webkit-autofill:focus,
-      .browser-form-element:-webkit-autofill:active {
-        -webkit-text-fill-color: #f4efe7;
-        caret-color: #f4efe7;
-        box-shadow: 0 0 0 1000px #0c0b0a inset;
-        -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
-        border-color: rgba(255, 255, 255, 0.08);
-        transition: background-color 999999s ease-out 0s;
-      }
-
-      .browser-form-element::selection {
-        background: rgba(239, 229, 215, 0.16);
-        color: #f4efe7;
-      }
-
-      .browser-form-element::-webkit-calendar-picker-indicator {
-        filter: invert(0.92) opacity(0.68);
-      }
-
-      .browser-form-element::-ms-reveal,
-      .browser-form-element::-ms-clear,
-      .browser-form-element::-webkit-contacts-auto-fill-button,
-      .browser-form-element::-webkit-credentials-auto-fill-button {
-        filter: invert(0.92) opacity(0.68);
-      }
-
-      .browser-form-element[type='number']::-webkit-outer-spin-button,
-      .browser-form-element[type='number']::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-
-      .browser-form-element[type='number'] {
-        -moz-appearance: textfield;
-      }
-
-      .browser-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908;
-      }
-
-      .browser-scrollbar::-webkit-scrollbar {
-        width: 10px;
-      }
-
-      .browser-scrollbar::-webkit-scrollbar-track {
-        background: #0a0908;
-      }
-
-      .browser-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(244, 239, 231, 0.14);
-        border-radius: 9999px;
-        border: 2px solid #0a0908;
-      }
-
-      .browser-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(244, 239, 231, 0.22);
-      }
-
-      .browser-submit-spinner {
-        width: 1rem;
-        height: 1rem;
-        border-radius: 9999px;
-        border: 2px solid rgba(21, 18, 16, 0.22);
-        border-top-color: #151210;
-        animation: browser-spin 0.8s linear infinite;
-      }
-
-      .video-loader-logo {
-        animation: praeliatorLoaderPulse 2.8s ease-in-out infinite;
-      }
-
-      @keyframes browser-spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      @keyframes praeliatorLoaderPulse {
-        0% {
-          opacity: 0.68;
-          transform: scale(0.965);
-        }
-
-        50% {
-          opacity: 1;
-          transform: scale(1);
-        }
-
-        100% {
-          opacity: 0.68;
-          transform: scale(0.965);
-        }
-      }
-    `}</style>
+    <style>{`.browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
   );
 }
-
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
     `${whatsappBase}?text=${encodeURIComponent(message)}`;
-
   const whatsappGeneralLink = createWhatsAppLink(
-    "Hello Praeliator, I would like to inquire about a private purchase."
+    "Hello Praeliator, I would like to inquire about a private purchase.",
   );
   const whatsappVisLink = createWhatsAppLink(
-    "Hello Praeliator, I would like to inquire about Praeliator VIS."
+    "Hello Praeliator, I would like to inquire about Praeliator VIS.",
   );
   const whatsappWaitlistFollowUpLink = createWhatsAppLink(
-    "Hello Praeliator, I joined the waitlist and would like to follow up."
+    "Hello Praeliator, I joined the waitlist and would like to follow up.",
   );
   const emailLink =
     "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
   const instagramLink = "https://instagram.com/praeliatorboxing";
   const waitlistEndpoint = "/api/private-client-intake";
-
   const [route, setRoute] = useState<Route>(() => {
     if (typeof window === "undefined") return "/";
     return normalizePath(window.location.pathname);
   });
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [homeSectionIndex, setHomeSectionIndex] = useState(0);
@@ -2897,15 +2765,14 @@ export default function PraeliatorWebsite() {
   const [waitlistHoneypot, setWaitlistHoneypot] = useState("");
   const [waitlistCooldownUntil, setWaitlistCooldownUntil] = useState(0);
   const [waitlistStarted, setWaitlistStarted] = useState(false);
-  const [waitlistStartedAt, setWaitlistStartedAt] = useState<number | null>(null);
+  const [waitlistStartedAt, setWaitlistStartedAt] = useState<number | null>(
+    null,
+  );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
-
   const reduceMotion = useReducedMotion();
-
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
       if (typeof window === "undefined") return;
-
       const payload = {
         event: WAITLIST_ANALYTICS_EVENT,
         event_name: name,
@@ -2913,47 +2780,40 @@ export default function PraeliatorWebsite() {
         timestamp: Date.now(),
         ...detail,
       };
-
       const analyticsWindow = window as Window & {
         dataLayer?: Array<Record<string, unknown>>;
       };
-
       analyticsWindow.dataLayer?.push(payload);
-      window.dispatchEvent(new CustomEvent("praeliator:analytics", { detail: payload }));
+      window.dispatchEvent(
+        new CustomEvent("praeliator:analytics", { detail: payload }),
+      );
     },
-    [route]
+    [route],
   );
-
   useEffect(() => {
     const storedCooldown =
       typeof window !== "undefined"
         ? Number(window.localStorage.getItem(WAITLIST_COOLDOWN_KEY) || "0")
         : 0;
-
     if (storedCooldown > Date.now()) {
       setWaitlistCooldownUntil(storedCooldown);
     }
-
     return () => {
       waitlistRequestControllerRef.current?.abort();
     };
   }, []);
-
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [route]);
-
   useEffect(() => {
     if (route !== "/") {
       setHomeSectionIndex(0);
     }
   }, [route]);
-
   useEffect(() => {
     if (route !== "/waitlist") return;
     trackWaitlistEvent("waitlist_view");
   }, [route, trackWaitlistEvent]);
-
   useEffect(() => {
     if (!waitlistCooldownUntil) return;
     if (waitlistCooldownUntil <= Date.now()) {
@@ -2963,7 +2823,6 @@ export default function PraeliatorWebsite() {
       }
       return;
     }
-
     const timer = window.setInterval(() => {
       if (waitlistCooldownUntil <= Date.now()) {
         setWaitlistCooldownUntil(0);
@@ -2972,84 +2831,71 @@ export default function PraeliatorWebsite() {
         }
       }
     }, 1000);
-
     return () => window.clearInterval(timer);
   }, [waitlistCooldownUntil]);
-
   useEffect(() => {
     const handlePopState = () => {
       setRoute(normalizePath(window.location.pathname));
       window.scrollTo({ top: 0, behavior: "auto" });
     };
-
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
-
   useEffect(() => {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
-
   useEffect(() => {
     if (reduceMotion || route === "/") return;
-
     const isTouchDevice =
       typeof window !== "undefined" &&
       (window.matchMedia("(pointer: coarse)").matches ||
         "ontouchstart" in window ||
         navigator.maxTouchPoints > 0);
-
     if (isTouchDevice) return;
-
     const lenis = new Lenis({
       duration: 0.95,
       smoothWheel: true,
       wheelMultiplier: 0.88,
     });
-
     let rafId = 0;
-
     const raf = (time: number) => {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     };
-
     rafId = requestAnimationFrame(raf);
-
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, [reduceMotion, route]);
-
   const currentPurchaseLink = useMemo(() => {
     if (route === "/praeliator-vis") return whatsappVisLink;
     if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
     return whatsappGeneralLink;
   }, [route]);
-
-  const useMonogramHeader = route !== "/" || homeSectionIndex > 0;
-
+  const headerBrandMode: HeaderBrandMode =
+    route !== "/"
+      ? "monogram"
+      : homeSectionIndex === 0
+        ? "wordmark"
+        : homeSectionIndex === 1
+          ? "assembly"
+          : "monogram";
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
-
       if (current !== nextRoute) {
         window.history.pushState({}, "", nextRoute);
       }
-
       window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
     }
-
     setRoute(nextRoute);
     setMobileMenuOpen(false);
   };
-
   const getWaitlistCooldownSeconds = () =>
     waitlistCooldownUntil > Date.now()
       ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000)
       : 0;
-
   const markWaitlistStarted = (source: string) => {
     if (waitlistStarted) return;
     const startedAt = Date.now();
@@ -3057,37 +2903,32 @@ export default function PraeliatorWebsite() {
     setWaitlistStartedAt(startedAt);
     trackWaitlistEvent("waitlist_started", { source });
   };
-
   const markWaitlistFieldTouched = (field: WaitlistFieldName) => {
     setWaitlistTouched((current) => ({ ...current, [field]: true }));
   };
-
   const markWaitlistFieldsTouched = (fields: WaitlistFieldName[]) => {
     setWaitlistTouched((current) => ({
       ...current,
       ...Object.fromEntries(fields.map((field) => [field, true])),
     }));
   };
-
   const getVisibleFieldError = (field: WaitlistFieldName) =>
     waitlistTouched[field] ? waitlistErrors[field] : undefined;
-
   const getFieldDescribedBy = (field: WaitlistFieldName) =>
     getVisibleFieldError(field) ? `${field}-error` : undefined;
-
   const getFieldSuccess = (field: WaitlistFieldName) => {
     if (!waitlistTouched[field]) return false;
     if (waitlistErrors[field]) return false;
     const value = waitlistForm[field];
     return typeof value === "string" ? value.trim().length > 0 : false;
   };
-
   const updateWaitlistForm = (
-    updater: (current: typeof initialWaitlistForm) => typeof initialWaitlistForm
+    updater: (
+      current: typeof initialWaitlistForm,
+    ) => typeof initialWaitlistForm,
   ) => {
     setWaitlistForm((current) => {
       const next = updater(current);
-
       if (waitlistState.success || waitlistState.error) {
         setWaitlistState((state) => ({
           ...state,
@@ -3097,24 +2938,26 @@ export default function PraeliatorWebsite() {
           serviceMessage: "",
         }));
       }
-
       if (Object.keys(waitlistTouched).length > 0) {
         setWaitlistErrors(validateWaitlistForm(next));
       }
-
       return next;
     });
   };
-
   const handleWaitlistChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const field = event.target.name as WaitlistFieldName;
-    const value = normalizeWaitlistFieldValue(field, event.target.value, "change");
+    const value = normalizeWaitlistFieldValue(
+      field,
+      event.target.value,
+      "change",
+    );
     markWaitlistStarted(`field:${field}`);
     updateWaitlistForm((current) => ({ ...current, [field]: value }));
   };
-
   const handleWaitlistBlur = (field: WaitlistFieldName) => {
     markWaitlistFieldTouched(field);
     updateWaitlistForm((current) => {
@@ -3133,19 +2976,19 @@ export default function PraeliatorWebsite() {
       return normalized;
     });
   };
-
   const handleWaitlistSelectChange = (
     field: WaitlistFieldName,
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     markWaitlistFieldTouched(field);
     markWaitlistStarted(`select:${field}`);
     handleWaitlistChange(event);
   };
-
   const handleCountryChange = (
     value: string,
-    matchedOption?: { label: string; code: string }
+    matchedOption?: { label: string; code: string },
   ) => {
     markWaitlistStarted("field:country");
     updateWaitlistForm((current) => {
@@ -3153,28 +2996,33 @@ export default function PraeliatorWebsite() {
         ...current,
         country: normalizeWaitlistFieldValue("country", value, "change"),
         phoneCountryCode: matchedOption
-          ? normalizeWaitlistFieldValue("phoneCountryCode", matchedOption.code, "change")
+          ? normalizeWaitlistFieldValue(
+              "phoneCountryCode",
+              matchedOption.code,
+              "change",
+            )
           : current.phoneCountryCode,
       };
-
       if (waitlistTouched.country || waitlistTouched.phoneCountryCode) {
         setWaitlistErrors(validateWaitlistForm(next));
       }
-
       return next;
     });
   };
-
   const handleCountryBlur = () => {
     markWaitlistFieldsTouched(["country", "phoneCountryCode"]);
     updateWaitlistForm((current) => {
       const normalized = {
         ...current,
-        country: normalizeWaitlistFieldValue("country", current.country, "blur"),
+        country: normalizeWaitlistFieldValue(
+          "country",
+          current.country,
+          "blur",
+        ),
         phoneCountryCode: normalizeWaitlistFieldValue(
           "phoneCountryCode",
           current.phoneCountryCode,
-          "blur"
+          "blur",
         ),
       };
       const nextErrors = validateWaitlistForm(normalized);
@@ -3188,11 +3036,11 @@ export default function PraeliatorWebsite() {
       return normalized;
     });
   };
-
-  const handleWaitlistSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleWaitlistSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     markWaitlistStarted("submit");
-
     const cooldownSeconds = getWaitlistCooldownSeconds();
     if (cooldownSeconds > 0) {
       setWaitlistState({
@@ -3208,7 +3056,6 @@ export default function PraeliatorWebsite() {
       });
       return;
     }
-
     if (waitlistHoneypot.trim()) {
       setWaitlistState({
         loading: false,
@@ -3220,14 +3067,11 @@ export default function PraeliatorWebsite() {
       trackWaitlistEvent("waitlist_submit_blocked", { reason: "honeypot" });
       return;
     }
-
     const normalizedForm = normalizeWaitlistForm(waitlistForm);
     const nextErrors = validateWaitlistForm(normalizedForm);
-
     setWaitlistForm(normalizedForm);
     setWaitlistErrors(nextErrors);
     markWaitlistFieldsTouched(waitlistRequiredFields);
-
     if (Object.keys(nextErrors).length > 0) {
       setWaitlistState({
         loading: false,
@@ -3241,7 +3085,6 @@ export default function PraeliatorWebsite() {
       });
       return;
     }
-
     setWaitlistState({
       loading: true,
       success: false,
@@ -3249,28 +3092,26 @@ export default function PraeliatorWebsite() {
       reference: "",
       serviceMessage: "",
     });
-
     trackWaitlistEvent("waitlist_submit_attempt", {
       interest: normalizedForm.interest,
       timeline: normalizedForm.timeline,
       contactPreference: normalizedForm.contactPreference,
     });
-
     const controller = new AbortController();
     waitlistRequestControllerRef.current?.abort();
     waitlistRequestControllerRef.current = controller;
     const timeoutId = window.setTimeout(
       () => controller.abort(),
-      WAITLIST_REQUEST_TIMEOUT_MS
+      WAITLIST_REQUEST_TIMEOUT_MS,
     );
-
     const payload = {
       title: normalizedForm.title,
       fullName: normalizedForm.fullName,
       email: normalizedForm.email,
       phoneCountryCode: normalizedForm.phoneCountryCode,
       phoneNumber: normalizedForm.whatsapp,
-      fullPhone: `${normalizedForm.phoneCountryCode} ${normalizedForm.whatsapp}`.trim(),
+      fullPhone:
+        `${normalizedForm.phoneCountryCode} ${normalizedForm.whatsapp}`.trim(),
       country: normalizedForm.country,
       interest: normalizedForm.interest,
       timeline: normalizedForm.timeline,
@@ -3287,7 +3128,6 @@ export default function PraeliatorWebsite() {
           ? Intl.DateTimeFormat().resolvedOptions().timeZone
           : undefined,
     };
-
     try {
       const response = await fetch(waitlistEndpoint, {
         method: "POST",
@@ -3299,23 +3139,21 @@ export default function PraeliatorWebsite() {
         body: JSON.stringify(payload),
         signal: controller.signal,
       });
-
       const result = await response.json();
-
       if (!response.ok || !result?.success) {
         throw new Error(result?.error || "Submission failed.");
       }
-
       const nextCooldownUntil = Date.now() + WAITLIST_COOLDOWN_MS;
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(WAITLIST_COOLDOWN_KEY, String(nextCooldownUntil));
+        window.localStorage.setItem(
+          WAITLIST_COOLDOWN_KEY,
+          String(nextCooldownUntil),
+        );
       }
       setWaitlistCooldownUntil(nextCooldownUntil);
-
       const completionSeconds = waitlistStartedAt
         ? Math.max(1, Math.round((Date.now() - waitlistStartedAt) / 1000))
         : undefined;
-
       setWaitlistState({
         loading: false,
         success: true,
@@ -3342,7 +3180,6 @@ export default function PraeliatorWebsite() {
           : error instanceof Error
             ? error.message
             : "Submission failed. Please try again or contact Praeliator directly by WhatsApp.";
-
       setWaitlistState({
         loading: false,
         success: false,
@@ -3356,7 +3193,6 @@ export default function PraeliatorWebsite() {
       waitlistRequestControllerRef.current = null;
     }
   };
-
   const renderHomePage = () => {
     const cinematicSections = [
       {
@@ -3389,12 +3225,8 @@ export default function PraeliatorWebsite() {
         video: homeCinematicMedia.acquisition.video,
         poster: homeCinematicMedia.acquisition.poster,
       },
-      {
-        key: "tail",
-        kind: "tail" as const,
-      },
+      { key: "tail", kind: "tail" as const },
     ];
-
     return (
       <FullScreenCinematicHomepage
         sections={cinematicSections}
@@ -3406,7 +3238,6 @@ export default function PraeliatorWebsite() {
       />
     );
   };
-
   const renderVisPage = () => (
     <>
       <PageHeroBanner
@@ -3432,11 +3263,11 @@ export default function PraeliatorWebsite() {
           video: homeCinematicMedia.vis.video,
           badge: "Praeliator VIS",
           overlayTitle: "Restrained by design.",
-          overlayText: "A controlled silhouette for disciplined training and technical sparring.",
+          overlayText:
+            "A controlled silhouette for disciplined training and technical sparring.",
         }}
         stats={pageHeroStats["/praeliator-vis"]}
       />
-
       <EditorialBlock
         eyebrow="Material"
         title="Luxury is not louder. It is more resolved."
@@ -3458,12 +3289,13 @@ export default function PraeliatorWebsite() {
               <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                 {block.title}
               </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">{block.text}</p>
+              <p className="mt-3 text-sm leading-7 text-white/62">
+                {block.text}
+              </p>
             </div>
           ))}
         </div>
       </EditorialBlock>
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[1.04fr_0.96fr]">
@@ -3477,7 +3309,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </Reveal>
-
             <div className="grid gap-8">
               <Reveal delay={0.08}>
                 <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
@@ -3504,7 +3335,6 @@ export default function PraeliatorWebsite() {
                   </div>
                 </div>
               </Reveal>
-
               <Reveal delay={0.12}>
                 <MediaSurface
                   src={visImageSources.plate}
@@ -3526,7 +3356,6 @@ export default function PraeliatorWebsite() {
           </div>
         </Container>
       </section>
-
       <EditorialBlock
         eyebrow="Presentation"
         title="The object extends beyond the glove."
@@ -3547,7 +3376,9 @@ export default function PraeliatorWebsite() {
             </p>
             <div className="mt-4 space-y-3">
               {visPackaging.map((item) => (
-                <p key={item} className="text-sm leading-7 text-white/62">{item}</p>
+                <p key={item} className="text-sm leading-7 text-white/62">
+                  {item}
+                </p>
               ))}
             </div>
           </div>
@@ -3561,7 +3392,6 @@ export default function PraeliatorWebsite() {
           </div>
         </div>
       </EditorialBlock>
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
@@ -3573,7 +3403,9 @@ export default function PraeliatorWebsite() {
                 <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                   {constructionEvidence.map((item) => (
                     <div key={item.label} className="py-5">
-                      <h3 className="text-lg font-medium text-[#f4efe7]">{item.label}</h3>
+                      <h3 className="text-lg font-medium text-[#f4efe7]">
+                        {item.label}
+                      </h3>
                       <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
                         {item.value}
                       </p>
@@ -3582,7 +3414,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </Reveal>
-
             <Reveal delay={0.08}>
               <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3592,7 +3423,8 @@ export default function PraeliatorWebsite() {
                   Praeliator Legacy Refresh
                 </h3>
                 <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  Available after the first year, this service supports longevity through maintenance rather than replacement culture.
+                  Available after the first year, this service supports
+                  longevity through maintenance rather than replacement culture.
                 </p>
                 <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                   {visService.map((item) => (
@@ -3620,7 +3452,6 @@ export default function PraeliatorWebsite() {
       </section>
     </>
   );
-
   const renderAcquisitionPage = () => (
     <>
       <PageHeroBanner
@@ -3629,8 +3460,16 @@ export default function PraeliatorWebsite() {
         description="Each qualified inquiry is reviewed and carried through direct contact. The route stays controlled from first contact to delivery and aftercare."
         note="Inquiry · review · allocation · delivery"
         actions={[
-          { label: "Begin Inquiry", href: whatsappGeneralLink, variant: "primary" },
-          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+          {
+            label: "Begin Inquiry",
+            href: whatsappGeneralLink,
+            variant: "primary",
+          },
+          {
+            label: "Join Waitlist",
+            onClick: () => goTo("/waitlist"),
+            variant: "secondary",
+          },
         ]}
         media={{
           image: visImageSources.packaging,
@@ -3642,7 +3481,6 @@ export default function PraeliatorWebsite() {
         }}
         stats={pageHeroStats["/acquisition"]}
       />
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
@@ -3655,14 +3493,15 @@ export default function PraeliatorWebsite() {
                   <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
                     {item.title}
                   </h3>
-                  <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
+                  <p className="mt-4 text-sm leading-7 text-white/62">
+                    {item.text}
+                  </p>
                 </div>
               </Reveal>
             ))}
           </div>
         </Container>
       </section>
-
       <EditorialBlock
         eyebrow="Trust architecture"
         title="Control matters before the product arrives."
@@ -3671,7 +3510,8 @@ export default function PraeliatorWebsite() {
           image: visImageSources.hero,
           alt: "Praeliator acquisition media",
           overlayTitle: "Allocation with continuity.",
-          overlayText: "The route stays recorded from first contact to aftercare.",
+          overlayText:
+            "The route stays recorded from first contact to aftercare.",
         }}
       >
         <div className="grid gap-4">
@@ -3683,12 +3523,13 @@ export default function PraeliatorWebsite() {
               <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                 {item.title}
               </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+              <p className="mt-3 text-sm leading-7 text-white/62">
+                {item.text}
+              </p>
             </div>
           ))}
         </div>
       </EditorialBlock>
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
@@ -3702,7 +3543,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </Reveal>
-
             <Reveal delay={0.08}>
               <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3712,14 +3552,20 @@ export default function PraeliatorWebsite() {
                   Direct inquiry or quiet registration
                 </h3>
                 <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  Some clients want immediate contact. Others want a recorded path into future releases. Both options remain available within the same brand language.
+                  Some clients want immediate contact. Others want a recorded
+                  path into future releases. Both options remain available
+                  within the same brand language.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
                     className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
-                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                    <a
+                      href={whatsappGeneralLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       Begin Inquiry
                     </a>
                   </Button>
@@ -3739,7 +3585,6 @@ export default function PraeliatorWebsite() {
       </section>
     </>
   );
-
   const renderWaitlistPage = () => (
     <>
       <PageHeroBanner
@@ -3748,8 +3593,16 @@ export default function PraeliatorWebsite() {
         description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
         note="Future releases · collector interest · private follow-up"
         actions={[
-          { label: "Direct Inquiry", href: whatsappGeneralLink, variant: "primary" },
-          { label: "Contact", onClick: () => goTo("/contact"), variant: "secondary" },
+          {
+            label: "Direct Inquiry",
+            href: whatsappGeneralLink,
+            variant: "primary",
+          },
+          {
+            label: "Contact",
+            onClick: () => goTo("/contact"),
+            variant: "secondary",
+          },
         ]}
         media={{
           image: homeImageSources.presentation,
@@ -3757,11 +3610,11 @@ export default function PraeliatorWebsite() {
           video: homeCinematicMedia.ownership.video,
           badge: "Future access",
           overlayTitle: "A quieter route in.",
-          overlayText: "Collector interest, future access, and controlled follow-up.",
+          overlayText:
+            "Collector interest, future access, and controlled follow-up.",
         }}
         stats={pageHeroStats["/waitlist"]}
       />
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-10">
@@ -3772,11 +3625,9 @@ export default function PraeliatorWebsite() {
                   title="A quieter route into future access."
                   description="For future releases, collector interest, and private access."
                 />
-
                 <div className="mt-6 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   Client reference returned after submission.
                 </div>
-
                 <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                   {serviceStandards.map((item) => (
                     <div key={item} className="py-4">
@@ -3786,23 +3637,19 @@ export default function PraeliatorWebsite() {
                     </div>
                   ))}
                 </div>
-
                 <div className="mt-8 grid gap-4">
                   {[
                     {
                       title: "Review",
-                      text:
-                        "Every qualified inquiry is reviewed before contact continues.",
+                      text: "Every qualified inquiry is reviewed before contact continues.",
                     },
                     {
                       title: "Reference",
-                      text:
-                        "Your returned reference stays attached to the intake record.",
+                      text: "Your returned reference stays attached to the intake record.",
                     },
                     {
                       title: "Continuation",
-                      text:
-                        "If timing matters, the route can continue directly on WhatsApp.",
+                      text: "If timing matters, the route can continue directly on WhatsApp.",
                     },
                   ].map((item) => (
                     <div
@@ -3812,11 +3659,12 @@ export default function PraeliatorWebsite() {
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.title}
                       </p>
-                      <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
                     </div>
                   ))}
                 </div>
-
                 <div className="mt-8">
                   <Button
                     asChild
@@ -3839,7 +3687,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </Reveal>
-
             <Reveal delay={0.08}>
               <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
                 <form
@@ -3848,24 +3695,29 @@ export default function PraeliatorWebsite() {
                   noValidate
                 >
                   <div className="hidden" aria-hidden="true">
-                    <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
+                    <label htmlFor={WAITLIST_HONEYPOT_FIELD}>
+                      Leave this field empty
+                    </label>
                     <input
                       id={WAITLIST_HONEYPOT_FIELD}
                       name={WAITLIST_HONEYPOT_FIELD}
                       tabIndex={-1}
                       autoComplete="off"
                       value={waitlistHoneypot}
-                      onChange={(event) => setWaitlistHoneypot(event.target.value)}
+                      onChange={(event) =>
+                        setWaitlistHoneypot(event.target.value)
+                      }
                       className="browser-form-element h-0 w-0 opacity-0 pointer-events-none"
                     />
                   </div>
-
                   <div className="grid gap-4 sm:grid-cols-[0.76fr_1.24fr] sm:items-start">
                     <div>
                       <SelectField
                         name="title"
                         value={waitlistForm.title}
-                        onChange={(event) => handleWaitlistSelectChange("title", event)}
+                        onChange={(event) =>
+                          handleWaitlistSelectChange("title", event)
+                        }
                         onBlur={() => handleWaitlistBlur("title")}
                         placeholder="Title"
                         searchable
@@ -3876,7 +3728,6 @@ export default function PraeliatorWebsite() {
                         describedBy={getFieldDescribedBy("title")}
                       />
                     </div>
-
                     <div>
                       <InputField
                         name="fullName"
@@ -3895,7 +3746,6 @@ export default function PraeliatorWebsite() {
                       />
                     </div>
                   </div>
-
                   <div>
                     <InputField
                       name="email"
@@ -3910,9 +3760,11 @@ export default function PraeliatorWebsite() {
                       success={getFieldSuccess("email")}
                       describedBy={getFieldDescribedBy("email")}
                     />
-                    <FieldError id="email-error" message={getVisibleFieldError("email")} />
+                    <FieldError
+                      id="email-error"
+                      message={getVisibleFieldError("email")}
+                    />
                   </div>
-
                   <div>
                     <SearchPicker
                       name="country"
@@ -3935,7 +3787,6 @@ export default function PraeliatorWebsite() {
                       message={getVisibleFieldError("country")}
                     />
                   </div>
-
                   <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr] sm:items-start">
                     <div>
                       <InputField
@@ -3947,7 +3798,9 @@ export default function PraeliatorWebsite() {
                         inputMode="tel"
                         maxLength={5}
                         placeholder="Dial code *"
-                        invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
+                        invalid={Boolean(
+                          getVisibleFieldError("phoneCountryCode"),
+                        )}
                         success={getFieldSuccess("phoneCountryCode")}
                         describedBy={getFieldDescribedBy("phoneCountryCode")}
                       />
@@ -3956,7 +3809,6 @@ export default function PraeliatorWebsite() {
                         message={getVisibleFieldError("phoneCountryCode")}
                       />
                     </div>
-
                     <div>
                       <InputField
                         name="whatsapp"
@@ -3977,17 +3829,19 @@ export default function PraeliatorWebsite() {
                       />
                       {!getVisibleFieldError("whatsapp") ? (
                         <FieldNote>
-                          Use the number where a private follow-up should continue.
+                          Use the number where a private follow-up should
+                          continue.
                         </FieldNote>
                       ) : null}
                     </div>
                   </div>
-
                   <div>
                     <SelectField
                       name="interest"
                       value={waitlistForm.interest}
-                      onChange={(event) => handleWaitlistSelectChange("interest", event)}
+                      onChange={(event) =>
+                        handleWaitlistSelectChange("interest", event)
+                      }
                       onBlur={() => handleWaitlistBlur("interest")}
                       placeholder="Interest *"
                       options={interestOptions}
@@ -4000,12 +3854,13 @@ export default function PraeliatorWebsite() {
                       message={getVisibleFieldError("interest")}
                     />
                   </div>
-
                   <div>
                     <SelectField
                       name="timeline"
                       value={waitlistForm.timeline}
-                      onChange={(event) => handleWaitlistSelectChange("timeline", event)}
+                      onChange={(event) =>
+                        handleWaitlistSelectChange("timeline", event)
+                      }
                       onBlur={() => handleWaitlistBlur("timeline")}
                       placeholder="Timeline *"
                       options={timelineOptions}
@@ -4018,7 +3873,6 @@ export default function PraeliatorWebsite() {
                       message={getVisibleFieldError("timeline")}
                     />
                   </div>
-
                   <div>
                     <SelectField
                       name="contactPreference"
@@ -4029,7 +3883,9 @@ export default function PraeliatorWebsite() {
                       onBlur={() => handleWaitlistBlur("contactPreference")}
                       placeholder="Preferred contact method *"
                       options={contactPreferenceOptions}
-                      invalid={Boolean(getVisibleFieldError("contactPreference"))}
+                      invalid={Boolean(
+                        getVisibleFieldError("contactPreference"),
+                      )}
                       success={getFieldSuccess("contactPreference")}
                       describedBy={getFieldDescribedBy("contactPreference")}
                     />
@@ -4038,7 +3894,6 @@ export default function PraeliatorWebsite() {
                       message={getVisibleFieldError("contactPreference")}
                     />
                   </div>
-
                   <div>
                     <textarea
                       name="note"
@@ -4046,25 +3901,29 @@ export default function PraeliatorWebsite() {
                       onChange={handleWaitlistChange}
                       onBlur={() => handleWaitlistBlur("note")}
                       rows={6}
-                      className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses(
-                        {}
-                      )}`}
+                      className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                       placeholder="Optional note"
                     />
                     <FieldNote>
-                      Any detail that affects timing, use, or preferred contact can go here.
+                      Any detail that affects timing, use, or preferred contact
+                      can go here.
                     </FieldNote>
                   </div>
-
                   <div className="pt-2">
                     <Button
                       type="submit"
-                      disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
+                      disabled={
+                        waitlistState.loading ||
+                        getWaitlistCooldownSeconds() > 0
+                      }
                       className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_16px_36px_rgba(239,229,215,0.2)] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       <span className="inline-flex items-center gap-3">
                         {waitlistState.loading ? (
-                          <span className="browser-submit-spinner" aria-hidden="true" />
+                          <span
+                            className="browser-submit-spinner"
+                            aria-hidden="true"
+                          />
                         ) : null}
                         <span>
                           {waitlistState.loading
@@ -4076,10 +3935,10 @@ export default function PraeliatorWebsite() {
                       </span>
                     </Button>
                     <FieldNote>
-                      Private review typically continues within one business day.
+                      Private review typically continues within one business
+                      day.
                     </FieldNote>
                   </div>
-
                   <AnimatePresence>
                     {waitlistState.success ? (
                       <motion.div
@@ -4095,7 +3954,8 @@ export default function PraeliatorWebsite() {
                             Inquiry received
                           </p>
                           <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
-                            {waitlistState.reference || "Client reference pending"}
+                            {waitlistState.reference ||
+                              "Client reference pending"}
                           </p>
                         </div>
                         <div className="space-y-4 px-5 py-5 sm:px-6">
@@ -4103,8 +3963,9 @@ export default function PraeliatorWebsite() {
                             {waitlistState.serviceMessage}
                           </p>
                           <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
-                            Private review usually follows within one business day. If timing
-                            matters, continue directly on WhatsApp and include your reference.
+                            Private review usually follows within one business
+                            day. If timing matters, continue directly on
+                            WhatsApp and include your reference.
                           </div>
                           <div className="flex flex-col gap-3 sm:flex-row">
                             <Button
@@ -4119,15 +3980,15 @@ export default function PraeliatorWebsite() {
                                   trackWaitlistEvent(
                                     "waitlist_success_whatsapp_click",
                                     {
-                                      reference: waitlistState.reference || "pending",
-                                    }
+                                      reference:
+                                        waitlistState.reference || "pending",
+                                    },
                                   )
                                 }
                               >
                                 Continue on WhatsApp
                               </a>
                             </Button>
-
                             <Button
                               type="button"
                               variant="outline"
@@ -4141,9 +4002,11 @@ export default function PraeliatorWebsite() {
                       </motion.div>
                     ) : null}
                   </AnimatePresence>
-
                   {waitlistState.error ? (
-                    <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">
+                    <p
+                      className="text-sm leading-6 text-[#d99b8d]"
+                      aria-live="polite"
+                    >
                       {waitlistState.error}
                     </p>
                   ) : null}
@@ -4155,7 +4018,6 @@ export default function PraeliatorWebsite() {
       </section>
     </>
   );
-
   const renderContactPage = () => (
     <>
       <PageHeroBanner
@@ -4164,8 +4026,16 @@ export default function PraeliatorWebsite() {
         description="WhatsApp remains the primary route for private purchase inquiries, with email and Instagram available when a slower path makes more sense."
         note="Primary route: WhatsApp"
         actions={[
-          { label: "Private Inquiry", href: whatsappGeneralLink, variant: "primary" },
-          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+          {
+            label: "Private Inquiry",
+            href: whatsappGeneralLink,
+            variant: "primary",
+          },
+          {
+            label: "Join Waitlist",
+            onClick: () => goTo("/waitlist"),
+            variant: "secondary",
+          },
         ]}
         media={{
           image: visImageSources.packaging,
@@ -4177,7 +4047,6 @@ export default function PraeliatorWebsite() {
         }}
         stats={pageHeroStats["/contact"]}
       />
-
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-5 lg:grid-cols-3">
@@ -4199,7 +4068,8 @@ export default function PraeliatorWebsite() {
                     WhatsApp
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-white/62">
-                    Preferred for private purchase inquiries and faster continuation.
+                    Preferred for private purchase inquiries and faster
+                    continuation.
                   </p>
                 </div>
                 <div className="mt-8 flex items-center justify-between text-sm text-white/72">
@@ -4208,7 +4078,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </a>
             </Reveal>
-
             <Reveal delay={0.06}>
               <a
                 href={emailLink}
@@ -4225,7 +4094,8 @@ export default function PraeliatorWebsite() {
                     Email
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-white/62">
-                    Slower, quieter, and still appropriate when the inquiry does not need immediate back and forth.
+                    Slower, quieter, and still appropriate when the inquiry does
+                    not need immediate back and forth.
                   </p>
                 </div>
                 <div className="mt-8 flex items-center justify-between text-sm text-white/72">
@@ -4234,7 +4104,6 @@ export default function PraeliatorWebsite() {
                 </div>
               </a>
             </Reveal>
-
             <Reveal delay={0.12}>
               <a
                 href={instagramLink}
@@ -4253,7 +4122,8 @@ export default function PraeliatorWebsite() {
                     Instagram
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-white/62">
-                    Useful for brand presence and lighter contact, but not the main purchase route.
+                    Useful for brand presence and lighter contact, but not the
+                    main purchase route.
                   </p>
                 </div>
                 <div className="mt-8 flex items-center justify-between text-sm text-white/72">
@@ -4265,7 +4135,6 @@ export default function PraeliatorWebsite() {
           </div>
         </Container>
       </section>
-
       <EditorialBlock
         eyebrow="Communication standard"
         title="One route, multiple speeds."
@@ -4283,7 +4152,8 @@ export default function PraeliatorWebsite() {
               Primary route
             </p>
             <p className="mt-3 text-sm leading-7 text-white/62">
-              WhatsApp remains the preferred channel for private client purchase inquiries.
+              WhatsApp remains the preferred channel for private client purchase
+              inquiries.
             </p>
           </div>
           <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
@@ -4291,14 +4161,14 @@ export default function PraeliatorWebsite() {
               Secondary routes
             </p>
             <p className="mt-3 text-sm leading-7 text-white/62">
-              Email and Instagram stay available, with clear roles and less visual noise.
+              Email and Instagram stay available, with clear roles and less
+              visual noise.
             </p>
           </div>
         </div>
       </EditorialBlock>
     </>
   );
-
   const renderPage = () => {
     switch (route) {
       case "/praeliator-vis":
@@ -4313,15 +4183,15 @@ export default function PraeliatorWebsite() {
         return renderHomePage();
     }
   };
-
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-
       <header className="fixed inset-x-0 top-0 z-50">
         <motion.div
           animate={{
-            backgroundColor: mobileMenuOpen ? "rgba(5,5,5,0.46)" : "rgba(5,5,5,0)",
+            backgroundColor: mobileMenuOpen
+              ? "rgba(5,5,5,0.46)"
+              : "rgba(5,5,5,0)",
             backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
           }}
           transition={{ duration: 0.55, ease: easeLuxury }}
@@ -4335,32 +4205,32 @@ export default function PraeliatorWebsite() {
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.09] bg-white/[0.03] text-white/82 shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white"
+              className="group inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.09] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] text-white/82 shadow-[0_14px_36px_rgba(0,0,0,0.24)] transition duration-500 hover:-translate-y-0.5 hover:border-[#d7b797]/28 hover:bg-[radial-gradient(circle_at_center,rgba(215,183,151,0.14),rgba(255,255,255,0.03))] hover:text-white"
             >
               <motion.span
                 animate={{
-                  rotate: mobileMenuOpen ? 180 : 0,
-                  scale: mobileMenuOpen ? 1.03 : 1,
+                  scale: mobileMenuOpen ? 1.06 : 1,
+                  y: mobileMenuOpen ? 0.5 : 0,
                 }}
-                transition={{ duration: 0.7, ease: easeLuxury }}
+                transition={{ duration: 0.75, ease: easeLuxury }}
                 className="flex items-center justify-center"
               >
                 <PraeliatorMonogramIcon
                   open={mobileMenuOpen}
-                  className="h-7 w-7"
+                  className="h-8 w-8"
                   iconToneClassName="bg-[#dbc0a0]"
                 />
               </motion.span>
-              <span className="sr-only">{mobileMenuOpen ? "Close menu" : "Open menu"}</span>
+              <span className="sr-only">
+                {mobileMenuOpen ? "Close menu" : "Open menu"}
+              </span>
             </motion.button>
-
             <HeaderBrandMark
-              useMonogram={useMonogramHeader}
+              mode={headerBrandMode}
               onClick={() => goTo("/")}
-              wordmarkBroken={headerLogoBroken}
-              onWordmarkError={() => setHeaderLogoBroken(true)}
+              assetsBroken={headerLogoBroken}
+              onAssetError={() => setHeaderLogoBroken(true)}
             />
-
             <motion.a
               href={currentPurchaseLink}
               target="_blank"
@@ -4373,7 +4243,6 @@ export default function PraeliatorWebsite() {
               Private Inquiry
             </motion.a>
           </Container>
-
           <AnimatePresence initial={false}>
             {mobileMenuOpen ? (
               <motion.div
@@ -4426,7 +4295,6 @@ export default function PraeliatorWebsite() {
           </AnimatePresence>
         </motion.div>
       </header>
-
       <main
         className={
           route === "/"
@@ -4446,7 +4314,6 @@ export default function PraeliatorWebsite() {
           </motion.div>
         </AnimatePresence>
       </main>
-
       {route === "/" ? null : (
         <ClubFooter
           goTo={goTo}
