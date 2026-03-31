@@ -2633,11 +2633,6 @@ export default function PraeliatorWebsite() {
                   />
                 </div>
 
-                <div className="rounded-[1.45rem] border border-white/10 bg-[#0d0b0a] px-5 py-4 text-sm leading-6 text-white/56">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">Submission standard</p>
-                  <p className="mt-2">This form validates before submission, stores a brief cooldown after success, and routes qualified inquiries into a persistent intake record.</p>
-                </div>
-
                 <Button
                   type="submit"
                   disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
