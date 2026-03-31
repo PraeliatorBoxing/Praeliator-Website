@@ -1578,6 +1578,39 @@ function HomeFooterScene({
   );
 }
 
+function HomeTailScene({
+  active,
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
+  scrollContainerRef,
+}: {
+  active: boolean;
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <section className="relative isolate h-[100svh] min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
+      <div
+        ref={scrollContainerRef}
+        className="browser-scrollbar h-full overflow-y-auto overscroll-contain"
+      >
+        <ExploreFurtherScene active={active} goTo={goTo} />
+        <HomeFooterScene
+          goTo={goTo}
+          whatsappGeneralLink={whatsappGeneralLink}
+          instagramLink={instagramLink}
+          emailLink={emailLink}
+        />
+      </div>
+    </section>
+  );
+}
+
 function FullScreenCinematicHomepage({
   sections,
   goTo,
@@ -1599,7 +1632,7 @@ function FullScreenCinematicHomepage({
       }
     | {
         key: string;
-        kind: "explore" | "footer";
+        kind: "tail";
       }
   >;
   goTo: (nextRoute: Route) => void;
@@ -1611,6 +1644,8 @@ function FullScreenCinematicHomepage({
   const [isAnimating, setIsAnimating] = useState(false);
   const unlockTimerRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
+  const tailScrollRef = useRef<HTMLDivElement | null>(null);
+  const tailIndex = sections.findIndex((section) => section.kind === "tail");
 
   const goToIndex = (nextIndex: number) => {
     const clamped = Math.max(0, Math.min(sections.length - 1, nextIndex));
@@ -1642,7 +1677,34 @@ function FullScreenCinematicHomepage({
   }, []);
 
   useEffect(() => {
+    if (tailIndex < 0) return;
+    if (activeIndex !== tailIndex && tailScrollRef.current) {
+      tailScrollRef.current.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, [activeIndex, tailIndex]);
+
+  useEffect(() => {
     const onWheel = (event: WheelEvent) => {
+      const tailNode = tailScrollRef.current;
+      const inTail = tailIndex >= 0 && activeIndex === tailIndex;
+
+      if (inTail && tailNode) {
+        const atTop = tailNode.scrollTop <= 2;
+        const atBottom = tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
+
+        if (event.deltaY > 0 && !atBottom) {
+          return;
+        }
+
+        if (event.deltaY < 0 && !atTop) {
+          return;
+        }
+
+        if (event.deltaY > 0 && atBottom) {
+          return;
+        }
+      }
+
       event.preventDefault();
       if (isAnimating || Math.abs(event.deltaY) < 24) return;
       goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1));
@@ -1651,6 +1713,26 @@ function FullScreenCinematicHomepage({
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+
+      const tailNode = tailScrollRef.current;
+      const inTail = tailIndex >= 0 && activeIndex === tailIndex;
+      if (inTail && tailNode) {
+        const atTop = tailNode.scrollTop <= 2;
+        const atBottom = tailNode.scrollTop + tailNode.clientHeight >= tailNode.scrollHeight - 2;
+
+        if (["ArrowDown", "PageDown", " "].includes(event.key) && !atBottom) {
+          return;
+        }
+
+        if (["ArrowUp", "PageUp"].includes(event.key) && !atTop) {
+          return;
+        }
+
+        if (event.key === "End") {
+          return;
+        }
+      }
+
       if (isAnimating) {
         if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
           event.preventDefault();
@@ -1680,7 +1762,7 @@ function FullScreenCinematicHomepage({
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activeIndex, isAnimating, sections.length]);
+  }, [activeIndex, isAnimating, sections.length, tailIndex]);
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     touchStartYRef.current = event.touches[0]?.clientY ?? null;
@@ -1695,6 +1777,16 @@ function FullScreenCinematicHomepage({
 
     const deltaY = startY - endY;
     if (Math.abs(deltaY) < 42) return;
+
+    const tailNode = tailScrollRef.current;
+    const inTail = tailIndex >= 0 && activeIndex === tailIndex;
+    if (inTail && tailNode) {
+      const atTop = tailNode.scrollTop <= 2;
+      if (!(deltaY < 0 && atTop)) {
+        return;
+      }
+    }
+
     goToIndex(activeIndex + (deltaY > 0 ? 1 : -1));
   };
 
@@ -1721,11 +1813,17 @@ function FullScreenCinematicHomepage({
             );
           }
 
-          if (section.kind === "explore") {
-            return <ExploreFurtherScene key={section.key} active={index === activeIndex} goTo={goTo} />;
-          }
-
-          return <HomeFooterScene key={section.key} goTo={goTo} whatsappGeneralLink={whatsappGeneralLink} instagramLink={instagramLink} emailLink={emailLink} />;
+          return (
+            <HomeTailScene
+              key={section.key}
+              active={index === activeIndex}
+              goTo={goTo}
+              whatsappGeneralLink={whatsappGeneralLink}
+              instagramLink={instagramLink}
+              emailLink={emailLink}
+              scrollContainerRef={tailScrollRef}
+            />
+          );
         })}
       </motion.div>
     </div>
@@ -2343,12 +2441,8 @@ export default function PraeliatorWebsite() {
         poster: homeCinematicMedia.acquisition.poster,
       },
       {
-        key: "explore",
-        kind: "explore" as const,
-      },
-      {
-        key: "footer",
-        kind: "footer" as const,
+        key: "tail",
+        kind: "tail" as const,
       },
     ];
 
