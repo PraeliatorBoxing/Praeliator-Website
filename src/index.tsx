@@ -121,6 +121,14 @@ const homeImageSources = {
   presentation: galleryImages[3],
 };
 
+const homeCinematicMedia = {
+  hero: { video: "/videos/home-hero.mp4", poster: homeImageSources.hero },
+  vis: { video: "/videos/home-vis.mp4", poster: visImageSources.hero },
+  material: { video: "/videos/home-material.mp4", poster: visImageSources.leather },
+  ownership: { video: "/videos/home-ownership.mp4", poster: visImageSources.packaging },
+  acquisition: { video: "/videos/home-acquisition.mp4", poster: homeImageSources.presentation },
+};
+
 const countryOptions = [
   { code: "+93", label: "Afghanistan" },
   { code: "+355", label: "Albania" },
@@ -1425,151 +1433,6 @@ function BrowserFormStyles() {
   );
 }
 
-
-function CinematicMediaSection({
-  title,
-  subtitle,
-  buttonLabel,
-  onButtonClick,
-  href,
-  src,
-  poster,
-  mediaType = "video",
-  startAt = 0,
-  align = "center",
-  topBlend = false,
-  bottomBlend = true,
-}: {
-  title: string;
-  subtitle?: string;
-  buttonLabel?: string;
-  onButtonClick?: () => void;
-  href?: string;
-  src: string;
-  poster?: string;
-  mediaType?: "video" | "image";
-  startAt?: number;
-  align?: "center" | "lower";
-  topBlend?: boolean;
-  bottomBlend?: boolean;
-}) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    if (mediaType !== "video" || !videoRef.current) return;
-
-    const element = videoRef.current;
-    const seekToOffset = () => {
-      if (!startAt) return;
-      try {
-        const duration = Number.isFinite(element.duration) ? element.duration : 0;
-        if (duration > startAt) {
-          element.currentTime = startAt;
-        }
-      } catch {
-      }
-    };
-
-    seekToOffset();
-    element.addEventListener("loadedmetadata", seekToOffset);
-
-    const playPromise = element.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {});
-    }
-
-    return () => {
-      element.removeEventListener("loadedmetadata", seekToOffset);
-    };
-  }, [mediaType, src, startAt]);
-
-  const contentAlignment =
-    align === "lower"
-      ? "items-center justify-end pb-[16svh] sm:pb-[17svh]"
-      : "items-center justify-center pb-14 sm:pb-16";
-
-  const buttonNode = buttonLabel ? (
-    href ? (
-      <Button
-        asChild
-        className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e7dacb]"
-      >
-        <a href={href} target="_blank" rel="noreferrer">
-          {buttonLabel}
-        </a>
-      </Button>
-    ) : (
-      <Button
-        type="button"
-        onClick={onButtonClick}
-        className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e7dacb]"
-      >
-        {buttonLabel}
-      </Button>
-    )
-  ) : null;
-
-  return (
-    <section className={`relative ${topBlend ? "-mt-24 sm:-mt-28 lg:-mt-32" : ""}`}>
-      <div className="relative min-h-[112svh] overflow-hidden bg-[#040404] sm:min-h-[118svh]">
-        <motion.div
-          aria-hidden="true"
-          className="absolute inset-0"
-          animate={{ scale: [1, 1.03, 1] }}
-          transition={{ duration: 18, ease: "linear", repeat: Infinity }}
-        >
-          {mediaType === "video" ? (
-            <video
-              ref={videoRef}
-              className="h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              poster={poster}
-            >
-              <source src={src} type="video/mp4" />
-            </video>
-          ) : (
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${src})` }}
-              role="img"
-              aria-label={title}
-            />
-          )}
-        </motion.div>
-
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02),rgba(0,0,0,0.28)_48%,rgba(0,0,0,0.62)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,4,4,0.22),rgba(4,4,4,0)_26%,rgba(4,4,4,0)_68%,rgba(4,4,4,0.6))]" />
-        {topBlend ? <div className="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,#040404_0%,rgba(4,4,4,0)_100%)] sm:h-40 lg:h-48" /> : null}
-        {bottomBlend ? <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(4,4,4,0)_0%,rgba(4,4,4,0.82)_58%,#040404_100%)] sm:h-48 lg:h-56" /> : null}
-
-        <motion.div
-          initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.85, delay: 0.45, ease: easeLuxury }}
-          className={`relative z-10 flex min-h-[112svh] flex-col ${contentAlignment} px-6 text-center sm:min-h-[118svh] sm:px-8`}
-        >
-          <div className="mx-auto flex max-w-[28rem] flex-col items-center">
-            <p className="text-2xl font-light uppercase tracking-[0.38em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
-              {title}
-            </p>
-            {subtitle ? (
-              <p className="mt-4 max-w-[28rem] text-xs uppercase tracking-[0.24em] text-white/68 sm:text-[13px]">
-                {subtitle}
-              </p>
-            ) : null}
-            {buttonNode ? <div className="mt-7 flex items-center justify-center">{buttonNode}</div> : null}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
@@ -2045,75 +1908,147 @@ export default function PraeliatorWebsite() {
     }
   };
 
-  const renderHomePage = () => (
-    <>
-      <CinematicMediaSection
-        title="Praeliator"
-        subtitle="Equipment for those who treat boxing as art."
-        buttonLabel="Enter"
-        onButtonClick={() => goTo("/praeliator-vis")}
-        src="/videos/praeliator-film.mp4"
-        poster={visImageSources.videoPoster}
-        mediaType="video"
-        startAt={0}
-        align="center"
-        topBlend={false}
-        bottomBlend
-      />
+  const renderHomePage = () => {
+    const cinematicSections = [
+      {
+        key: "hero",
+        word: "Praeliator",
+        line: "Equipment for those who treat boxing as art.",
+        cta: "Discover",
+        action: () => goTo("/praeliator-vis"),
+        video: homeCinematicMedia.hero.video,
+        poster: homeCinematicMedia.hero.poster,
+      },
+      {
+        key: "vis",
+        word: "VIS",
+        line: "16 oz · Lace-up · Top-grain cowhide",
+        cta: "Enter VIS",
+        action: () => goTo("/praeliator-vis"),
+        video: homeCinematicMedia.vis.video,
+        poster: homeCinematicMedia.vis.poster,
+      },
+      {
+        key: "material",
+        word: "Material",
+        line: "Soft satin finish.",
+        cta: "Construction",
+        action: () => goTo("/praeliator-vis"),
+        video: homeCinematicMedia.material.video,
+        poster: homeCinematicMedia.material.poster,
+      },
+      {
+        key: "ownership",
+        word: "Ownership",
+        line: "From presentation to aftercare.",
+        cta: "Experience",
+        action: () => goTo("/acquisition"),
+        video: homeCinematicMedia.ownership.video,
+        poster: homeCinematicMedia.ownership.poster,
+      },
+      {
+        key: "acquisition",
+        word: "Acquisition",
+        line: "Handled directly.",
+        cta: "Private Inquiry",
+        href: whatsappGeneralLink,
+        video: homeCinematicMedia.acquisition.video,
+        poster: homeCinematicMedia.acquisition.poster,
+      },
+    ];
 
-      <CinematicMediaSection
-        title="VIS"
-        subtitle="16 oz · Lace-up · Top-grain cowhide"
-        buttonLabel="Discover VIS"
-        onButtonClick={() => goTo("/praeliator-vis")}
-        src="/videos/praeliator-film.mp4"
-        poster={visImageSources.hero}
-        mediaType="video"
-        startAt={5}
-        align="center"
-        topBlend
-        bottomBlend
-      />
+    return (
+      <div className="relative bg-[#040404]">
+        {cinematicSections.map((section, index) => (
+          <section
+            key={section.key}
+            className={`relative isolate overflow-hidden ${index === 0 ? "min-h-screen" : "-mt-[16vh] min-h-screen"}`}
+          >
+            <div className="absolute inset-0 overflow-hidden">
+              <div
+                className="absolute inset-0 scale-[1.04] bg-cover bg-center"
+                style={{ backgroundImage: `url(${section.poster})` }}
+                aria-hidden="true"
+              />
+              <video
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                poster={section.poster}
+              >
+                <source src={section.video} type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.38)_60%,rgba(0,0,0,0.72))]" />
+              <div className="absolute inset-x-0 top-0 h-[28vh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
+              <div className="absolute inset-x-0 bottom-0 h-[32vh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.26),rgba(4,4,4,0.88))]" />
+            </div>
 
-      <CinematicMediaSection
-        title="Material"
-        subtitle="Soft satin finish. Deep black with espresso in motion."
-        buttonLabel="See Details"
-        onButtonClick={() => goTo("/praeliator-vis")}
-        src={visImageSources.leather}
-        mediaType="image"
-        align="center"
-        topBlend
-        bottomBlend
-      />
+            <div className="relative z-10 flex min-h-screen items-center justify-center px-6 pb-12 pt-24 sm:px-10 sm:pb-16 sm:pt-28 lg:px-16 lg:pb-20 lg:pt-32">
+              <motion.div
+                initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
+                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                viewport={{ once: true, amount: 0.55 }}
+                transition={{ duration: 1.05, delay: 0.45, ease: easeLuxury }}
+                className="mx-auto flex max-w-[28rem] flex-col items-center text-center"
+              >
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.9, delay: 0.62, ease: easeLuxury }}
+                  className="text-[11px] uppercase tracking-[0.42em] text-[#f4efe7]/92 sm:text-xs"
+                >
+                  {section.word}
+                </motion.p>
 
-      <CinematicMediaSection
-        title="Inquiry"
-        subtitle="Private acquisition, handled directly."
-        buttonLabel="Private Inquiry"
-        href={whatsappGeneralLink}
-        src="/videos/praeliator-film.mp4"
-        poster={visImageSources.packaging}
-        mediaType="video"
-        startAt={11}
-        align="center"
-        topBlend
-        bottomBlend
-      />
+                {section.line ? (
+                  <motion.p
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 0.9, delay: 0.76, ease: easeLuxury }}
+                    className="mt-4 max-w-[22rem] text-sm leading-7 text-white/72 sm:text-[15px] sm:leading-8"
+                  >
+                    {section.line}
+                  </motion.p>
+                ) : null}
 
-      <CinematicMediaSection
-        title="Ownership"
-        subtitle="Presentation, delivery, aftercare."
-        buttonLabel="Join Waitlist"
-        onButtonClick={() => goTo("/waitlist")}
-        src={visImageSources.packaging}
-        mediaType="image"
-        align="center"
-        topBlend
-        bottomBlend={false}
-      />
-    </>
-  );
+                <motion.div
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: 0.9, delay: 0.9, ease: easeLuxury }}
+                  className="mt-8"
+                >
+                  {section.href ? (
+                    <Button
+                      asChild
+                      className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                    >
+                      <a href={section.href} target="_blank" rel="noreferrer">
+                        {section.cta}
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={section.action}
+                      className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                    >
+                      {section.cta}
+                    </Button>
+                  )}
+                </motion.div>
+              </motion.div>
+            </div>
+          </section>
+        ))}
+      </div>
+    );
+  };
 
   const renderVisPage = () => (
     <section className="border-b border-white/10 bg-[#080808]">
@@ -2807,129 +2742,213 @@ export default function PraeliatorWebsite() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#f4efe7]">
       <BrowserFormStyles />
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl">
-        <Container className="flex items-center justify-between py-3 sm:py-4">
-          <button
-            type="button"
-            onClick={() => goTo("/")}
-            className="group flex min-w-0 items-center gap-3 text-left"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
-              <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
+      <header
+        className={route === "/"
+          ? "fixed inset-x-0 top-0 z-50 bg-[linear-gradient(180deg,rgba(5,5,5,0.74),rgba(5,5,5,0.2),transparent)]"
+          : "sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/92 backdrop-blur-xl"}
+      >
+        {route === "/" ? (
+          <>
+            <Container className="relative flex items-center justify-between py-5 sm:py-6">
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: easeLuxury }}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                onClick={() => setMobileMenuOpen((current) => !current)}
+                className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+              >
+                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                <span>Menu</span>
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={() => goTo("/")}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
+                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+              >
                 <img
                   src="/logo-header.png"
                   alt="Praeliator"
-                  className="h-full w-full object-contain object-center"
+                  className="h-9 w-auto object-contain opacity-92 sm:h-10"
                 />
-              </div>
-            </div>
+              </motion.button>
 
-            <div className="min-w-0">
-              <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
-                Praeliator
-              </p>
-              <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
-                {currentPageTitle}
-              </p>
-            </div>
-          </button>
-
-          <nav className="hidden items-center gap-7 text-sm text-white/66 lg:flex">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => goTo(item.path)}
-                className={`transition duration-500 hover:text-white ${route === item.path ? "text-white" : ""}`}
+              <motion.a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+                className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
               >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="hidden items-center gap-3 lg:flex">
-            {route !== "/" ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/")}
-                className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Home
-              </Button>
-            ) : null}
-
-            <Button
-              asChild
-              className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
-            >
-              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
                 Private Inquiry
-              </a>
-            </Button>
-          </div>
+              </motion.a>
+            </Container>
 
-          <div className="flex items-center gap-2 lg:hidden">
-            <Button
-              asChild
-              className="rounded-full bg-[#efe5d7] px-3 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:px-5"
-            >
-              <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
-                Inquire
-              </a>
-            </Button>
+            <AnimatePresence>
+              {mobileMenuOpen ? (
+                <motion.div
+                  initial={{ opacity: 0, y: -18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.55, ease: easeLuxury }}
+                  className="border-t border-white/[0.08] bg-[linear-gradient(180deg,rgba(7,7,7,0.92),rgba(7,7,7,0.8))] backdrop-blur-2xl"
+                >
+                  <Container className="py-6 sm:py-8 lg:py-10">
+                    <div className="grid gap-1 sm:gap-2 lg:grid-cols-2 xl:grid-cols-4">
+                      {navItems.map((item, index) => (
+                        <motion.button
+                          key={item.path}
+                          type="button"
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.45, delay: index * 0.04, ease: easeLuxury }}
+                          onClick={() => goTo(item.path)}
+                          className="group flex items-center justify-between border-b border-white/[0.08] py-4 text-left text-base tracking-[0.08em] text-white/82 transition duration-500 hover:text-white sm:text-lg"
+                        >
+                          <span>{item.label}</span>
+                          <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-1 group-hover:text-white/56" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  </Container>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </>
+        ) : (
+          <>
+            <Container className="flex items-center justify-between py-3 sm:py-4">
+              <button
+                type="button"
+                onClick={() => goTo("/")}
+                className="group flex min-w-0 items-center gap-3 text-left"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6a4f3e] bg-[#120f0d] shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:h-11 sm:w-11">
+                  <div className="flex h-full w-full items-center justify-center p-[3px] sm:p-[4px]">
+                    <img
+                      src="/logo-header.png"
+                      alt="Praeliator"
+                      className="h-full w-full object-contain object-center"
+                    />
+                  </div>
+                </div>
 
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              onClick={() => setMobileMenuOpen((current) => !current)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition duration-500 hover:bg-white/10"
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </Container>
+                <div className="min-w-0">
+                  <p className="truncate text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] transition duration-500 group-hover:text-[#d7b797] sm:text-xs">
+                    Praeliator
+                  </p>
+                  <p className="mt-1 truncate text-[10px] uppercase tracking-[0.24em] text-white/42 sm:text-[11px]">
+                    {currentPageTitle}
+                  </p>
+                </div>
+              </button>
 
-        <AnimatePresence>
-          {mobileMenuOpen ? (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.55, ease: easeLuxury }}
-              className="overflow-hidden border-t border-white/10 bg-[#0a0a0a] lg:hidden"
-            >
-              <Container className="grid gap-2 py-4">
+              <nav className="hidden items-center gap-7 text-sm text-white/66 lg:flex">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
                     type="button"
                     onClick={() => goTo(item.path)}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/10"
+                    className={`transition duration-500 hover:text-white ${route === item.path ? "text-white" : ""}`}
                   >
-                    <span>{item.label}</span>
-                    <ChevronRight className="h-4 w-4 text-white/35" />
+                    {item.label}
                   </button>
                 ))}
+              </nav>
 
+              <div className="hidden items-center gap-3 lg:flex">
                 {route !== "/" ? (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => goTo("/")}
-                    className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    Return Home
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Home
                   </Button>
                 ) : null}
-              </Container>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+
+                <Button
+                  asChild
+                  className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)]"
+                >
+                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                    Private Inquiry
+                  </a>
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2 lg:hidden">
+                <Button
+                  asChild
+                  className="rounded-full bg-[#efe5d7] px-3 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_18px_38px_rgba(239,229,215,0.24)] sm:px-5"
+                >
+                  <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                    Inquire
+                  </a>
+                </Button>
+
+                <button
+                  type="button"
+                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                  onClick={() => setMobileMenuOpen((current) => !current)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition duration-500 hover:bg-white/10"
+                >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
+              </div>
+            </Container>
+
+            <AnimatePresence>
+              {mobileMenuOpen ? (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.55, ease: easeLuxury }}
+                  className="overflow-hidden border-t border-white/10 bg-[#0a0a0a] lg:hidden"
+                >
+                  <Container className="grid gap-2 py-4">
+                    {navItems.map((item) => (
+                      <button
+                        key={item.path}
+                        type="button"
+                        onClick={() => goTo(item.path)}
+                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-left text-sm text-white/82 transition duration-500 hover:bg-white/10"
+                      >
+                        <span>{item.label}</span>
+                        <ChevronRight className="h-4 w-4 text-white/35" />
+                      </button>
+                    ))}
+
+                    {route !== "/" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => goTo("/")}
+                        className="mt-2 h-12 rounded-full border-white/15 bg-transparent text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                      >
+                        Return Home
+                      </Button>
+                    ) : null}
+                  </Container>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </>
+        )}
       </header>
 
-      <main className="overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_28%)]">
+      <main className={route === "/" ? "overflow-x-hidden bg-[#040404]" : "overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.08),transparent_28%)]"}>
         <AnimatePresence mode="wait">
           <motion.div
             key={route}
