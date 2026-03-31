@@ -27,10 +27,10 @@ const visSpecifications = [
   { label: "Use", value: "Training · Technical sparring" },
   { label: "Outer Material", value: "Top-grain cowhide leather" },
   { label: "Leather Thickness", value: "0.9–1.0 mm" },
-  { label: "Lining", value: "High-quality 4-way stretch lining" },
+  { label: "Lining", value: "4-way stretch lining" },
   { label: "Palm", value: "Ventilated palm panel · Integrated grip bar" },
-  { label: "Thumb", value: "Attached thumb with safety strap" },
-  { label: "Wrist", value: "Extended lace-up cuff · Structured wrist support" },
+  { label: "Thumb", value: "Attached thumb" },
+  { label: "Wrist", value: "Extended lace-up cuff" },
   { label: "Assembly", value: "Hand-assembled in Pakistan" },
 ];
 
@@ -52,52 +52,50 @@ const visService = [
 
 const constructionEvidence = [
   {
-    label: "Construction record",
+    label: "Construction",
     value:
-      "0.9–1.0 mm top-grain cowhide, 16 oz balance control, attached thumb, ventilated palm, and an extended lace-up cuff are stated directly rather than implied.",
+      "Top-grain cowhide, balanced structure, ventilated palm, extended lace-up cuff.",
   },
   {
-    label: "Packing record",
+    label: "Presentation",
     value:
-      "Each pair can be tied to a presentation checklist covering box, dust bag, silk wrapping, authenticity card, and care card.",
+      "Rigid box, silk dust bag, silk wrapping, authenticity card, care card.",
   },
   {
-    label: "Ownership record",
+    label: "Ownership",
     value:
-      "The ownership structure is designed to hold a client reference, product allocation, delivery status, and future aftercare history in one place.",
+      "Allocation, delivery, aftercare.",
   },
 ];
 
 const trustArchitecture = [
   {
-    title: "Inquiry record",
+    title: "Inquiry",
     text:
-      "Each qualified inquiry should open a client record with a reference number, contact history, and route status rather than disappearing into inbox search.",
+      "Private review and client reference.",
   },
   {
-    title: "Delivery record",
+    title: "Delivery",
     text:
-      "Allocation, dispatch, delivery confirmation, and packaging completion should sit inside one controlled record rather than separate manual notes.",
+      "Allocation, dispatch, confirmation.",
   },
   {
-    title: "Aftercare record",
+    title: "Aftercare",
     text:
-      "Ownership should continue after delivery through service history, lace replacement, leather maintenance, and return logistics when needed.",
+      "Maintenance and continued service.",
   },
 ];
 
 const ownershipSignals = [
-  { label: "Allocation", value: "Product allocation reference held against the client record." },
-  { label: "Authenticity", value: "Card code and packing checklist stored with the order record." },
-  { label: "Delivery", value: "Dispatch, carrier, destination, and receipt confirmation attached to the file." },
-  { label: "Aftercare", value: "Service eligibility and future maintenance history preserved under one ownership record." },
+  { label: "Allocation", value: "Held under the client record." },
+  { label: "Authenticity", value: "Linked to the order record." },
+  { label: "Delivery", value: "Tracked through dispatch and receipt." },
+  { label: "Aftercare", value: "Retained under ownership history." },
 ];
 
 const serviceStandards = [
-  "Client reference returned after submission.",
-  "Lead routed into a persistent backend record rather than email-only intake.",
-  "CRM contact sync for follow-up, history, and response ownership.",
-  "Delivery and aftercare records designed to continue after purchase.",
+  "Inquiry entered into the client record.",
+  "Follow-up handled directly.",
 ];
 
 const visImageSources = {
@@ -906,7 +904,7 @@ export default function PraeliatorWebsite() {
         reference: result.reference || "",
         serviceMessage:
           result.serviceMessage ||
-          "A private response follows after review. Your client record is now open.",
+          "A private reply will follow after review.",
       });
       setWaitlistForm(initialWaitlistForm);
     } catch (error) {
@@ -952,16 +950,15 @@ export default function PraeliatorWebsite() {
             </p>
 
             <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.84] tracking-[-0.07em] sm:text-6xl md:text-7xl lg:text-[6.4rem] xl:text-[7rem]">
-              Serious equipment.
+              Equipment for those who treat boxing as art.
               <span className="mt-4 block max-w-[9ch] text-white/68">
-                Quieter acquisition.
+                Luxury boxing equipment built with restraint, precision, and lasting purpose.
               </span>
             </h1>
 
             <div className="mt-8 grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-12">
               <p className="max-w-[31rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-lg">
-                Praeliator is built for clients who want disciplined boxing equipment, controlled presentation,
-                and a private route into ownership. The site introduces the house. The product and the record do the rest.
+                A 16 oz lace-up training glove in top-grain cowhide, built for disciplined training and technical sparring.
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
@@ -1017,14 +1014,12 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Brand core</p>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Standard</p>
               </div>
 
               <div>
                 <h2 className="text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl md:text-6xl lg:text-[5rem]">
-                  Built with discipline.
-                  <span className="mt-3 block text-white/68">Presented with restraint.</span>
-                  <span className="mt-3 block text-white/44">Supported after delivery.</span>
+                  Performance, without excess.
                 </h2>
               </div>
             </div>
@@ -1042,9 +1037,9 @@ export default function PraeliatorWebsite() {
                 className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[46rem]"
                 priorityCopy={
                   <>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">The house</p>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Approach</p>
                     <p className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.92] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
-                      First impression should stay controlled.
+                      Boxing, reduced to essentials.
                     </p>
                   </>
                 }
@@ -1061,7 +1056,7 @@ export default function PraeliatorWebsite() {
                     <>
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Material</p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        The product earns the language.
+                        Top-grain leather. Soft satin finish.
                       </p>
                     </>
                   }
@@ -1077,7 +1072,7 @@ export default function PraeliatorWebsite() {
                     <>
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#d0b39b] sm:text-[11px]">Ownership</p>
                       <p className="mt-4 max-w-[14ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        Service should continue after receipt.
+                        From presentation to aftercare.
                       </p>
                     </>
                   }
@@ -1116,11 +1111,10 @@ export default function PraeliatorWebsite() {
               <div>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Praeliator VIS</p>
                 <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl md:text-5xl">
-                  The flagship, in one line.
+                  Praeliator VIS
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  16 oz. Lace-up. Top-grain cowhide. Technical sparring and disciplined training.
-                  The atmosphere opens the door. The product closes the case.
+                  A 16 oz lace-up training glove in top-grain cowhide, built for disciplined training and technical sparring.
                 </p>
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
@@ -1189,8 +1183,8 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <SectionHeading
               eyebrow="Praeliator VIS"
-              title="A flagship training glove built with specific standards and a clear service life."
-              description="Praeliator VIS is made for disciplined training and technical sparring. The page should show what the glove is, how it is built, and how ownership continues after delivery."
+              title="A flagship training glove built with discipline."
+              description="Made for disciplined training and technical sparring."
             />
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -1225,7 +1219,7 @@ export default function PraeliatorWebsite() {
                     Praeliator VIS
                   </p>
                   <p className="mt-4 max-w-[13ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                    Minimal branding. Concrete standards.
+                    Restrained by design. Precise in execution.
                   </p>
                 </>
               }
@@ -1237,7 +1231,7 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <div className="max-w-2xl">
               <p className="text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                A 16 oz lace-up training glove built in top-grain cowhide leather with a soft satin finish and a restrained two-tone character. Deep black remains the primary visual read, while a subtle espresso tone appears when light moves across the surface.
+                A 16 oz lace-up training glove in top-grain cowhide with a soft satin finish. Deep black leads. Espresso reveals itself in the light.
               </p>
             </div>
           </Reveal>
@@ -1249,7 +1243,7 @@ export default function PraeliatorWebsite() {
                   { label: "Primary tone", value: "Deep black" },
                   { label: "Secondary tone", value: "Espresso brown" },
                   { label: "Branding", value: "Debossed PRAELIATOR wrist plate" },
-                  { label: "Finish", value: "Soft satin rather than gloss" },
+                  { label: "Finish", value: "Soft satin" },
                 ]}
                 compact
               />
@@ -1327,9 +1321,9 @@ export default function PraeliatorWebsite() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
           <Reveal>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Ownership seriousness</p>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">Ownership</p>
               <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                Ownership should stay recorded.
+                Allocation, delivery, aftercare.
               </h3>
               <div className="mt-6 rounded-[2rem] border border-white/10 bg-[#11100f] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.32)] sm:p-8">
                 <DataList items={ownershipSignals} compact />
@@ -1395,8 +1389,8 @@ export default function PraeliatorWebsite() {
       <Container className="py-16 sm:py-20 lg:py-28">
         <SectionHeading
           eyebrow="Acquisition"
-          title="The acquisition model should feel direct, recorded, and dependable."
-          description="Praeliator does not operate like conventional ecommerce. The route stays private, but the underlying record should be stronger than an email thread."
+          title="Private acquisition, handled directly."
+          description="Each qualified inquiry is reviewed and carried through direct contact."
         />
 
         <div className="mt-12 grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
@@ -1469,12 +1463,12 @@ export default function PraeliatorWebsite() {
           <Reveal>
             <SectionHeading
               eyebrow="Waitlist"
-              title="A quieter way into future access."
-              description="The waitlist exists for future releases, collector interest, and clients who prefer to enter the house before a direct purchase conversation."
+              title="A quieter route into future access."
+              description="For future releases, collector interest, and private access."
             />
 
             <div className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-              The form is intentionally restrained, but the system behind it should not be lightweight. Once submitted, the inquiry should open a real client record, return a reference, and move into review without relying on inbox memory.
+              Client reference returned after submission.
             </div>
 
             <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
@@ -1515,45 +1509,6 @@ export default function PraeliatorWebsite() {
                     <option value="Mx.">Mx.</option>
                     <option value="Dr.">Dr.</option>
                     <option value="Prof.">Prof.</option>
-                    <option value="Sir">Sir</option>
-                    <option value="Dame">Dame</option>
-                    <option value="Lord">Lord</option>
-                    <option value="Lady">Lady</option>
-                    <option value="Prince">Prince</option>
-                    <option value="Princess">Princess</option>
-                    <option value="Sheikh">Sheikh</option>
-                    <option value="Sheikha">Sheikha</option>
-                    <option value="H.E.">H.E.</option>
-                    <option value="H.E. Dr.">H.E. Dr.</option>
-                    <option value="H.E. Mr.">H.E. Mr.</option>
-                    <option value="H.E. Mrs.">H.E. Mrs.</option>
-                    <option value="H.H.">H.H.</option>
-                    <option value="H.H. Prince">H.H. Prince</option>
-                    <option value="H.H. Sheikh">H.H. Sheikh</option>
-                    <option value="H.H. Sheikha">H.H. Sheikha</option>
-                    <option value="H.R.H.">H.R.H.</option>
-                    <option value="H.R.H. Prince">H.R.H. Prince</option>
-                    <option value="H.R.H. Princess">H.R.H. Princess</option>
-                    <option value="Esq.">Esq.</option>
-                    <option value="Captain">Captain</option>
-                    <option value="Chief">Chief</option>
-                    <option value="Dato">Dato</option>
-                    <option value="Dato Sri">Dato Sri</option>
-                    <option value="Datin">Datin</option>
-                    <option value="Datin Sri">Datin Sri</option>
-                    <option value="Puan Sri">Puan Sri</option>
-                    <option value="Tan Sri">Tan Sri</option>
-                    <option value="Reverend">Reverend</option>
-                    <option value="Herr">Herr</option>
-                    <option value="Frau">Frau</option>
-                    <option value="Mdm.">Mdm.</option>
-                    <option value="Monsieur">Monsieur</option>
-                    <option value="Madame">Madame</option>
-                    <option value="Señor">Señor</option>
-                    <option value="Señora">Señora</option>
-                    <option value="Señorita">Señorita</option>
-                    <option value="先生">先生</option>
-                    <option value="女士">女士</option>
                   </SelectField>
 
                   <InputField
@@ -1684,8 +1639,8 @@ export default function PraeliatorWebsite() {
       <Container className="py-16 sm:py-20 lg:py-28">
         <SectionHeading
           eyebrow="Contact"
-          title="Direct channels for private client communication."
-          description="WhatsApp remains the primary route. Email and Instagram stay available for formal contact and brand presence."
+          title="Direct contact for private clients."
+          description="WhatsApp remains the primary route for purchase inquiries."
         />
 
         <div className="mt-12 divide-y divide-white/10 border-t border-white/10">
@@ -1723,7 +1678,7 @@ export default function PraeliatorWebsite() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium sm:text-base">Email</p>
                   <p className="text-sm text-white/45">
-                    For formal communication and brand contact
+                    
                   </p>
                 </div>
               </div>
@@ -1745,7 +1700,7 @@ export default function PraeliatorWebsite() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium sm:text-base">Instagram</p>
                   <p className="text-sm text-white/45">
-                    Visual presence, updates, and atmosphere
+                    
                   </p>
                 </div>
               </div>
