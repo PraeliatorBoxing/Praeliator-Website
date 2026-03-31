@@ -1425,6 +1425,151 @@ function BrowserFormStyles() {
   );
 }
 
+
+function CinematicMediaSection({
+  title,
+  subtitle,
+  buttonLabel,
+  onButtonClick,
+  href,
+  src,
+  poster,
+  mediaType = "video",
+  startAt = 0,
+  align = "center",
+  topBlend = false,
+  bottomBlend = true,
+}: {
+  title: string;
+  subtitle?: string;
+  buttonLabel?: string;
+  onButtonClick?: () => void;
+  href?: string;
+  src: string;
+  poster?: string;
+  mediaType?: "video" | "image";
+  startAt?: number;
+  align?: "center" | "lower";
+  topBlend?: boolean;
+  bottomBlend?: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (mediaType !== "video" || !videoRef.current) return;
+
+    const element = videoRef.current;
+    const seekToOffset = () => {
+      if (!startAt) return;
+      try {
+        const duration = Number.isFinite(element.duration) ? element.duration : 0;
+        if (duration > startAt) {
+          element.currentTime = startAt;
+        }
+      } catch {
+      }
+    };
+
+    seekToOffset();
+    element.addEventListener("loadedmetadata", seekToOffset);
+
+    const playPromise = element.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+
+    return () => {
+      element.removeEventListener("loadedmetadata", seekToOffset);
+    };
+  }, [mediaType, src, startAt]);
+
+  const contentAlignment =
+    align === "lower"
+      ? "items-center justify-end pb-[16svh] sm:pb-[17svh]"
+      : "items-center justify-center pb-14 sm:pb-16";
+
+  const buttonNode = buttonLabel ? (
+    href ? (
+      <Button
+        asChild
+        className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e7dacb]"
+      >
+        <a href={href} target="_blank" rel="noreferrer">
+          {buttonLabel}
+        </a>
+      </Button>
+    ) : (
+      <Button
+        type="button"
+        onClick={onButtonClick}
+        className="rounded-full bg-[#efe5d7] px-8 py-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e7dacb]"
+      >
+        {buttonLabel}
+      </Button>
+    )
+  ) : null;
+
+  return (
+    <section className={`relative ${topBlend ? "-mt-24 sm:-mt-28 lg:-mt-32" : ""}`}>
+      <div className="relative min-h-[112svh] overflow-hidden bg-[#040404] sm:min-h-[118svh]">
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-0"
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 18, ease: "linear", repeat: Infinity }}
+        >
+          {mediaType === "video" ? (
+            <video
+              ref={videoRef}
+              className="h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster={poster}
+            >
+              <source src={src} type="video/mp4" />
+            </video>
+          ) : (
+            <div
+              className="h-full w-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${src})` }}
+              role="img"
+              aria-label={title}
+            />
+          )}
+        </motion.div>
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02),rgba(0,0,0,0.28)_48%,rgba(0,0,0,0.62)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,4,4,0.22),rgba(4,4,4,0)_26%,rgba(4,4,4,0)_68%,rgba(4,4,4,0.6))]" />
+        {topBlend ? <div className="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,#040404_0%,rgba(4,4,4,0)_100%)] sm:h-40 lg:h-48" /> : null}
+        {bottomBlend ? <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(4,4,4,0)_0%,rgba(4,4,4,0.82)_58%,#040404_100%)] sm:h-48 lg:h-56" /> : null}
+
+        <motion.div
+          initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.85, delay: 0.45, ease: easeLuxury }}
+          className={`relative z-10 flex min-h-[112svh] flex-col ${contentAlignment} px-6 text-center sm:min-h-[118svh] sm:px-8`}
+        >
+          <div className="mx-auto flex max-w-[28rem] flex-col items-center">
+            <p className="text-2xl font-light uppercase tracking-[0.38em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
+              {title}
+            </p>
+            {subtitle ? (
+              <p className="mt-4 max-w-[28rem] text-xs uppercase tracking-[0.24em] text-white/68 sm:text-[13px]">
+                {subtitle}
+              </p>
+            ) : null}
+            {buttonNode ? <div className="mt-7 flex items-center justify-center">{buttonNode}</div> : null}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
@@ -1902,227 +2047,71 @@ export default function PraeliatorWebsite() {
 
   const renderHomePage = () => (
     <>
-      <section className="relative min-h-[100svh] overflow-hidden bg-[#040404]">
-        <motion.div
-          style={{ y: heroMediaY }}
-          className="absolute inset-0"
-          aria-hidden="true"
-        >
-          <video
-            className="h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={homeImageSources.hero}
-          >
-            <source src="/videos/praeliator-film.mp4" type="video/mp4" />
-          </video>
-        </motion.div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.14),transparent_30%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_48%,rgba(0,0,0,0.86)_100%)]" />
+      <CinematicMediaSection
+        title="Praeliator"
+        subtitle="Equipment for those who treat boxing as art."
+        buttonLabel="Enter"
+        onButtonClick={() => goTo("/praeliator-vis")}
+        src="/videos/praeliator-film.mp4"
+        poster={visImageSources.videoPoster}
+        mediaType="video"
+        startAt={0}
+        align="center"
+        topBlend={false}
+        bottomBlend
+      />
 
-        <Container className="relative flex min-h-[100svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
-          <motion.div
-            style={{ y: heroTextY }}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.95, ease: easeLuxury }}
-            className="w-full"
-          >
-            <div className="max-w-[20rem] sm:max-w-[28rem] lg:max-w-[38rem]">
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
-                Praeliator
-              </p>
-              <h1 className="mt-4 text-5xl font-semibold leading-[0.84] tracking-[-0.08em] text-[#f4efe7] sm:text-6xl md:text-7xl lg:text-[7.2rem] xl:text-[8rem]">
-                VIS
-              </h1>
-              <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/68 sm:text-xs sm:tracking-[0.34em]">
-                Equipment for those who treat boxing as art.
-              </p>
-            </div>
+      <CinematicMediaSection
+        title="VIS"
+        subtitle="16 oz · Lace-up · Top-grain cowhide"
+        buttonLabel="Discover VIS"
+        onButtonClick={() => goTo("/praeliator-vis")}
+        src="/videos/praeliator-film.mp4"
+        poster={visImageSources.hero}
+        mediaType="video"
+        startAt={5}
+        align="center"
+        topBlend
+        bottomBlend
+      />
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                type="button"
-                onClick={() => goTo('/praeliator-vis')}
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-              >
-                Discover VIS
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  Private Inquiry
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
+      <CinematicMediaSection
+        title="Material"
+        subtitle="Soft satin finish. Deep black with espresso in motion."
+        buttonLabel="See Details"
+        onButtonClick={() => goTo("/praeliator-vis")}
+        src={visImageSources.leather}
+        mediaType="image"
+        align="center"
+        topBlend
+        bottomBlend
+      />
 
-      <section className="bg-[#050505] py-4 sm:py-5 lg:py-6">
-        <Container>
-          <Reveal>
-            <div className="grid gap-px overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-white/[0.08] sm:grid-cols-3">
-              {[
-                { label: 'Weight', value: '16 oz' },
-                { label: 'Closure', value: 'Lace-up' },
-                { label: 'Material', value: 'Top-grain cowhide' },
-              ].map((item) => (
-                <div key={item.label} className="bg-[#0c0b0a] px-6 py-5 sm:px-7 sm:py-6 lg:px-8">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d] sm:text-[11px]">{item.label}</p>
-                  <p className="mt-3 text-lg font-medium tracking-[-0.04em] text-[#f4efe7] sm:text-xl">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </Container>
-      </section>
+      <CinematicMediaSection
+        title="Inquiry"
+        subtitle="Private acquisition, handled directly."
+        buttonLabel="Private Inquiry"
+        href={whatsappGeneralLink}
+        src="/videos/praeliator-film.mp4"
+        poster={visImageSources.packaging}
+        mediaType="video"
+        startAt={11}
+        align="center"
+        topBlend
+        bottomBlend
+      />
 
-      <section className="relative min-h-[92svh] overflow-hidden bg-[#050505]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${visImageSources.hero})` }}
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_45%,rgba(0,0,0,0.8)_100%)]" />
-
-        <Container className="relative flex min-h-[92svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
-          <Reveal className="max-w-[24rem] sm:max-w-[30rem]">
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">
-              The flagship
-            </p>
-            <h2 className="mt-4 text-4xl font-semibold leading-[0.88] tracking-[-0.08em] text-[#f4efe7] sm:text-5xl md:text-6xl lg:text-[6rem]">
-              Praeliator VIS
-            </h2>
-            <p className="mt-4 text-[11px] uppercase tracking-[0.28em] text-white/64 sm:text-xs sm:tracking-[0.32em]">
-              16 oz · Lace-up · Technical sparring
-            </p>
-            <div className="mt-7">
-              <QuietLinkButton onClick={() => goTo('/praeliator-vis')}>Enter VIS</QuietLinkButton>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
-      <section className="bg-[#050505] py-4 sm:py-5 lg:py-6">
-        <Container>
-          <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:gap-4">
-            <Reveal>
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
-                <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/11]">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${visImageSources.leather})` }}
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.56))]" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
-                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Material</p>
-                    <p className="mt-3 text-2xl font-semibold tracking-[-0.06em] text-[#f4efe7] sm:text-3xl lg:text-4xl">Top-grain cowhide.</p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <div className="grid gap-4">
-              <Reveal delay={0.05}>
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.24)]">
-                  <div className="relative aspect-[16/10] sm:aspect-[16/8]">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${visImageSources.packaging})` }}
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.54))]" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7">
-                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Presentation</p>
-                      <p className="mt-3 text-xl font-semibold tracking-[-0.05em] text-[#f4efe7] sm:text-2xl">Quietly resolved.</p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.1}>
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#0c0b0a] p-6 shadow-[0_22px_64px_rgba(0,0,0,0.24)] sm:p-7 lg:p-8">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">Private acquisition</p>
-                  <p className="mt-4 max-w-[14ch] text-3xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-4xl">
-                    Direct. Controlled. Personal.
-                  </p>
-                  <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    <Button
-                      type="button"
-                      onClick={() => goTo('/acquisition')}
-                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                    >
-                      Explore Acquisition
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => goTo('/waitlist')}
-                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                    >
-                      Join Waitlist
-                    </Button>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative min-h-[88svh] overflow-hidden bg-[#050505]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${galleryImages[3]})` }}
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1),rgba(0,0,0,0.36)_42%,rgba(0,0,0,0.84)_100%)]" />
-
-        <Container className="relative flex min-h-[88svh] items-end pb-8 pt-24 sm:pb-10 lg:pb-14">
-          <Reveal className="max-w-[24rem] sm:max-w-[28rem]">
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b] sm:text-xs">Aftercare</p>
-            <h2 className="mt-4 text-4xl font-semibold leading-[0.88] tracking-[-0.08em] text-[#f4efe7] sm:text-5xl md:text-6xl lg:text-[5.5rem]">
-              Ownership continues.
-            </h2>
-            <div className="mt-7">
-              <QuietLinkButton onClick={() => goTo('/waitlist')}>Request Access</QuietLinkButton>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-
-      <section className="bg-[#050505] pb-8 pt-4 sm:pb-10 sm:pt-5 lg:pb-14 lg:pt-6">
-        <Container>
-          <div className="grid gap-4 md:grid-cols-3 lg:gap-4">
-            {[
-              { src: galleryImages[0], label: 'Presence' },
-              { src: visImageSources.plate, label: 'Marking' },
-              { src: galleryImages[1], label: 'Craft' },
-            ].map((item, index) => (
-              <Reveal key={item.label} delay={index * 0.05}>
-                <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[#11100f] shadow-[0_22px_64px_rgba(0,0,0,0.24)]">
-                  <div className="relative aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${item.src})` }}
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.44))]" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7">
-                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b] sm:text-[11px]">{item.label}</p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </Container>
-      </section>
+      <CinematicMediaSection
+        title="Ownership"
+        subtitle="Presentation, delivery, aftercare."
+        buttonLabel="Join Waitlist"
+        onButtonClick={() => goTo("/waitlist")}
+        src={visImageSources.packaging}
+        mediaType="image"
+        align="center"
+        topBlend
+        bottomBlend={false}
+      />
     </>
   );
 
