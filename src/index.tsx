@@ -2915,6 +2915,8 @@ export default function PraeliatorWebsite() {
         : homeSectionIndex === 1
           ? "assembly"
           : "monogram";
+  const homeHeaderLifted =
+    route === "/" && homeSectionIndex >= 3 && !mobileMenuOpen;
   const goTo = (nextRoute: Route) => {
     if (typeof window !== "undefined") {
       const current = normalizePath(window.location.pathname);
@@ -4220,7 +4222,14 @@ export default function PraeliatorWebsite() {
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-      <header className="fixed inset-x-0 top-0 z-50">
+      <motion.header
+        className={`fixed inset-x-0 top-0 z-50 ${homeHeaderLifted ? "pointer-events-none" : ""}`}
+        animate={{
+          y: homeHeaderLifted ? "-118%" : "0%",
+          opacity: homeHeaderLifted ? 0 : 1,
+        }}
+        transition={{ duration: 1.05, ease: easeLuxury }}
+      >
         <motion.div
           animate={{
             backgroundColor: mobileMenuOpen
@@ -4327,7 +4336,7 @@ export default function PraeliatorWebsite() {
             ) : null}
           </AnimatePresence>
         </motion.div>
-      </header>
+      </motion.header>
       <main
         className={
           route === "/"
