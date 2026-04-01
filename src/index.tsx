@@ -91,27 +91,22 @@ const homeImageSources = {
 const homeCinematicMedia = {
   hero: {
     video: "/videos/home-hero.mp4",
-    mobileVideo: "/videos/mobile/home-hero-mobile.mp4",
     poster: homeImageSources.hero,
   },
   vis: {
     video: "/videos/home-vis.mp4",
-    mobileVideo: "/videos/mobile/home-vis-mobile.mp4",
     poster: visImageSources.hero,
   },
   material: {
     video: "/videos/home-material.mp4",
-    mobileVideo: "/videos/mobile/home-material-mobile.mp4",
     poster: visImageSources.leather,
   },
   ownership: {
     video: "/videos/home-ownership.mp4",
-    mobileVideo: "/videos/mobile/home-ownership-mobile.mp4",
     poster: visImageSources.packaging,
   },
   acquisition: {
     video: "/videos/home-acquisition.mp4",
-    mobileVideo: "/videos/mobile/home-acquisition-mobile.mp4",
     poster: homeImageSources.presentation,
   },
 };
@@ -1102,11 +1097,13 @@ function AutoplayVideo({
   const [activeSrc, setActiveSrc] = useState(preferredSrc);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [shouldRender, setShouldRender] = useState(eager);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     setActiveSrc(preferredSrc);
     setAutoplayBlocked(false);
     setShouldRender(eager);
+    setShowVideo(false);
   }, [preferredSrc, eager]);
 
   useEffect(() => {
@@ -1139,6 +1136,7 @@ function AutoplayVideo({
     const handleBlocked = () => {
       if (isCancelled) return;
       setAutoplayBlocked(true);
+      setShowVideo(false);
       onAutoplayBlocked?.();
     };
 
@@ -1152,7 +1150,6 @@ function AutoplayVideo({
       video.setAttribute("autoplay", "");
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
-      video.setAttribute("x-webkit-airplay", "deny");
       const attempt = video.play();
       if (attempt && typeof attempt.catch === "function") {
         attempt.catch(() => {
@@ -1161,29 +1158,12 @@ function AutoplayVideo({
       }
     };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        attemptPlayback();
-      }
-    };
-
-    attemptPlayback();
-    const visibilityTimer = window.setTimeout(attemptPlayback, 120);
-    const loadedTimer = window.setTimeout(attemptPlayback, 300);
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
+    const timer = window.setTimeout(attemptPlayback, 80);
     return () => {
       isCancelled = true;
-      window.clearTimeout(visibilityTimer);
-      window.clearTimeout(loadedTimer);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.clearTimeout(timer);
     };
   }, [autoplayBlocked, onAutoplayBlocked, shouldRender, activeSrc]);
-
-  if (autoplayBlocked) {
-    return null;
-  }
 
   if (!shouldRender) {
     return (
@@ -1195,44 +1175,34 @@ function AutoplayVideo({
     );
   }
 
+  if (autoplayBlocked) {
+    return null;
+  }
+
   return (
     <video
       ref={videoRef}
       key={activeSrc}
-      className={`pointer-events-none select-none touch-none ${className}`}
+      className={`pointer-events-none select-none touch-none transition-opacity duration-500 ${className} ${
+        showVideo ? "opacity-100" : "opacity-0"
+      }`}
       autoPlay
       muted
       loop
       playsInline
-      preload={eager ? preload : "auto"}
+      preload={eager ? preload : "metadata"}
       poster={poster}
       aria-hidden="true"
       tabIndex={-1}
       onCanPlay={(event) => {
-        const video = event.currentTarget;
-        video.muted = true;
-        video.defaultMuted = true;
-        const attempt = video.play();
-        if (attempt && typeof attempt.catch === "function") {
-          attempt.catch(() => {
-            setAutoplayBlocked(true);
-            onAutoplayBlocked?.();
-          });
-        }
         onCanPlay?.(event);
       }}
       onLoadedData={(event) => {
-        const video = event.currentTarget;
-        const attempt = video.play();
-        if (attempt && typeof attempt.catch === "function") {
-          attempt.catch(() => {
-            setAutoplayBlocked(true);
-            onAutoplayBlocked?.();
-          });
-        }
+        setShowVideo(true);
         onLoadedData?.(event);
       }}
       onPlaying={(event) => {
+        setShowVideo(true);
         setAutoplayBlocked(false);
         onPlaying?.(event);
       }}
@@ -1240,9 +1210,11 @@ function AutoplayVideo({
         if (activeSrc !== src) {
           setActiveSrc(src);
           setAutoplayBlocked(false);
+          setShowVideo(false);
           return;
         }
         setAutoplayBlocked(true);
+        setShowVideo(false);
         onAutoplayBlocked?.();
       }}
     >
