@@ -112,7 +112,7 @@ const visPageMedia = {
 };
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
-  wordmark: "/logo-header.png",
+  wordmark: "/logo-header.svg",
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
@@ -1610,7 +1610,7 @@ function MobileHomeFooter({
         <div className="rounded-[1.9rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
           <div className="text-center">
             <img
-              src="/logo-header.png"
+              src="/logo-header.svg"
               alt="Praeliator"
               className="mx-auto h-12 w-auto object-contain opacity-95"
             />
@@ -2998,7 +2998,7 @@ function HomeFooterScene({
         <div className="border-t border-white/18 pt-14">
           <div className="text-center">
             <img
-              src="/logo-header.png"
+              src="/logo-header.svg"
               alt="Praeliator"
               className="mx-auto h-14 w-auto object-contain opacity-95"
             />
