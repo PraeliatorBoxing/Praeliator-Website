@@ -89,14 +89,8 @@ const homeImageSources = {
   presentation: galleryImages[3],
 };
 const homeCinematicMedia = {
-  hero: {
-    video: "/videos/home-hero.mp4",
-    poster: homeImageSources.hero,
-  },
-  vis: {
-    video: "/videos/home-vis.mp4",
-    poster: visImageSources.hero,
-  },
+  hero: { video: "/videos/home-hero.mp4", poster: homeImageSources.hero },
+  vis: { video: "/videos/home-vis.mp4", poster: visImageSources.hero },
   material: {
     video: "/videos/home-material.mp4",
     poster: visImageSources.leather,
@@ -112,13 +106,9 @@ const homeCinematicMedia = {
 };
 const visPageMedia = {
   heroVideo: homeCinematicMedia.vis.video,
-  heroMobileVideo: homeCinematicMedia.vis.mobileVideo,
   studyVideo: "/videos/vis-object-study.mp4",
-  studyMobileVideo: "/videos/mobile/vis-object-study-mobile.mp4",
   materialVideo: homeCinematicMedia.material.video,
-  materialMobileVideo: homeCinematicMedia.material.mobileVideo,
   ownershipVideo: homeCinematicMedia.ownership.video,
-  ownershipMobileVideo: homeCinematicMedia.ownership.mobileVideo,
 };
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
@@ -752,9 +742,9 @@ const pageTransition = {
   },
 };
 const formFieldBaseClass =
-  "browser-form-element min-h-[3.75rem] w-full rounded-[1.15rem] sm:rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
+  "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
 const formPanelClass =
-  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.15rem] sm:rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
+  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
 const normalizeInlineText = (value: string) =>
@@ -936,28 +926,6 @@ function normalizePath(pathname: string): Route {
   }
   return "/";
 }
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !("matchMedia" in window)) return;
-
-    const mediaQuery = window.matchMedia(query);
-    const update = () => setMatches(mediaQuery.matches);
-    update();
-
-    if ("addEventListener" in mediaQuery) {
-      mediaQuery.addEventListener("change", update);
-      return () => mediaQuery.removeEventListener("change", update);
-    }
-
-    mediaQuery.addListener(update);
-    return () => mediaQuery.removeListener(update);
-  }, [query]);
-
-  return matches;
-}
-
 function Container({
   children,
   className = "",
@@ -967,7 +935,7 @@ function Container({
 }) {
   return (
     <div
-      className={`mx-auto w-full max-w-[96rem] px-5 sm:px-6 lg:px-8 ${className}`}
+      className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}
     >
       {children}
     </div>
@@ -1046,190 +1014,12 @@ function DataList({
     </div>
   );
 }
-function useViewportMatch(query: string) {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia(query);
-    const update = () => setMatches(media.matches);
-    update();
-    if (typeof media.addEventListener === "function") {
-      media.addEventListener("change", update);
-      return () => media.removeEventListener("change", update);
-    }
-    media.addListener(update);
-    return () => media.removeListener(update);
-  }, [query]);
-
-  return matches;
-}
-
-function AutoplayVideo({
-  src,
-  mobileSrc,
-  poster,
-  className = "",
-  onCanPlay,
-  onLoadedData,
-  onPlaying,
-  onAutoplayBlocked,
-  preload = "metadata",
-  eager = false,
-  rootMargin = "320px",
-}: {
-  src: string;
-  mobileSrc?: string;
-  poster: string;
-  className?: string;
-  onCanPlay?: React.ReactEventHandler<HTMLVideoElement>;
-  onLoadedData?: React.ReactEventHandler<HTMLVideoElement>;
-  onPlaying?: React.ReactEventHandler<HTMLVideoElement>;
-  onAutoplayBlocked?: () => void;
-  preload?: "none" | "metadata" | "auto";
-  eager?: boolean;
-  rootMargin?: string;
-}) {
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const prefersMobile = useViewportMatch("(max-width: 768px)");
-  const preferredSrc = prefersMobile && mobileSrc ? mobileSrc : src;
-  const [activeSrc, setActiveSrc] = useState(preferredSrc);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [shouldRender, setShouldRender] = useState(eager);
-  const [showVideo, setShowVideo] = useState(false);
-
-  useEffect(() => {
-    setActiveSrc(preferredSrc);
-    setAutoplayBlocked(false);
-    setShouldRender(eager);
-    setShowVideo(false);
-  }, [preferredSrc, eager]);
-
-  useEffect(() => {
-    if (eager || shouldRender) return;
-    const node = sentinelRef.current;
-    if (!node || typeof IntersectionObserver === "undefined") {
-      setShouldRender(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry?.isIntersecting) {
-          setShouldRender(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [eager, shouldRender, rootMargin]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || autoplayBlocked || !shouldRender) return;
-
-    let isCancelled = false;
-
-    const handleBlocked = () => {
-      if (isCancelled) return;
-      setAutoplayBlocked(true);
-      setShowVideo(false);
-      onAutoplayBlocked?.();
-    };
-
-    const attemptPlayback = () => {
-      if (!video || isCancelled) return;
-      video.muted = true;
-      video.defaultMuted = true;
-      video.autoplay = true;
-      video.playsInline = true;
-      video.setAttribute("muted", "");
-      video.setAttribute("autoplay", "");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-      const attempt = video.play();
-      if (attempt && typeof attempt.catch === "function") {
-        attempt.catch(() => {
-          handleBlocked();
-        });
-      }
-    };
-
-    const timer = window.setTimeout(attemptPlayback, 80);
-    return () => {
-      isCancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [autoplayBlocked, onAutoplayBlocked, shouldRender, activeSrc]);
-
-  if (!shouldRender) {
-    return (
-      <div
-        ref={sentinelRef}
-        className={`pointer-events-none absolute inset-0 opacity-0 ${className}`}
-        aria-hidden="true"
-      />
-    );
-  }
-
-  if (autoplayBlocked) {
-    return null;
-  }
-
-  return (
-    <video
-      ref={videoRef}
-      key={activeSrc}
-      className={`pointer-events-none select-none touch-none transition-opacity duration-500 ${className} ${
-        showVideo ? "opacity-100" : "opacity-0"
-      }`}
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload={eager ? preload : "metadata"}
-      poster={poster}
-      aria-hidden="true"
-      tabIndex={-1}
-      onCanPlay={(event) => {
-        onCanPlay?.(event);
-      }}
-      onLoadedData={(event) => {
-        setShowVideo(true);
-        onLoadedData?.(event);
-      }}
-      onPlaying={(event) => {
-        setShowVideo(true);
-        setAutoplayBlocked(false);
-        onPlaying?.(event);
-      }}
-      onError={() => {
-        if (activeSrc !== src) {
-          setActiveSrc(src);
-          setAutoplayBlocked(false);
-          setShowVideo(false);
-          return;
-        }
-        setAutoplayBlocked(true);
-        setShowVideo(false);
-        onAutoplayBlocked?.();
-      }}
-    >
-      <source src={activeSrc} type="video/mp4" />
-    </video>
-  );
-}
-
 function MediaSurface({
   src,
   alt,
   className = "",
   priorityCopy,
   video,
-  mobileVideo,
   dim = "medium",
 }: {
   src: string;
@@ -1237,7 +1027,6 @@ function MediaSurface({
   className?: string;
   priorityCopy?: React.ReactNode;
   video?: string;
-  mobileVideo?: string;
   dim?: "light" | "medium" | "heavy";
 }) {
   const overlayMap = {
@@ -1247,7 +1036,7 @@ function MediaSurface({
   };
   return (
     <div
-      className={`relative overflow-hidden rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
+      className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -1256,20 +1045,22 @@ function MediaSurface({
         role="img"
       />
       {video ? (
-        <AutoplayVideo
+        <video
           className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
           poster={src}
-          src={video}
-          mobileSrc={mobileVideo}
           preload="metadata"
-          eager={false}
-          rootMargin="420px"
-        />
+        >
+          <source src={video} type="video/mp4" />
+        </video>
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
       {priorityCopy ? (
-        <div className="relative z-10 flex h-full items-end p-5 sm:p-8 lg:p-10">
+        <div className="relative z-10 flex h-full items-end p-6 sm:p-8 lg:p-10">
           <div className="max-w-sm">{priorityCopy}</div>
         </div>
       ) : null}
@@ -1321,25 +1112,25 @@ function PageHeroBanner({
   note?: string;
 }) {
   return (
-    <section className="relative overflow-hidden pt-24 sm:pt-32 lg:pt-36">
+    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
       <Container className="relative">
-        <div className="rounded-[1.45rem] sm:rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-4 sm:p-7 lg:p-8 shadow-[0_36px_120px_rgba(0,0,0,0.42)]">
+        <div className="rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-5 shadow-[0_36px_120px_rgba(0,0,0,0.42)] sm:p-7 lg:p-8">
           <div
-            className={`grid gap-6 sm:gap-8 lg:items-stretch lg:gap-8 ${
+            className={`grid gap-8 lg:items-stretch lg:gap-8 ${
               media ? "lg:grid-cols-[0.9fr_1.1fr]" : "lg:grid-cols-1"
             }`}
           >
             <Reveal className="flex">
-              <div className="flex h-full flex-col justify-between rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-white/[0.025] p-5 sm:p-8 lg:p-10">
+              <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                     {eyebrow}
                   </p>
-                  <h1 className="mt-4 text-[2.45rem] font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
+                  <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
                     {title}
                   </h1>
-                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     {description}
                   </p>
                   {note ? (
@@ -1348,7 +1139,7 @@ function PageHeroBanner({
                     </p>
                   ) : null}
                 </div>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   {actions.map((action) =>
                     action.href ? (
                       <Button
@@ -1359,8 +1150,8 @@ function PageHeroBanner({
                         }
                         className={
                           action.variant === "secondary"
-                            ? "w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
-                            : "w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                         }
                       >
                         <a href={action.href} target="_blank" rel="noreferrer">
@@ -1377,8 +1168,8 @@ function PageHeroBanner({
                         onClick={action.onClick}
                         className={
                           action.variant === "secondary"
-                            ? "w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
-                            : "w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                         }
                       >
                         {action.label}
@@ -1394,7 +1185,7 @@ function PageHeroBanner({
                   src={media.image}
                   alt={media.alt}
                   video={media.video}
-                  className="min-h-[20rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+                  className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
                   priorityCopy={
                     <>
                       {media.badge ? (
@@ -1448,13 +1239,13 @@ function EditorialBlock({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="relative py-6 sm:py-10 lg:py-12">
+    <section className="relative py-8 sm:py-10 lg:py-12">
       <Container>
         <div
           className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""}`}
         >
           <Reveal>
-            <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                 {eyebrow}
               </p>
@@ -1472,7 +1263,7 @@ function EditorialBlock({
               src={media.image}
               alt={media.alt}
               video={media.video}
-              className="min-h-[18rem] sm:min-h-[30rem] lg:min-h-[36rem]"
+              className="min-h-[20rem] sm:min-h-[30rem] lg:min-h-[36rem]"
               priorityCopy={
                 media.overlayTitle || media.overlayText ? (
                   <>
@@ -1508,10 +1299,10 @@ function ClubFooter({
   emailLink: string;
 }) {
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-8 sm:py-12 lg:py-16">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
       <Container className="relative">
-        <div className="overflow-hidden rounded-[1.7rem] sm:rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
+        <div className="overflow-hidden rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
           <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -1524,25 +1315,24 @@ function ClubFooter({
                 A quieter continuation of the brand: controlled access, direct
                 contact, and ownership carried with continuity.
               </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
-                  className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
+                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                 >
                   <a
                     href={whatsappGeneralLink}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <span className="sm:hidden">Inquire</span>
-              <span className="hidden sm:inline">Private Inquiry</span>
+                    Private Inquiry
                   </a>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/waitlist")}
-                  className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
+                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                 >
                   Join Waitlist
                 </Button>
@@ -1555,7 +1345,7 @@ function ClubFooter({
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-[0.9rem] sm:rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
+                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
                   >
                     {item}
                   </div>
@@ -1861,7 +1651,7 @@ function SelectField({
         aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.15rem] sm:rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
+        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
@@ -2214,7 +2004,6 @@ function FieldNote({ children }: { children: React.ReactNode }) {
 function CinematicScene({
   section,
   active,
-  shouldLoad = false,
 }: {
   section: {
     key: string;
@@ -2224,11 +2013,9 @@ function CinematicScene({
     href?: string;
     action?: () => void;
     video: string;
-    mobileVideo?: string;
     poster: string;
   };
   active: boolean;
-  shouldLoad?: boolean;
 }) {
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
@@ -2271,19 +2058,20 @@ function CinematicScene({
             style={{ backgroundImage: `url(${section.poster})` }}
             aria-hidden="true"
           />
-          <AutoplayVideo
+          <video
             className="absolute inset-0 h-full w-full object-cover"
-            poster={section.poster}
-            src={section.video}
-            mobileSrc={section.mobileVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
             preload="auto"
-            eager={shouldLoad}
-            rootMargin="100svh"
+            poster={section.poster}
             onCanPlay={markVideoReady}
             onLoadedData={markVideoReady}
             onPlaying={markVideoReady}
-            onAutoplayBlocked={markVideoReady}
-          />
+          >
+            <source src={section.video} type="video/mp4" />
+          </video>
         </motion.div>
         <AnimatePresence>
           {!videoReady && showLoader ? (
@@ -2305,10 +2093,10 @@ function CinematicScene({
           ) : null}
         </AnimatePresence>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_42%,rgba(0,0,0,0.52)_74%,rgba(0,0,0,0.78))]" />
-        <div className="absolute inset-x-0 top-0 h-[35svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.86),rgba(4,4,4,0.34),transparent)] sm:h-[30svh]" />
-        <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.24),rgba(4,4,4,0.82))] sm:h-[34svh]" />
+        <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
       </div>
-      <div className="relative z-10 flex h-full items-center justify-center px-5 pt-[calc(env(safe-area-inset-top)+2.35rem)] sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
+      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
         <motion.div
           animate={{
             opacity: inView ? 1 : 0,
@@ -2320,7 +2108,7 @@ function CinematicScene({
             delay: inView ? 0.28 : 0,
             ease: easeLuxury,
           }}
-          className="mx-auto flex max-w-[22rem] -translate-y-[8svh] flex-col items-center text-center sm:max-w-[92vw] sm:translate-y-0"
+          className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
         >
           <motion.p
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
@@ -2329,7 +2117,7 @@ function CinematicScene({
               delay: inView ? 0.34 : 0,
               ease: easeLuxury,
             }}
-            className="max-w-[20rem] text-[clamp(2rem,11vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.09em] text-white/96 sm:max-w-[92vw] sm:text-[clamp(2.2rem,9.4vw,6.6rem)] sm:tracking-[0.14em]"
+            className="max-w-[92vw] text-[clamp(2.4rem,7.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.12em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -2341,7 +2129,7 @@ function CinematicScene({
                 delay: inView ? 0.48 : 0,
                 ease: easeLuxury,
               }}
-              className="mt-4 max-w-[18rem] text-[0.78rem] leading-5 tracking-[0.08em] text-white/72 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:leading-7 sm:tracking-[0.1em]"
+              className="mt-4 max-w-[28rem] text-[clamp(0.8rem,1.1vw,0.98rem)] leading-6 tracking-[0.1em] text-white/72 sm:leading-7"
             >
               {section.line}
             </motion.p>
@@ -2353,12 +2141,12 @@ function CinematicScene({
               delay: inView ? 0.62 : 0,
               ease: easeLuxury,
             }}
-            className="mt-6 w-auto sm:mt-8"
+            className="mt-8"
           >
             {section.href ? (
               <Button
                 asChild
-                className="w-[min(18rem,82vw)] justify-center rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
+                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
                   {section.cta}
@@ -2368,7 +2156,7 @@ function CinematicScene({
               <Button
                 type="button"
                 onClick={section.action}
-                className="w-[min(18rem,82vw)] justify-center rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
+                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 {section.cta}
               </Button>
@@ -2410,7 +2198,7 @@ function ExploreFurtherScene({
     },
   ];
   return (
-    <section className="relative isolate flex min-h-[92svh] sm:min-h-[100svh] items-center bg-[#111111] px-4 py-16 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
       <motion.div
         animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
@@ -2425,7 +2213,7 @@ function ExploreFurtherScene({
             Continue your journey
           </p>
         </div>
-        <div className="mt-12 grid gap-4 lg:grid-cols-3 lg:gap-6">
+        <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
             <motion.button
               key={card.key}
@@ -2437,7 +2225,7 @@ function ExploreFurtherScene({
                 delay: 0.12 + index * 0.08,
                 ease: easeLuxury,
               }}
-              className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-transparent text-left sm:rounded-[1.5rem] lg:rounded-none lg:border-0 lg:border-l lg:border-white/18"
+              className="group overflow-hidden border-l border-white/18 bg-transparent text-left"
             >
               <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
                 <div
@@ -2446,7 +2234,7 @@ function ExploreFurtherScene({
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.22))]" />
               </div>
-              <div className="px-5 py-5 sm:px-7 sm:py-7">
+              <div className="px-7 py-7">
                 <p className="text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
                   {card.title}
                 </p>
@@ -2473,7 +2261,7 @@ function HomeFooterScene({
   emailLink: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-[92svh] sm:min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-4 py-14 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[120rem]">
         <div className="border-t border-white/18 pt-14">
@@ -2525,8 +2313,7 @@ function HomeFooterScene({
                 rel="noreferrer"
                 className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
               >
-                <span className="sm:hidden">Inquire</span>
-              <span className="hidden sm:inline">Private Inquiry</span>
+                Private Inquiry
               </a>
             </div>
             <div className="space-y-5">
@@ -2758,17 +2545,17 @@ function HeaderBrandMark({
 
   const wordmarkWrapperWidth = prefersReducedMotion
     ? isWordmarkMode
-      ? "10.8rem"
+      ? "13.08rem"
       : "0rem"
     : isWordmarkMode
-      ? "10.8rem"
+      ? "13.08rem"
       : "0rem";
 
   const wordmarkImageX = prefersReducedMotion
     ? "0rem"
     : isWordmarkMode
       ? "0rem"
-      : "-0.34rem";
+      : "-0.52rem";
 
   if (assetsBroken) {
     return (
@@ -2778,21 +2565,21 @@ function HeaderBrandMark({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-        className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.6rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+        className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
           <img
             src={brandAssetPaths.headerMonogramMark}
             alt="Praeliator"
-            className="h-8 w-8 object-contain sm:h-10 sm:w-10"
+            className="h-10 w-10 object-contain"
             onError={onAssetError}
           />
         ) : (
           <img
             src={brandAssetPaths.wordmark}
             alt="Praeliator"
-            className="h-6 w-auto scale-[0.66] object-contain opacity-92 sm:h-10 sm:scale-100"
+            className="h-9 w-auto object-contain opacity-92 sm:h-10"
             onError={onAssetError}
           />
         )}
@@ -2807,12 +2594,12 @@ function HeaderBrandMark({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.6rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+      className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       aria-label="Praeliator home"
     >
-      <div className="relative flex h-9 min-w-[2.5rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
+      <div className="relative flex h-12 min-w-[3.1rem] items-center justify-center">
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[1.7rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden origin-center scale-[0.62] sm:h-10 sm:scale-100"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
           animate={{
             width: wordmarkWrapperWidth,
             opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2828,8 +2615,8 @@ function HeaderBrandMark({
             alt=""
             draggable={false}
             onError={onAssetError}
-            className="absolute left-0 top-1/2 block h-8 w-auto max-w-none -translate-y-1/2 select-none sm:h-10"
-            style={{ width: "10.8rem" }}
+            className="absolute left-0 top-1/2 block h-10 w-auto max-w-none -translate-y-1/2 select-none"
+            style={{ width: "13.08rem" }}
             animate={{
               x: wordmarkImageX,
               opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2843,7 +2630,7 @@ function HeaderBrandMark({
         </motion.div>
 
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 sm:h-12 sm:w-12"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2"
           animate={{
             opacity: isWordmarkMode ? 0 : 1,
             scale: isAssemblyMode ? 1.018 : 1,
@@ -3086,7 +2873,6 @@ function FullScreenCinematicHomepage({
                 key={section.key}
                 section={section}
                 active={index === activeIndex}
-                shouldLoad={Math.abs(index - activeIndex) <= 1}
               />
             );
           }
@@ -3108,7 +2894,7 @@ function FullScreenCinematicHomepage({
 }
 function BrowserFormStyles() {
   return (
-    <style>{`html, body, #root { min-height: 100%; background: #050505; } html { color-scheme: dark; -webkit-text-size-adjust: 100%; } body { overscroll-behavior-y: none; overscroll-behavior-x: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
+    <style>{`.browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -3157,7 +2943,6 @@ export default function PraeliatorWebsite() {
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
   const reduceMotion = useReducedMotion();
-  const isMobileViewport = useMediaQuery("(max-width: 767px)");
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
       if (typeof window === "undefined") return;
@@ -3234,32 +3019,6 @@ export default function PraeliatorWebsite() {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.style.backgroundColor = "#050505";
-    document.body.style.backgroundColor = "#050505";
-    document.body.style.overscrollBehaviorY = "none";
-
-    const ensureMeta = (attribute: "name" | "id", value: string) => {
-      let node = document.head.querySelector(`meta[${attribute}="${value}"]`) as HTMLMetaElement | null;
-      if (!node) {
-        node = document.createElement("meta");
-        node.setAttribute(attribute, value);
-        document.head.appendChild(node);
-      }
-      return node;
-    };
-
-    ensureMeta("name", "theme-color").setAttribute("content", "#050505");
-    ensureMeta("name", "apple-mobile-web-app-status-bar-style").setAttribute(
-      "content",
-      "black-translucent",
-    );
-    ensureMeta("name", "viewport").setAttribute(
-      "content",
-      "width=device-width, initial-scale=1.0, viewport-fit=cover",
-    );
-  }, []);
-  useEffect(() => {
     if (reduceMotion || route === "/") return;
     const isTouchDevice =
       typeof window !== "undefined" &&
@@ -3328,10 +3087,6 @@ export default function PraeliatorWebsite() {
         : homeSectionIndex === 1
           ? "assembly"
           : "monogram";
-  const useCompactMobileHomeHeader = route === "/" && isMobileViewport;
-  const effectiveHeaderBrandMode: HeaderBrandMode = useCompactMobileHomeHeader
-    ? "monogram"
-    : headerBrandMode;
   const headerLifted =
     !mobileMenuOpen &&
     ((route === "/" && homeSectionIndex >= 3) ||
@@ -3658,7 +3413,6 @@ export default function PraeliatorWebsite() {
         cta: "Discover",
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.hero.video,
-        mobileVideo: homeCinematicMedia.hero.mobileVideo,
         poster: homeCinematicMedia.hero.poster,
       },
       {
@@ -3669,7 +3423,6 @@ export default function PraeliatorWebsite() {
         cta: "Enter VIS",
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.vis.video,
-        mobileVideo: homeCinematicMedia.vis.mobileVideo,
         poster: homeCinematicMedia.vis.poster,
       },
       {
@@ -3680,7 +3433,6 @@ export default function PraeliatorWebsite() {
         cta: "Private Inquiry",
         href: whatsappGeneralLink,
         video: homeCinematicMedia.acquisition.video,
-        mobileVideo: homeCinematicMedia.acquisition.mobileVideo,
         poster: homeCinematicMedia.acquisition.poster,
       },
       { key: "tail", kind: "tail" as const },
@@ -3698,27 +3450,30 @@ export default function PraeliatorWebsite() {
   };
   const renderVisPage = () => (
     <>
-      <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#040404]">
+      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#040404]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.025] bg-cover bg-center"
             style={{ backgroundImage: `url(${visImageSources.hero})` }}
             aria-hidden="true"
           />
-          <AutoplayVideo
+          <video
             className="absolute inset-0 h-full w-full object-cover"
-            poster={visImageSources.hero}
-            src={visPageMedia.heroVideo}
-            mobileSrc={visPageMedia.heroMobileVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
             preload="auto"
-            eager
-          />
+            poster={visImageSources.hero}
+          >
+            <source src={visPageMedia.heroVideo} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
-          <div className="absolute inset-x-0 top-0 h-[35svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.86),rgba(4,4,4,0.34),transparent)] sm:h-[30svh]" />
+          <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
         </div>
 
-        <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -3740,7 +3495,7 @@ export default function PraeliatorWebsite() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
-                className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
               >
                 <a href={whatsappVisLink} target="_blank" rel="noreferrer">
                   Private Purchase Inquiry
@@ -3750,7 +3505,7 @@ export default function PraeliatorWebsite() {
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/waitlist")}
-                className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
                 Join Waitlist
               </Button>
@@ -3766,7 +3521,7 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden bg-[#050505] py-12 sm:py-20 lg:py-24">
+      <section className="relative overflow-hidden bg-[#050505] py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
         <Container className="relative">
           <Reveal className="mx-auto max-w-[56rem] text-center">
@@ -3785,18 +3540,18 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative -mt-1 py-4 sm:py-8 lg:py-10">
+      <section className="relative -mt-2 py-6 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
             <Reveal>
-              <div className="h-full rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
+              <div className="h-full rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Object study
                 </p>
                 <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.25rem]">
                   The silhouette is controlled before it is decorated.
                 </h2>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   VIS was shaped to feel engineered, not inflated. The taper into the wrist,
                   the authority of the cuff, the balance of the hand chamber, and the quiet
                   restraint of the surface all belong to the same decision-making system.
@@ -3819,7 +3574,7 @@ export default function PraeliatorWebsite() {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5"
+                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5"
                     >
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.title}
@@ -3836,7 +3591,6 @@ export default function PraeliatorWebsite() {
                 src={visImageSources.hero}
                 alt="Praeliator VIS silhouette study"
                 video={visPageMedia.studyVideo}
-                mobileVideo={visPageMedia.studyMobileVideo}
                 className="min-h-[24rem] sm:min-h-[30rem] lg:min-h-[40rem]"
                 dim="light"
                 priorityCopy={
@@ -3855,14 +3609,13 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-4 sm:py-8 lg:py-10">
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
         <Container>
           <Reveal>
             <MediaSurface
               src={visImageSources.leather}
               alt="Praeliator VIS leather macro"
               video={visPageMedia.materialVideo}
-              mobileVideo={visPageMedia.materialMobileVideo}
               className="min-h-[24rem] sm:min-h-[28rem] lg:min-h-[34rem]"
               dim="light"
               priorityCopy={
@@ -3882,7 +3635,7 @@ export default function PraeliatorWebsite() {
             />
           </Reveal>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
             {[
               {
                 title: "Surface",
@@ -3898,7 +3651,7 @@ export default function PraeliatorWebsite() {
               },
             ].map((item, index) => (
               <Reveal key={item.title} delay={0.04 * index}>
-                <div className="rounded-[1rem] sm:rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
+                <div className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     {item.title}
                   </p>
@@ -3910,24 +3663,24 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-4 sm:py-8 lg:py-10">
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-5 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-8">
+          <div className="grid gap-6 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-8">
             <Reveal>
-              <div className="rounded-[1.65rem] sm:rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
+              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Construction logic
                 </p>
                 <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
                   The glove had to feel technically serious without becoming visually loud.
                 </h2>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   VIS is not a museum object in the sense of fragility. It is a museum object
                   in the sense of resolution. Padding, palm ventilation, thumb attachment,
                   grip bar, and wrist control all belong to the same standard of discipline.
                 </p>
 
-                <div className="mt-8 rounded-[1.15rem] sm:rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="mt-8 rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Impact structure
                   </p>
@@ -3951,7 +3704,7 @@ export default function PraeliatorWebsite() {
             </Reveal>
 
             <Reveal delay={0.06}>
-              <div className="rounded-[1.65rem] sm:rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
+              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Object record
                 </p>
@@ -3983,10 +3736,10 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-4 sm:py-8 lg:py-10">
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
         <Container>
           <Reveal>
-            <div className="overflow-hidden rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_32px_84px_rgba(0,0,0,0.28)]">
+            <div className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_32px_84px_rgba(0,0,0,0.28)]">
               <div className="grid gap-0 lg:grid-cols-[1.02fr_0.98fr] lg:items-stretch">
                 <div className="border-b border-white/10 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3995,14 +3748,14 @@ export default function PraeliatorWebsite() {
                   <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.15rem]">
                     Presentation, authenticity, and aftercare stay inside the same language.
                   </h2>
-                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     VIS should not stop feeling controlled once the glove leaves the image. The
                     rigid box, silk dust bag, authenticity record, ownership continuity, and
                     service route all belong to the same standard.
                   </p>
 
                   <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         Presentation
                       </p>
@@ -4014,7 +3767,7 @@ export default function PraeliatorWebsite() {
                         ))}
                       </div>
                     </div>
-                    <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         Ownership
                       </p>
@@ -4029,7 +3782,6 @@ export default function PraeliatorWebsite() {
                   src={visImageSources.packaging}
                   alt="Praeliator VIS presentation"
                   video={visPageMedia.ownershipVideo}
-                  mobileVideo={visPageMedia.ownershipMobileVideo}
                   className="min-h-[24rem] rounded-none border-0 shadow-none sm:min-h-[28rem] lg:min-h-full"
                   dim="light"
                   priorityCopy={
@@ -4045,8 +3797,8 @@ export default function PraeliatorWebsite() {
                 />
               </div>
 
-              <div className="border-t border-white/10 p-5 sm:p-8 lg:p-10">
-                <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+              <div className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
+                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Aftercare
                   </p>
@@ -4066,11 +3818,11 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden py-12 sm:py-20 lg:py-24">
+      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
           <Reveal>
-            <div className="rounded-[1.7rem] sm:rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 sm:p-9 lg:p-12 shadow-[0_38px_120px_rgba(0,0,0,0.34)]">
+            <div className="rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-7 shadow-[0_38px_120px_rgba(0,0,0,0.34)] sm:p-9 lg:p-12">
               <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -4079,7 +3831,7 @@ export default function PraeliatorWebsite() {
                   <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
                     Acquisition continues directly.
                   </h2>
-                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     VIS is presented first as an object and acquired second as a route. The
                     final step should feel as disciplined as the glove itself.
                   </p>
@@ -4088,18 +3840,17 @@ export default function PraeliatorWebsite() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:justify-start lg:justify-end">
                   <Button
                     asChild
-                    className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                   >
                     <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                      <span className="sm:hidden">Inquire</span>
-              <span className="hidden sm:inline">Private Inquiry</span>
+                      Private Inquiry
                     </a>
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => goTo("/waitlist")}
-                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
                     Join Waitlist
                   </Button>
@@ -4114,27 +3865,30 @@ export default function PraeliatorWebsite() {
 
 const renderAcquisitionPage = () => (
   <>
-    <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#050505]">
+    <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-center"
           style={{ backgroundImage: `url(${homeCinematicMedia.acquisition.poster})` }}
           aria-hidden="true"
         />
-        <AutoplayVideo
+        <video
           className="absolute inset-0 h-full w-full object-cover"
-          poster={homeCinematicMedia.acquisition.poster}
-          src={homeCinematicMedia.acquisition.video}
-          mobileSrc={homeCinematicMedia.acquisition.mobileVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
           preload="auto"
-          eager
-        />
+          poster={homeCinematicMedia.acquisition.poster}
+        >
+          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
         <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
       </div>
 
-      <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+      <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
         <motion.div
           initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -4156,7 +3910,7 @@ const renderAcquisitionPage = () => (
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
               asChild
-              className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                 Begin Inquiry
@@ -4166,7 +3920,7 @@ const renderAcquisitionPage = () => (
               type="button"
               variant="outline"
               onClick={() => goTo("/waitlist")}
-              className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
             >
               Join Waitlist
             </Button>
@@ -4187,7 +3941,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-12 sm:py-20 lg:py-24">
+    <section className="relative py-16 sm:py-20 lg:py-24">
       <Container>
         <div className="grid gap-12 lg:grid-cols-[0.98fr_1.02fr] lg:items-end lg:gap-14">
           <Reveal>
@@ -4209,7 +3963,6 @@ const renderAcquisitionPage = () => (
               src={visImageSources.packaging}
               alt="Praeliator acquisition packaging"
               video={homeCinematicMedia.ownership.video}
-              mobileVideo={homeCinematicMedia.ownership.mobileVideo}
               className="min-h-[22rem] sm:min-h-[30rem] lg:min-h-[38rem]"
               dim="heavy"
               priorityCopy={
@@ -4316,7 +4069,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-12 sm:py-20 lg:py-24">
+    <section className="relative py-16 sm:py-20 lg:py-24">
       <Container>
         <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14">
           <Reveal delay={0.08} className="lg:order-2">
@@ -4353,7 +4106,7 @@ const renderAcquisitionPage = () => (
             <MediaSurface
               src={visImageSources.hero}
               alt="Praeliator acquisition detail"
-              className="min-h-[20rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+              className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
               dim="heavy"
               priorityCopy={
                 <>
@@ -4371,7 +4124,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-12 sm:py-20 lg:py-24">
+    <section className="relative py-16 sm:py-20 lg:py-24">
       <Container>
         <div className="border-t border-white/10 pt-10 sm:pt-12 lg:pt-14">
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
@@ -4382,7 +4135,7 @@ const renderAcquisitionPage = () => (
               <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
                 Immediate inquiry or quieter entry.
               </h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                 Some clients want to begin contact immediately. Others want a softer point
                 of entry into future releases. Both remain inside the same language and the
                 same level of control.
@@ -4391,7 +4144,7 @@ const renderAcquisitionPage = () => (
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
-                  className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
+                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                     Begin Inquiry
@@ -4401,7 +4154,7 @@ const renderAcquisitionPage = () => (
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/waitlist")}
-                  className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
+                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                 >
                   Enter Waitlist
                 </Button>
@@ -4460,11 +4213,11 @@ const renderWaitlistPage = () => (
         ]}
         stats={pageHeroStats["/waitlist"]}
       />
-      <section className="relative py-6 sm:py-10 lg:py-12">
+      <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-10">
             <Reveal>
-              <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <SectionHeading
                   eyebrow="Waitlist"
                   title="A quieter route into future access."
@@ -4499,7 +4252,7 @@ const renderWaitlistPage = () => (
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-[0.9rem] sm:rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-5"
+                      className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-5"
                     >
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.title}
@@ -4510,11 +4263,11 @@ const renderWaitlistPage = () => (
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 w-auto sm:mt-8">
+                <div className="mt-8">
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
                     <a
                       href={whatsappGeneralLink}
@@ -4533,7 +4286,7 @@ const renderWaitlistPage = () => (
               </div>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
                 <form
                   className="grid gap-4 sm:gap-4 lg:gap-5"
                   onSubmit={handleWaitlistSubmit}
@@ -4791,14 +4544,14 @@ const renderWaitlistPage = () => (
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 6 }}
                         transition={{ duration: 0.22, ease: easeLuxury }}
-                        className="overflow-hidden rounded-[0.9rem] sm:rounded-[1.2rem] sm:rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                        className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
                         aria-live="polite"
                       >
                         <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
                           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                             Inquiry received
                           </p>
-                          <p className="mt-3 rounded-[0.9rem] sm:rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
+                          <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
                             {waitlistState.reference ||
                               "Client reference pending"}
                           </p>
@@ -4807,7 +4560,7 @@ const renderWaitlistPage = () => (
                           <p className="text-sm leading-6 text-white/62">
                             {waitlistState.serviceMessage}
                           </p>
-                          <div className="rounded-[0.9rem] sm:rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                          <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
                             Private review usually follows within one business
                             day. If timing matters, continue directly on
                             WhatsApp and include your reference.
@@ -4865,27 +4618,30 @@ const renderWaitlistPage = () => (
   );
   const renderContactPage = () => (
     <>
-      <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#050505]">
+      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.03] bg-cover bg-center"
             style={{ backgroundImage: `url(${visImageSources.packaging})` }}
             aria-hidden="true"
           />
-          <AutoplayVideo
+          <video
             className="absolute inset-0 h-full w-full object-cover"
-            poster={visImageSources.packaging}
-            src={homeCinematicMedia.ownership.video}
-            mobileSrc={homeCinematicMedia.ownership.mobileVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
             preload="auto"
-            eager
-          />
+            poster={visImageSources.packaging}
+          >
+            <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
           <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
           <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
         </div>
 
-        <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -4906,18 +4662,17 @@ const renderWaitlistPage = () => (
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
-                className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  <span className="sm:hidden">Inquire</span>
-              <span className="hidden sm:inline">Private Inquiry</span>
+                  Private Inquiry
                 </a>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/waitlist")}
-                className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
                 Join Waitlist
               </Button>
@@ -4934,26 +4689,26 @@ const renderWaitlistPage = () => (
         </Container>
       </section>
 
-      <section className="relative py-12 sm:py-20 lg:py-24">
+      <section className="relative py-16 sm:py-20 lg:py-24">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
             <Reveal>
-              <div className="rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Primary route
                 </p>
                 <h2 className="mt-5 max-w-[9ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
                   WhatsApp remains first.
                 </h2>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   For private purchase inquiries and faster continuation, WhatsApp stays
                   primary. The route remains direct and the tone remains controlled.
                 </p>
 
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
-                    className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
+                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
                     <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                       Open WhatsApp
@@ -4963,7 +4718,7 @@ const renderWaitlistPage = () => (
                     type="button"
                     variant="outline"
                     onClick={() => goTo("/waitlist")}
-                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
+                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
                     Quieter Entry
                   </Button>
@@ -5052,7 +4807,6 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 h-[calc(env(safe-area-inset-bottom)+2.25rem)] bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.88)_34%,#050505_78%)] md:hidden" />
       <motion.header
         className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
         animate={{
@@ -5071,7 +4825,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between px-4 py-3.5 sm:px-0 sm:py-6">
+          <Container className="relative flex items-center justify-between py-5 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -5079,7 +4833,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-8 w-8 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
+              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
             >
               <motion.span
                 animate={{
@@ -5091,7 +4845,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[1.75rem] w-[1.75rem] sm:h-[2.9rem] sm:w-[2.9rem]"
+                  className="h-[2.9rem] w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -5099,27 +4853,22 @@ const renderWaitlistPage = () => (
               </span>
             </motion.button>
             <HeaderBrandMark
-              mode={effectiveHeaderBrandMode}
+              mode={headerBrandMode}
               onClick={() => goTo("/")}
               assetsBroken={headerLogoBroken}
               onAssetError={() => setHeaderLogoBroken(true)}
             />
-            {useCompactMobileHomeHeader ? (
-              <div className="h-8 w-8 shrink-0 sm:hidden" aria-hidden="true" />
-            ) : (
-              <motion.a
-                href={currentPurchaseLink}
-                target="_blank"
-                rel="noreferrer"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="inline-flex shrink-0 text-[8px] uppercase tracking-[0.14em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
-              >
-                <span className="sm:hidden">Inquire</span>
-                <span className="hidden sm:inline">Private Inquiry</span>
-              </motion.a>
-            )}
+            <motion.a
+              href={currentPurchaseLink}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+            >
+              Private Inquiry
+            </motion.a>
           </Container>
           <AnimatePresence initial={false}>
             {route !== "/" && !mobileMenuOpen ? (
@@ -5128,7 +4877,7 @@ const renderWaitlistPage = () => (
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.75, ease: easeLuxury }}
-                className="pointer-events-none pb-2 sm:pb-4"
+                className="pointer-events-none pb-3 sm:pb-4"
               >
                 <Container className="flex justify-center">
                   <p className="text-[9px] uppercase tracking-[0.34em] text-white/38 sm:text-[10px]">
@@ -5163,10 +4912,10 @@ const renderWaitlistPage = () => (
                             ease: easeLuxury,
                           }}
                           onClick={() => goTo(item.path)}
-                          className="group flex items-end justify-between gap-4 border-b border-white/[0.08] py-5 text-left transition duration-500 hover:border-white/[0.18] sm:gap-6 sm:py-7 lg:py-8"
+                          className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
                         >
                           <div className="min-w-0">
-                            <p className="text-[1.1rem] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white sm:text-[clamp(1.15rem,2vw,2rem)]">
+                            <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
                               {item.label}
                             </p>
                             <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
