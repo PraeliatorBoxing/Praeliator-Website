@@ -1094,7 +1094,7 @@ function PageHeroBanner({
   title: string;
   description: string;
   actions: HeroAction[];
-  media: {
+  media?: {
     image: string;
     alt: string;
     video?: string;
@@ -1110,7 +1110,11 @@ function PageHeroBanner({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
       <Container className="relative">
         <div className="rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-5 shadow-[0_36px_120px_rgba(0,0,0,0.42)] sm:p-7 lg:p-8">
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
+          <div
+            className={`grid gap-8 lg:items-stretch lg:gap-8 ${
+              media ? "lg:grid-cols-[0.9fr_1.1fr]" : "lg:grid-cols-1"
+            }`}
+          >
             <Reveal className="flex">
               <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
                 <div>
@@ -1169,33 +1173,35 @@ function PageHeroBanner({
                 </div>
               </div>
             </Reveal>
-            <Reveal delay={0.08}>
-              <MediaSurface
-                src={media.image}
-                alt={media.alt}
-                video={media.video}
-                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
-                priorityCopy={
-                  <>
-                    {media.badge ? (
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                        {media.badge}
-                      </p>
-                    ) : null}
-                    {media.overlayTitle ? (
-                      <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                        {media.overlayTitle}
-                      </p>
-                    ) : null}
-                    {media.overlayText ? (
-                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
-                        {media.overlayText}
-                      </p>
-                    ) : null}
-                  </>
-                }
-              />
-            </Reveal>
+            {media ? (
+              <Reveal delay={0.08}>
+                <MediaSurface
+                  src={media.image}
+                  alt={media.alt}
+                  video={media.video}
+                  className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+                  priorityCopy={
+                    <>
+                      {media.badge ? (
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                          {media.badge}
+                        </p>
+                      ) : null}
+                      {media.overlayTitle ? (
+                        <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                          {media.overlayTitle}
+                        </p>
+                      ) : null}
+                      {media.overlayText ? (
+                        <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
+                          {media.overlayText}
+                        </p>
+                      ) : null}
+                    </>
+                  }
+                />
+              </Reveal>
+            ) : null}
           </div>
           <div className="mt-5 sm:mt-6">
             <PageStatStrip items={stats} />
@@ -3998,15 +4004,6 @@ const renderWaitlistPage = () => (
             variant: "secondary",
           },
         ]}
-        media={{
-          image: homeImageSources.presentation,
-          alt: "Praeliator waitlist",
-          video: homeCinematicMedia.ownership.video,
-          badge: "Future access",
-          overlayTitle: "A quieter route in.",
-          overlayText:
-            "Collector interest, future access, and controlled follow-up.",
-        }}
         stats={pageHeroStats["/waitlist"]}
       />
       <section className="relative py-8 sm:py-10 lg:py-12">
