@@ -3496,11 +3496,7 @@ export default function PraeliatorWebsite() {
   }, []);
 
   useEffect(() => {
-    if (isDesktopViewport) {
-      setMobileMenuOpen(false);
-      return;
-    }
-    if (!mobileMenuOpen) return;
+    if (isDesktopViewport || !mobileMenuOpen) return;
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
