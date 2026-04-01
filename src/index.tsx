@@ -742,9 +742,9 @@ const pageTransition = {
   },
 };
 const formFieldBaseClass =
-  "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
+  "browser-form-element min-h-[3.75rem] w-full rounded-[1.15rem] sm:rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
 const formPanelClass =
-  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
+  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.15rem] sm:rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
 const normalizeInlineText = (value: string) =>
@@ -935,7 +935,7 @@ function Container({
 }) {
   return (
     <div
-      className={`mx-auto w-full max-w-[96rem] px-4 sm:px-6 lg:px-8 ${className}`}
+      className={`mx-auto w-full max-w-[96rem] px-5 sm:px-6 lg:px-8 ${className}`}
     >
       {children}
     </div>
@@ -1036,7 +1036,7 @@ function MediaSurface({
   };
   return (
     <div
-      className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
+      className={`relative overflow-hidden rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -1060,7 +1060,7 @@ function MediaSurface({
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
       {priorityCopy ? (
-        <div className="relative z-10 flex h-full items-end p-6 sm:p-8 lg:p-10">
+        <div className="relative z-10 flex h-full items-end p-5 sm:p-8 lg:p-10">
           <div className="max-w-sm">{priorityCopy}</div>
         </div>
       ) : null}
@@ -1112,25 +1112,25 @@ function PageHeroBanner({
   note?: string;
 }) {
   return (
-    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+    <section className="relative overflow-hidden pt-24 sm:pt-32 lg:pt-36">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
       <Container className="relative">
-        <div className="rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-5 shadow-[0_36px_120px_rgba(0,0,0,0.42)] sm:p-7 lg:p-8">
+        <div className="rounded-[1.45rem] sm:rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-4 sm:p-7 lg:p-8 shadow-[0_36px_120px_rgba(0,0,0,0.42)]">
           <div
-            className={`grid gap-8 lg:items-stretch lg:gap-8 ${
+            className={`grid gap-6 sm:gap-8 lg:items-stretch lg:gap-8 ${
               media ? "lg:grid-cols-[0.9fr_1.1fr]" : "lg:grid-cols-1"
             }`}
           >
             <Reveal className="flex">
-              <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
+              <div className="flex h-full flex-col justify-between rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-white/[0.025] p-5 sm:p-8 lg:p-10">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                     {eyebrow}
                   </p>
-                  <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
+                  <h1 className="mt-4 text-[2.45rem] font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
                     {title}
                   </h1>
-                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     {description}
                   </p>
                   {note ? (
@@ -1139,7 +1139,7 @@ function PageHeroBanner({
                     </p>
                   ) : null}
                 </div>
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   {actions.map((action) =>
                     action.href ? (
                       <Button
@@ -1150,8 +1150,8 @@ function PageHeroBanner({
                         }
                         className={
                           action.variant === "secondary"
-                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                            ? "w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                            : "w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
                         }
                       >
                         <a href={action.href} target="_blank" rel="noreferrer">
@@ -1168,8 +1168,8 @@ function PageHeroBanner({
                         onClick={action.onClick}
                         className={
                           action.variant === "secondary"
-                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                            ? "w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
+                            : "w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
                         }
                       >
                         {action.label}
@@ -1185,7 +1185,7 @@ function PageHeroBanner({
                   src={media.image}
                   alt={media.alt}
                   video={media.video}
-                  className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+                  className="min-h-[20rem] sm:min-h-[34rem] lg:min-h-[42rem]"
                   priorityCopy={
                     <>
                       {media.badge ? (
@@ -1239,13 +1239,13 @@ function EditorialBlock({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="relative py-8 sm:py-10 lg:py-12">
+    <section className="relative py-6 sm:py-10 lg:py-12">
       <Container>
         <div
           className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""}`}
         >
           <Reveal>
-            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+            <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                 {eyebrow}
               </p>
@@ -1263,7 +1263,7 @@ function EditorialBlock({
               src={media.image}
               alt={media.alt}
               video={media.video}
-              className="min-h-[20rem] sm:min-h-[30rem] lg:min-h-[36rem]"
+              className="min-h-[18rem] sm:min-h-[30rem] lg:min-h-[36rem]"
               priorityCopy={
                 media.overlayTitle || media.overlayText ? (
                   <>
@@ -1299,10 +1299,10 @@ function ClubFooter({
   emailLink: string;
 }) {
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-8 sm:py-12 lg:py-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
       <Container className="relative">
-        <div className="overflow-hidden rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
+        <div className="overflow-hidden rounded-[1.7rem] sm:rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
           <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -1315,24 +1315,25 @@ function ClubFooter({
                 A quieter continuation of the brand: controlled access, direct
                 contact, and ownership carried with continuity.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
-                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                  className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
                 >
                   <a
                     href={whatsappGeneralLink}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Private Inquiry
+                    <span className="sm:hidden">Inquire</span>
+              <span className="hidden sm:inline">Private Inquiry</span>
                   </a>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
                 >
                   Join Waitlist
                 </Button>
@@ -1345,7 +1346,7 @@ function ClubFooter({
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
+                    className="rounded-[0.9rem] sm:rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
                   >
                     {item}
                   </div>
@@ -1651,7 +1652,7 @@ function SelectField({
         aria-activedescendant={activeOptionId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
+        className={`group flex min-h-[3.75rem] w-full items-center justify-between gap-4 rounded-[1.15rem] sm:rounded-[1.45rem] border px-5 py-3 text-left outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
       >
         <span className="min-w-0 flex-1">
           {fieldLabel ? (
@@ -2096,7 +2097,7 @@ function CinematicScene({
         <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
       </div>
-      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
+      <div className="relative z-10 flex h-full items-center justify-center px-4 pt-16 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
         <motion.div
           animate={{
             opacity: inView ? 1 : 0,
@@ -2117,7 +2118,7 @@ function CinematicScene({
               delay: inView ? 0.34 : 0,
               ease: easeLuxury,
             }}
-            className="max-w-[92vw] text-[clamp(2.4rem,7.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.12em] text-white/96 sm:tracking-[0.14em]"
+            className="max-w-[92vw] text-[clamp(2.2rem,9.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.11em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -2129,7 +2130,7 @@ function CinematicScene({
                 delay: inView ? 0.48 : 0,
                 ease: easeLuxury,
               }}
-              className="mt-4 max-w-[28rem] text-[clamp(0.8rem,1.1vw,0.98rem)] leading-6 tracking-[0.1em] text-white/72 sm:leading-7"
+              className="mt-4 max-w-[22rem] text-[0.8rem] leading-6 tracking-[0.09em] text-white/72 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:leading-7 sm:tracking-[0.1em]"
             >
               {section.line}
             </motion.p>
@@ -2141,12 +2142,12 @@ function CinematicScene({
               delay: inView ? 0.62 : 0,
               ease: easeLuxury,
             }}
-            className="mt-8"
+            className="mt-7 w-full sm:mt-8 sm:w-auto"
           >
             {section.href ? (
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="w-full justify-center rounded-full bg-[#efe5d7] px-7 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
                   {section.cta}
@@ -2156,7 +2157,7 @@ function CinematicScene({
               <Button
                 type="button"
                 onClick={section.action}
-                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="w-full justify-center rounded-full bg-[#efe5d7] px-7 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
               >
                 {section.cta}
               </Button>
@@ -2198,7 +2199,7 @@ function ExploreFurtherScene({
     },
   ];
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-[92svh] sm:min-h-[100svh] items-center bg-[#111111] px-4 py-16 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
       <motion.div
         animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
@@ -2213,7 +2214,7 @@ function ExploreFurtherScene({
             Continue your journey
           </p>
         </div>
-        <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="mt-12 grid gap-4 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
             <motion.button
               key={card.key}
@@ -2225,7 +2226,7 @@ function ExploreFurtherScene({
                 delay: 0.12 + index * 0.08,
                 ease: easeLuxury,
               }}
-              className="group overflow-hidden border-l border-white/18 bg-transparent text-left"
+              className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-transparent text-left sm:rounded-[1.5rem] lg:rounded-none lg:border-0 lg:border-l lg:border-white/18"
             >
               <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
                 <div
@@ -2234,7 +2235,7 @@ function ExploreFurtherScene({
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.22))]" />
               </div>
-              <div className="px-7 py-7">
+              <div className="px-5 py-5 sm:px-7 sm:py-7">
                 <p className="text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
                   {card.title}
                 </p>
@@ -2261,7 +2262,7 @@ function HomeFooterScene({
   emailLink: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-[92svh] sm:min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-4 py-14 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[120rem]">
         <div className="border-t border-white/18 pt-14">
@@ -2313,7 +2314,8 @@ function HomeFooterScene({
                 rel="noreferrer"
                 className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
               >
-                Private Inquiry
+                <span className="sm:hidden">Inquire</span>
+              <span className="hidden sm:inline">Private Inquiry</span>
               </a>
             </div>
             <div className="space-y-5">
@@ -2565,21 +2567,21 @@ function HeaderBrandMark({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-        className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+        className="absolute left-1/2 top-1/2 flex h-12 min-w-[3rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
           <img
             src={brandAssetPaths.headerMonogramMark}
             alt="Praeliator"
-            className="h-10 w-10 object-contain"
+            className="h-9 w-9 object-contain sm:h-10 sm:w-10"
             onError={onAssetError}
           />
         ) : (
           <img
             src={brandAssetPaths.wordmark}
             alt="Praeliator"
-            className="h-9 w-auto object-contain opacity-92 sm:h-10"
+            className="h-7 w-auto object-contain opacity-92 sm:h-10"
             onError={onAssetError}
           />
         )}
@@ -2594,12 +2596,12 @@ function HeaderBrandMark({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+      className="absolute left-1/2 top-1/2 flex h-12 min-w-[3rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
       aria-label="Praeliator home"
     >
-      <div className="relative flex h-12 min-w-[3.1rem] items-center justify-center">
+      <div className="relative flex h-10 min-w-[2.6rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-8 -translate-x-1/2 -translate-y-1/2 overflow-hidden sm:h-10"
           animate={{
             width: wordmarkWrapperWidth,
             opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2615,7 +2617,7 @@ function HeaderBrandMark({
             alt=""
             draggable={false}
             onError={onAssetError}
-            className="absolute left-0 top-1/2 block h-10 w-auto max-w-none -translate-y-1/2 select-none"
+            className="absolute left-0 top-1/2 block h-8 w-auto max-w-none -translate-y-1/2 select-none sm:h-10"
             style={{ width: "13.08rem" }}
             animate={{
               x: wordmarkImageX,
@@ -2630,7 +2632,7 @@ function HeaderBrandMark({
         </motion.div>
 
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 sm:h-12 sm:w-12"
           animate={{
             opacity: isWordmarkMode ? 0 : 1,
             scale: isAssemblyMode ? 1.018 : 1,
@@ -3450,7 +3452,7 @@ export default function PraeliatorWebsite() {
   };
   const renderVisPage = () => (
     <>
-      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#040404]">
+      <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#040404]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.025] bg-cover bg-center"
@@ -3473,7 +3475,7 @@ export default function PraeliatorWebsite() {
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
         </div>
 
-        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -3495,7 +3497,7 @@ export default function PraeliatorWebsite() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
               >
                 <a href={whatsappVisLink} target="_blank" rel="noreferrer">
                   Private Purchase Inquiry
@@ -3505,7 +3507,7 @@ export default function PraeliatorWebsite() {
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/waitlist")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
               >
                 Join Waitlist
               </Button>
@@ -3521,7 +3523,7 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden bg-[#050505] py-16 sm:py-20 lg:py-24">
+      <section className="relative overflow-hidden bg-[#050505] py-12 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
         <Container className="relative">
           <Reveal className="mx-auto max-w-[56rem] text-center">
@@ -3540,18 +3542,18 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative -mt-2 py-6 sm:py-8 lg:py-10">
+      <section className="relative -mt-1 py-4 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
+          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
             <Reveal>
-              <div className="h-full rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
+              <div className="h-full rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Object study
                 </p>
                 <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.25rem]">
                   The silhouette is controlled before it is decorated.
                 </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   VIS was shaped to feel engineered, not inflated. The taper into the wrist,
                   the authority of the cuff, the balance of the hand chamber, and the quiet
                   restraint of the surface all belong to the same decision-making system.
@@ -3574,7 +3576,7 @@ export default function PraeliatorWebsite() {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5"
+                      className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5"
                     >
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.title}
@@ -3609,7 +3611,7 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
+      <section className="relative py-4 sm:py-8 lg:py-10">
         <Container>
           <Reveal>
             <MediaSurface
@@ -3635,7 +3637,7 @@ export default function PraeliatorWebsite() {
             />
           </Reveal>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 lg:grid-cols-3">
             {[
               {
                 title: "Surface",
@@ -3651,7 +3653,7 @@ export default function PraeliatorWebsite() {
               },
             ].map((item, index) => (
               <Reveal key={item.title} delay={0.04 * index}>
-                <div className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
+                <div className="rounded-[1rem] sm:rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     {item.title}
                   </p>
@@ -3663,24 +3665,24 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
+      <section className="relative py-4 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-6 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-8">
+          <div className="grid gap-5 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-8">
             <Reveal>
-              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
+              <div className="rounded-[1.65rem] sm:rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Construction logic
                 </p>
                 <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
                   The glove had to feel technically serious without becoming visually loud.
                 </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   VIS is not a museum object in the sense of fragility. It is a museum object
                   in the sense of resolution. Padding, palm ventilation, thumb attachment,
                   grip bar, and wrist control all belong to the same standard of discipline.
                 </p>
 
-                <div className="mt-8 rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="mt-8 rounded-[1.15rem] sm:rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Impact structure
                   </p>
@@ -3704,7 +3706,7 @@ export default function PraeliatorWebsite() {
             </Reveal>
 
             <Reveal delay={0.06}>
-              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
+              <div className="rounded-[1.65rem] sm:rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Object record
                 </p>
@@ -3736,10 +3738,10 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
+      <section className="relative py-4 sm:py-8 lg:py-10">
         <Container>
           <Reveal>
-            <div className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_32px_84px_rgba(0,0,0,0.28)]">
+            <div className="overflow-hidden rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_32px_84px_rgba(0,0,0,0.28)]">
               <div className="grid gap-0 lg:grid-cols-[1.02fr_0.98fr] lg:items-stretch">
                 <div className="border-b border-white/10 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3748,14 +3750,14 @@ export default function PraeliatorWebsite() {
                   <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.15rem]">
                     Presentation, authenticity, and aftercare stay inside the same language.
                   </h2>
-                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     VIS should not stop feeling controlled once the glove leaves the image. The
                     rigid box, silk dust bag, authenticity record, ownership continuity, and
                     service route all belong to the same standard.
                   </p>
 
                   <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         Presentation
                       </p>
@@ -3767,7 +3769,7 @@ export default function PraeliatorWebsite() {
                         ))}
                       </div>
                     </div>
-                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         Ownership
                       </p>
@@ -3797,8 +3799,8 @@ export default function PraeliatorWebsite() {
                 />
               </div>
 
-              <div className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
-                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+              <div className="border-t border-white/10 p-5 sm:p-8 lg:p-10">
+                <div className="rounded-[1.05rem] sm:rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Aftercare
                   </p>
@@ -3818,11 +3820,11 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+      <section className="relative overflow-hidden py-12 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
           <Reveal>
-            <div className="rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-7 shadow-[0_38px_120px_rgba(0,0,0,0.34)] sm:p-9 lg:p-12">
+            <div className="rounded-[1.7rem] sm:rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 sm:p-9 lg:p-12 shadow-[0_38px_120px_rgba(0,0,0,0.34)]">
               <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3831,7 +3833,7 @@ export default function PraeliatorWebsite() {
                   <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
                     Acquisition continues directly.
                   </h2>
-                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                     VIS is presented first as an object and acquired second as a route. The
                     final step should feel as disciplined as the glove itself.
                   </p>
@@ -3840,17 +3842,18 @@ export default function PraeliatorWebsite() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:justify-start lg:justify-end">
                   <Button
                     asChild
-                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                    className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
                   >
                     <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                      Private Inquiry
+                      <span className="sm:hidden">Inquire</span>
+              <span className="hidden sm:inline">Private Inquiry</span>
                     </a>
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => goTo("/waitlist")}
-                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
                   >
                     Join Waitlist
                   </Button>
@@ -3865,7 +3868,7 @@ export default function PraeliatorWebsite() {
 
 const renderAcquisitionPage = () => (
   <>
-    <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
+    <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-center"
@@ -3888,7 +3891,7 @@ const renderAcquisitionPage = () => (
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
       </div>
 
-      <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+      <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
         <motion.div
           initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -3910,7 +3913,7 @@ const renderAcquisitionPage = () => (
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
               asChild
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+              className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                 Begin Inquiry
@@ -3920,7 +3923,7 @@ const renderAcquisitionPage = () => (
               type="button"
               variant="outline"
               onClick={() => goTo("/waitlist")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
             >
               Join Waitlist
             </Button>
@@ -3941,7 +3944,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-16 sm:py-20 lg:py-24">
+    <section className="relative py-12 sm:py-20 lg:py-24">
       <Container>
         <div className="grid gap-12 lg:grid-cols-[0.98fr_1.02fr] lg:items-end lg:gap-14">
           <Reveal>
@@ -4069,7 +4072,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-16 sm:py-20 lg:py-24">
+    <section className="relative py-12 sm:py-20 lg:py-24">
       <Container>
         <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14">
           <Reveal delay={0.08} className="lg:order-2">
@@ -4106,7 +4109,7 @@ const renderAcquisitionPage = () => (
             <MediaSurface
               src={visImageSources.hero}
               alt="Praeliator acquisition detail"
-              className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+              className="min-h-[20rem] sm:min-h-[34rem] lg:min-h-[42rem]"
               dim="heavy"
               priorityCopy={
                 <>
@@ -4124,7 +4127,7 @@ const renderAcquisitionPage = () => (
       </Container>
     </section>
 
-    <section className="relative py-16 sm:py-20 lg:py-24">
+    <section className="relative py-12 sm:py-20 lg:py-24">
       <Container>
         <div className="border-t border-white/10 pt-10 sm:pt-12 lg:pt-14">
           <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
@@ -4135,7 +4138,7 @@ const renderAcquisitionPage = () => (
               <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
                 Immediate inquiry or quieter entry.
               </h2>
-              <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                 Some clients want to begin contact immediately. Others want a softer point
                 of entry into future releases. Both remain inside the same language and the
                 same level of control.
@@ -4144,7 +4147,7 @@ const renderAcquisitionPage = () => (
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
-                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                  className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                     Begin Inquiry
@@ -4154,7 +4157,7 @@ const renderAcquisitionPage = () => (
                   type="button"
                   variant="outline"
                   onClick={() => goTo("/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
                 >
                   Enter Waitlist
                 </Button>
@@ -4213,11 +4216,11 @@ const renderWaitlistPage = () => (
         ]}
         stats={pageHeroStats["/waitlist"]}
       />
-      <section className="relative py-8 sm:py-10 lg:py-12">
+      <section className="relative py-6 sm:py-10 lg:py-12">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-10">
             <Reveal>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <SectionHeading
                   eyebrow="Waitlist"
                   title="A quieter route into future access."
@@ -4252,7 +4255,7 @@ const renderWaitlistPage = () => (
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-5"
+                      className="rounded-[0.9rem] sm:rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-5"
                     >
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.title}
@@ -4263,11 +4266,11 @@ const renderWaitlistPage = () => (
                     </div>
                   ))}
                 </div>
-                <div className="mt-8">
+                <div className="mt-7 w-full sm:mt-8 sm:w-auto">
                   <Button
                     asChild
                     variant="outline"
-                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
                   >
                     <a
                       href={whatsappGeneralLink}
@@ -4286,7 +4289,7 @@ const renderWaitlistPage = () => (
               </div>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
+              <div className="rounded-[1rem] sm:rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-8 lg:p-10">
                 <form
                   className="grid gap-4 sm:gap-4 lg:gap-5"
                   onSubmit={handleWaitlistSubmit}
@@ -4544,14 +4547,14 @@ const renderWaitlistPage = () => (
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 6 }}
                         transition={{ duration: 0.22, ease: easeLuxury }}
-                        className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                        className="overflow-hidden rounded-[0.9rem] sm:rounded-[1.2rem] sm:rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
                         aria-live="polite"
                       >
                         <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
                           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                             Inquiry received
                           </p>
-                          <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
+                          <p className="mt-3 rounded-[0.9rem] sm:rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
                             {waitlistState.reference ||
                               "Client reference pending"}
                           </p>
@@ -4560,7 +4563,7 @@ const renderWaitlistPage = () => (
                           <p className="text-sm leading-6 text-white/62">
                             {waitlistState.serviceMessage}
                           </p>
-                          <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                          <div className="rounded-[0.9rem] sm:rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
                             Private review usually follows within one business
                             day. If timing matters, continue directly on
                             WhatsApp and include your reference.
@@ -4618,7 +4621,7 @@ const renderWaitlistPage = () => (
   );
   const renderContactPage = () => (
     <>
-      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
+      <section className="relative isolate min-h-[74svh] sm:min-h-[100svh] overflow-hidden bg-[#050505]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.03] bg-cover bg-center"
@@ -4641,7 +4644,7 @@ const renderWaitlistPage = () => (
           <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
         </div>
 
-        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-[74svh] sm:min-h-[100svh] items-end pb-8 pt-20 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -4662,17 +4665,18 @@ const renderWaitlistPage = () => (
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)] sm:w-auto sm:px-7 sm:py-6"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  Private Inquiry
+                  <span className="sm:hidden">Inquire</span>
+              <span className="hidden sm:inline">Private Inquiry</span>
                 </a>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/waitlist")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:px-7 sm:py-6"
               >
                 Join Waitlist
               </Button>
@@ -4689,26 +4693,26 @@ const renderWaitlistPage = () => (
         </Container>
       </section>
 
-      <section className="relative py-16 sm:py-20 lg:py-24">
+      <section className="relative py-12 sm:py-20 lg:py-24">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
             <Reveal>
-              <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <div className="rounded-[1.7rem] sm:rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Primary route
                 </p>
                 <h2 className="mt-5 max-w-[9ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
                   WhatsApp remains first.
                 </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
                   For private purchase inquiries and faster continuation, WhatsApp stays
                   primary. The route remains direct and the tone remains controlled.
                 </p>
 
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
-                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                    className="w-full justify-center rounded-full bg-[#efe5d7] px-6 py-5 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] sm:w-auto sm:py-6"
                   >
                     <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                       Open WhatsApp
@@ -4718,7 +4722,7 @@ const renderWaitlistPage = () => (
                     type="button"
                     variant="outline"
                     onClick={() => goTo("/waitlist")}
-                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    className="w-full justify-center rounded-full border-white/15 bg-transparent px-6 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 sm:w-auto sm:py-6"
                   >
                     Quieter Entry
                   </Button>
@@ -4825,7 +4829,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between py-5 sm:py-6">
+          <Container className="relative flex items-center justify-between py-3.5 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -4833,7 +4837,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+              className="group inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
             >
               <motion.span
                 animate={{
@@ -4845,7 +4849,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[2.9rem] w-[2.9rem]"
+                  className="h-[2.45rem] w-[2.45rem] sm:h-[2.9rem] sm:w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -4865,9 +4869,10 @@ const renderWaitlistPage = () => (
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+              className="inline-flex text-[10px] uppercase tracking-[0.22em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
             >
-              Private Inquiry
+              <span className="sm:hidden">Inquire</span>
+              <span className="hidden sm:inline">Private Inquiry</span>
             </motion.a>
           </Container>
           <AnimatePresence initial={false}>
@@ -4877,7 +4882,7 @@ const renderWaitlistPage = () => (
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.75, ease: easeLuxury }}
-                className="pointer-events-none pb-3 sm:pb-4"
+                className="pointer-events-none pb-2 sm:pb-4"
               >
                 <Container className="flex justify-center">
                   <p className="text-[9px] uppercase tracking-[0.34em] text-white/38 sm:text-[10px]">
@@ -4912,10 +4917,10 @@ const renderWaitlistPage = () => (
                             ease: easeLuxury,
                           }}
                           onClick={() => goTo(item.path)}
-                          className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
+                          className="group flex items-end justify-between gap-4 border-b border-white/[0.08] py-5 text-left transition duration-500 hover:border-white/[0.18] sm:gap-6 sm:py-7 lg:py-8"
                         >
                           <div className="min-w-0">
-                            <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
+                            <p className="text-[1.1rem] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white sm:text-[clamp(1.15rem,2vw,2rem)]">
                               {item.label}
                             </p>
                             <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
