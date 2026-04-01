@@ -2663,7 +2663,7 @@ function HeaderBrandMark({
           <img
             src={brandAssetPaths.wordmark}
             alt="Praeliator"
-            className="h-7 w-auto object-contain opacity-92 sm:h-10"
+            className="h-7 w-auto scale-[0.76] object-contain opacity-92 sm:h-10 sm:scale-100"
             onError={onAssetError}
           />
         )}
@@ -2683,7 +2683,7 @@ function HeaderBrandMark({
     >
       <div className="relative flex h-10 min-w-[2.6rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-8 -translate-x-1/2 -translate-y-1/2 overflow-hidden sm:h-10"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-8 -translate-x-1/2 -translate-y-1/2 overflow-hidden origin-center scale-[0.76] sm:h-10 sm:scale-100"
           animate={{
             width: wordmarkWrapperWidth,
             opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2978,7 +2978,7 @@ function FullScreenCinematicHomepage({
 }
 function BrowserFormStyles() {
   return (
-    <style>{`.browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
+    <style>{`html, body, #root { min-height: 100%; background: #050505; } html { color-scheme: dark; -webkit-text-size-adjust: 100%; } body { overscroll-behavior-y: none; overscroll-behavior-x: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -3102,6 +3102,32 @@ export default function PraeliatorWebsite() {
   useEffect(() => {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.style.backgroundColor = "#050505";
+    document.body.style.backgroundColor = "#050505";
+    document.body.style.overscrollBehaviorY = "none";
+
+    const ensureMeta = (attribute: "name" | "id", value: string) => {
+      let node = document.head.querySelector(`meta[${attribute}="${value}"]`) as HTMLMetaElement | null;
+      if (!node) {
+        node = document.createElement("meta");
+        node.setAttribute(attribute, value);
+        document.head.appendChild(node);
+      }
+      return node;
+    };
+
+    ensureMeta("name", "theme-color").setAttribute("content", "#050505");
+    ensureMeta("name", "apple-mobile-web-app-status-bar-style").setAttribute(
+      "content",
+      "black-translucent",
+    );
+    ensureMeta("name", "viewport").setAttribute(
+      "content",
+      "width=device-width, initial-scale=1.0, viewport-fit=cover",
+    );
+  }, []);
   useEffect(() => {
     if (reduceMotion || route === "/") return;
     const isTouchDevice =
@@ -4875,6 +4901,7 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 h-[calc(env(safe-area-inset-bottom)+2.25rem)] bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.88)_34%,#050505_78%)] md:hidden" />
       <motion.header
         className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
         animate={{
@@ -4893,7 +4920,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between py-3.5 sm:py-6">
+          <Container className="relative flex items-center justify-between px-3 py-3 sm:px-0 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -4901,7 +4928,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
+              className="group inline-flex h-10 w-10 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
             >
               <motion.span
                 animate={{
@@ -4913,7 +4940,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[2.45rem] w-[2.45rem] sm:h-[2.9rem] sm:w-[2.9rem]"
+                  className="h-[2.08rem] w-[2.08rem] sm:h-[2.9rem] sm:w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -4933,7 +4960,7 @@ const renderWaitlistPage = () => (
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="inline-flex text-[10px] uppercase tracking-[0.22em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
+              className="inline-flex shrink-0 text-[9px] uppercase tracking-[0.18em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
             >
               <span className="sm:hidden">Inquire</span>
               <span className="hidden sm:inline">Private Inquiry</span>
