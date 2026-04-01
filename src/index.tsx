@@ -2674,7 +2674,7 @@ function LuxuryCursor({
       className="pointer-events-none fixed inset-0 z-[140] hidden lg:block"
     >
       <motion.div
-        className="luxury-cursor-shell absolute left-0 top-0 flex items-center justify-center overflow-hidden border text-[#f4efe7]"
+        className="luxury-cursor-shell absolute left-0 top-0 flex items-center justify-center overflow-hidden rounded-full border text-[#f4efe7]"
         style={{
           x: shellX,
           y: shellY,
@@ -2687,6 +2687,7 @@ function LuxuryCursor({
         animate={{
           width: shellWidth,
           height: shellHeight,
+          borderRadius: 9999,
           opacity: hiddenForInput ? 0 : visible ? 1 : 0,
           scale: pressed ? 0.88 : magnetic ? 1 : 0.98,
           backgroundColor: magnetic
