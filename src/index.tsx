@@ -1430,6 +1430,491 @@ function ClubFooter({
     </footer>
   );
 }
+
+function MobilePageHeroBanner({
+  eyebrow,
+  title,
+  description,
+  actions,
+  media,
+  stats,
+  note,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  actions: HeroAction[];
+  media?: {
+    image: string;
+    alt: string;
+    video?: string;
+    badge?: string;
+    overlayTitle?: string;
+    overlayText?: string;
+  };
+  stats?: Array<{ label: string; value: string }>;
+  note?: string;
+}) {
+  return (
+    <section className="relative overflow-hidden pb-6 pt-24">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+      <Container className="relative">
+        <div className="overflow-hidden rounded-[2rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] shadow-[0_30px_100px_rgba(0,0,0,0.36)]">
+          {media ? (
+            <MediaSurface
+              src={media.image}
+              alt={media.alt}
+              video={media.video}
+              className="min-h-[22rem] rounded-none border-0 shadow-none"
+              dim="heavy"
+              priorityCopy={
+                media.overlayTitle || media.overlayText || media.badge ? (
+                  <div className="max-w-[16rem]">
+                    {media.badge ? (
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                        {media.badge}
+                      </p>
+                    ) : null}
+                    {media.overlayTitle ? (
+                      <p className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                        {media.overlayTitle}
+                      </p>
+                    ) : null}
+                    {media.overlayText ? (
+                      <p className="mt-4 text-sm leading-7 text-white/72">
+                        {media.overlayText}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : undefined
+              }
+            />
+          ) : null}
+          <div className="p-5 sm:p-6">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d]">
+              {eyebrow}
+            </p>
+            <h1 className="mt-4 max-w-[12ch] text-[2.6rem] font-semibold leading-[0.9] tracking-[-0.065em] text-[#f4efe7]">
+              {title}
+            </h1>
+            <p className="mt-5 max-w-[34rem] text-sm leading-7 text-white/60">
+              {description}
+            </p>
+            {note ? (
+              <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-white/34">
+                {note}
+              </p>
+            ) : null}
+            <div className="mt-6 flex flex-col gap-3">
+              {actions.map((action) =>
+                action.href ? (
+                  <Button
+                    key={action.label}
+                    asChild
+                    variant={action.variant === "secondary" ? "outline" : undefined}
+                    className={
+                      action.variant === "secondary"
+                        ? "h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                        : "h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                    }
+                  >
+                    <a href={action.href} target="_blank" rel="noreferrer">
+                      {action.label}
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    key={action.label}
+                    type="button"
+                    variant={action.variant === "secondary" ? "outline" : undefined}
+                    onClick={action.onClick}
+                    className={
+                      action.variant === "secondary"
+                        ? "h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                        : "h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                    }
+                  >
+                    {action.label}
+                  </Button>
+                ),
+              )}
+            </div>
+            {stats && stats.length ? (
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                {stats.map((item, index) => (
+                  <Reveal key={`${item.label}-${index}`} delay={0.05 * index}>
+                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.label}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-white/76">
+                        {item.value}
+                      </p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function MobileSectionFrame({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="relative py-6">
+      <Container>
+        <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.9),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+            {eyebrow}
+          </p>
+          <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+            {title}
+          </h2>
+          {description ? (
+            <p className="mt-5 text-sm leading-7 text-white/60">{description}</p>
+          ) : null}
+          <div className="mt-6">{children}</div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function MobileHomeFooter({
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
+}: {
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
+}) {
+  return (
+    <section className="relative overflow-hidden pb-10 pt-6">
+      <Container>
+        <div className="rounded-[1.9rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
+          <div className="text-center">
+            <img
+              src="/logo-header.png"
+              alt="Praeliator"
+              className="mx-auto h-12 w-auto object-contain opacity-95"
+            />
+            <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-white/46">
+              Praeliator
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-3">
+            {[
+              { label: "VIS", route: "/praeliator-vis" as Route },
+              { label: "Acquisition", route: "/acquisition" as Route },
+              { label: "Waitlist", route: "/waitlist" as Route },
+              { label: "Contact", route: "/contact" as Route },
+            ].map((item) => (
+              <button
+                key={item.route}
+                type="button"
+                onClick={() => goTo(item.route)}
+                className="flex items-center justify-between rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/80 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+              >
+                <span>{item.label}</span>
+                <ChevronRight className="h-4 w-4 text-white/30" />
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Direct contact
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              WhatsApp remains primary. Email and Instagram stay available for
+              quieter paths.
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-4">
+              <a
+                href={instagramLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href={emailLink}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <Mail className="h-5 w-5" />
+              </a>
+              <a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function MobileHeader({
+  route,
+  pageMicroLabel,
+  mobileMenuOpen,
+  setMobileMenuOpen,
+  brandMode,
+  currentPurchaseLink,
+  headerLogoBroken,
+  onHeaderLogoError,
+  goTo,
+}: {
+  route: Route;
+  pageMicroLabel: string;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  brandMode: HeaderBrandMode;
+  currentPurchaseLink: string;
+  headerLogoBroken: boolean;
+  onHeaderLogoError: () => void;
+  goTo: (nextRoute: Route) => void;
+}) {
+  return (
+    <motion.header className="fixed inset-x-0 top-0 z-50">
+      <motion.div
+        animate={{
+          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.82)" : "rgba(6,6,6,0.38)",
+          backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(14px)",
+        }}
+        transition={{ duration: 0.45, ease: easeLuxury }}
+        className="border-b border-white/[0.06] bg-[linear-gradient(180deg,rgba(6,6,6,0.84),rgba(6,6,6,0.38),transparent)]"
+      >
+        <Container className="relative flex items-center justify-between py-4">
+          <button
+            type="button"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMobileMenuOpen((current) => !current)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/82 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+          >
+            <PraeliatorMenuWreathIcon
+              open={mobileMenuOpen}
+              className="h-[2.25rem] w-[2.25rem]"
+            />
+          </button>
+
+          <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <HeaderBrandMark
+              mode={brandMode}
+              onClick={() => goTo("/")}
+              assetsBroken={headerLogoBroken}
+              onAssetError={onHeaderLogoError}
+            />
+          </div>
+
+          <a
+            href={currentPurchaseLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-11 items-center rounded-full border border-white/10 bg-white/[0.03] px-3.5 text-[10px] uppercase tracking-[0.24em] text-white/78 transition duration-500 hover:border-white/16 hover:bg-white/[0.05] hover:text-white"
+          >
+            Inquiry
+          </a>
+        </Container>
+
+        <AnimatePresence initial={false}>
+          {route !== "/" && !mobileMenuOpen ? (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.35, ease: easeLuxury }}
+              className="pb-3"
+            >
+              <Container className="flex justify-center">
+                <p className="text-[9px] uppercase tracking-[0.34em] text-white/34">
+                  {pageMicroLabel}
+                </p>
+              </Container>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {mobileMenuOpen ? (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: easeLuxury }}
+              className="overflow-hidden border-t border-white/[0.06]"
+            >
+              <Container className="pb-5 pt-4">
+                <div className="grid gap-3">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.path}
+                      type="button"
+                      onClick={() => goTo(item.path)}
+                      className="group flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+                    >
+                      <div>
+                        <p className="text-base uppercase tracking-[0.14em] text-white/88">
+                          {item.label}
+                        </p>
+                        <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/34">
+                          {item.label === "VIS"
+                            ? "Flagship"
+                            : item.label === "Acquisition"
+                              ? "Private route"
+                              : item.label === "Waitlist"
+                                ? "Future access"
+                                : "Direct contact"}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
+                    </button>
+                  ))}
+                </div>
+              </Container>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </motion.div>
+    </motion.header>
+  );
+}
+
+function MobileClubFooter({
+  goTo,
+  whatsappGeneralLink,
+  instagramLink,
+  emailLink,
+}: {
+  goTo: (nextRoute: Route) => void;
+  whatsappGeneralLink: string;
+  instagramLink: string;
+  emailLink: string;
+}) {
+  return (
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
+      <Container className="relative">
+        <div className="rounded-[2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d]">
+            Private client club
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+            Praeliator Club
+          </h2>
+          <p className="mt-5 text-sm leading-7 text-white/60">
+            Controlled access, direct contact, and ownership carried with
+            continuity.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <Button
+              asChild
+              className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Private Inquiry
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/waitlist")}
+              className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+            >
+              Join Waitlist
+            </Button>
+          </div>
+
+          <div className="mt-8 grid gap-3">
+            {clubFooterColumns[0].links.map((item) => (
+              <button
+                key={item.route}
+                type="button"
+                onClick={() => goTo(item.route)}
+                className="flex items-center justify-between rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/80 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+              >
+                <span>{item.label}</span>
+                <ChevronRight className="h-4 w-4 text-white/30" />
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Signals
+            </p>
+            <div className="mt-4 grid gap-2">
+              {clubFooterColumns[1].notes.map((item) => (
+                <p key={item} className="text-sm text-white/58">
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              Direct contact
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              WhatsApp remains primary. Email and Instagram stay available where
+              appropriate.
+            </p>
+            <div className="mt-5 flex items-center gap-4">
+              <a
+                href={instagramLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href={emailLink}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <Mail className="h-5 w-5" />
+              </a>
+              <a
+                href={whatsappGeneralLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </footer>
+  );
+}
+
 function InputField({
   name,
   value,
@@ -2942,7 +3427,12 @@ export default function PraeliatorWebsite() {
     null,
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
+
   const reduceMotion = useReducedMotion();
+  const [isDesktopViewport, setIsDesktopViewport] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.matchMedia("(min-width: 1024px)").matches;
+  });
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
       if (typeof window === "undefined") return;
@@ -2975,6 +3465,36 @@ export default function PraeliatorWebsite() {
       waitlistRequestControllerRef.current?.abort();
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const syncViewport = () => setIsDesktopViewport(mediaQuery.matches);
+    syncViewport();
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncViewport);
+      return () => mediaQuery.removeEventListener("change", syncViewport);
+    }
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktopViewport) {
+      setMobileMenuOpen(false);
+      return;
+    }
+    if (!mobileMenuOpen) return;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isDesktopViewport, mobileMenuOpen]);
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [route]);
@@ -3019,7 +3539,7 @@ export default function PraeliatorWebsite() {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
   useEffect(() => {
-    if (reduceMotion || route === "/") return;
+    if (reduceMotion || route === "/" || !isDesktopViewport) return;
     const isTouchDevice =
       typeof window !== "undefined" &&
       (window.matchMedia("(pointer: coarse)").matches ||
@@ -3041,9 +3561,9 @@ export default function PraeliatorWebsite() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, [reduceMotion, route]);
+  }, [isDesktopViewport, reduceMotion, route]);
   useEffect(() => {
-    if (typeof window === "undefined" || route === "/") {
+    if (typeof window === "undefined" || route === "/" || !isDesktopViewport) {
       setSecondaryPageHeaderLifted(false);
       return;
     }
@@ -3072,7 +3592,7 @@ export default function PraeliatorWebsite() {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [mobileMenuOpen, route]);
+  }, [isDesktopViewport, mobileMenuOpen, route]);
   const currentPurchaseLink = useMemo(() => {
     if (route === "/praeliator-vis") return whatsappVisLink;
     if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
@@ -3087,6 +3607,8 @@ export default function PraeliatorWebsite() {
         : homeSectionIndex === 1
           ? "assembly"
           : "monogram";
+  const mobileHeaderBrandMode: HeaderBrandMode =
+    route === "/" ? "wordmark" : "monogram";
   const headerLifted =
     !mobileMenuOpen &&
     ((route === "/" && homeSectionIndex >= 3) ||
@@ -4790,6 +5312,1082 @@ const renderWaitlistPage = () => (
     </>
   );
 
+
+  const renderMobileHomePage = () => (
+    <>
+      <section className="relative overflow-hidden pb-6 pt-24">
+        <Container>
+          <div className="overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(13,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_36px_110px_rgba(0,0,0,0.36)]">
+            <MediaSurface
+              src={homeCinematicMedia.hero.poster}
+              alt="Praeliator hero"
+              video={homeCinematicMedia.hero.video}
+              className="min-h-[78svh] rounded-none border-0 shadow-none"
+              dim="heavy"
+              priorityCopy={
+                <div className="max-w-[15rem]">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#d0b39b]">
+                    Praeliator
+                  </p>
+                  <p className="mt-4 text-[2.9rem] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+                    Boxing, treated like an art form.
+                  </p>
+                  <p className="mt-5 text-sm leading-7 text-white/72">
+                    Equipment for those who treat boxing as art.
+                  </p>
+                </div>
+              }
+            />
+            <div className="p-5">
+              <div className="flex flex-col gap-3">
+                <Button
+                  type="button"
+                  onClick={() => goTo("/praeliator-vis")}
+                  className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                >
+                  Discover VIS
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                >
+                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                    Private Inquiry
+                  </a>
+                </Button>
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                {[
+                  { label: "Format", value: "16 oz · lace-up" },
+                  { label: "Material", value: "Top-grain cowhide" },
+                  { label: "Approach", value: "Quiet luxury" },
+                  { label: "Route", value: "Direct acquisition" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/76">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="relative py-6">
+        <Container>
+          <div className="grid gap-4">
+            <Reveal>
+              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+                <MediaSurface
+                  src={homeCinematicMedia.vis.poster}
+                  alt="Praeliator VIS"
+                  video={homeCinematicMedia.vis.video}
+                  className="min-h-[18rem] rounded-none border-0 shadow-none"
+                  dim="medium"
+                />
+                <div className="p-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    VIS
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                    The flagship training glove.
+                  </h2>
+                  <p className="mt-4 text-sm leading-7 text-white/60">
+                    A 16 oz lace-up training glove in top-grain cowhide, built
+                    for disciplined training and technical sparring.
+                  </p>
+                  <div className="mt-5 flex flex-col gap-3">
+                    <Button
+                      type="button"
+                      onClick={() => goTo("/praeliator-vis")}
+                      className="h-[3.4rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+                    >
+                      Enter VIS
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="h-[3.4rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+                    >
+                      <a href={createWhatsAppLink("Hello Praeliator, I would like to inquire about Praeliator VIS.")} target="_blank" rel="noreferrer">
+                        Inquire about VIS
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+                <MediaSurface
+                  src={homeCinematicMedia.material.poster}
+                  alt="Praeliator material"
+                  video={homeCinematicMedia.material.video}
+                  className="min-h-[16rem] rounded-none border-0 shadow-none"
+                  dim="light"
+                  priorityCopy={
+                    <div className="max-w-[14rem]">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                        Material
+                      </p>
+                      <p className="mt-4 text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7]">
+                        Top-grain leather. Soft satin finish.
+                      </p>
+                    </div>
+                  }
+                />
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+                <MediaSurface
+                  src={homeCinematicMedia.acquisition.poster}
+                  alt="Praeliator acquisition"
+                  video={homeCinematicMedia.acquisition.video}
+                  className="min-h-[16rem] rounded-none border-0 shadow-none"
+                  dim="heavy"
+                />
+                <div className="p-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    Acquisition
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                    Handled directly.
+                  </h2>
+                  <p className="mt-4 text-sm leading-7 text-white/60">
+                    Inquiry, review, allocation, delivery, and aftercare stay
+                    inside one controlled route.
+                  </p>
+                  <div className="mt-5 flex flex-col gap-3">
+                    <Button
+                      asChild
+                      className="h-[3.4rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+                    >
+                      <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                        Private Inquiry
+                      </a>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => goTo("/acquisition")}
+                      className="h-[3.4rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+                    >
+                      View acquisition route
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <MobileSectionFrame
+        eyebrow="Explore"
+        title="Continue deeper into the brand."
+        description="The same world, reorganized for phone without weakening the identity."
+      >
+        <div className="grid gap-3">
+          {[
+            {
+              title: "Discover VIS",
+              text: "The flagship training glove.",
+              route: "/praeliator-vis" as Route,
+              image: visImageSources.hero,
+            },
+            {
+              title: "Private Acquisition",
+              text: "Handled directly, with control.",
+              route: "/acquisition" as Route,
+              image: visImageSources.packaging,
+            },
+            {
+              title: "Join Waitlist",
+              text: "Future access, recorded properly.",
+              route: "/waitlist" as Route,
+              image: homeImageSources.presentation,
+            },
+          ].map((card) => (
+            <button
+              key={card.route}
+              type="button"
+              onClick={() => goTo(card.route)}
+              className="group overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/[0.03] text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+            >
+              <div
+                className="h-36 bg-cover bg-center"
+                style={{ backgroundImage: `url(${card.image})` }}
+              />
+              <div className="flex items-center justify-between gap-4 p-4">
+                <div>
+                  <p className="text-base uppercase tracking-[0.12em] text-white/88">
+                    {card.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-white/56">
+                    {card.text}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-white/30 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileHomeFooter
+        goTo={goTo}
+        whatsappGeneralLink={whatsappGeneralLink}
+        instagramLink={instagramLink}
+        emailLink={emailLink}
+      />
+    </>
+  );
+
+  const renderMobileVisPage = () => (
+    <>
+      <MobilePageHeroBanner
+        eyebrow="Praeliator VIS"
+        title="A training glove treated like an object study."
+        description="VIS was resolved with the calm of a museum piece and the discipline of a serious training instrument."
+        note="16 oz · lace-up only · top-grain cowhide · technical sparring"
+        actions={[
+          { label: "Private Inquiry", href: whatsappVisLink, variant: "primary" },
+          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+        ]}
+        media={{
+          image: visImageSources.hero,
+          alt: "Praeliator VIS hero",
+          video: visPageMedia.heroVideo,
+          badge: "Praeliator VIS",
+          overlayTitle: "Controlled, quiet, technically serious.",
+        }}
+        stats={pageHeroStats["/praeliator-vis"]}
+      />
+
+      <MobileSectionFrame
+        eyebrow="Thesis"
+        title="Luxury is not louder. It is more resolved."
+        description="VIS does not rely on excess to look expensive. The authority of the object comes from proportion, restraint, and the feeling that every visible choice was made on purpose."
+      >
+        <div className="grid gap-3">
+          {visEditorialBlocks.map((item) => (
+            <div key={item.title} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <section className="relative py-6">
+        <Container>
+          <div className="grid gap-4">
+            <Reveal>
+              <MediaSurface
+                src={visImageSources.hero}
+                alt="Praeliator VIS silhouette study"
+                video={visPageMedia.studyVideo}
+                className="min-h-[21rem]"
+                dim="light"
+                priorityCopy={
+                  <div className="max-w-[15rem]">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                      Object study
+                    </p>
+                    <p className="mt-4 text-3xl font-semibold leading-[0.92] tracking-[-0.055em] text-[#f4efe7]">
+                      The silhouette is controlled before it is decorated.
+                    </p>
+                  </div>
+                }
+              />
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
+                <div className="grid gap-3">
+                  {[
+                    {
+                      title: "Silhouette",
+                      text: "A training profile that reads deliberate before it reads aggressive.",
+                    },
+                    {
+                      title: "Wrist transition",
+                      text: "The glove narrows with intention before widening again at the cuff.",
+                    },
+                    {
+                      title: "Visual restraint",
+                      text: "Debossed branding and disciplined contrast keep the object quiet.",
+                    },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <MobileSectionFrame
+        eyebrow="Material"
+        title="Top-grain cowhide. Soft satin finish."
+        description="The leather was chosen to read deep black first and espresso second. It avoids the synthetic shine that makes luxury feel false."
+      >
+        <MediaSurface
+          src={visImageSources.leather}
+          alt="Praeliator VIS leather macro"
+          video={visPageMedia.materialVideo}
+          className="min-h-[18rem]"
+          dim="light"
+        />
+        <div className="mt-4 grid gap-3">
+          {[
+            {
+              title: "Surface",
+              text: "Grain, seam, and edge remain visible enough to feel handmade, never noisy enough to feel busy.",
+            },
+            {
+              title: "Tone",
+              text: "VIS lives in a restrained black register with warmth underneath, not a flat synthetic black.",
+            },
+            {
+              title: "Branding",
+              text: "Debossed marks keep the glove inside the same visual language as the rest of Praeliator.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Construction logic"
+        title="Technically serious without becoming visually loud."
+        description="Padding, palm ventilation, thumb attachment, grip bar, and wrist control all belong to the same standard of discipline."
+      >
+        <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+            Impact structure
+          </p>
+          <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
+            {visPaddingLayers.map((layer, index) => (
+              <div
+                key={`${layer}-${index}`}
+                className="grid gap-2 py-4 sm:grid-cols-[86px_1fr] sm:items-center"
+              >
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/38 sm:text-[11px]">
+                  Layer {index + 1}
+                </p>
+                <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                  {layer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+            Object record
+          </p>
+          <div className="mt-4">
+            <DataList items={visSpecifications} compact />
+          </div>
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Continuity"
+        title="The object extends beyond the glove."
+        description="Presentation, authenticity, and aftercare stay inside the same language."
+      >
+        <MediaSurface
+          src={visImageSources.packaging}
+          alt="Praeliator VIS presentation"
+          video={visPageMedia.ownershipVideo}
+          className="min-h-[18rem]"
+          dim="light"
+        />
+        <div className="mt-4 grid gap-4">
+          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Presentation
+            </p>
+            <div className="mt-4 space-y-3">
+              {visPackaging.map((item) => (
+                <p key={item} className="text-sm leading-7 text-white/60">
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Ownership
+            </p>
+            <div className="mt-4">
+              <DataList items={ownershipSignals} compact />
+            </div>
+          </div>
+          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Aftercare
+            </p>
+            <div className="mt-4 grid gap-3">
+              {visService.map((item) => (
+                <p key={item} className="text-sm leading-7 text-white/78">
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Entry"
+        title="Acquisition continues directly."
+        description="VIS is presented first as an object and acquired second as a route."
+      >
+        <div className="flex flex-col gap-3">
+          <Button
+            asChild
+            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+          >
+            <a href={whatsappVisLink} target="_blank" rel="noreferrer">
+              Private Inquiry
+            </a>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => goTo("/waitlist")}
+            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+          >
+            Join Waitlist
+          </Button>
+        </div>
+      </MobileSectionFrame>
+    </>
+  );
+
+  const renderMobileAcquisitionPage = () => (
+    <>
+      <MobilePageHeroBanner
+        eyebrow="Private acquisition"
+        title="Handled directly. Continued properly."
+        description="Inquiry, review, allocation, dispatch, and aftercare remain inside one controlled route."
+        actions={[
+          { label: "Begin Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+        ]}
+        media={{
+          image: homeCinematicMedia.acquisition.poster,
+          alt: "Praeliator acquisition hero",
+          video: homeCinematicMedia.acquisition.video,
+          badge: "Private acquisition",
+          overlayTitle: "The route is part of the object.",
+        }}
+        stats={pageHeroStats["/acquisition"]}
+      />
+
+      <MobileSectionFrame
+        eyebrow="Acquisition principle"
+        title="The route is part of the object."
+        description="Luxury does not end at the glove. The way access is handled and the way ownership continues after delivery all carry the same tone as the product itself."
+      >
+        <div className="grid gap-3">
+          {acquisitionPrinciples.map((item) => (
+            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+            Standard
+          </p>
+          <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
+            {acquisitionStandards.map((item) => (
+              <div key={item} className="py-4">
+                <p className="text-sm leading-7 text-white/64">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="The route"
+        title="A direct procession, not a checkout flow."
+        description="The sequence is quiet by design. Inquiry stays qualified, timing stays clear, and continuation stays attached to the same record from the beginning."
+      >
+        <div className="grid gap-3">
+          {acquisitionSteps.map((item) => (
+            <div key={item.step} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    Stage {item.step}
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold leading-[0.94] tracking-[-0.045em] text-[#f4efe7]">
+                    {item.title}
+                  </h3>
+                </div>
+                <p className="text-3xl font-semibold leading-none tracking-[-0.08em] text-white/[0.08]">
+                  {item.step}
+                </p>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Why not a cart"
+        title="Open checkout would flatten the route."
+        description="The point is not artificial friction. The point is to protect tone, qualification, and continuity before and after purchase."
+      >
+        <div className="grid gap-4">
+          {acquisitionContrasts.map((column) => (
+            <div key={column.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {column.title}
+              </p>
+              <div className="mt-4 space-y-3">
+                {column.lines.map((line) => (
+                  <p key={line} className="text-sm leading-7 text-white/60">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Entry"
+        title="Immediate inquiry or quieter entry."
+        description="Some clients want to begin contact immediately. Others want a softer point of entry into future releases."
+      >
+        <div className="grid gap-3">
+          {acquisitionModeCards.map((item) => (
+            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.action}
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-col gap-3">
+          <Button
+            asChild
+            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+          >
+            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+              Begin Inquiry
+            </a>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => goTo("/waitlist")}
+            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+          >
+            Enter Waitlist
+          </Button>
+        </div>
+      </MobileSectionFrame>
+    </>
+  );
+
+  const renderMobileWaitlistPage = () => (
+    <>
+      <MobilePageHeroBanner
+        eyebrow="Waitlist"
+        title="A quieter route into future access."
+        description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
+        note="Future releases · collector interest · private follow-up"
+        actions={[
+          { label: "Direct Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Contact", onClick: () => goTo("/contact"), variant: "secondary" },
+        ]}
+        stats={pageHeroStats["/waitlist"]}
+      />
+
+      <MobileSectionFrame
+        eyebrow="Waitlist"
+        title="Client reference returned after submission."
+        description="Every qualified inquiry is reviewed before contact continues."
+      >
+        <div className="grid gap-3">
+          {[
+            {
+              title: "Review",
+              text: "Every qualified inquiry is reviewed before contact continues.",
+            },
+            {
+              title: "Reference",
+              text: "Your returned reference stays attached to the intake record.",
+            },
+            {
+              title: "Continuation",
+              text: "If timing matters, the route can continue directly on WhatsApp.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <section className="relative py-6">
+        <Container>
+          <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.3)]">
+            <form className="grid gap-4" onSubmit={handleWaitlistSubmit} noValidate>
+              <div className="hidden" aria-hidden="true">
+                <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
+                <input
+                  id={WAITLIST_HONEYPOT_FIELD}
+                  name={WAITLIST_HONEYPOT_FIELD}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={waitlistHoneypot}
+                  onChange={(event) => setWaitlistHoneypot(event.target.value)}
+                  className="browser-form-element pointer-events-none h-0 w-0 opacity-0"
+                />
+              </div>
+
+              <SelectField
+                name="title"
+                value={waitlistForm.title}
+                onChange={(event) => handleWaitlistSelectChange("title", event)}
+                onBlur={() => handleWaitlistBlur("title")}
+                placeholder="Title"
+                searchable
+                searchPlaceholder="Search title"
+                fieldLabel="Honorific"
+                success={getFieldSuccess("title")}
+                describedBy={getFieldDescribedBy("title")}
+              />
+
+              <div>
+                <InputField
+                  name="fullName"
+                  value={waitlistForm.fullName}
+                  onChange={handleWaitlistChange}
+                  onBlur={() => handleWaitlistBlur("fullName")}
+                  autoComplete="name"
+                  placeholder="Full name *"
+                  invalid={Boolean(getVisibleFieldError("fullName"))}
+                  success={getFieldSuccess("fullName")}
+                  describedBy={getFieldDescribedBy("fullName")}
+                />
+                <FieldError id="fullName-error" message={getVisibleFieldError("fullName")} />
+              </div>
+
+              <div>
+                <InputField
+                  name="email"
+                  type="email"
+                  value={waitlistForm.email}
+                  onChange={handleWaitlistChange}
+                  onBlur={() => handleWaitlistBlur("email")}
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  placeholder="Email address *"
+                  invalid={Boolean(getVisibleFieldError("email"))}
+                  success={getFieldSuccess("email")}
+                  describedBy={getFieldDescribedBy("email")}
+                />
+                <FieldError id="email-error" message={getVisibleFieldError("email")} />
+              </div>
+
+              <div>
+                <SearchPicker
+                  name="country"
+                  value={waitlistForm.country}
+                  onChange={handleCountryChange}
+                  onBlur={handleCountryBlur}
+                  options={countryOptions.map((option) => ({
+                    label: option.label,
+                    code: option.code,
+                  }))}
+                  placeholder="Country or dial code *"
+                  exactMatchUpdates
+                  fieldLabel="Country"
+                  invalid={Boolean(getVisibleFieldError("country"))}
+                  success={getFieldSuccess("country")}
+                  describedBy={getFieldDescribedBy("country")}
+                />
+                <FieldError id="country-error" message={getVisibleFieldError("country")} />
+              </div>
+
+              <div className="grid gap-4">
+                <div>
+                  <InputField
+                    name="phoneCountryCode"
+                    value={waitlistForm.phoneCountryCode}
+                    onChange={handleWaitlistChange}
+                    onBlur={() => handleWaitlistBlur("phoneCountryCode")}
+                    autoComplete="tel-country-code"
+                    inputMode="tel"
+                    maxLength={5}
+                    placeholder="Dial code *"
+                    invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
+                    success={getFieldSuccess("phoneCountryCode")}
+                    describedBy={getFieldDescribedBy("phoneCountryCode")}
+                  />
+                  <FieldError
+                    id="phoneCountryCode-error"
+                    message={getVisibleFieldError("phoneCountryCode")}
+                  />
+                </div>
+                <div>
+                  <InputField
+                    name="whatsapp"
+                    value={waitlistForm.whatsapp}
+                    onChange={handleWaitlistChange}
+                    onBlur={() => handleWaitlistBlur("whatsapp")}
+                    autoComplete="tel-national"
+                    inputMode="tel"
+                    maxLength={15}
+                    placeholder="Phone number *"
+                    invalid={Boolean(getVisibleFieldError("whatsapp"))}
+                    success={getFieldSuccess("whatsapp")}
+                    describedBy={getFieldDescribedBy("whatsapp")}
+                  />
+                  <FieldError id="whatsapp-error" message={getVisibleFieldError("whatsapp")} />
+                  {!getVisibleFieldError("whatsapp") ? (
+                    <FieldNote>
+                      Use the number where a private follow-up should continue.
+                    </FieldNote>
+                  ) : null}
+                </div>
+              </div>
+
+              <div>
+                <SelectField
+                  name="interest"
+                  value={waitlistForm.interest}
+                  onChange={(event) => handleWaitlistSelectChange("interest", event)}
+                  onBlur={() => handleWaitlistBlur("interest")}
+                  placeholder="Interest *"
+                  options={interestOptions}
+                  invalid={Boolean(getVisibleFieldError("interest"))}
+                  success={getFieldSuccess("interest")}
+                  describedBy={getFieldDescribedBy("interest")}
+                />
+                <FieldError id="interest-error" message={getVisibleFieldError("interest")} />
+              </div>
+
+              <div>
+                <SelectField
+                  name="timeline"
+                  value={waitlistForm.timeline}
+                  onChange={(event) => handleWaitlistSelectChange("timeline", event)}
+                  onBlur={() => handleWaitlistBlur("timeline")}
+                  placeholder="Timeline *"
+                  options={timelineOptions}
+                  invalid={Boolean(getVisibleFieldError("timeline"))}
+                  success={getFieldSuccess("timeline")}
+                  describedBy={getFieldDescribedBy("timeline")}
+                />
+                <FieldError id="timeline-error" message={getVisibleFieldError("timeline")} />
+              </div>
+
+              <div>
+                <SelectField
+                  name="contactPreference"
+                  value={waitlistForm.contactPreference}
+                  onChange={(event) =>
+                    handleWaitlistSelectChange("contactPreference", event)
+                  }
+                  onBlur={() => handleWaitlistBlur("contactPreference")}
+                  placeholder="Preferred contact method *"
+                  options={contactPreferenceOptions}
+                  invalid={Boolean(getVisibleFieldError("contactPreference"))}
+                  success={getFieldSuccess("contactPreference")}
+                  describedBy={getFieldDescribedBy("contactPreference")}
+                />
+                <FieldError
+                  id="contactPreference-error"
+                  message={getVisibleFieldError("contactPreference")}
+                />
+              </div>
+
+              <div>
+                <textarea
+                  name="note"
+                  value={waitlistForm.note}
+                  onChange={handleWaitlistChange}
+                  onBlur={() => handleWaitlistBlur("note")}
+                  rows={6}
+                  className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
+                  placeholder="Optional note"
+                />
+                <FieldNote>
+                  Any detail that affects timing, use, or preferred contact can go here.
+                </FieldNote>
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={waitlistState.loading || getWaitlistCooldownSeconds() > 0}
+                  className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  <span className="inline-flex items-center gap-3">
+                    {waitlistState.loading ? (
+                      <span className="browser-submit-spinner" aria-hidden="true" />
+                    ) : null}
+                    <span>
+                      {waitlistState.loading
+                        ? "Submitting..."
+                        : getWaitlistCooldownSeconds() > 0
+                          ? `Wait ${getWaitlistCooldownSeconds()}s`
+                          : "Join Waitlist"}
+                    </span>
+                  </span>
+                </Button>
+                <FieldNote>
+                  Private review typically continues within one business day.
+                </FieldNote>
+              </div>
+
+              <AnimatePresence>
+                {waitlistState.success ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.22, ease: easeLuxury }}
+                    className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                    aria-live="polite"
+                  >
+                    <div className="border-b border-white/[0.08] px-5 py-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Inquiry received
+                      </p>
+                      <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
+                        {waitlistState.reference || "Client reference pending"}
+                      </p>
+                    </div>
+                    <div className="space-y-4 px-5 py-5">
+                      <p className="text-sm leading-6 text-white/62">
+                        {waitlistState.serviceMessage}
+                      </p>
+                      <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                        Private review usually follows within one business day.
+                        If timing matters, continue directly on WhatsApp and
+                        include your reference.
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        <Button
+                          asChild
+                          className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                        >
+                          <a
+                            href={whatsappWaitlistFollowUpLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() =>
+                              trackWaitlistEvent(
+                                "waitlist_success_whatsapp_click",
+                                {
+                                  reference: waitlistState.reference || "pending",
+                                },
+                              )
+                            }
+                          >
+                            Continue on WhatsApp
+                          </a>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => goTo("/")}
+                          className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                        >
+                          Return Home
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {waitlistState.error ? (
+                <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">
+                  {waitlistState.error}
+                </p>
+              ) : null}
+            </form>
+          </div>
+        </Container>
+      </section>
+    </>
+  );
+
+  const renderMobileContactPage = () => (
+    <>
+      <MobilePageHeroBanner
+        eyebrow="Direct contact"
+        title="Direct contact, kept simple."
+        description="WhatsApp remains primary for private inquiry. Email and Instagram stay available as quieter secondary paths."
+        actions={[
+          { label: "Private Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+        ]}
+        media={{
+          image: visImageSources.packaging,
+          alt: "Praeliator contact hero",
+          video: homeCinematicMedia.ownership.video,
+          badge: "Direct contact",
+          overlayTitle: "One voice, across every channel.",
+        }}
+        stats={pageHeroStats["/contact"]}
+      />
+
+      <MobileSectionFrame
+        eyebrow="Primary route"
+        title="WhatsApp remains first."
+        description="For private purchase inquiries and faster continuation, WhatsApp stays primary."
+      >
+        <div className="flex flex-col gap-3">
+          <Button
+            asChild
+            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+          >
+            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+              Open WhatsApp
+            </a>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => goTo("/waitlist")}
+            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+          >
+            Quieter Entry
+          </Button>
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Channels"
+        title="Secondary paths stay available."
+        description="Email stays useful for slower exchanges. Instagram stays useful for presence and softer first contact."
+      >
+        <div className="grid gap-3">
+          {contactChannels.map((channel) => (
+            <div key={channel.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {channel.role}
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                {channel.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-white/60">{channel.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-3">
+          {contactPrinciples.map((item) => (
+            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Direct links"
+        title="Choose the route that fits the timing."
+        description="Qualified inquiries continue directly. Slower channels remain available where appropriate."
+      >
+        <div className="grid gap-3">
+          <Button
+            asChild
+            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+          >
+            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+              WhatsApp
+            </a>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+          >
+            <a href={emailLink}>Email</a>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+          >
+            <a href={instagramLink} target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+          </Button>
+        </div>
+      </MobileSectionFrame>
+    </>
+  );
+
+  const renderMobilePage = () => {
+    switch (route) {
+      case "/praeliator-vis":
+        return renderMobileVisPage();
+      case "/acquisition":
+        return renderMobileAcquisitionPage();
+      case "/waitlist":
+        return renderMobileWaitlistPage();
+      case "/contact":
+        return renderMobileContactPage();
+      default:
+        return renderMobileHomePage();
+    }
+  };
+
   const renderPage = () => {
     switch (route) {
       case "/praeliator-vis":
@@ -4807,138 +6405,152 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-      <motion.header
-        className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
-        animate={{
-          y: headerLifted ? "-118%" : "0%",
-          opacity: headerLifted ? 0 : 1,
-        }}
-        transition={{ duration: 1.05, ease: easeLuxury }}
-      >
-        <motion.div
+      {isDesktopViewport ? (
+        <motion.header
+          className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
           animate={{
-            backgroundColor: mobileMenuOpen
-              ? "rgba(5,5,5,0.46)"
-              : "rgba(5,5,5,0)",
-            backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+            y: headerLifted ? "-118%" : "0%",
+            opacity: headerLifted ? 0 : 1,
           }}
-          transition={{ duration: 0.55, ease: easeLuxury }}
-          className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+          transition={{ duration: 1.05, ease: easeLuxury }}
         >
-          <Container className="relative flex items-center justify-between py-5 sm:py-6">
-            <motion.button
-              type="button"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: easeLuxury }}
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
-            >
-              <motion.span
-                animate={{
-                  scale: mobileMenuOpen ? 1.06 : 1,
-                  y: mobileMenuOpen ? 0.5 : 0,
-                }}
-                transition={{ duration: 0.75, ease: easeLuxury }}
-                className="flex items-center justify-center"
-              >
-                <PraeliatorMenuWreathIcon
-                  open={mobileMenuOpen}
-                  className="h-[2.9rem] w-[2.9rem]"
-                />
-              </motion.span>
-              <span className="sr-only">
-                {mobileMenuOpen ? "Close menu" : "Open menu"}
-              </span>
-            </motion.button>
-            <HeaderBrandMark
-              mode={headerBrandMode}
-              onClick={() => goTo("/")}
-              assetsBroken={headerLogoBroken}
-              onAssetError={() => setHeaderLogoBroken(true)}
-            />
-            <motion.a
-              href={currentPurchaseLink}
-              target="_blank"
-              rel="noreferrer"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
-            >
-              Private Inquiry
-            </motion.a>
-          </Container>
-          <AnimatePresence initial={false}>
-            {route !== "/" && !mobileMenuOpen ? (
-              <motion.div
-                initial={{ opacity: 0, y: -6 }}
+          <motion.div
+            animate={{
+              backgroundColor: mobileMenuOpen
+                ? "rgba(5,5,5,0.46)"
+                : "rgba(5,5,5,0)",
+              backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+            }}
+            transition={{ duration: 0.55, ease: easeLuxury }}
+            className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+          >
+            <Container className="relative flex items-center justify-between py-5 sm:py-6">
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.75, ease: easeLuxury }}
-                className="pointer-events-none pb-3 sm:pb-4"
+                transition={{ duration: 0.8, ease: easeLuxury }}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                onClick={() => setMobileMenuOpen((current) => !current)}
+                className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
               >
-                <Container className="flex justify-center">
-                  <p className="text-[9px] uppercase tracking-[0.34em] text-white/38 sm:text-[10px]">
-                    {pageMicroLabel}
-                  </p>
-                </Container>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-          <AnimatePresence initial={false}>
-            {mobileMenuOpen ? (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.6, ease: easeLuxury }}
-                className="overflow-hidden"
+                <motion.span
+                  animate={{
+                    scale: mobileMenuOpen ? 1.06 : 1,
+                    y: mobileMenuOpen ? 0.5 : 0,
+                  }}
+                  transition={{ duration: 0.75, ease: easeLuxury }}
+                  className="flex items-center justify-center"
+                >
+                  <PraeliatorMenuWreathIcon
+                    open={mobileMenuOpen}
+                    className="h-[2.9rem] w-[2.9rem]"
+                  />
+                </motion.span>
+                <span className="sr-only">
+                  {mobileMenuOpen ? "Close menu" : "Open menu"}
+                </span>
+              </motion.button>
+              <HeaderBrandMark
+                mode={headerBrandMode}
+                onClick={() => goTo("/")}
+                assetsBroken={headerLogoBroken}
+                onAssetError={() => setHeaderLogoBroken(true)}
+              />
+              <motion.a
+                href={currentPurchaseLink}
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+                className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
               >
-                <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
-                  <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
-                    <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
-                      {navItems.map((item, index) => (
-                        <motion.button
-                          key={item.path}
-                          type="button"
-                          initial={{ opacity: 0, y: 18 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{
-                            duration: 0.5,
-                            delay: index * 0.045,
-                            ease: easeLuxury,
-                          }}
-                          onClick={() => goTo(item.path)}
-                          className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
-                              {item.label}
-                            </p>
-                            <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
-                              {item.label === "VIS"
-                                ? "Flagship"
-                                : item.label === "Acquisition"
-                                  ? "Private route"
-                                  : item.label === "Waitlist"
-                                    ? "Future access"
-                                    : "Direct contact"}
-                            </p>
-                          </div>
-                          <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
-                        </motion.button>
-                      ))}
+                Private Inquiry
+              </motion.a>
+            </Container>
+            <AnimatePresence initial={false}>
+              {route !== "/" && !mobileMenuOpen ? (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.75, ease: easeLuxury }}
+                  className="pointer-events-none pb-3 sm:pb-4"
+                >
+                  <Container className="flex justify-center">
+                    <p className="text-[9px] uppercase tracking-[0.34em] text-white/38 sm:text-[10px]">
+                      {pageMicroLabel}
+                    </p>
+                  </Container>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            <AnimatePresence initial={false}>
+              {mobileMenuOpen ? (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: easeLuxury }}
+                  className="overflow-hidden"
+                >
+                  <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
+                    <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
+                      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
+                        {navItems.map((item, index) => (
+                          <motion.button
+                            key={item.path}
+                            type="button"
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{
+                              duration: 0.5,
+                              delay: index * 0.045,
+                              ease: easeLuxury,
+                            }}
+                            onClick={() => goTo(item.path)}
+                            className="group flex items-end justify-between gap-6 border-b border-white/[0.08] py-6 text-left transition duration-500 hover:border-white/[0.18] sm:py-7 lg:py-8"
+                          >
+                            <div className="min-w-0">
+                              <p className="text-[clamp(1.15rem,2vw,2rem)] uppercase tracking-[0.1em] text-white/90 transition duration-500 group-hover:text-white">
+                                {item.label}
+                              </p>
+                              <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
+                                {item.label === "VIS"
+                                  ? "Flagship"
+                                  : item.label === "Acquisition"
+                                    ? "Private route"
+                                    : item.label === "Waitlist"
+                                      ? "Future access"
+                                      : "Direct contact"}
+                              </p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
+                          </motion.button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </Container>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-        </motion.div>
-      </motion.header>
+                  </Container>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </motion.div>
+        </motion.header>
+      ) : (
+        <MobileHeader
+          route={route}
+          pageMicroLabel={pageMicroLabel}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          brandMode={mobileHeaderBrandMode}
+          currentPurchaseLink={currentPurchaseLink}
+          headerLogoBroken={headerLogoBroken}
+          onHeaderLogoError={() => setHeaderLogoBroken(true)}
+          goTo={goTo}
+        />
+      )}
       <main
         className={
           route === "/"
@@ -4948,18 +6560,25 @@ const renderWaitlistPage = () => (
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={route}
+            key={`${isDesktopViewport ? "desktop" : "mobile"}-${route}`}
             variants={pageTransition}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {renderPage()}
+            {isDesktopViewport ? renderPage() : renderMobilePage()}
           </motion.div>
         </AnimatePresence>
       </main>
-      {route === "/" ? null : (
+      {route === "/" ? null : isDesktopViewport ? (
         <ClubFooter
+          goTo={goTo}
+          whatsappGeneralLink={whatsappGeneralLink}
+          instagramLink={instagramLink}
+          emailLink={emailLink}
+        />
+      ) : (
+        <MobileClubFooter
           goTo={goTo}
           whatsappGeneralLink={whatsappGeneralLink}
           instagramLink={instagramLink}
