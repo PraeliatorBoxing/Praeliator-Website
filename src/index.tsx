@@ -104,6 +104,12 @@ const homeCinematicMedia = {
     poster: homeImageSources.presentation,
   },
 };
+const visPageMedia = {
+  heroVideo: homeCinematicMedia.vis.video,
+  studyVideo: "/videos/vis-object-study.mp4",
+  materialVideo: homeCinematicMedia.material.video,
+  ownershipVideo: homeCinematicMedia.ownership.video,
+};
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
   wordmark: "/logo-header.png",
@@ -3460,7 +3466,7 @@ export default function PraeliatorWebsite() {
             preload="auto"
             poster={visImageSources.hero}
           >
-            <source src={homeCinematicMedia.vis.video} type="video/mp4" />
+            <source src={visPageMedia.heroVideo} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
           <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
@@ -3515,17 +3521,17 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative overflow-hidden bg-[#050505] py-24 sm:py-28 lg:py-36">
+      <section className="relative overflow-hidden bg-[#050505] py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
         <Container className="relative">
-          <Reveal className="mx-auto max-w-[58rem] text-center">
+          <Reveal className="mx-auto max-w-[56rem] text-center">
             <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
               Thesis
             </p>
-            <h2 className="mt-6 text-[clamp(2.8rem,6.2vw,5.8rem)] font-semibold leading-[0.9] tracking-[-0.068em] text-[#f4efe7]">
+            <h2 className="mt-6 text-[clamp(2.55rem,5.8vw,5.3rem)] font-semibold leading-[0.92] tracking-[-0.068em] text-[#f4efe7]">
               Luxury is not louder. It is more resolved.
             </h2>
-            <p className="mx-auto mt-7 max-w-[42rem] text-sm leading-7 text-white/54 sm:text-base sm:leading-8">
+            <p className="mx-auto mt-6 max-w-[38rem] text-sm leading-7 text-white/54 sm:text-base sm:leading-8">
               VIS does not rely on excess to look expensive. The authority of the object
               comes from proportion, restraint, and the feeling that every visible choice
               was made on purpose.
@@ -3534,15 +3540,15 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
+      <section className="relative -mt-2 py-6 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-8">
             <Reveal>
-              <div className="rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
+              <div className="h-full rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.88),rgba(9,9,8,0.94))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Object study
                 </p>
-                <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
+                <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.25rem]">
                   The silhouette is controlled before it is decorated.
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
@@ -3551,7 +3557,7 @@ export default function PraeliatorWebsite() {
                   restraint of the surface all belong to the same decision-making system.
                 </p>
 
-                <div className="mt-8 grid gap-4">
+                <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
                   {[
                     {
                       title: "Silhouette",
@@ -3584,8 +3590,8 @@ export default function PraeliatorWebsite() {
               <MediaSurface
                 src={visImageSources.hero}
                 alt="Praeliator VIS silhouette study"
-                video={homeCinematicMedia.vis.video}
-                className="min-h-[28rem] sm:min-h-[40rem] lg:min-h-[48rem]"
+                video={visPageMedia.studyVideo}
+                className="min-h-[24rem] sm:min-h-[30rem] lg:min-h-[40rem]"
                 dim="light"
                 priorityCopy={
                   <>
@@ -3603,21 +3609,21 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
         <Container>
           <Reveal>
             <MediaSurface
               src={visImageSources.leather}
               alt="Praeliator VIS leather macro"
-              video={homeCinematicMedia.material.video}
-              className="min-h-[28rem] sm:min-h-[36rem] lg:min-h-[44rem]"
+              video={visPageMedia.materialVideo}
+              className="min-h-[24rem] sm:min-h-[28rem] lg:min-h-[34rem]"
               dim="light"
               priorityCopy={
                 <div className="max-w-[34rem]">
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
                     Material
                   </p>
-                  <p className="mt-4 text-[clamp(2.2rem,4.5vw,4.5rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7]">
+                  <p className="mt-4 text-[clamp(2.1rem,4.2vw,4rem)] font-semibold leading-[0.92] tracking-[-0.06em] text-[#f4efe7]">
                     Top-grain cowhide. Soft satin finish.
                   </p>
                   <p className="mt-5 max-w-[30rem] text-sm leading-7 text-white/70 sm:text-base sm:leading-8">
@@ -3629,7 +3635,7 @@ export default function PraeliatorWebsite() {
             />
           </Reveal>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
             {[
               {
                 title: "Surface",
@@ -3657,15 +3663,15 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-10">
+          <div className="grid gap-6 lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:gap-8">
             <Reveal>
               <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_34px_90px_rgba(0,0,0,0.3)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Construction logic
                 </p>
-                <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
+                <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
                   The glove had to feel technically serious without becoming visually loud.
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
@@ -3697,108 +3703,108 @@ export default function PraeliatorWebsite() {
               </div>
             </Reveal>
 
-            <div className="grid gap-8">
-              <Reveal delay={0.06}>
-                <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                    Object record
+            <Reveal delay={0.06}>
+              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,10,9,0.94))] p-6 shadow-[0_32px_80px_rgba(0,0,0,0.26)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Object record
+                </p>
+                <div className="mt-6">
+                  <DataList items={visSpecifications} compact />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal delay={0.1} className="mt-6">
+            <MediaSurface
+              src={visImageSources.plate}
+              alt="Praeliator VIS branding detail"
+              className="min-h-[16rem] sm:min-h-[20rem] lg:min-h-[24rem]"
+              dim="light"
+              priorityCopy={
+                <div className="max-w-[18rem]">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                    Detail study
                   </p>
-                  <div className="mt-6">
-                    <DataList items={visSpecifications} compact />
+                  <p className="mt-4 text-2xl font-semibold leading-[0.94] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl lg:text-[3rem]">
+                    Debossed. Controlled. Quiet.
+                  </p>
+                </div>
+              }
+            />
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="relative -mt-1 py-6 sm:py-8 lg:py-10">
+        <Container>
+          <Reveal>
+            <div className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_32px_84px_rgba(0,0,0,0.28)]">
+              <div className="grid gap-0 lg:grid-cols-[1.02fr_0.98fr] lg:items-stretch">
+                <div className="border-b border-white/10 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                    Continuity
+                  </p>
+                  <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.15rem]">
+                    Presentation, authenticity, and aftercare stay inside the same language.
+                  </h2>
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    VIS should not stop feeling controlled once the glove leaves the image. The
+                    rigid box, silk dust bag, authenticity record, ownership continuity, and
+                    service route all belong to the same standard.
+                  </p>
+
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        Presentation
+                      </p>
+                      <div className="mt-4 space-y-3">
+                        {visPackaging.map((item) => (
+                          <p key={item} className="text-sm leading-7 text-white/60">
+                            {item}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        Ownership
+                      </p>
+                      <div className="mt-4">
+                        <DataList items={ownershipSignals} compact />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </Reveal>
 
-              <Reveal delay={0.1}>
                 <MediaSurface
-                  src={visImageSources.plate}
-                  alt="Praeliator VIS branding detail"
-                  className="min-h-[18rem] sm:min-h-[22rem]"
+                  src={visImageSources.packaging}
+                  alt="Praeliator VIS presentation"
+                  video={visPageMedia.ownershipVideo}
+                  className="min-h-[24rem] rounded-none border-0 shadow-none sm:min-h-[28rem] lg:min-h-full"
                   dim="light"
                   priorityCopy={
                     <>
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
-                        Detail study
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                        Presentation and ownership
                       </p>
-                      <p className="mt-4 max-w-[10ch] text-2xl font-semibold leading-[0.94] tracking-[-0.05em] text-[#f4efe7] sm:text-3xl">
-                        Debossed. Controlled. Quiet.
+                      <p className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.92] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
+                        The object extends beyond the glove.
                       </p>
                     </>
                   }
                 />
-              </Reveal>
-            </div>
-          </div>
-        </Container>
-      </section>
+              </div>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
-        <Container>
-          <div className="grid gap-8 lg:grid-cols-[1.06fr_0.94fr] lg:items-center lg:gap-10">
-            <Reveal>
-              <MediaSurface
-                src={visImageSources.packaging}
-                alt="Praeliator VIS presentation"
-                video={homeCinematicMedia.ownership.video}
-                className="min-h-[24rem] sm:min-h-[32rem] lg:min-h-[38rem]"
-                dim="light"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                      Presentation and ownership
-                    </p>
-                    <p className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.92] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-5xl">
-                      The object extends beyond the glove.
-                    </p>
-                  </>
-                }
-              />
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-6 shadow-[0_32px_84px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Continuity
-                </p>
-                <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl">
-                  Presentation, authenticity, and aftercare stay inside the same language.
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  VIS should not stop feeling controlled once the glove leaves the image. The
-                  rigid box, silk dust bag, authenticity record, ownership continuity, and
-                  service route all belong to the same standard.
-                </p>
-
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                      Presentation
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {visPackaging.map((item) => (
-                        <p key={item} className="text-sm leading-7 text-white/60">
-                          {item}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                      Ownership
-                    </p>
-                    <div className="mt-4">
-                      <DataList items={ownershipSignals} compact />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
+              <div className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
+                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Aftercare
                   </p>
-                  <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
+                  <div className="mt-4 grid gap-0 divide-y divide-white/10 border-t border-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0 lg:border-y lg:border-x-0">
                     {visService.map((item) => (
-                      <div key={item} className="py-4">
+                      <div key={item} className="py-4 lg:px-5 lg:py-5">
                         <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
                           {item}
                         </p>
@@ -3807,12 +3813,12 @@ export default function PraeliatorWebsite() {
                   </div>
                 </div>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </Container>
       </section>
 
-      <section className="relative overflow-hidden py-20 sm:py-24 lg:py-28">
+      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
           <Reveal>
