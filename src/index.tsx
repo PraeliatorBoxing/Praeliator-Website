@@ -2531,7 +2531,7 @@ function CinematicScene({
     }
   };
   return (
-    <section className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start">
+    <section className="relative isolate h-dvh min-h-dvh supports-[height:100svh]:h-[100svh] supports-[height:100svh]:min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden snap-start">
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
           animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
@@ -2683,7 +2683,7 @@ function ExploreFurtherScene({
     },
   ];
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
       <motion.div
         animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
@@ -2746,7 +2746,7 @@ function HomeFooterScene({
   emailLink: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[120rem]">
         <div className="border-t border-white/18 pt-14">
@@ -2863,7 +2863,7 @@ function HomeTailScene({
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <section className="relative isolate h-[100svh] min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
+    <section className="relative isolate h-dvh min-h-dvh supports-[height:100svh]:h-[100svh] supports-[height:100svh]:min-h-dvh supports-[height:100svh]:min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
       <div
         ref={scrollContainerRef}
         className="browser-scrollbar h-full overflow-y-auto overscroll-contain"
@@ -3203,10 +3203,25 @@ function FullScreenCinematicHomepage({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [useStackedFlow, setUseStackedFlow] = useState(false);
   const unlockTimerRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const tailScrollRef = useRef<HTMLDivElement | null>(null);
+  const stackedSectionRefs = useRef<Array<HTMLElement | null>>([]);
   const tailIndex = sections.findIndex((section) => section.kind === "tail");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => {
+      const coarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0;
+      setUseStackedFlow(coarse || window.innerWidth < 1024);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   useEffect(() => {
     onActiveIndexChange?.(activeIndex);
   }, [activeIndex, onActiveIndexChange]);
@@ -3224,6 +3239,7 @@ function FullScreenCinematicHomepage({
     }, 950);
   };
   useEffect(() => {
+    if (useStackedFlow) return;
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
@@ -3232,7 +3248,7 @@ function FullScreenCinematicHomepage({
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
     };
-  }, []);
+  }, [useStackedFlow]);
   useEffect(() => {
     if (tailIndex < 0) return;
     if (activeIndex !== tailIndex && tailScrollRef.current) {
@@ -3379,7 +3395,7 @@ function FullScreenCinematicHomepage({
 }
 function BrowserFormStyles() {
   return (
-    <style>{`.browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
+    <style>{`html, body, #root { background: #040404; min-height: 100%; } body { overscroll-behavior-y: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -3975,7 +3991,7 @@ export default function PraeliatorWebsite() {
   };
   const renderVisPage = () => (
     <>
-      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#040404]">
+      <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#040404]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.025] bg-cover bg-center"
@@ -3998,7 +4014,7 @@ export default function PraeliatorWebsite() {
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
         </div>
 
-        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -4390,7 +4406,7 @@ export default function PraeliatorWebsite() {
 
 const renderAcquisitionPage = () => (
   <>
-    <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
+    <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-center"
@@ -4413,7 +4429,7 @@ const renderAcquisitionPage = () => (
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
       </div>
 
-      <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+      <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
         <motion.div
           initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -5143,7 +5159,7 @@ const renderWaitlistPage = () => (
   );
   const renderContactPage = () => (
     <>
-      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
+      <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.03] bg-cover bg-center"
@@ -5166,7 +5182,7 @@ const renderWaitlistPage = () => (
           <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
         </div>
 
-        <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -6426,7 +6442,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between py-5 sm:py-6">
+          <Container className="relative flex items-center justify-between py-4 min-[420px]:py-5 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -6434,7 +6450,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+              className="group inline-flex h-10 w-10 min-[420px]:h-12 min-[420px]:w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
             >
               <motion.span
                 animate={{
@@ -6446,19 +6462,23 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[2.9rem] w-[2.9rem]"
+                  className="h-[2.15rem] w-[2.15rem] min-[420px]:h-[2.9rem] min-[420px]:w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
                 {mobileMenuOpen ? "Close menu" : "Open menu"}
               </span>
             </motion.button>
-            <HeaderBrandMark
-              mode={activeHeaderBrandMode}
-              onClick={() => goTo("/")}
-              assetsBroken={headerLogoBroken}
-              onAssetError={() => setHeaderLogoBroken(true)}
-            />
+
+            <div className="origin-center scale-[0.72] min-[390px]:scale-[0.82] min-[430px]:scale-[0.9] sm:scale-100">
+              <HeaderBrandMark
+                mode={headerBrandMode}
+                onClick={() => goTo("/")}
+                assetsBroken={headerLogoBroken}
+                onAssetError={() => setHeaderLogoBroken(true)}
+              />
+            </div>
+
             <motion.a
               href={currentPurchaseLink}
               target="_blank"
@@ -6466,7 +6486,7 @@ const renderWaitlistPage = () => (
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+              className="hidden min-[420px]:block text-[9px] min-[430px]:text-[10px] sm:text-[11px] uppercase tracking-[0.24em] min-[430px]:tracking-[0.3em] sm:tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
             >
               Private Inquiry
             </motion.a>
@@ -6533,6 +6553,16 @@ const renderWaitlistPage = () => (
                         </motion.button>
                       ))}
                     </div>
+                    <div className="pt-6 sm:pt-8">
+                      <Button
+                        asChild
+                        className="w-full rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                      >
+                        <a href={currentPurchaseLink} target="_blank" rel="noreferrer">
+                          Private Inquiry
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 </Container>
               </motion.div>
@@ -6549,13 +6579,13 @@ const renderWaitlistPage = () => (
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${isDesktopViewport ? "desktop" : "mobile"}-${route}`}
+            key={route}
             variants={pageTransition}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {isDesktopViewport ? renderPage() : renderMobilePage()}
+            {renderPage()}
           </motion.div>
         </AnimatePresence>
       </main>
