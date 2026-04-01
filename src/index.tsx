@@ -747,6 +747,22 @@ const formPanelClass =
   "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
+const WAITLIST_FIELD_MAX_LENGTHS: Record<WaitlistFieldName, number> = {
+  title: 32,
+  fullName: 80,
+  email: 254,
+  phoneCountryCode: 5,
+  whatsapp: 15,
+  country: 80,
+  interest: 64,
+  timeline: 32,
+  contactPreference: 32,
+  note: 600,
+};
+const clampWaitlistFieldLength = (
+  field: WaitlistFieldName,
+  value: string,
+) => value.slice(0, WAITLIST_FIELD_MAX_LENGTHS[field]);
 const normalizeInlineText = (value: string) =>
   value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
 const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -765,23 +781,33 @@ const normalizeWaitlistFieldValue = (
   value: string,
   stage: "change" | "blur" | "submit" = "change",
 ) => {
-  if (field === "fullName")
-    return stage === "change"
-      ? normalizeInlineText(value)
-      : normalizeFinalText(value);
-  if (field === "email")
-    return stage === "change"
-      ? normalizeEmailInline(value)
-      : normalizeEmailFinal(value);
-  if (field === "phoneCountryCode") return normalizeDialCode(value);
-  if (field === "whatsapp") return normalizePhoneNumber(value);
-  if (field === "country")
-    return stage === "change"
-      ? normalizeInlineText(value)
-      : normalizeFinalText(value);
-  if (field === "note")
-    return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
-  return stage === "change" ? value : value.trim();
+  let normalizedValue = value;
+  if (field === "fullName") {
+    normalizedValue =
+      stage === "change"
+        ? normalizeInlineText(value)
+        : normalizeFinalText(value);
+  } else if (field === "email") {
+    normalizedValue =
+      stage === "change"
+        ? normalizeEmailInline(value)
+        : normalizeEmailFinal(value);
+  } else if (field === "phoneCountryCode") {
+    normalizedValue = normalizeDialCode(value);
+  } else if (field === "whatsapp") {
+    normalizedValue = normalizePhoneNumber(value);
+  } else if (field === "country") {
+    normalizedValue =
+      stage === "change"
+        ? normalizeInlineText(value)
+        : normalizeFinalText(value);
+  } else if (field === "note") {
+    normalizedValue =
+      stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
+  } else {
+    normalizedValue = stage === "change" ? value : value.trim();
+  }
+  return clampWaitlistFieldLength(field, normalizedValue);
 };
 const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   title: normalizeWaitlistFieldValue("title", form.title, "submit"),
@@ -1929,6 +1955,7 @@ function InputField({
   success = false,
   describedBy,
   maxLength,
+  pattern,
 }: {
   name: string;
   value: string;
@@ -1947,6 +1974,7 @@ function InputField({
   success?: boolean;
   describedBy?: string;
   maxLength?: number;
+  pattern?: string;
 }) {
   return (
     <input
@@ -1959,6 +1987,7 @@ function InputField({
       inputMode={inputMode}
       autoCapitalize={autoCapitalize}
       maxLength={maxLength}
+      pattern={pattern}
       aria-invalid={invalid}
       aria-describedby={describedBy}
       className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
@@ -1979,6 +2008,7 @@ function SelectField({
   invalid = false,
   success = false,
   describedBy,
+  maxLength,
 }: {
   name: string;
   value: string;
@@ -1996,6 +2026,7 @@ function SelectField({
   invalid?: boolean;
   success?: boolean;
   describedBy?: string;
+  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -2414,6 +2445,7 @@ function SearchPicker({
           }
         }}
         inputMode={inputMode}
+        maxLength={maxLength}
         className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
         placeholder={placeholder}
       />
@@ -4871,6 +4903,7 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("fullName")}
                         autoComplete="name"
                         placeholder="Full name *"
+                        maxLength={WAITLIST_FIELD_MAX_LENGTHS.fullName}
                         invalid={Boolean(getVisibleFieldError("fullName"))}
                         success={getFieldSuccess("fullName")}
                         describedBy={getFieldDescribedBy("fullName")}
@@ -4891,6 +4924,7 @@ const renderWaitlistPage = () => (
                       autoComplete="email"
                       autoCapitalize="none"
                       placeholder="Email address *"
+                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.email}
                       invalid={Boolean(getVisibleFieldError("email"))}
                       success={getFieldSuccess("email")}
                       describedBy={getFieldDescribedBy("email")}
@@ -4911,6 +4945,7 @@ const renderWaitlistPage = () => (
                         code: option.code,
                       }))}
                       placeholder="Country or dial code *"
+                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.country}
                       exactMatchUpdates
                       fieldLabel="Country"
                       invalid={Boolean(getVisibleFieldError("country"))}
@@ -4931,7 +4966,8 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("phoneCountryCode")}
                         autoComplete="tel-country-code"
                         inputMode="tel"
-                        maxLength={5}
+                        maxLength={WAITLIST_FIELD_MAX_LENGTHS.phoneCountryCode}
+                        pattern="\+?[0-9]*"
                         placeholder="Dial code *"
                         invalid={Boolean(
                           getVisibleFieldError("phoneCountryCode"),
@@ -4952,7 +4988,8 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("whatsapp")}
                         autoComplete="tel-national"
                         inputMode="tel"
-                        maxLength={15}
+                        maxLength={getDialCodePhoneRule(waitlistForm.phoneCountryCode).max}
+                        pattern="[0-9]*"
                         placeholder="Phone number *"
                         invalid={Boolean(getVisibleFieldError("whatsapp"))}
                         success={getFieldSuccess("whatsapp")}
@@ -5036,6 +5073,7 @@ const renderWaitlistPage = () => (
                       onChange={handleWaitlistChange}
                       onBlur={() => handleWaitlistBlur("note")}
                       rows={6}
+                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.note}
                       className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                       placeholder="Optional note"
                     />
@@ -6028,6 +6066,7 @@ const renderWaitlistPage = () => (
                   onBlur={() => handleWaitlistBlur("fullName")}
                   autoComplete="name"
                   placeholder="Full name *"
+                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.fullName}
                   invalid={Boolean(getVisibleFieldError("fullName"))}
                   success={getFieldSuccess("fullName")}
                   describedBy={getFieldDescribedBy("fullName")}
@@ -6045,6 +6084,7 @@ const renderWaitlistPage = () => (
                   autoComplete="email"
                   autoCapitalize="none"
                   placeholder="Email address *"
+                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.email}
                   invalid={Boolean(getVisibleFieldError("email"))}
                   success={getFieldSuccess("email")}
                   describedBy={getFieldDescribedBy("email")}
@@ -6063,6 +6103,7 @@ const renderWaitlistPage = () => (
                     code: option.code,
                   }))}
                   placeholder="Country or dial code *"
+                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.country}
                   exactMatchUpdates
                   fieldLabel="Country"
                   invalid={Boolean(getVisibleFieldError("country"))}
@@ -6081,7 +6122,8 @@ const renderWaitlistPage = () => (
                     onBlur={() => handleWaitlistBlur("phoneCountryCode")}
                     autoComplete="tel-country-code"
                     inputMode="tel"
-                    maxLength={5}
+                    maxLength={WAITLIST_FIELD_MAX_LENGTHS.phoneCountryCode}
+                    pattern="\+?[0-9]*"
                     placeholder="Dial code *"
                     invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
                     success={getFieldSuccess("phoneCountryCode")}
@@ -6100,7 +6142,8 @@ const renderWaitlistPage = () => (
                     onBlur={() => handleWaitlistBlur("whatsapp")}
                     autoComplete="tel-national"
                     inputMode="tel"
-                    maxLength={15}
+                    maxLength={getDialCodePhoneRule(waitlistForm.phoneCountryCode).max}
+                    pattern="[0-9]*"
                     placeholder="Phone number *"
                     invalid={Boolean(getVisibleFieldError("whatsapp"))}
                     success={getFieldSuccess("whatsapp")}
@@ -6172,6 +6215,7 @@ const renderWaitlistPage = () => (
                   onChange={handleWaitlistChange}
                   onBlur={() => handleWaitlistBlur("note")}
                   rows={6}
+                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.note}
                   className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                   placeholder="Optional note"
                 />
