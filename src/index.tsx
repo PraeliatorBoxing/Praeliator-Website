@@ -1014,6 +1014,100 @@ function DataList({
     </div>
   );
 }
+function AutoplayVideo({
+  src,
+  poster,
+  className = "",
+  onCanPlay,
+  onLoadedData,
+  onPlaying,
+}: {
+  src: string;
+  poster: string;
+  className?: string;
+  onCanPlay?: React.ReactEventHandler<HTMLVideoElement>;
+  onLoadedData?: React.ReactEventHandler<HTMLVideoElement>;
+  onPlaying?: React.ReactEventHandler<HTMLVideoElement>;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const primeVideoForAutoplay = () => {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("autoplay", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("x-webkit-airplay", "deny");
+
+      const attempt = video.play();
+      if (attempt && typeof attempt.catch === "function") {
+        attempt.catch(() => {});
+      }
+    };
+
+    primeVideoForAutoplay();
+    const visibilityTimer = window.setTimeout(primeVideoForAutoplay, 160);
+    const loadedTimer = window.setTimeout(primeVideoForAutoplay, 420);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        primeVideoForAutoplay();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearTimeout(visibilityTimer);
+      window.clearTimeout(loadedTimer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [src]);
+
+  return (
+    <video
+      ref={videoRef}
+      className={className}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster={poster}
+      disablePictureInPicture
+      controlsList="nodownload nofullscreen noremoteplayback"
+      onCanPlay={(event) => {
+        const video = event.currentTarget;
+        video.muted = true;
+        video.defaultMuted = true;
+        const attempt = video.play();
+        if (attempt && typeof attempt.catch === "function") {
+          attempt.catch(() => {});
+        }
+        onCanPlay?.(event);
+      }}
+      onLoadedData={(event) => {
+        const video = event.currentTarget;
+        const attempt = video.play();
+        if (attempt && typeof attempt.catch === "function") {
+          attempt.catch(() => {});
+        }
+        onLoadedData?.(event);
+      }}
+      onPlaying={onPlaying}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
 function MediaSurface({
   src,
   alt,
@@ -1045,17 +1139,11 @@ function MediaSurface({
         role="img"
       />
       {video ? (
-        <video
+        <AutoplayVideo
           className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
           poster={src}
-          preload="metadata"
-        >
-          <source src={video} type="video/mp4" />
-        </video>
+          src={video}
+        />
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
@@ -2059,20 +2147,14 @@ function CinematicScene({
             style={{ backgroundImage: `url(${section.poster})` }}
             aria-hidden="true"
           />
-          <video
+          <AutoplayVideo
             className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
             poster={section.poster}
+            src={section.video}
             onCanPlay={markVideoReady}
             onLoadedData={markVideoReady}
             onPlaying={markVideoReady}
-          >
-            <source src={section.video} type="video/mp4" />
-          </video>
+          />
         </motion.div>
         <AnimatePresence>
           {!videoReady && showLoader ? (
@@ -3459,17 +3541,11 @@ export default function PraeliatorWebsite() {
             style={{ backgroundImage: `url(${visImageSources.hero})` }}
             aria-hidden="true"
           />
-          <video
+          <AutoplayVideo
             className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
             poster={visImageSources.hero}
-          >
-            <source src={visPageMedia.heroVideo} type="video/mp4" />
-          </video>
+            src={visPageMedia.heroVideo}
+          />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
           <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
@@ -3875,17 +3951,11 @@ const renderAcquisitionPage = () => (
           style={{ backgroundImage: `url(${homeCinematicMedia.acquisition.poster})` }}
           aria-hidden="true"
         />
-        <video
+        <AutoplayVideo
           className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
           poster={homeCinematicMedia.acquisition.poster}
-        >
-          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
-        </video>
+          src={homeCinematicMedia.acquisition.video}
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
         <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
@@ -4628,17 +4698,11 @@ const renderWaitlistPage = () => (
             style={{ backgroundImage: `url(${visImageSources.packaging})` }}
             aria-hidden="true"
           />
-          <video
+          <AutoplayVideo
             className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
             poster={visImageSources.packaging}
-          >
-            <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
-          </video>
+            src={homeCinematicMedia.ownership.video}
+          />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
           <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
           <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
