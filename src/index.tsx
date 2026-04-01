@@ -567,6 +567,32 @@ const acquisitionSteps = [
     text: "Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.",
   },
 ];
+const acquisitionPrinciples = [
+  {
+    title: "No cart layer",
+    text: "The brand does not disappear behind a marketplace flow. The route stays direct from the beginning.",
+  },
+  {
+    title: "Recorded continuity",
+    text: "Inquiry, allocation, dispatch, and future service stay attached to the same client record.",
+  },
+  {
+    title: "Controlled release",
+    text: "Access remains qualified and paced. Availability is handled with intention rather than open inventory noise.",
+  },
+];
+const acquisitionModeCards = [
+  {
+    title: "Immediate inquiry",
+    text: "For clients ready to begin the acquisition route now through direct contact.",
+    action: "Begin inquiry",
+  },
+  {
+    title: "Quiet registration",
+    text: "For clients who want future access, collector visibility, or a softer point of entry.",
+    action: "Join waitlist",
+  },
+];
 const visEditorialBlocks = [
   {
     title: "Material discipline",
@@ -3536,8 +3562,8 @@ export default function PraeliatorWebsite() {
     <>
       <PageHeroBanner
         eyebrow="Acquisition"
-        title="Private acquisition, handled directly."
-        description="Each qualified inquiry is reviewed and carried through direct contact. The route stays controlled from first contact to delivery and aftercare."
+        title="Private acquisition, handled with control."
+        description="Each qualified inquiry is reviewed and carried through direct contact. The route stays restrained from first message to delivery and aftercare."
         note="Inquiry · review · allocation · delivery"
         actions={[
           {
@@ -3561,40 +3587,135 @@ export default function PraeliatorWebsite() {
         }}
         stats={pageHeroStats["/acquisition"]}
       />
+
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
-          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
-            {acquisitionSteps.map((item, index) => (
-              <Reveal key={item.step} delay={index * 0.05}>
-                <div className="h-full rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_28px_72px_rgba(0,0,0,0.24)] sm:p-7">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    {item.step}
-                  </p>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-white/62">
-                    {item.text}
-                  </p>
+          <div className="overflow-hidden rounded-[2.35rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] shadow-[0_36px_120px_rgba(0,0,0,0.42)]">
+            <div className="grid gap-0 lg:grid-cols-[0.96fr_1.04fr]">
+              <Reveal className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Why the route exists
+                </p>
+                <h2 className="mt-5 max-w-[12ch] text-3xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-4xl lg:text-5xl">
+                  The route is part of the object.
+                </h2>
+                <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  Praeliator does not treat acquisition like a conventional checkout layer.
+                  The tone, pace, and control of the route are meant to feel continuous with the
+                  glove itself.
+                </p>
+
+                <div className="mt-8 grid gap-4">
+                  {acquisitionPrinciples.map((item, index) => (
+                    <Reveal key={item.title} delay={0.08 + index * 0.05}>
+                      <div className="rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                          {item.title}
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+                      </div>
+                    </Reveal>
+                  ))}
                 </div>
               </Reveal>
-            ))}
+
+              <Reveal delay={0.08} className="p-3 sm:p-4 lg:p-5">
+                <MediaSurface
+                  src={visImageSources.hero}
+                  alt="Praeliator acquisition scene"
+                  video={homeCinematicMedia.acquisition.video}
+                  className="min-h-[24rem] sm:min-h-[32rem] lg:min-h-[40rem]"
+                  dim="heavy"
+                  priorityCopy={
+                    <>
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                        Acquisition scene
+                      </p>
+                      <p className="mt-4 max-w-[11ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                        No cart. No noise. No generic checkout.
+                      </p>
+                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
+                        Inquiry stays direct, allocation stays deliberate, and continuation stays attached to the same record.
+                      </p>
+                    </>
+                  }
+                />
+              </Reveal>
+            </div>
           </div>
         </Container>
       </section>
+
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-10">
+            <Reveal>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:sticky lg:top-28 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Acquisition sequence
+                </p>
+                <h2 className="mt-4 text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl">
+                  A direct route, paced properly.
+                </h2>
+                <p className="mt-5 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  The purpose is not speed for its own sake. The purpose is clarity,
+                  qualification, and continuity from first contact to aftercare.
+                </p>
+                <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    Route logic
+                  </p>
+                  <div className="mt-4 space-y-3 text-sm leading-7 text-white/62">
+                    <p>Direct contact stays primary.</p>
+                    <p>Allocation stays controlled.</p>
+                    <p>Future service stays under the same record.</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <div className="relative space-y-5 before:absolute before:bottom-6 before:left-[1.18rem] before:top-6 before:w-px before:bg-[linear-gradient(180deg,rgba(185,161,141,0.38),rgba(185,161,141,0.08))] sm:before:left-[1.35rem]">
+              {acquisitionSteps.map((item, index) => (
+                <Reveal key={item.step} delay={index * 0.06}>
+                  <div className="relative rounded-[1.85rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.92))] p-6 pl-14 shadow-[0_28px_72px_rgba(0,0,0,0.24)] sm:pl-16 sm:p-7 sm:pl-16">
+                    <div className="absolute left-4 top-6 flex h-6 w-6 items-center justify-center rounded-full border border-[#705a48] bg-[#120f0d] text-[10px] tracking-[0.18em] text-[#d0b39b] sm:left-5 sm:top-7 sm:h-7 sm:w-7">
+                      {item.step}
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="max-w-2xl">
+                        <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                          {item.title}
+                        </h3>
+                        <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                          {item.text}
+                        </p>
+                      </div>
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/26 sm:pt-1">
+                        Stage {item.step}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
       <EditorialBlock
         eyebrow="Trust architecture"
         title="Control matters before the product arrives."
-        text="Praeliator does not treat acquisition as a generic checkout function. Inquiry, review, allocation, and continuation all stay inside one clear route."
+        text="Inquiry, review, allocation, and continuation all stay inside one clear route. The brand remains visible throughout, instead of disappearing behind a generic commerce flow."
         media={{
-          image: visImageSources.hero,
+          image: visImageSources.packaging,
           alt: "Praeliator acquisition media",
+          video: homeCinematicMedia.ownership.video,
           overlayTitle: "Allocation with continuity.",
           overlayText:
             "The route stays recorded from first contact to aftercare.",
         }}
       >
-        <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           {trustArchitecture.map((item) => (
             <div
               key={item.title}
@@ -3603,16 +3724,15 @@ export default function PraeliatorWebsite() {
               <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                 {item.title}
               </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">
-                {item.text}
-              </p>
+              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
             </div>
           ))}
         </div>
       </EditorialBlock>
+
       <section className="relative py-8 sm:py-10 lg:py-12">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
             <Reveal>
               <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
@@ -3623,29 +3743,39 @@ export default function PraeliatorWebsite() {
                 </div>
               </div>
             </Reveal>
+
             <Reveal delay={0.08}>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.92))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   Decide the route
                 </p>
                 <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                  Direct inquiry or quiet registration
+                  Immediate inquiry or quieter entry.
                 </h3>
                 <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  Some clients want immediate contact. Others want a recorded
-                  path into future releases. Both options remain available
-                  within the same brand language.
+                  Some clients want to begin contact immediately. Others want a recorded path into future releases. Both remain available inside the same language.
                 </p>
+
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {acquisitionModeCards.map((item) => (
+                    <div key={item.title} className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-5">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.action}
+                      </p>
+                      <h4 className="mt-3 text-xl font-medium tracking-[-0.03em] text-[#f4efe7]">
+                        {item.title}
+                      </h4>
+                      <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
                     className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
-                    <a
-                      href={whatsappGeneralLink}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
+                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                       Begin Inquiry
                     </a>
                   </Button>
