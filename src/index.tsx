@@ -6442,7 +6442,51 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between py-4 min-[420px]:py-5 sm:py-6">
+          <Container className="relative lg:hidden">
+            <div className="grid grid-cols-[2.6rem_minmax(0,1fr)_2.6rem] items-center py-4 min-[420px]:grid-cols-[3rem_minmax(0,1fr)_3rem] min-[420px]:py-5">
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: easeLuxury }}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                onClick={() => setMobileMenuOpen((current) => !current)}
+                className="group inline-flex h-10 w-10 min-[420px]:h-12 min-[420px]:w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+              >
+                <motion.span
+                  animate={{
+                    scale: mobileMenuOpen ? 1.06 : 1,
+                    y: mobileMenuOpen ? 0.5 : 0,
+                  }}
+                  transition={{ duration: 0.75, ease: easeLuxury }}
+                  className="flex items-center justify-center"
+                >
+                  <PraeliatorMenuWreathIcon
+                    open={mobileMenuOpen}
+                    className="h-[2.15rem] w-[2.15rem] min-[420px]:h-[2.9rem] min-[420px]:w-[2.9rem]"
+                  />
+                </motion.span>
+                <span className="sr-only">
+                  {mobileMenuOpen ? "Close menu" : "Open menu"}
+                </span>
+              </motion.button>
+
+              <div className="flex min-w-0 justify-center overflow-hidden">
+                <div className="relative flex h-10 w-full max-w-[11.5rem] min-[390px]:max-w-[12.6rem] min-[430px]:max-w-[13.3rem] items-center justify-center overflow-hidden">
+                  <HeaderBrandMark
+                    mode={headerBrandMode}
+                    onClick={() => goTo("/")}
+                    assetsBroken={headerLogoBroken}
+                    onAssetError={() => setHeaderLogoBroken(true)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex h-10 w-10 min-[420px]:h-12 min-[420px]:w-12 items-center justify-center" />
+            </div>
+          </Container>
+
+          <Container className="relative hidden lg:flex items-center justify-between py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -6450,7 +6494,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-10 w-10 min-[420px]:h-12 min-[420px]:w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+              className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
             >
               <motion.span
                 animate={{
@@ -6462,7 +6506,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[2.15rem] w-[2.15rem] min-[420px]:h-[2.9rem] min-[420px]:w-[2.9rem]"
+                  className="h-[2.9rem] w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -6470,14 +6514,12 @@ const renderWaitlistPage = () => (
               </span>
             </motion.button>
 
-            <div className="origin-center scale-[0.72] min-[390px]:scale-[0.82] min-[430px]:scale-[0.9] sm:scale-100">
-              <HeaderBrandMark
-                mode={headerBrandMode}
-                onClick={() => goTo("/")}
-                assetsBroken={headerLogoBroken}
-                onAssetError={() => setHeaderLogoBroken(true)}
-              />
-            </div>
+            <HeaderBrandMark
+              mode={headerBrandMode}
+              onClick={() => goTo("/")}
+              assetsBroken={headerLogoBroken}
+              onAssetError={() => setHeaderLogoBroken(true)}
+            />
 
             <motion.a
               href={currentPurchaseLink}
@@ -6486,7 +6528,7 @@ const renderWaitlistPage = () => (
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="hidden min-[420px]:block text-[9px] min-[430px]:text-[10px] sm:text-[11px] uppercase tracking-[0.24em] min-[430px]:tracking-[0.3em] sm:tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+              className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
             >
               Private Inquiry
             </motion.a>
