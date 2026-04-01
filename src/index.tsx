@@ -496,6 +496,15 @@ const WAITLIST_EMAIL_DOMAIN_CHECK_ENDPOINT =
   "/api/validate-waitlist-email-domain";
 const EMAIL_MAX_TOTAL_LENGTH = 254;
 const EMAIL_HTML_PATTERN = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+const readJsonSafely = async (response: Response) => {
+  const raw = await response.text();
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -3959,11 +3968,18 @@ export default function PraeliatorWebsite() {
           signal: controller.signal,
         },
       );
-      const domainCheckResult = await domainCheckResponse.json();
+      const domainCheckResult = await readJsonSafely(domainCheckResponse);
       if (!domainCheckResponse.ok || !domainCheckResult?.success) {
-        const domainError =
-          domainCheckResult?.error ||
-          "Please enter a real email address before continuing.";
+        const routeMissing =
+          domainCheckResponse.status === 404 ||
+          domainCheckResponse.status === 405 ||
+          !domainCheckResult;
+        const domainError = routeMissing
+          ? "Email domain validation is not configured on the server yet. Add the /api/validate-waitlist-email-domain endpoint first."
+          : String(
+              domainCheckResult?.error ||
+                "Please enter a real email address before continuing.",
+            );
         setWaitlistErrors((current) => ({ ...current, email: domainError }));
         setWaitlistTouched((current) => ({ ...current, email: true }));
         setWaitlistState({
@@ -3975,7 +3991,11 @@ export default function PraeliatorWebsite() {
         });
         trackWaitlistEvent("waitlist_submit_invalid", {
           fields: ["email"],
-          reason: domainCheckResult?.errorCode || "email_domain",
+          reason:
+            (typeof domainCheckResult?.errorCode === "string"
+              ? domainCheckResult.errorCode
+              : undefined) ||
+            (routeMissing ? "email_domain_route_missing" : "email_domain"),
           domain: getEmailDomain(normalizedForm.email),
         });
         return;

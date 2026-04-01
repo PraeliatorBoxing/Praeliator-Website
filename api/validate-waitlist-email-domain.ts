@@ -1,3 +1,5 @@
+import { promises as dns } from "node:dns";
+
 type ApiRequest = {
   method?: string;
   body?: unknown;
@@ -10,22 +12,10 @@ type ApiResponse = {
   };
 };
 
-type DnsAnswer = {
-  data?: string;
-  type?: number;
-};
-
-type DnsJsonResponse = {
-  Status?: number;
-  Answer?: DnsAnswer[];
-};
-
 const EMAIL_MAX_TOTAL_LENGTH = 254;
-const DNS_HEADERS = {
-  Accept: "application/dns-json",
-};
 
-const normalizeEmail = (value: string) => value.replace(/\s+/g, "").trim().toLowerCase();
+const normalizeEmail = (value: string) =>
+  value.replace(/\s+/g, "").trim().toLowerCase();
 
 const getEmailFormatError = (email: string) => {
   const normalizedEmail = normalizeEmail(email);
@@ -40,10 +30,19 @@ const getEmailFormatError = (email: string) => {
   const [localPart, domain] = parts;
   if (!localPart || !domain) return "Enter a valid email address.";
   if (localPart.length > 64) return "Enter a valid email address.";
-  if (localPart.startsWith(".") || localPart.endsWith(".") || localPart.includes("..")) {
+  if (
+    localPart.startsWith(".") ||
+    localPart.endsWith(".") ||
+    localPart.includes("..")
+  ) {
     return "Enter a valid email address.";
   }
-  if (domain.length > 253 || domain.startsWith("-") || domain.endsWith("-") || domain.includes("..")) {
+  if (
+    domain.length > 253 ||
+    domain.startsWith("-") ||
+    domain.endsWith("-") ||
+    domain.includes("..")
+  ) {
     return "Enter a valid email address.";
   }
 
@@ -70,31 +69,27 @@ const extractDomain = (email: string) => {
   return atIndex >= 0 ? normalizedEmail.slice(atIndex + 1) : "";
 };
 
-const queryDns = async (name: string, type: "MX" | "A" | "AAAA") => {
-  const url = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`;
-  const response = await fetch(url, { headers: DNS_HEADERS });
-  if (!response.ok) {
-    throw new Error(`DNS lookup failed for ${type}.`);
+const hasResults = (value: unknown) => Array.isArray(value) && value.length > 0;
+
+const resolveSafely = async <T,>(resolver: () => Promise<T>) => {
+  try {
+    return await resolver();
+  } catch {
+    return null;
   }
-  return (await response.json()) as DnsJsonResponse;
 };
 
-const hasAnswerType = (
-  response: DnsJsonResponse,
-  expectedType: number,
-) => Array.isArray(response.Answer) && response.Answer.some((answer) => answer.type === expectedType && Boolean(answer.data));
-
 const hasRoutableEmailDomain = async (domain: string) => {
-  const [mx, a, aaaa] = await Promise.all([
-    queryDns(domain, "MX"),
-    queryDns(domain, "A"),
-    queryDns(domain, "AAAA"),
+  const [mx, ipv4, ipv6] = await Promise.all([
+    resolveSafely(() => dns.resolveMx(domain)),
+    resolveSafely(() => dns.resolve4(domain)),
+    resolveSafely(() => dns.resolve6(domain)),
   ]);
 
   return {
-    hasMx: hasAnswerType(mx, 15),
-    hasA: hasAnswerType(a, 1),
-    hasAaaa: hasAnswerType(aaaa, 28),
+    hasMx: hasResults(mx),
+    hasA: hasResults(ipv4),
+    hasAaaa: hasResults(ipv6),
   };
 };
 
@@ -120,8 +115,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const domain = extractDomain(email);
 
   try {
-    const result = await hasRoutableEmailDomain(domain);
-    if (!result.hasMx && !result.hasA && !result.hasAaaa) {
+    const checks = await hasRoutableEmailDomain(domain);
+
+    if (!checks.hasMx && !checks.hasA && !checks.hasAaaa) {
       return res.status(422).json({
         success: false,
         error: "Please enter a real email domain before continuing.",
@@ -132,7 +128,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     return res.status(200).json({
       success: true,
       domain,
-      checks: result,
+      checks,
     });
   } catch {
     return res.status(503).json({
