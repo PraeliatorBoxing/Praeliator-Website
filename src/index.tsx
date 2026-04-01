@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import Lenis from "lenis";
 import {
   Check,
@@ -492,19 +492,6 @@ const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
-const WAITLIST_EMAIL_DOMAIN_CHECK_ENDPOINT =
-  "/api/validate-waitlist-email-domain";
-const EMAIL_MAX_TOTAL_LENGTH = 254;
-const EMAIL_HTML_PATTERN = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
-const readJsonSafely = async (response: Response) => {
-  const raw = await response.text();
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-};
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -760,22 +747,6 @@ const formPanelClass =
   "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
-const WAITLIST_FIELD_MAX_LENGTHS: Record<WaitlistFieldName, number> = {
-  title: 32,
-  fullName: 80,
-  email: 254,
-  phoneCountryCode: 5,
-  whatsapp: 15,
-  country: 80,
-  interest: 64,
-  timeline: 32,
-  contactPreference: 32,
-  note: 400,
-};
-const clampWaitlistFieldLength = (
-  field: WaitlistFieldName,
-  value: string,
-) => value.slice(0, WAITLIST_FIELD_MAX_LENGTHS[field]);
 const normalizeInlineText = (value: string) =>
   value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
 const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -794,33 +765,23 @@ const normalizeWaitlistFieldValue = (
   value: string,
   stage: "change" | "blur" | "submit" = "change",
 ) => {
-  let normalizedValue = value;
-  if (field === "fullName") {
-    normalizedValue =
-      stage === "change"
-        ? normalizeInlineText(value)
-        : normalizeFinalText(value);
-  } else if (field === "email") {
-    normalizedValue =
-      stage === "change"
-        ? normalizeEmailInline(value)
-        : normalizeEmailFinal(value);
-  } else if (field === "phoneCountryCode") {
-    normalizedValue = normalizeDialCode(value);
-  } else if (field === "whatsapp") {
-    normalizedValue = normalizePhoneNumber(value);
-  } else if (field === "country") {
-    normalizedValue =
-      stage === "change"
-        ? normalizeInlineText(value)
-        : normalizeFinalText(value);
-  } else if (field === "note") {
-    normalizedValue =
-      stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
-  } else {
-    normalizedValue = stage === "change" ? value : value.trim();
-  }
-  return clampWaitlistFieldLength(field, normalizedValue);
+  if (field === "fullName")
+    return stage === "change"
+      ? normalizeInlineText(value)
+      : normalizeFinalText(value);
+  if (field === "email")
+    return stage === "change"
+      ? normalizeEmailInline(value)
+      : normalizeEmailFinal(value);
+  if (field === "phoneCountryCode") return normalizeDialCode(value);
+  if (field === "whatsapp") return normalizePhoneNumber(value);
+  if (field === "country")
+    return stage === "change"
+      ? normalizeInlineText(value)
+      : normalizeFinalText(value);
+  if (field === "note")
+    return stage === "change" ? value.replace(/^\s+/g, "") : value.trim();
+  return stage === "change" ? value : value.trim();
 };
 const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   title: normalizeWaitlistFieldValue("title", form.title, "submit"),
@@ -842,40 +803,6 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   ),
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
-const getEmailDomain = (email: string) => {
-  const normalizedEmail = normalizeEmailFinal(email);
-  const atIndex = normalizedEmail.lastIndexOf("@");
-  return atIndex >= 0 ? normalizedEmail.slice(atIndex + 1) : "";
-};
-const getEmailFormatError = (email: string) => {
-  const normalizedEmail = normalizeEmailFinal(email);
-  if (!normalizedEmail) return "Email is required.";
-  if (normalizedEmail.length > EMAIL_MAX_TOTAL_LENGTH) {
-    return `Email must be ${EMAIL_MAX_TOTAL_LENGTH} characters or fewer.`;
-  }
-  const parts = normalizedEmail.split("@");
-  if (parts.length !== 2) return "Enter a valid email address.";
-  const [localPart, domain] = parts;
-  if (!localPart || !domain) return "Enter a valid email address.";
-  if (localPart.length > 64) return "Enter a valid email address.";
-  if (localPart.startsWith(".") || localPart.endsWith(".") || localPart.includes("..")) {
-    return "Enter a valid email address.";
-  }
-  if (domain.length > 253 || domain.startsWith("-") || domain.endsWith("-") || domain.includes("..")) {
-    return "Enter a valid email address.";
-  }
-  const labels = domain.split(".");
-  if (labels.length < 2) return "Enter a valid email address.";
-  const invalidLabel = labels.some((label) => {
-    if (!label || label.length > 63) return true;
-    if (label.startsWith("-") || label.endsWith("-")) return true;
-    return !/^[a-z0-9-]+$/i.test(label);
-  });
-  if (invalidLabel) return "Enter a valid email address.";
-  const tld = labels[labels.length - 1];
-  if (tld.length < 2 || !/[a-z]/i.test(tld)) return "Enter a valid email address.";
-  return "";
-};
 const getDialCodePhoneRule = (dialCode: string) => {
   const normalizedDialCode = normalizeDialCode(dialCode);
   const rules: Record<string, { min: number; max: number; message: string }> = {
@@ -931,15 +858,17 @@ const validateWaitlistForm = (
 ): WaitlistErrors => {
   const normalizedForm = normalizeWaitlistForm(form);
   const errors: WaitlistErrors = {};
-  const emailFormatError = getEmailFormatError(normalizedForm.email);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRule = getDialCodePhoneRule(normalizedForm.phoneCountryCode);
   if (!normalizedForm.fullName) {
     errors.fullName = "Full name is required.";
   } else if (normalizedForm.fullName.length < 2) {
     errors.fullName = "Enter a valid full name.";
   }
-  if (emailFormatError) {
-    errors.email = emailFormatError;
+  if (!normalizedForm.email) {
+    errors.email = "Email is required.";
+  } else if (!emailPattern.test(normalizedForm.email)) {
+    errors.email = "Enter a valid email address.";
   }
   if (!normalizedForm.country) {
     errors.country = "Country is required.";
@@ -2000,7 +1929,6 @@ function InputField({
   success = false,
   describedBy,
   maxLength,
-  pattern,
 }: {
   name: string;
   value: string;
@@ -2019,7 +1947,6 @@ function InputField({
   success?: boolean;
   describedBy?: string;
   maxLength?: number;
-  pattern?: string;
 }) {
   return (
     <input
@@ -2032,7 +1959,6 @@ function InputField({
       inputMode={inputMode}
       autoCapitalize={autoCapitalize}
       maxLength={maxLength}
-      pattern={pattern}
       aria-invalid={invalid}
       aria-describedby={describedBy}
       className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
@@ -2053,7 +1979,6 @@ function SelectField({
   invalid = false,
   success = false,
   describedBy,
-  maxLength,
 }: {
   name: string;
   value: string;
@@ -2071,7 +1996,6 @@ function SelectField({
   invalid?: boolean;
   success?: boolean;
   describedBy?: string;
-  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -2319,7 +2243,6 @@ function SearchPicker({
   invalid = false,
   success = false,
   describedBy,
-  maxLength,
 }: {
   name: string;
   onChange: (
@@ -2336,7 +2259,6 @@ function SearchPicker({
   invalid?: boolean;
   success?: boolean;
   describedBy?: string;
-  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -2492,7 +2414,6 @@ function SearchPicker({
           }
         }}
         inputMode={inputMode}
-        maxLength={maxLength}
         className={`${formFieldBaseClass} pr-12 ${getFormFieldStateClasses({ invalid, success, active: open })}`}
         placeholder={placeholder}
       />
@@ -2564,6 +2485,251 @@ function FieldError({ id, message }: { id?: string; message?: string }) {
 }
 function FieldNote({ children }: { children: React.ReactNode }) {
   return <p className="mt-2 text-[13px] leading-5 text-white/36">{children}</p>;
+}
+const cursorInteractiveSelector = [
+  "button",
+  "a[href]",
+  "[role='button']",
+  "[data-cursor-label]",
+].join(", ");
+const cursorInputSelector = [
+  "input",
+  "textarea",
+  "select",
+  "[contenteditable='true']",
+  ".browser-form-element",
+  "button[role='combobox']",
+  "[data-cursor-ignore='true']",
+].join(", ");
+const clampCursorValue = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+function LuxuryCursor({
+  enabled,
+  reduceMotion,
+}: {
+  enabled: boolean;
+  reduceMotion: boolean | null;
+}) {
+  const rawX = useMotionValue(-120);
+  const rawY = useMotionValue(-120);
+  const coreX = useSpring(rawX, {
+    stiffness: reduceMotion ? 900 : 1120,
+    damping: reduceMotion ? 70 : 62,
+    mass: 0.18,
+  });
+  const coreY = useSpring(rawY, {
+    stiffness: reduceMotion ? 900 : 1120,
+    damping: reduceMotion ? 70 : 62,
+    mass: 0.18,
+  });
+  const shellX = useSpring(rawX, {
+    stiffness: reduceMotion ? 320 : 410,
+    damping: reduceMotion ? 42 : 34,
+    mass: 0.6,
+  });
+  const shellY = useSpring(rawY, {
+    stiffness: reduceMotion ? 320 : 410,
+    damping: reduceMotion ? 42 : 34,
+    mass: 0.6,
+  });
+  const [visible, setVisible] = useState(false);
+  const [magnetic, setMagnetic] = useState(false);
+  const [hiddenForInput, setHiddenForInput] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const interactiveTargetRef = useRef<HTMLElement | null>(null);
+  const overInputRef = useRef(false);
+  const magneticRef = useRef(false);
+  const visibleRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const active = enabled && mediaQuery.matches;
+    document.documentElement.classList.toggle("luxury-cursor-active", active);
+    return () => {
+      document.documentElement.classList.remove("luxury-cursor-active");
+    };
+  }, [enabled]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    if (!enabled || !mediaQuery.matches) return;
+
+    const clearInteractiveTarget = () => {
+      if (interactiveTargetRef.current) {
+        interactiveTargetRef.current.style.removeProperty("translate");
+        interactiveTargetRef.current.classList.remove(
+          "luxury-cursor-target-active",
+        );
+        interactiveTargetRef.current = null;
+      }
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rawPointerX = event.clientX;
+      const rawPointerY = event.clientY;
+      const source =
+        event.target instanceof HTMLElement ? event.target : document.body;
+
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        setVisible(true);
+      }
+
+      const inputTarget = source.closest(cursorInputSelector) as HTMLElement | null;
+      if (inputTarget) {
+        clearInteractiveTarget();
+        rawX.set(rawPointerX);
+        rawY.set(rawPointerY);
+        if (!overInputRef.current) {
+          overInputRef.current = true;
+          setHiddenForInput(true);
+        }
+        if (magneticRef.current) {
+          magneticRef.current = false;
+          setMagnetic(false);
+        }
+        return;
+      }
+
+      if (overInputRef.current) {
+        overInputRef.current = false;
+        setHiddenForInput(false);
+      }
+
+      const interactiveTarget = source.closest(
+        cursorInteractiveSelector,
+      ) as HTMLElement | null;
+
+      if (interactiveTarget) {
+        if (interactiveTargetRef.current !== interactiveTarget) {
+          clearInteractiveTarget();
+          interactiveTargetRef.current = interactiveTarget;
+          interactiveTarget.classList.add("luxury-cursor-target-active");
+        }
+        const rect = interactiveTarget.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const magnetStrength = reduceMotion ? 0.1 : 0.16;
+        const magnetizedX = rawPointerX + (centerX - rawPointerX) * magnetStrength;
+        const magnetizedY = rawPointerY + (centerY - rawPointerY) * magnetStrength;
+        rawX.set(magnetizedX);
+        rawY.set(magnetizedY);
+        interactiveTarget.style.setProperty(
+          "translate",
+          `${clampCursorValue((rawPointerX - centerX) * 0.12, -6, 6).toFixed(2)}px ${clampCursorValue((rawPointerY - centerY) * 0.12, -6, 6).toFixed(2)}px`,
+        );
+        if (!magneticRef.current) {
+          magneticRef.current = true;
+          setMagnetic(true);
+        }
+        return;
+      }
+
+      clearInteractiveTarget();
+      rawX.set(rawPointerX);
+      rawY.set(rawPointerY);
+      if (magneticRef.current) {
+        magneticRef.current = false;
+        setMagnetic(false);
+      }
+    };
+
+    const handlePointerDown = () => setPressed(true);
+    const handlePointerUp = () => setPressed(false);
+    const handleLeave = () => {
+      visibleRef.current = false;
+      setVisible(false);
+      setPressed(false);
+      setHiddenForInput(false);
+      overInputRef.current = false;
+      magneticRef.current = false;
+      setMagnetic(false);
+      clearInteractiveTarget();
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointerup", handlePointerUp, { passive: true });
+    document.documentElement.addEventListener("mouseleave", handleLeave);
+    window.addEventListener("blur", handleLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
+      document.documentElement.removeEventListener("mouseleave", handleLeave);
+      window.removeEventListener("blur", handleLeave);
+      clearInteractiveTarget();
+    };
+  }, [enabled, rawX, rawY, reduceMotion]);
+
+  const shellWidth = magnetic ? 44 : 30;
+  const shellHeight = magnetic ? 44 : 30;
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-[140] hidden lg:block"
+    >
+      <motion.div
+        className="luxury-cursor-shell absolute left-0 top-0 flex items-center justify-center overflow-hidden border text-[#f4efe7]"
+        style={{
+          x: shellX,
+          y: shellY,
+          translateX: "-50%",
+          translateY: "-50%",
+          mixBlendMode: magnetic ? "normal" : "difference",
+          backdropFilter: magnetic ? "blur(8px)" : "blur(12px)",
+          WebkitBackdropFilter: magnetic ? "blur(8px)" : "blur(12px)",
+        }}
+        animate={{
+          width: shellWidth,
+          height: shellHeight,
+          opacity: hiddenForInput ? 0 : visible ? 1 : 0,
+          scale: pressed ? 0.88 : magnetic ? 1 : 0.98,
+          backgroundColor: magnetic
+            ? "rgba(12, 11, 10, 0.42)"
+            : "rgba(255,255,255,0.06)",
+          borderColor: magnetic
+            ? "rgba(244,239,231,0.34)"
+            : "rgba(255,255,255,0.18)",
+          boxShadow: magnetic
+            ? "0 14px 34px rgba(0,0,0,0.26), 0 0 0 1px rgba(244,239,231,0.06)"
+            : "0 10px 30px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.04)",
+        }}
+        transition={{
+          duration: magnetic ? 0.22 : 0.18,
+          ease: easeLuxury,
+        }}
+      >
+        <motion.div
+          className="pointer-events-none absolute inset-[1px] rounded-full"
+          animate={{
+            opacity: magnetic ? 0.22 : 0.18,
+            background:
+              "radial-gradient(circle at top, rgba(244,239,231,0.28), transparent 62%)",
+          }}
+          transition={{ duration: 0.2, ease: easeLuxury }}
+        />
+      </motion.div>
+      <motion.div
+        className="absolute left-0 top-0 h-[6px] w-[6px] rounded-full bg-[#f4efe7] shadow-[0_0_12px_rgba(244,239,231,0.28)]"
+        style={{
+          x: coreX,
+          y: coreY,
+          translateX: "-50%",
+          translateY: "-50%",
+        }}
+        animate={{
+          opacity: hiddenForInput ? 0 : visible ? 1 : 0,
+          scale: pressed ? 0.76 : magnetic ? 0.9 : 1,
+        }}
+        transition={{ duration: 0.12, ease: easeLuxury }}
+      />
+    </div>
+  );
 }
 function CinematicScene({
   section,
@@ -3474,7 +3640,138 @@ function FullScreenCinematicHomepage({
 }
 function BrowserFormStyles() {
   return (
-    <style>{`html, body, #root { background: #040404; min-height: 100%; } body { overscroll-behavior-y: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
+    <style>{`
+      html, body, #root {
+        background: #040404;
+        min-height: 100%;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .browser-form-element {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        color-scheme: dark;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        font-size: 16px;
+      }
+      @media (min-width: 640px) {
+        .browser-form-element {
+          font-size: 0.875rem;
+        }
+      }
+      .browser-form-element:focus-visible,
+      button[role='combobox']:focus-visible {
+        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32),
+          0 0 0 3px rgba(185, 161, 141, 0.06);
+      }
+      .browser-form-element:-webkit-autofill,
+      .browser-form-element:-webkit-autofill:hover,
+      .browser-form-element:-webkit-autofill:focus,
+      .browser-form-element:-webkit-autofill:active {
+        -webkit-text-fill-color: #f4efe7;
+        caret-color: #f4efe7;
+        box-shadow: 0 0 0 1000px #0c0b0a inset;
+        -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
+        border-color: rgba(255, 255, 255, 0.08);
+        transition: background-color 999999s ease-out 0s;
+      }
+      .browser-form-element::selection {
+        background: rgba(239, 229, 215, 0.16);
+        color: #f4efe7;
+      }
+      .browser-form-element::-webkit-calendar-picker-indicator {
+        filter: invert(0.92) opacity(0.68);
+      }
+      .browser-form-element::-ms-reveal,
+      .browser-form-element::-ms-clear,
+      .browser-form-element::-webkit-contacts-auto-fill-button,
+      .browser-form-element::-webkit-credentials-auto-fill-button {
+        filter: invert(0.92) opacity(0.68);
+      }
+      .browser-form-element[type='number']::-webkit-outer-spin-button,
+      .browser-form-element[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .browser-form-element[type='number'] {
+        -moz-appearance: textfield;
+      }
+      .browser-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908;
+      }
+      .browser-scrollbar::-webkit-scrollbar {
+        width: 10px;
+      }
+      .browser-scrollbar::-webkit-scrollbar-track {
+        background: #0a0908;
+      }
+      .browser-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(244, 239, 231, 0.14);
+        border-radius: 9999px;
+        border: 2px solid #0a0908;
+      }
+      .browser-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(244, 239, 231, 0.22);
+      }
+      .browser-submit-spinner {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 9999px;
+        border: 2px solid rgba(21, 18, 16, 0.22);
+        border-top-color: #151210;
+        animation: browser-spin 0.8s linear infinite;
+      }
+      .video-loader-logo {
+        animation: praeliatorLoaderPulse 2.8s ease-in-out infinite;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .luxury-cursor-active,
+        .luxury-cursor-active body,
+        .luxury-cursor-active a,
+        .luxury-cursor-active button,
+        .luxury-cursor-active [role='button'],
+        .luxury-cursor-active [data-cursor-label] {
+          cursor: none !important;
+        }
+        .luxury-cursor-active input,
+        .luxury-cursor-active textarea,
+        .luxury-cursor-active select,
+        .luxury-cursor-active [contenteditable='true'],
+        .luxury-cursor-active .browser-form-element,
+        .luxury-cursor-active button[role='combobox'],
+        .luxury-cursor-active [data-cursor-ignore='true'] {
+          cursor: text !important;
+        }
+        .luxury-cursor-target-active {
+          transition: translate 220ms cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: translate;
+        }
+      }
+      @keyframes browser-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes praeliatorLoaderPulse {
+        0% {
+          opacity: 0.68;
+          transform: scale(0.965);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0.68;
+          transform: scale(0.965);
+        }
+      }
+    `}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -3934,7 +4231,6 @@ export default function PraeliatorWebsite() {
       title: normalizedForm.title,
       fullName: normalizedForm.fullName,
       email: normalizedForm.email,
-      emailDomain: getEmailDomain(normalizedForm.email),
       phoneCountryCode: normalizedForm.phoneCountryCode,
       phoneNumber: normalizedForm.whatsapp,
       fullPhone:
@@ -3956,53 +4252,6 @@ export default function PraeliatorWebsite() {
           : undefined,
     };
     try {
-      const domainCheckResponse = await fetch(
-        WAITLIST_EMAIL_DOMAIN_CHECK_ENDPOINT,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ email: normalizedForm.email }),
-          signal: controller.signal,
-        },
-      );
-      const domainCheckResult = await readJsonSafely(domainCheckResponse);
-      if (!domainCheckResponse.ok || !domainCheckResult?.success) {
-        const routeMissing =
-          domainCheckResponse.status === 404 ||
-          domainCheckResponse.status === 405 ||
-          !domainCheckResult;
-        const domainError = routeMissing
-          ? "Email domain validation is not configured on the server yet. Add the /api/validate-waitlist-email-domain endpoint first."
-          : String(
-              domainCheckResult?.error ||
-                "Please enter a real email address before continuing.",
-            );
-        setWaitlistErrors((current) => ({ ...current, email: domainError }));
-        setWaitlistTouched((current) => ({ ...current, email: true }));
-        setWaitlistState({
-          loading: false,
-          success: false,
-          error: domainError,
-          reference: "",
-          serviceMessage: "",
-        });
-        trackWaitlistEvent("waitlist_submit_invalid", {
-          fields: ["email"],
-          reason:
-            (typeof domainCheckResult?.errorCode === "string"
-              ? domainCheckResult.errorCode
-              : undefined) ||
-            (routeMissing ? "email_domain_route_missing" : "email_domain"),
-          domain: getEmailDomain(normalizedForm.email),
-        });
-        return;
-      }
-      trackWaitlistEvent("waitlist_email_domain_check_passed", {
-        domain: getEmailDomain(normalizedForm.email),
-      });
       const response = await fetch(waitlistEndpoint, {
         method: "POST",
         headers: {
@@ -4998,7 +5247,6 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("fullName")}
                         autoComplete="name"
                         placeholder="Full name *"
-                        maxLength={WAITLIST_FIELD_MAX_LENGTHS.fullName}
                         invalid={Boolean(getVisibleFieldError("fullName"))}
                         success={getFieldSuccess("fullName")}
                         describedBy={getFieldDescribedBy("fullName")}
@@ -5017,10 +5265,8 @@ const renderWaitlistPage = () => (
                       onChange={handleWaitlistChange}
                       onBlur={() => handleWaitlistBlur("email")}
                       autoComplete="email"
-                      inputMode="email"
                       autoCapitalize="none"
                       placeholder="Email address *"
-                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.email}
                       invalid={Boolean(getVisibleFieldError("email"))}
                       success={getFieldSuccess("email")}
                       describedBy={getFieldDescribedBy("email")}
@@ -5041,7 +5287,6 @@ const renderWaitlistPage = () => (
                         code: option.code,
                       }))}
                       placeholder="Country or dial code *"
-                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.country}
                       exactMatchUpdates
                       fieldLabel="Country"
                       invalid={Boolean(getVisibleFieldError("country"))}
@@ -5062,8 +5307,7 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("phoneCountryCode")}
                         autoComplete="tel-country-code"
                         inputMode="tel"
-                        maxLength={WAITLIST_FIELD_MAX_LENGTHS.phoneCountryCode}
-                        pattern="\+?[0-9]*"
+                        maxLength={5}
                         placeholder="Dial code *"
                         invalid={Boolean(
                           getVisibleFieldError("phoneCountryCode"),
@@ -5084,8 +5328,7 @@ const renderWaitlistPage = () => (
                         onBlur={() => handleWaitlistBlur("whatsapp")}
                         autoComplete="tel-national"
                         inputMode="tel"
-                        maxLength={getDialCodePhoneRule(waitlistForm.phoneCountryCode).max}
-                        pattern="[0-9]*"
+                        maxLength={15}
                         placeholder="Phone number *"
                         invalid={Boolean(getVisibleFieldError("whatsapp"))}
                         success={getFieldSuccess("whatsapp")}
@@ -5169,13 +5412,12 @@ const renderWaitlistPage = () => (
                       onChange={handleWaitlistChange}
                       onBlur={() => handleWaitlistBlur("note")}
                       rows={6}
-                      maxLength={WAITLIST_FIELD_MAX_LENGTHS.note}
                       className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                       placeholder="Optional note"
                     />
                     <FieldNote>
-                      Optional. Maximum 400 characters. Any detail that affects
-                      timing, use, or preferred contact can go here.
+                      Any detail that affects timing, use, or preferred contact
+                      can go here.
                     </FieldNote>
                   </div>
                   <div className="pt-2">
@@ -6162,7 +6404,6 @@ const renderWaitlistPage = () => (
                   onBlur={() => handleWaitlistBlur("fullName")}
                   autoComplete="name"
                   placeholder="Full name *"
-                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.fullName}
                   invalid={Boolean(getVisibleFieldError("fullName"))}
                   success={getFieldSuccess("fullName")}
                   describedBy={getFieldDescribedBy("fullName")}
@@ -6180,7 +6421,6 @@ const renderWaitlistPage = () => (
                   autoComplete="email"
                   autoCapitalize="none"
                   placeholder="Email address *"
-                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.email}
                   invalid={Boolean(getVisibleFieldError("email"))}
                   success={getFieldSuccess("email")}
                   describedBy={getFieldDescribedBy("email")}
@@ -6199,7 +6439,6 @@ const renderWaitlistPage = () => (
                     code: option.code,
                   }))}
                   placeholder="Country or dial code *"
-                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.country}
                   exactMatchUpdates
                   fieldLabel="Country"
                   invalid={Boolean(getVisibleFieldError("country"))}
@@ -6218,8 +6457,7 @@ const renderWaitlistPage = () => (
                     onBlur={() => handleWaitlistBlur("phoneCountryCode")}
                     autoComplete="tel-country-code"
                     inputMode="tel"
-                    maxLength={WAITLIST_FIELD_MAX_LENGTHS.phoneCountryCode}
-                    pattern="\+?[0-9]*"
+                    maxLength={5}
                     placeholder="Dial code *"
                     invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
                     success={getFieldSuccess("phoneCountryCode")}
@@ -6238,8 +6476,7 @@ const renderWaitlistPage = () => (
                     onBlur={() => handleWaitlistBlur("whatsapp")}
                     autoComplete="tel-national"
                     inputMode="tel"
-                    maxLength={getDialCodePhoneRule(waitlistForm.phoneCountryCode).max}
-                    pattern="[0-9]*"
+                    maxLength={15}
                     placeholder="Phone number *"
                     invalid={Boolean(getVisibleFieldError("whatsapp"))}
                     success={getFieldSuccess("whatsapp")}
@@ -6311,12 +6548,11 @@ const renderWaitlistPage = () => (
                   onChange={handleWaitlistChange}
                   onBlur={() => handleWaitlistBlur("note")}
                   rows={6}
-                  maxLength={WAITLIST_FIELD_MAX_LENGTHS.note}
                   className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
                   placeholder="Optional note"
                 />
                 <FieldNote>
-                  Optional. Maximum 400 characters. Any detail that affects timing, use, or preferred contact can go here.
+                  Any detail that affects timing, use, or preferred contact can go here.
                 </FieldNote>
               </div>
 
@@ -6560,6 +6796,7 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
+      <LuxuryCursor enabled={isDesktopViewport} reduceMotion={reduceMotion} />
 
       {isDesktopViewport ? (
         <motion.header
