@@ -4432,28 +4432,27 @@ const renderWaitlistPage = () => (
           >
             <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.24)_38%,rgba(0,0,0,0.58)_70%,rgba(0,0,0,0.9))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
           <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
-          <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
+          <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
         </div>
 
         <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
           <motion.div
             initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1.05, ease: easeLuxury }}
-            className="max-w-[56rem]"
+            transition={{ duration: 1.02, ease: easeLuxury }}
+            className="max-w-[54rem]"
           >
             <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
               Direct contact
             </p>
-            <h1 className="mt-5 max-w-[12ch] text-[clamp(3.1rem,7.8vw,7.6rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
-              The brand remains available. The route stays direct.
+            <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+              Direct contact, kept simple.
             </h1>
-            <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8 lg:max-w-3xl">
+            <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
               WhatsApp remains primary for private inquiry. Email and Instagram stay
-              available at different speeds, but communication never drops into generic
-              support-center language.
+              available as quieter secondary paths.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -4481,10 +4480,6 @@ const renderWaitlistPage = () => (
               <span>Email</span>
               <span className="h-px w-5 bg-white/12" />
               <span>Instagram</span>
-              <span className="h-px w-5 bg-white/12" />
-              <span>Private</span>
-              <span className="h-px w-5 bg-white/12" />
-              <span>Direct</span>
             </div>
           </motion.div>
         </Container>
@@ -4492,239 +4487,21 @@ const renderWaitlistPage = () => (
 
       <section className="relative py-16 sm:py-20 lg:py-24">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[0.98fr_1.02fr] lg:items-end lg:gap-14">
+          <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
             <Reveal>
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
-                Communication principle
-              </p>
-              <h2 className="mt-5 max-w-[10ch] text-4xl font-semibold leading-[0.9] tracking-[-0.065em] sm:text-5xl lg:text-6xl">
-                One voice. Multiple speeds.
-              </h2>
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                Contact is not treated like a separate support layer. The same restraint,
-                clarity, and control that shape the object also shape the route through
-                which the brand is reached.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <MediaSurface
-                src={visImageSources.hero}
-                alt="Praeliator contact detail"
-                video={homeCinematicMedia.hero.video}
-                className="min-h-[22rem] sm:min-h-[30rem] lg:min-h-[38rem]"
-                dim="heavy"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                      Contact standard
-                    </p>
-                    <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                      The route should feel like the brand, not a help desk.
-                    </p>
-                  </>
-                }
-              />
-            </Reveal>
-          </div>
-
-          <div className="mt-12 grid gap-8 lg:grid-cols-[1.06fr_0.94fr] lg:gap-14">
-            <Reveal>
-              <div className="max-w-3xl">
-                <p className="text-lg leading-8 text-white/70 sm:text-xl sm:leading-9">
-                  Availability remains open, but hierarchy remains clear. WhatsApp stays
-                  primary. Email remains slower and quieter. Instagram remains lighter and
-                  less central. What changes is speed, not tone.
+              <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  Primary route
                 </p>
-              </div>
-
-              <div className="mt-10 grid gap-6 sm:grid-cols-3">
-                {contactPrinciples.map((item, index) => (
-                  <Reveal key={item.title} delay={0.1 + index * 0.05}>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
-                        {item.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/58">{item.text}</p>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <div className="border-l border-white/10 pl-6 sm:pl-8">
-                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                  Standard
-                </p>
-                <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
-                  {contactStandards.map((item) => (
-                    <div key={item} className="py-5">
-                      <p className="max-w-md text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-28">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
-        <Container className="relative">
-          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
-            <Reveal className="lg:sticky lg:top-28 self-start">
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
-                Contact hierarchy
-              </p>
-              <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
-                Three paths. One clear order.
-              </h2>
-              <p className="mt-6 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                The contact structure remains simple on purpose. One primary route, two
-                quieter secondary routes, and a tone that stays consistent across all of
-                them.
-              </p>
-            </Reveal>
-
-            <div className="border-t border-white/10">
-              {contactChannels.map((item, index) => (
-                <Reveal key={item.step} delay={index * 0.08}>
-                  <div className="group relative overflow-hidden border-b border-white/10 py-10 sm:py-12 lg:py-14">
-                    <div className="absolute inset-y-0 left-0 w-px bg-[linear-gradient(180deg,rgba(185,161,141,0),rgba(185,161,141,0.26),rgba(185,161,141,0))]" />
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
-                      <div className="max-w-2xl pl-5 sm:pl-7">
-                        <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                          {item.role}
-                        </p>
-                        <h3 className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                          {item.title}
-                        </h3>
-                        <p className="mt-4 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                          {item.text}
-                        </p>
-                        {item.title === "WhatsApp" ? (
-                          <div className="mt-7">
-                            <Button
-                              asChild
-                              className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
-                            >
-                              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                                Open WhatsApp
-                              </a>
-                            </Button>
-                          </div>
-                        ) : item.title === "Email" ? (
-                          <div className="mt-7">
-                            <Button
-                              asChild
-                              variant="outline"
-                              className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            >
-                              <a href={emailLink}>Write email</a>
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="mt-7">
-                            <Button
-                              asChild
-                              variant="outline"
-                              className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            >
-                              <a href={instagramLink} target="_blank" rel="noreferrer">
-                                Visit Instagram
-                              </a>
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-[clamp(3.2rem,6.2vw,5.8rem)] font-semibold leading-none tracking-[-0.08em] text-white/[0.06] transition duration-700 group-hover:text-white/[0.12]">
-                        {item.step}
-                      </p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative py-16 sm:py-20 lg:py-24">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14">
-            <Reveal delay={0.08} className="lg:order-2">
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
-                Why it matters
-              </p>
-              <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
-                Contact should not feel like generic support.
-              </h2>
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                The point is not exclusivity theatre. The point is to keep the route calm,
-                legible, and continuous with the rest of the brand.
-              </p>
-
-              <div className="mt-10 grid gap-8 sm:grid-cols-2">
-                {contactContrasts.map((column) => (
-                  <div key={column.title}>
-                    <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
-                      {column.title}
-                    </p>
-                    <div className="mt-4 space-y-4">
-                      {column.lines.map((line) => (
-                        <p key={line} className="text-sm leading-7 text-white/60">
-                          {line}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-
-            <Reveal className="lg:order-1">
-              <MediaSurface
-                src={visImageSources.packaging}
-                alt="Praeliator contact atmosphere"
-                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
-                dim="heavy"
-                priorityCopy={
-                  <>
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                      Continuity
-                    </p>
-                    <p className="mt-4 max-w-[11ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                      The route should remain private before and after reply.
-                    </p>
-                  </>
-                }
-              />
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative py-16 sm:py-20 lg:py-24">
-        <Container>
-          <div className="border-t border-white/10 pt-10 sm:pt-12 lg:pt-14">
-            <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
-              <Reveal>
-                <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
-                  Entry
-                </p>
-                <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
-                  Immediate contact or quieter entry.
+                <h2 className="mt-5 max-w-[9ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
+                  WhatsApp remains first.
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  Some clients want to begin a direct conversation now. Others want a softer
-                  point of entry into future access before contact continues more directly.
+                  For private purchase inquiries and faster continuation, WhatsApp stays
+                  primary. The route remains direct and the tone remains controlled.
                 </p>
 
-                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
                     asChild
                     className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
@@ -4739,27 +4516,70 @@ const renderWaitlistPage = () => (
                     onClick={() => goTo("/waitlist")}
                     className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    Enter Waitlist
+                    Quieter Entry
                   </Button>
                 </div>
-              </Reveal>
+              </div>
+            </Reveal>
 
-              <Reveal delay={0.08}>
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {contactEntryModes.map((item) => (
-                    <div key={item.title} className="border-t border-white/10 pt-5">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                        {item.action}
-                      </p>
-                      <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                        {item.title}
+            <Reveal delay={0.08}>
+              <div className="divide-y divide-white/10 border-t border-white/10">
+                <div className="py-6 sm:py-7">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Secondary
+                  </p>
+                  <div className="mt-4 flex items-start justify-between gap-6">
+                    <div>
+                      <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                        Email
                       </h3>
-                      <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
+                      <p className="mt-3 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                        Slower and quieter, but still appropriate when immediate back and
+                        forth is not necessary.
+                      </p>
                     </div>
-                  ))}
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="shrink-0 rounded-full border-white/15 bg-transparent px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      <a href={emailLink}>Write email</a>
+                    </Button>
+                  </div>
                 </div>
-              </Reveal>
-            </div>
+
+                <div className="py-6 sm:py-7">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Secondary
+                  </p>
+                  <div className="mt-4 flex items-start justify-between gap-6">
+                    <div>
+                      <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                        Instagram
+                      </h3>
+                      <p className="mt-3 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                        Available for lighter contact and brand presence, but not the main
+                        purchase route.
+                      </p>
+                    </div>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="shrink-0 rounded-full border-white/15 bg-transparent px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      <a href={instagramLink} target="_blank" rel="noreferrer">
+                        Visit Instagram
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-8 max-w-lg text-sm leading-7 text-white/42 sm:text-base sm:leading-8">
+                Qualified inquiries continue directly. Slower channels remain available
+                where appropriate.
+              </p>
+            </Reveal>
           </div>
         </Container>
       </section>
