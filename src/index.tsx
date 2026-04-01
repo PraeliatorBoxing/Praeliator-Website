@@ -89,26 +89,41 @@ const homeImageSources = {
   presentation: galleryImages[3],
 };
 const homeCinematicMedia = {
-  hero: { video: "/videos/home-hero.mp4", poster: homeImageSources.hero },
-  vis: { video: "/videos/home-vis.mp4", poster: visImageSources.hero },
+  hero: {
+    video: "/videos/home-hero.mp4",
+    mobileVideo: "/videos/mobile/home-hero-mobile.mp4",
+    poster: homeImageSources.hero,
+  },
+  vis: {
+    video: "/videos/home-vis.mp4",
+    mobileVideo: "/videos/mobile/home-vis-mobile.mp4",
+    poster: visImageSources.hero,
+  },
   material: {
     video: "/videos/home-material.mp4",
+    mobileVideo: "/videos/mobile/home-material-mobile.mp4",
     poster: visImageSources.leather,
   },
   ownership: {
     video: "/videos/home-ownership.mp4",
+    mobileVideo: "/videos/mobile/home-ownership-mobile.mp4",
     poster: visImageSources.packaging,
   },
   acquisition: {
     video: "/videos/home-acquisition.mp4",
+    mobileVideo: "/videos/mobile/home-acquisition-mobile.mp4",
     poster: homeImageSources.presentation,
   },
 };
 const visPageMedia = {
   heroVideo: homeCinematicMedia.vis.video,
+  heroMobileVideo: homeCinematicMedia.vis.mobileVideo,
   studyVideo: "/videos/vis-object-study.mp4",
+  studyMobileVideo: "/videos/mobile/vis-object-study-mobile.mp4",
   materialVideo: homeCinematicMedia.material.video,
+  materialMobileVideo: homeCinematicMedia.material.mobileVideo,
   ownershipVideo: homeCinematicMedia.ownership.video,
+  ownershipMobileVideo: homeCinematicMedia.ownership.mobileVideo,
 };
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
@@ -1036,8 +1051,28 @@ function DataList({
     </div>
   );
 }
+function useViewportMatch(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", update);
+      return () => media.removeEventListener("change", update);
+    }
+    media.addListener(update);
+    return () => media.removeListener(update);
+  }, [query]);
+
+  return matches;
+}
+
 function AutoplayVideo({
   src,
+  mobileSrc,
   poster,
   className = "",
   onCanPlay,
@@ -1045,8 +1080,11 @@ function AutoplayVideo({
   onPlaying,
   onAutoplayBlocked,
   preload = "metadata",
+  eager = false,
+  rootMargin = "320px",
 }: {
   src: string;
+  mobileSrc?: string;
   poster: string;
   className?: string;
   onCanPlay?: React.ReactEventHandler<HTMLVideoElement>;
@@ -1054,17 +1092,47 @@ function AutoplayVideo({
   onPlaying?: React.ReactEventHandler<HTMLVideoElement>;
   onAutoplayBlocked?: () => void;
   preload?: "none" | "metadata" | "auto";
+  eager?: boolean;
+  rootMargin?: string;
 }) {
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const prefersMobile = useViewportMatch("(max-width: 768px)");
+  const preferredSrc = prefersMobile && mobileSrc ? mobileSrc : src;
+  const [activeSrc, setActiveSrc] = useState(preferredSrc);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [shouldRender, setShouldRender] = useState(eager);
 
   useEffect(() => {
+    setActiveSrc(preferredSrc);
     setAutoplayBlocked(false);
-  }, [src]);
+    setShouldRender(eager);
+  }, [preferredSrc, eager]);
+
+  useEffect(() => {
+    if (eager || shouldRender) return;
+    const node = sentinelRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setShouldRender(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [eager, shouldRender, rootMargin]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || autoplayBlocked) return;
+    if (!video || autoplayBlocked || !shouldRender) return;
 
     let isCancelled = false;
 
@@ -1076,7 +1144,6 @@ function AutoplayVideo({
 
     const attemptPlayback = () => {
       if (!video || isCancelled) return;
-
       video.muted = true;
       video.defaultMuted = true;
       video.autoplay = true;
@@ -1086,7 +1153,6 @@ function AutoplayVideo({
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
       video.setAttribute("x-webkit-airplay", "deny");
-
       const attempt = video.play();
       if (attempt && typeof attempt.catch === "function") {
         attempt.catch(() => {
@@ -1101,44 +1167,47 @@ function AutoplayVideo({
       }
     };
 
-    const handleError = () => {
-      handleBlocked();
-    };
-
     attemptPlayback();
-    const visibilityTimer = window.setTimeout(attemptPlayback, 160);
-    const loadedTimer = window.setTimeout(attemptPlayback, 420);
+    const visibilityTimer = window.setTimeout(attemptPlayback, 120);
+    const loadedTimer = window.setTimeout(attemptPlayback, 300);
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    video.addEventListener("error", handleError);
 
     return () => {
       isCancelled = true;
       window.clearTimeout(visibilityTimer);
       window.clearTimeout(loadedTimer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      video.removeEventListener("error", handleError);
     };
-  }, [autoplayBlocked, onAutoplayBlocked, src]);
+  }, [autoplayBlocked, onAutoplayBlocked, shouldRender, activeSrc]);
 
   if (autoplayBlocked) {
     return null;
   }
 
+  if (!shouldRender) {
+    return (
+      <div
+        ref={sentinelRef}
+        className={`pointer-events-none absolute inset-0 opacity-0 ${className}`}
+        aria-hidden="true"
+      />
+    );
+  }
+
   return (
     <video
       ref={videoRef}
+      key={activeSrc}
       className={`pointer-events-none select-none touch-none ${className}`}
       autoPlay
       muted
       loop
       playsInline
-      preload={preload}
+      preload={eager ? preload : "auto"}
       poster={poster}
       aria-hidden="true"
       tabIndex={-1}
-      disablePictureInPicture
-      disableRemotePlayback
       onCanPlay={(event) => {
         const video = event.currentTarget;
         video.muted = true;
@@ -1167,8 +1236,17 @@ function AutoplayVideo({
         setAutoplayBlocked(false);
         onPlaying?.(event);
       }}
+      onError={() => {
+        if (activeSrc !== src) {
+          setActiveSrc(src);
+          setAutoplayBlocked(false);
+          return;
+        }
+        setAutoplayBlocked(true);
+        onAutoplayBlocked?.();
+      }}
     >
-      <source src={src} type="video/mp4" />
+      <source src={activeSrc} type="video/mp4" />
     </video>
   );
 }
@@ -1179,6 +1257,7 @@ function MediaSurface({
   className = "",
   priorityCopy,
   video,
+  mobileVideo,
   dim = "medium",
 }: {
   src: string;
@@ -1186,6 +1265,7 @@ function MediaSurface({
   className?: string;
   priorityCopy?: React.ReactNode;
   video?: string;
+  mobileVideo?: string;
   dim?: "light" | "medium" | "heavy";
 }) {
   const overlayMap = {
@@ -1208,7 +1288,10 @@ function MediaSurface({
           className="absolute inset-0 h-full w-full object-cover"
           poster={src}
           src={video}
+          mobileSrc={mobileVideo}
           preload="metadata"
+          eager={false}
+          rootMargin="420px"
         />
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
@@ -2159,6 +2242,7 @@ function FieldNote({ children }: { children: React.ReactNode }) {
 function CinematicScene({
   section,
   active,
+  shouldLoad = false,
 }: {
   section: {
     key: string;
@@ -2168,9 +2252,11 @@ function CinematicScene({
     href?: string;
     action?: () => void;
     video: string;
+    mobileVideo?: string;
     poster: string;
   };
   active: boolean;
+  shouldLoad?: boolean;
 }) {
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
@@ -2217,7 +2303,10 @@ function CinematicScene({
             className="absolute inset-0 h-full w-full object-cover"
             poster={section.poster}
             src={section.video}
+            mobileSrc={section.mobileVideo}
             preload="auto"
+            eager={shouldLoad}
+            rootMargin="100svh"
             onCanPlay={markVideoReady}
             onLoadedData={markVideoReady}
             onPlaying={markVideoReady}
@@ -3025,6 +3114,7 @@ function FullScreenCinematicHomepage({
                 key={section.key}
                 section={section}
                 active={index === activeIndex}
+                shouldLoad={Math.abs(index - activeIndex) <= 1}
               />
             );
           }
@@ -3596,6 +3686,7 @@ export default function PraeliatorWebsite() {
         cta: "Discover",
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.hero.video,
+        mobileVideo: homeCinematicMedia.hero.mobileVideo,
         poster: homeCinematicMedia.hero.poster,
       },
       {
@@ -3606,6 +3697,7 @@ export default function PraeliatorWebsite() {
         cta: "Enter VIS",
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.vis.video,
+        mobileVideo: homeCinematicMedia.vis.mobileVideo,
         poster: homeCinematicMedia.vis.poster,
       },
       {
@@ -3616,6 +3708,7 @@ export default function PraeliatorWebsite() {
         cta: "Private Inquiry",
         href: whatsappGeneralLink,
         video: homeCinematicMedia.acquisition.video,
+        mobileVideo: homeCinematicMedia.acquisition.mobileVideo,
         poster: homeCinematicMedia.acquisition.poster,
       },
       { key: "tail", kind: "tail" as const },
@@ -3644,6 +3737,9 @@ export default function PraeliatorWebsite() {
             className="absolute inset-0 h-full w-full object-cover"
             poster={visImageSources.hero}
             src={visPageMedia.heroVideo}
+            mobileSrc={visPageMedia.heroMobileVideo}
+            preload="auto"
+            eager
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
           <div className="absolute inset-x-0 top-0 h-[35svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.86),rgba(4,4,4,0.34),transparent)] sm:h-[30svh]" />
@@ -3768,6 +3864,7 @@ export default function PraeliatorWebsite() {
                 src={visImageSources.hero}
                 alt="Praeliator VIS silhouette study"
                 video={visPageMedia.studyVideo}
+                mobileVideo={visPageMedia.studyMobileVideo}
                 className="min-h-[24rem] sm:min-h-[30rem] lg:min-h-[40rem]"
                 dim="light"
                 priorityCopy={
@@ -3793,6 +3890,7 @@ export default function PraeliatorWebsite() {
               src={visImageSources.leather}
               alt="Praeliator VIS leather macro"
               video={visPageMedia.materialVideo}
+              mobileVideo={visPageMedia.materialMobileVideo}
               className="min-h-[24rem] sm:min-h-[28rem] lg:min-h-[34rem]"
               dim="light"
               priorityCopy={
@@ -3959,6 +4057,7 @@ export default function PraeliatorWebsite() {
                   src={visImageSources.packaging}
                   alt="Praeliator VIS presentation"
                   video={visPageMedia.ownershipVideo}
+                  mobileVideo={visPageMedia.ownershipMobileVideo}
                   className="min-h-[24rem] rounded-none border-0 shadow-none sm:min-h-[28rem] lg:min-h-full"
                   dim="light"
                   priorityCopy={
@@ -4054,6 +4153,9 @@ const renderAcquisitionPage = () => (
           className="absolute inset-0 h-full w-full object-cover"
           poster={homeCinematicMedia.acquisition.poster}
           src={homeCinematicMedia.acquisition.video}
+          mobileSrc={homeCinematicMedia.acquisition.mobileVideo}
+          preload="auto"
+          eager
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
         <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
@@ -4135,6 +4237,7 @@ const renderAcquisitionPage = () => (
               src={visImageSources.packaging}
               alt="Praeliator acquisition packaging"
               video={homeCinematicMedia.ownership.video}
+              mobileVideo={homeCinematicMedia.ownership.mobileVideo}
               className="min-h-[22rem] sm:min-h-[30rem] lg:min-h-[38rem]"
               dim="heavy"
               priorityCopy={
@@ -4801,6 +4904,9 @@ const renderWaitlistPage = () => (
             className="absolute inset-0 h-full w-full object-cover"
             poster={visImageSources.packaging}
             src={homeCinematicMedia.ownership.video}
+            mobileSrc={homeCinematicMedia.ownership.mobileVideo}
+            preload="auto"
+            eager
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
           <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
