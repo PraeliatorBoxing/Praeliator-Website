@@ -926,6 +926,28 @@ function normalizePath(pathname: string): Route {
   }
   return "/";
 }
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("matchMedia" in window)) return;
+
+    const mediaQuery = window.matchMedia(query);
+    const update = () => setMatches(mediaQuery.matches);
+    update();
+
+    if ("addEventListener" in mediaQuery) {
+      mediaQuery.addEventListener("change", update);
+      return () => mediaQuery.removeEventListener("change", update);
+    }
+
+    mediaQuery.addListener(update);
+    return () => mediaQuery.removeListener(update);
+  }, [query]);
+
+  return matches;
+}
+
 function Container({
   children,
   className = "",
@@ -1021,6 +1043,8 @@ function AutoplayVideo({
   onCanPlay,
   onLoadedData,
   onPlaying,
+  onAutoplayBlocked,
+  preload = "metadata",
 }: {
   src: string;
   poster: string;
@@ -1028,14 +1052,31 @@ function AutoplayVideo({
   onCanPlay?: React.ReactEventHandler<HTMLVideoElement>;
   onLoadedData?: React.ReactEventHandler<HTMLVideoElement>;
   onPlaying?: React.ReactEventHandler<HTMLVideoElement>;
+  onAutoplayBlocked?: () => void;
+  preload?: "none" | "metadata" | "auto";
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+
+  useEffect(() => {
+    setAutoplayBlocked(false);
+  }, [src]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || autoplayBlocked) return;
 
-    const primeVideoForAutoplay = () => {
+    let isCancelled = false;
+
+    const handleBlocked = () => {
+      if (isCancelled) return;
+      setAutoplayBlocked(true);
+      onAutoplayBlocked?.();
+    };
+
+    const attemptPlayback = () => {
+      if (!video || isCancelled) return;
+
       video.muted = true;
       video.defaultMuted = true;
       video.autoplay = true;
@@ -1048,28 +1089,41 @@ function AutoplayVideo({
 
       const attempt = video.play();
       if (attempt && typeof attempt.catch === "function") {
-        attempt.catch(() => {});
+        attempt.catch(() => {
+          handleBlocked();
+        });
       }
     };
-
-    primeVideoForAutoplay();
-    const visibilityTimer = window.setTimeout(primeVideoForAutoplay, 160);
-    const loadedTimer = window.setTimeout(primeVideoForAutoplay, 420);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        primeVideoForAutoplay();
+        attemptPlayback();
       }
     };
 
+    const handleError = () => {
+      handleBlocked();
+    };
+
+    attemptPlayback();
+    const visibilityTimer = window.setTimeout(attemptPlayback, 160);
+    const loadedTimer = window.setTimeout(attemptPlayback, 420);
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    video.addEventListener("error", handleError);
 
     return () => {
+      isCancelled = true;
       window.clearTimeout(visibilityTimer);
       window.clearTimeout(loadedTimer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      video.removeEventListener("error", handleError);
     };
-  }, [src]);
+  }, [autoplayBlocked, onAutoplayBlocked, src]);
+
+  if (autoplayBlocked) {
+    return null;
+  }
 
   return (
     <video
@@ -1079,17 +1133,22 @@ function AutoplayVideo({
       muted
       loop
       playsInline
-      preload="auto"
+      preload={preload}
       poster={poster}
       aria-hidden="true"
       tabIndex={-1}
+      disablePictureInPicture
+      disableRemotePlayback
       onCanPlay={(event) => {
         const video = event.currentTarget;
         video.muted = true;
         video.defaultMuted = true;
         const attempt = video.play();
         if (attempt && typeof attempt.catch === "function") {
-          attempt.catch(() => {});
+          attempt.catch(() => {
+            setAutoplayBlocked(true);
+            onAutoplayBlocked?.();
+          });
         }
         onCanPlay?.(event);
       }}
@@ -1097,11 +1156,17 @@ function AutoplayVideo({
         const video = event.currentTarget;
         const attempt = video.play();
         if (attempt && typeof attempt.catch === "function") {
-          attempt.catch(() => {});
+          attempt.catch(() => {
+            setAutoplayBlocked(true);
+            onAutoplayBlocked?.();
+          });
         }
         onLoadedData?.(event);
       }}
-      onPlaying={onPlaying}
+      onPlaying={(event) => {
+        setAutoplayBlocked(false);
+        onPlaying?.(event);
+      }}
     >
       <source src={src} type="video/mp4" />
     </video>
@@ -1143,6 +1208,7 @@ function MediaSurface({
           className="absolute inset-0 h-full w-full object-cover"
           poster={src}
           src={video}
+          preload="metadata"
         />
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
@@ -2151,9 +2217,11 @@ function CinematicScene({
             className="absolute inset-0 h-full w-full object-cover"
             poster={section.poster}
             src={section.video}
+            preload="auto"
             onCanPlay={markVideoReady}
             onLoadedData={markVideoReady}
             onPlaying={markVideoReady}
+            onAutoplayBlocked={markVideoReady}
           />
         </motion.div>
         <AnimatePresence>
@@ -2176,10 +2244,10 @@ function CinematicScene({
           ) : null}
         </AnimatePresence>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_42%,rgba(0,0,0,0.52)_74%,rgba(0,0,0,0.78))]" />
-        <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
-        <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
+        <div className="absolute inset-x-0 top-0 h-[35svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.86),rgba(4,4,4,0.34),transparent)] sm:h-[30svh]" />
+        <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.24),rgba(4,4,4,0.82))] sm:h-[34svh]" />
       </div>
-      <div className="relative z-10 flex h-full items-center justify-center px-4 pt-16 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
+      <div className="relative z-10 flex h-full items-center justify-center px-5 pt-[calc(env(safe-area-inset-top)+2.35rem)] sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
         <motion.div
           animate={{
             opacity: inView ? 1 : 0,
@@ -2191,7 +2259,7 @@ function CinematicScene({
             delay: inView ? 0.28 : 0,
             ease: easeLuxury,
           }}
-          className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
+          className="mx-auto flex max-w-[22rem] -translate-y-[8svh] flex-col items-center text-center sm:max-w-[92vw] sm:translate-y-0"
         >
           <motion.p
             animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
@@ -2200,7 +2268,7 @@ function CinematicScene({
               delay: inView ? 0.34 : 0,
               ease: easeLuxury,
             }}
-            className="max-w-[92vw] text-[clamp(2.2rem,9.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.11em] text-white/96 sm:tracking-[0.14em]"
+            className="max-w-[20rem] text-[clamp(2rem,11vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.09em] text-white/96 sm:max-w-[92vw] sm:text-[clamp(2.2rem,9.4vw,6.6rem)] sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -2212,7 +2280,7 @@ function CinematicScene({
                 delay: inView ? 0.48 : 0,
                 ease: easeLuxury,
               }}
-              className="mt-4 max-w-[22rem] text-[0.8rem] leading-6 tracking-[0.09em] text-white/72 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:leading-7 sm:tracking-[0.1em]"
+              className="mt-4 max-w-[18rem] text-[0.78rem] leading-5 tracking-[0.08em] text-white/72 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:leading-7 sm:tracking-[0.1em]"
             >
               {section.line}
             </motion.p>
@@ -2224,12 +2292,12 @@ function CinematicScene({
               delay: inView ? 0.62 : 0,
               ease: easeLuxury,
             }}
-            className="mt-7 w-full sm:mt-8 sm:w-auto"
+            className="mt-6 w-auto sm:mt-8"
           >
             {section.href ? (
               <Button
                 asChild
-                className="w-full justify-center rounded-full bg-[#efe5d7] px-7 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
+                className="w-[min(18rem,82vw)] justify-center rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
                   {section.cta}
@@ -2239,7 +2307,7 @@ function CinematicScene({
               <Button
                 type="button"
                 onClick={section.action}
-                className="w-full justify-center rounded-full bg-[#efe5d7] px-7 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
+                className="w-[min(18rem,82vw)] justify-center rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)] sm:w-auto"
               >
                 {section.cta}
               </Button>
@@ -2649,7 +2717,7 @@ function HeaderBrandMark({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-        className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.4rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+        className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.6rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
@@ -2678,10 +2746,10 @@ function HeaderBrandMark({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.4rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+      className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.6rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
       aria-label="Praeliator home"
     >
-      <div className="relative flex h-9 min-w-[2.3rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
+      <div className="relative flex h-9 min-w-[2.5rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
         <motion.div
           className="pointer-events-none absolute left-1/2 top-1/2 h-[1.7rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden origin-center scale-[0.62] sm:h-10 sm:scale-100"
           animate={{
@@ -3027,6 +3095,7 @@ export default function PraeliatorWebsite() {
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
   const reduceMotion = useReducedMotion();
+  const isMobileViewport = useMediaQuery("(max-width: 767px)");
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
       if (typeof window === "undefined") return;
@@ -3197,6 +3266,10 @@ export default function PraeliatorWebsite() {
         : homeSectionIndex === 1
           ? "assembly"
           : "monogram";
+  const useCompactMobileHomeHeader = route === "/" && isMobileViewport;
+  const effectiveHeaderBrandMode: HeaderBrandMode = useCompactMobileHomeHeader
+    ? "monogram"
+    : headerBrandMode;
   const headerLifted =
     !mobileMenuOpen &&
     ((route === "/" && homeSectionIndex >= 3) ||
@@ -3573,7 +3646,7 @@ export default function PraeliatorWebsite() {
             src={visPageMedia.heroVideo}
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
-          <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
+          <div className="absolute inset-x-0 top-0 h-[35svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.86),rgba(4,4,4,0.34),transparent)] sm:h-[30svh]" />
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
         </div>
 
@@ -4362,7 +4435,7 @@ const renderWaitlistPage = () => (
                     </div>
                   ))}
                 </div>
-                <div className="mt-7 w-full sm:mt-8 sm:w-auto">
+                <div className="mt-6 w-auto sm:mt-8">
                   <Button
                     asChild
                     variant="outline"
@@ -4920,7 +4993,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between px-3 py-3.5 sm:px-0 sm:py-6">
+          <Container className="relative flex items-center justify-between px-4 py-3.5 sm:px-0 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -4928,7 +5001,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-9 w-9 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
+              className="group inline-flex h-8 w-8 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
             >
               <motion.span
                 animate={{
@@ -4940,7 +5013,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[1.86rem] w-[1.86rem] sm:h-[2.9rem] sm:w-[2.9rem]"
+                  className="h-[1.75rem] w-[1.75rem] sm:h-[2.9rem] sm:w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -4948,23 +5021,27 @@ const renderWaitlistPage = () => (
               </span>
             </motion.button>
             <HeaderBrandMark
-              mode={headerBrandMode}
+              mode={effectiveHeaderBrandMode}
               onClick={() => goTo("/")}
               assetsBroken={headerLogoBroken}
               onAssetError={() => setHeaderLogoBroken(true)}
             />
-            <motion.a
-              href={currentPurchaseLink}
-              target="_blank"
-              rel="noreferrer"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="inline-flex shrink-0 text-[8px] uppercase tracking-[0.14em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
-            >
-              <span className="sm:hidden">Inquire</span>
-              <span className="hidden sm:inline">Private Inquiry</span>
-            </motion.a>
+            {useCompactMobileHomeHeader ? (
+              <div className="h-8 w-8 shrink-0 sm:hidden" aria-hidden="true" />
+            ) : (
+              <motion.a
+                href={currentPurchaseLink}
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
+                className="inline-flex shrink-0 text-[8px] uppercase tracking-[0.14em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
+              >
+                <span className="sm:hidden">Inquire</span>
+                <span className="hidden sm:inline">Private Inquiry</span>
+              </motion.a>
+            )}
           </Container>
           <AnimatePresence initial={false}>
             {route !== "/" && !mobileMenuOpen ? (
