@@ -1074,15 +1074,15 @@ function AutoplayVideo({
   return (
     <video
       ref={videoRef}
-      className={className}
+      className={`pointer-events-none select-none touch-none ${className}`}
       autoPlay
       muted
       loop
       playsInline
       preload="auto"
       poster={poster}
-      disablePictureInPicture
-      controlsList="nodownload nofullscreen noremoteplayback"
+      aria-hidden="true"
+      tabIndex={-1}
       onCanPlay={(event) => {
         const video = event.currentTarget;
         video.muted = true;
@@ -2629,17 +2629,17 @@ function HeaderBrandMark({
 
   const wordmarkWrapperWidth = prefersReducedMotion
     ? isWordmarkMode
-      ? "13.08rem"
+      ? "10.8rem"
       : "0rem"
     : isWordmarkMode
-      ? "13.08rem"
+      ? "10.8rem"
       : "0rem";
 
   const wordmarkImageX = prefersReducedMotion
     ? "0rem"
     : isWordmarkMode
       ? "0rem"
-      : "-0.52rem";
+      : "-0.34rem";
 
   if (assetsBroken) {
     return (
@@ -2649,21 +2649,21 @@ function HeaderBrandMark({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-        className="absolute left-1/2 top-1/2 flex h-12 min-w-[3rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+        className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.4rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
           <img
             src={brandAssetPaths.headerMonogramMark}
             alt="Praeliator"
-            className="h-9 w-9 object-contain sm:h-10 sm:w-10"
+            className="h-8 w-8 object-contain sm:h-10 sm:w-10"
             onError={onAssetError}
           />
         ) : (
           <img
             src={brandAssetPaths.wordmark}
             alt="Praeliator"
-            className="h-7 w-auto scale-[0.76] object-contain opacity-92 sm:h-10 sm:scale-100"
+            className="h-6 w-auto scale-[0.66] object-contain opacity-92 sm:h-10 sm:scale-100"
             onError={onAssetError}
           />
         )}
@@ -2678,12 +2678,12 @@ function HeaderBrandMark({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
-      className="absolute left-1/2 top-1/2 flex h-12 min-w-[3rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
+      className="absolute left-1/2 top-1/2 flex h-10 min-w-[2.4rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-14 sm:min-w-[3.5rem]"
       aria-label="Praeliator home"
     >
-      <div className="relative flex h-10 min-w-[2.6rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
+      <div className="relative flex h-9 min-w-[2.3rem] items-center justify-center sm:h-12 sm:min-w-[3.1rem]">
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-8 -translate-x-1/2 -translate-y-1/2 overflow-hidden origin-center scale-[0.76] sm:h-10 sm:scale-100"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[1.7rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden origin-center scale-[0.62] sm:h-10 sm:scale-100"
           animate={{
             width: wordmarkWrapperWidth,
             opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2700,7 +2700,7 @@ function HeaderBrandMark({
             draggable={false}
             onError={onAssetError}
             className="absolute left-0 top-1/2 block h-8 w-auto max-w-none -translate-y-1/2 select-none sm:h-10"
-            style={{ width: "13.08rem" }}
+            style={{ width: "10.8rem" }}
             animate={{
               x: wordmarkImageX,
               opacity: isMonogramMode || isAssemblyMode ? 0 : 1,
@@ -2714,7 +2714,7 @@ function HeaderBrandMark({
         </motion.div>
 
         <motion.div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 sm:h-12 sm:w-12"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 sm:h-12 sm:w-12"
           animate={{
             opacity: isWordmarkMode ? 0 : 1,
             scale: isAssemblyMode ? 1.018 : 1,
@@ -4920,7 +4920,7 @@ const renderWaitlistPage = () => (
           transition={{ duration: 0.55, ease: easeLuxury }}
           className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
         >
-          <Container className="relative flex items-center justify-between px-3 py-3 sm:px-0 sm:py-6">
+          <Container className="relative flex items-center justify-between px-3 py-3.5 sm:px-0 sm:py-6">
             <motion.button
               type="button"
               initial={{ opacity: 0, y: -10 }}
@@ -4928,7 +4928,7 @@ const renderWaitlistPage = () => (
               transition={{ duration: 0.8, ease: easeLuxury }}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileMenuOpen((current) => !current)}
-              className="group inline-flex h-10 w-10 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
+              className="group inline-flex h-9 w-9 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white sm:h-12 sm:w-12"
             >
               <motion.span
                 animate={{
@@ -4940,7 +4940,7 @@ const renderWaitlistPage = () => (
               >
                 <PraeliatorMenuWreathIcon
                   open={mobileMenuOpen}
-                  className="h-[2.08rem] w-[2.08rem] sm:h-[2.9rem] sm:w-[2.9rem]"
+                  className="h-[1.86rem] w-[1.86rem] sm:h-[2.9rem] sm:w-[2.9rem]"
                 />
               </motion.span>
               <span className="sr-only">
@@ -4960,7 +4960,7 @@ const renderWaitlistPage = () => (
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-              className="inline-flex shrink-0 text-[9px] uppercase tracking-[0.18em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
+              className="inline-flex shrink-0 text-[8px] uppercase tracking-[0.14em] text-white/74 transition duration-500 hover:text-white sm:text-[11px] sm:tracking-[0.34em]"
             >
               <span className="sm:hidden">Inquire</span>
               <span className="hidden sm:inline">Private Inquiry</span>
