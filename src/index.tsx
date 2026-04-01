@@ -2503,6 +2503,16 @@ const cursorInputSelector = [
 ].join(", ");
 const clampCursorValue = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
+const shouldDisableCursorTargetDrift = (target: HTMLElement | null) => {
+  if (!target) return false;
+  if (target.closest("[data-no-button-drift='true']")) return true;
+  if (target.getAttribute("aria-label") === "Praeliator home") return true;
+  return Boolean(
+    target.querySelector(
+      "img[src*='logo-header'], img[src*='wordmark'], img[src*='monogram-mark'], img[src*='laurel-mark']",
+    ),
+  );
+};
 function LuxuryCursor({
   enabled,
   reduceMotion,
@@ -2603,10 +2613,13 @@ function LuxuryCursor({
       ) as HTMLElement | null;
 
       if (interactiveTarget) {
+        const driftDisabled = shouldDisableCursorTargetDrift(interactiveTarget);
         if (interactiveTargetRef.current !== interactiveTarget) {
           clearInteractiveTarget();
           interactiveTargetRef.current = interactiveTarget;
-          interactiveTarget.classList.add("luxury-cursor-target-active");
+          if (!driftDisabled) {
+            interactiveTarget.classList.add("luxury-cursor-target-active");
+          }
         }
         const rect = interactiveTarget.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -2616,10 +2629,16 @@ function LuxuryCursor({
         const magnetizedY = rawPointerY + (centerY - rawPointerY) * magnetStrength;
         rawX.set(magnetizedX);
         rawY.set(magnetizedY);
-        interactiveTarget.style.setProperty(
-          "translate",
-          `${clampCursorValue((rawPointerX - centerX) * 0.12, -6, 6).toFixed(2)}px ${clampCursorValue((rawPointerY - centerY) * 0.12, -6, 6).toFixed(2)}px`,
-        );
+        if (driftDisabled) {
+          interactiveTarget.style.removeProperty("translate");
+          interactiveTarget.classList.remove("luxury-cursor-target-active");
+        } else {
+          interactiveTarget.classList.add("luxury-cursor-target-active");
+          interactiveTarget.style.setProperty(
+            "translate",
+            `${clampCursorValue((rawPointerX - centerX) * 0.12, -6, 6).toFixed(2)}px ${clampCursorValue((rawPointerY - centerY) * 0.12, -6, 6).toFixed(2)}px`,
+          );
+        }
         if (!magneticRef.current) {
           magneticRef.current = true;
           setMagnetic(true);
@@ -3297,6 +3316,7 @@ function HeaderBrandMark({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
         className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+        data-no-button-drift="true"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
@@ -3326,6 +3346,7 @@ function HeaderBrandMark({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
       className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+      data-no-button-drift="true"
       aria-label="Praeliator home"
     >
       <div className="relative flex h-12 min-w-[3.1rem] items-center justify-center">
