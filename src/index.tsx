@@ -503,6 +503,13 @@ const routeTitles: Record<Route, string> = {
   "/waitlist": "Waitlist",
   "/contact": "Contact",
 };
+const routeMicroLabels: Record<Route, string> = {
+  "/": "",
+  "/praeliator-vis": "VIS",
+  "/acquisition": "ACQUISITION",
+  "/waitlist": "WAITLIST",
+  "/contact": "CONTACT",
+};
 const navItems: Array<{ label: string; path: Route }> = [
   { label: "VIS", path: "/praeliator-vis" },
   { label: "Acquisition", path: "/acquisition" },
@@ -2941,6 +2948,7 @@ export default function PraeliatorWebsite() {
     if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
     return whatsappGeneralLink;
   }, [route]);
+  const pageMicroLabel = route !== "/" ? routeMicroLabels[route] : "";
   const headerBrandMode: HeaderBrandMode =
     route !== "/"
       ? "monogram"
@@ -4321,6 +4329,23 @@ export default function PraeliatorWebsite() {
               Private Inquiry
             </motion.a>
           </Container>
+          <AnimatePresence initial={false}>
+            {route !== "/" && !mobileMenuOpen ? (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.75, ease: easeLuxury }}
+                className="pointer-events-none pb-3 sm:pb-4"
+              >
+                <Container className="flex justify-center">
+                  <p className="text-[9px] uppercase tracking-[0.34em] text-white/38 sm:text-[10px]">
+                    {pageMicroLabel}
+                  </p>
+                </Container>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
           <AnimatePresence initial={false}>
             {mobileMenuOpen ? (
               <motion.div
