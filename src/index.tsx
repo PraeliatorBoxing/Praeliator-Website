@@ -2274,6 +2274,7 @@ function SearchPicker({
   invalid = false,
   success = false,
   describedBy,
+  maxLength,
 }: {
   name: string;
   onChange: (
@@ -2290,6 +2291,7 @@ function SearchPicker({
   invalid?: boolean;
   success?: boolean;
   describedBy?: string;
+  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
