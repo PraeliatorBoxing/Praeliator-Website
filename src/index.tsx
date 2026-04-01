@@ -593,6 +593,29 @@ const acquisitionModeCards = [
     action: "Join waitlist",
   },
 ];
+const acquisitionContrasts = [
+  {
+    title: "Conventional commerce",
+    lines: [
+      "Open inventory, visible quantity, and generic checkout sequencing.",
+      "The brand disappears behind platform language and shipping logic.",
+      "The object arrives disconnected from ownership history.",
+    ],
+  },
+  {
+    title: "Praeliator acquisition",
+    lines: [
+      "Inquiry remains direct and the route stays inside the brand voice.",
+      "Allocation, dispatch, and continuity remain qualified rather than public.",
+      "Ownership begins before delivery and continues after purchase.",
+    ],
+  },
+];
+const acquisitionStandards = [
+  "No cart layer between the client and the brand.",
+  "Qualified review before allocation continues.",
+  "Dispatch, confirmation, and aftercare retained under one record.",
+];
 const visEditorialBlocks = [
   {
     title: "Material discipline",
@@ -3558,244 +3581,336 @@ export default function PraeliatorWebsite() {
       </section>
     </>
   );
-  const renderAcquisitionPage = () => (
-    <>
-      <PageHeroBanner
-        eyebrow="Acquisition"
-        title="Private acquisition, handled with control."
-        description="Each qualified inquiry is reviewed and carried through direct contact. The route stays restrained from first message to delivery and aftercare."
-        note="Inquiry · review · allocation · delivery"
-        actions={[
-          {
-            label: "Begin Inquiry",
-            href: whatsappGeneralLink,
-            variant: "primary",
-          },
-          {
-            label: "Join Waitlist",
-            onClick: () => goTo("/waitlist"),
-            variant: "secondary",
-          },
-        ]}
-        media={{
-          image: visImageSources.packaging,
-          alt: "Private acquisition",
-          video: homeCinematicMedia.acquisition.video,
-          badge: "Private route",
-          overlayTitle: "Handled directly.",
-          overlayText: "No marketplace layer. No noisy commerce language.",
-        }}
-        stats={pageHeroStats["/acquisition"]}
-      />
+const renderAcquisitionPage = () => (
+  <>
+    <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#050505]">
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute inset-0 scale-[1.03] bg-cover bg-center"
+          style={{ backgroundImage: `url(${homeCinematicMedia.acquisition.poster})` }}
+          aria-hidden="true"
+        />
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={homeCinematicMedia.acquisition.poster}
+        >
+          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
+        <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
+      </div>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
-        <Container>
-          <div className="overflow-hidden rounded-[2.35rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] shadow-[0_36px_120px_rgba(0,0,0,0.42)]">
-            <div className="grid gap-0 lg:grid-cols-[0.96fr_1.04fr]">
-              <Reveal className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Why the route exists
-                </p>
-                <h2 className="mt-5 max-w-[12ch] text-3xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-4xl lg:text-5xl">
-                  The route is part of the object.
-                </h2>
-                <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  Praeliator does not treat acquisition like a conventional checkout layer.
-                  The tone, pace, and control of the route are meant to feel continuous with the
-                  glove itself.
-                </p>
+      <Container className="relative flex min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <motion.div
+          initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.05, ease: easeLuxury }}
+          className="max-w-[56rem]"
+        >
+          <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
+            Private acquisition
+          </p>
+          <h1 className="mt-5 max-w-[12ch] text-[clamp(3.1rem,7.8vw,7.6rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+            Handled directly. Continued properly.
+          </h1>
+          <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8 lg:max-w-3xl">
+            Praeliator does not begin with open checkout. Inquiry, review, allocation,
+            dispatch, and aftercare remain inside one controlled route so access feels
+            continuous with the object itself.
+          </p>
 
-                <div className="mt-8 grid gap-4">
-                  {acquisitionPrinciples.map((item, index) => (
-                    <Reveal key={item.title} delay={0.08 + index * 0.05}>
-                      <div className="rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
-                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                          {item.title}
-                        </p>
-                        <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
-                      </div>
-                    </Reveal>
-                  ))}
-                </div>
-              </Reveal>
-
-              <Reveal delay={0.08} className="p-3 sm:p-4 lg:p-5">
-                <MediaSurface
-                  src={visImageSources.hero}
-                  alt="Praeliator acquisition scene"
-                  video={homeCinematicMedia.acquisition.video}
-                  className="min-h-[24rem] sm:min-h-[32rem] lg:min-h-[40rem]"
-                  dim="heavy"
-                  priorityCopy={
-                    <>
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                        Acquisition scene
-                      </p>
-                      <p className="mt-4 max-w-[11ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                        No cart. No noise. No generic checkout.
-                      </p>
-                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
-                        Inquiry stays direct, allocation stays deliberate, and continuation stays attached to the same record.
-                      </p>
-                    </>
-                  }
-                />
-              </Reveal>
-            </div>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button
+              asChild
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Begin Inquiry
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/waitlist")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Join Waitlist
+            </Button>
           </div>
-        </Container>
-      </section>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
-        <Container>
-          <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-10">
-            <Reveal>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:sticky lg:top-28 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Acquisition sequence
-                </p>
-                <h2 className="mt-4 text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl">
-                  A direct route, paced properly.
-                </h2>
-                <p className="mt-5 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  The purpose is not speed for its own sake. The purpose is clarity,
-                  qualification, and continuity from first contact to aftercare.
-                </p>
-                <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                    Route logic
+          <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 text-[10px] uppercase tracking-[0.28em] text-white/36 sm:text-[11px]">
+            <span>Inquiry</span>
+            <span className="h-px w-5 bg-white/12" />
+            <span>Review</span>
+            <span className="h-px w-5 bg-white/12" />
+            <span>Allocation</span>
+            <span className="h-px w-5 bg-white/12" />
+            <span>Delivery</span>
+            <span className="h-px w-5 bg-white/12" />
+            <span>Aftercare</span>
+          </div>
+        </motion.div>
+      </Container>
+    </section>
+
+    <section className="relative py-16 sm:py-20 lg:py-24">
+      <Container>
+        <div className="grid gap-12 lg:grid-cols-[0.98fr_1.02fr] lg:items-end lg:gap-14">
+          <Reveal>
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
+              Acquisition principle
+            </p>
+            <h2 className="mt-5 max-w-[10ch] text-4xl font-semibold leading-[0.9] tracking-[-0.065em] sm:text-5xl lg:text-6xl">
+              The route is part of the object.
+            </h2>
+            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              Luxury does not end at the glove. The way access is handled, the way timing is
+              clarified, and the way ownership continues after delivery all carry the same
+              tone as the product itself.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <MediaSurface
+              src={visImageSources.packaging}
+              alt="Praeliator acquisition packaging"
+              video={homeCinematicMedia.ownership.video}
+              className="min-h-[22rem] sm:min-h-[30rem] lg:min-h-[38rem]"
+              dim="heavy"
+              priorityCopy={
+                <>
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                    Controlled entry
                   </p>
-                  <div className="mt-4 space-y-3 text-sm leading-7 text-white/62">
-                    <p>Direct contact stays primary.</p>
-                    <p>Allocation stays controlled.</p>
-                    <p>Future service stays under the same record.</p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
+                  <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                    Ownership begins before the glove arrives.
+                  </p>
+                </>
+              }
+            />
+          </Reveal>
+        </div>
 
-            <div className="relative space-y-5 before:absolute before:bottom-6 before:left-[1.18rem] before:top-6 before:w-px before:bg-[linear-gradient(180deg,rgba(185,161,141,0.38),rgba(185,161,141,0.08))] sm:before:left-[1.35rem]">
-              {acquisitionSteps.map((item, index) => (
-                <Reveal key={item.step} delay={index * 0.06}>
-                  <div className="relative rounded-[1.85rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.92))] p-6 pl-14 shadow-[0_28px_72px_rgba(0,0,0,0.24)] sm:pl-16 sm:p-7 sm:pl-16">
-                    <div className="absolute left-4 top-6 flex h-6 w-6 items-center justify-center rounded-full border border-[#705a48] bg-[#120f0d] text-[10px] tracking-[0.18em] text-[#d0b39b] sm:left-5 sm:top-7 sm:h-7 sm:w-7">
-                      {item.step}
-                    </div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="max-w-2xl">
-                        <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                          {item.title}
-                        </h3>
-                        <p className="mt-3 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                          {item.text}
-                        </p>
-                      </div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/26 sm:pt-1">
-                        Stage {item.step}
-                      </p>
-                    </div>
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1.06fr_0.94fr] lg:gap-14">
+          <Reveal>
+            <div className="max-w-3xl">
+              <p className="text-lg leading-8 text-white/70 sm:text-xl sm:leading-9">
+                Praeliator stays visible from first contact onward. There is no cart layer
+                where the brand disappears, no open inventory theatre, and no generic
+                checkout language replacing the tone of the object.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+              {acquisitionPrinciples.map((item, index) => (
+                <Reveal key={item.title} delay={0.1 + index * 0.05}>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                      {item.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-white/58">{item.text}</p>
                   </div>
                 </Reveal>
               ))}
             </div>
-          </div>
-        </Container>
-      </section>
+          </Reveal>
 
-      <EditorialBlock
-        eyebrow="Trust architecture"
-        title="Control matters before the product arrives."
-        text="Inquiry, review, allocation, and continuation all stay inside one clear route. The brand remains visible throughout, instead of disappearing behind a generic commerce flow."
-        media={{
-          image: visImageSources.packaging,
-          alt: "Praeliator acquisition media",
-          video: homeCinematicMedia.ownership.video,
-          overlayTitle: "Allocation with continuity.",
-          overlayText:
-            "The route stays recorded from first contact to aftercare.",
-        }}
-      >
-        <div className="grid gap-4 sm:grid-cols-3">
-          {trustArchitecture.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-5"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
+          <Reveal delay={0.08}>
+            <div className="border-l border-white/10 pl-6 sm:pl-8">
+              <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                Standard
               </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+              <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
+                {acquisitionStandards.map((item) => (
+                  <div key={item} className="py-5">
+                    <p className="max-w-md text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
+                      {item}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          </Reveal>
         </div>
-      </EditorialBlock>
+      </Container>
+    </section>
 
-      <section className="relative py-8 sm:py-10 lg:py-12">
-        <Container>
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
-            <Reveal>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(11,10,9,0.94))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Ownership signals
-                </p>
-                <div className="mt-6">
-                  <DataList items={ownershipSignals} compact />
+    <section className="relative overflow-hidden py-16 sm:py-20 lg:py-28">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
+      <Container className="relative">
+        <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+          <Reveal className="lg:sticky lg:top-28 self-start">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
+              The route
+            </p>
+            <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
+              A direct procession, not a checkout flow.
+            </h2>
+            <p className="mt-6 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              The sequence is quiet by design. Inquiry stays qualified, timing stays clear,
+              and continuation stays attached to the same record from the beginning.
+            </p>
+          </Reveal>
+
+          <div className="border-t border-white/10">
+            {acquisitionSteps.map((item, index) => (
+              <Reveal key={item.step} delay={index * 0.08}>
+                <div className="group relative overflow-hidden border-b border-white/10 py-10 sm:py-12 lg:py-14">
+                  <div className="absolute inset-y-0 left-0 w-px bg-[linear-gradient(180deg,rgba(185,161,141,0),rgba(185,161,141,0.26),rgba(185,161,141,0))]" />
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
+                    <div className="max-w-2xl pl-5 sm:pl-7">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                        Stage {item.step}
+                      </p>
+                      <h3 className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                        {item.title}
+                      </h3>
+                      <p className="mt-4 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                        {item.text}
+                      </p>
+                    </div>
+                    <p className="text-[clamp(3.2rem,6.2vw,5.8rem)] font-semibold leading-none tracking-[-0.08em] text-white/[0.06] transition duration-700 group-hover:text-white/[0.12]">
+                      {item.step}
+                    </p>
+                  </div>
                 </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section className="relative py-16 sm:py-20 lg:py-24">
+      <Container>
+        <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14">
+          <Reveal delay={0.08} className="lg:order-2">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
+              Why not a cart
+            </p>
+            <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
+              Open checkout would flatten the route.
+            </h2>
+            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              The point is not artificial friction. The point is to protect tone,
+              qualification, and continuity before and after purchase.
+            </p>
+
+            <div className="mt-10 grid gap-8 sm:grid-cols-2">
+              {acquisitionContrasts.map((column) => (
+                <div key={column.title}>
+                  <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                    {column.title}
+                  </p>
+                  <div className="mt-4 space-y-4">
+                    {column.lines.map((line) => (
+                      <p key={line} className="text-sm leading-7 text-white/60">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal className="lg:order-1">
+            <MediaSurface
+              src={visImageSources.hero}
+              alt="Praeliator acquisition detail"
+              className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+              dim="heavy"
+              priorityCopy={
+                <>
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                    Refusal
+                  </p>
+                  <p className="mt-4 max-w-[11ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                    The brand does not disappear behind commerce language.
+                  </p>
+                </>
+              }
+            />
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+
+    <section className="relative py-16 sm:py-20 lg:py-24">
+      <Container>
+        <div className="border-t border-white/10 pt-10 sm:pt-12 lg:pt-14">
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-14">
+            <Reveal>
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d] sm:text-xs">
+                Entry
+              </p>
+              <h2 className="mt-5 max-w-[11ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
+                Immediate inquiry or quieter entry.
+              </h2>
+              <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                Some clients want to begin contact immediately. Others want a softer point
+                of entry into future releases. Both remain inside the same language and the
+                same level of control.
+              </p>
+
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  asChild
+                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                >
+                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                    Begin Inquiry
+                  </a>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => goTo("/waitlist")}
+                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  Enter Waitlist
+                </Button>
               </div>
             </Reveal>
 
             <Reveal delay={0.08}>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.92))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Decide the route
-                </p>
-                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                  Immediate inquiry or quieter entry.
-                </h3>
-                <p className="mt-5 text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                  Some clients want to begin contact immediately. Others want a recorded path into future releases. Both remain available inside the same language.
-                </p>
+              <div className="grid gap-6 sm:grid-cols-2">
+                {acquisitionModeCards.map((item) => (
+                  <div key={item.title} className="border-t border-white/10 pt-5">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                      {item.action}
+                    </p>
+                    <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
+                  </div>
+                ))}
+              </div>
 
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  {acquisitionModeCards.map((item) => (
-                    <div key={item.title} className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-5">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {item.action}
-                      </p>
-                      <h4 className="mt-3 text-xl font-medium tracking-[-0.03em] text-[#f4efe7]">
-                        {item.title}
-                      </h4>
-                      <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    asChild
-                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
-                  >
-                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                      Begin Inquiry
-                    </a>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/waitlist")}
-                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    Enter Waitlist
-                  </Button>
+              <div className="mt-10 border-t border-white/10 pt-6">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                  Ownership signals
+                </p>
+                <div className="mt-4">
+                  <DataList items={ownershipSignals} compact />
                 </div>
               </div>
             </Reveal>
           </div>
-        </Container>
-      </section>
-    </>
-  );
-  const renderWaitlistPage = () => (
+        </div>
+      </Container>
+    </section>
+  </>
+);
+
+const renderWaitlistPage = () => (
     <>
       <PageHeroBanner
         eyebrow="Waitlist"
