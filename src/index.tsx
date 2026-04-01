@@ -492,6 +492,10 @@ const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
+const WAITLIST_EMAIL_DOMAIN_CHECK_ENDPOINT =
+  "/api/validate-waitlist-email-domain";
+const EMAIL_MAX_TOTAL_LENGTH = 254;
+const EMAIL_HTML_PATTERN = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -757,7 +761,7 @@ const WAITLIST_FIELD_MAX_LENGTHS: Record<WaitlistFieldName, number> = {
   interest: 64,
   timeline: 32,
   contactPreference: 32,
-  note: 600,
+  note: 400,
 };
 const clampWaitlistFieldLength = (
   field: WaitlistFieldName,
@@ -829,6 +833,40 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   ),
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
+const getEmailDomain = (email: string) => {
+  const normalizedEmail = normalizeEmailFinal(email);
+  const atIndex = normalizedEmail.lastIndexOf("@");
+  return atIndex >= 0 ? normalizedEmail.slice(atIndex + 1) : "";
+};
+const getEmailFormatError = (email: string) => {
+  const normalizedEmail = normalizeEmailFinal(email);
+  if (!normalizedEmail) return "Email is required.";
+  if (normalizedEmail.length > EMAIL_MAX_TOTAL_LENGTH) {
+    return `Email must be ${EMAIL_MAX_TOTAL_LENGTH} characters or fewer.`;
+  }
+  const parts = normalizedEmail.split("@");
+  if (parts.length !== 2) return "Enter a valid email address.";
+  const [localPart, domain] = parts;
+  if (!localPart || !domain) return "Enter a valid email address.";
+  if (localPart.length > 64) return "Enter a valid email address.";
+  if (localPart.startsWith(".") || localPart.endsWith(".") || localPart.includes("..")) {
+    return "Enter a valid email address.";
+  }
+  if (domain.length > 253 || domain.startsWith("-") || domain.endsWith("-") || domain.includes("..")) {
+    return "Enter a valid email address.";
+  }
+  const labels = domain.split(".");
+  if (labels.length < 2) return "Enter a valid email address.";
+  const invalidLabel = labels.some((label) => {
+    if (!label || label.length > 63) return true;
+    if (label.startsWith("-") || label.endsWith("-")) return true;
+    return !/^[a-z0-9-]+$/i.test(label);
+  });
+  if (invalidLabel) return "Enter a valid email address.";
+  const tld = labels[labels.length - 1];
+  if (tld.length < 2 || !/[a-z]/i.test(tld)) return "Enter a valid email address.";
+  return "";
+};
 const getDialCodePhoneRule = (dialCode: string) => {
   const normalizedDialCode = normalizeDialCode(dialCode);
   const rules: Record<string, { min: number; max: number; message: string }> = {
@@ -884,17 +922,15 @@ const validateWaitlistForm = (
 ): WaitlistErrors => {
   const normalizedForm = normalizeWaitlistForm(form);
   const errors: WaitlistErrors = {};
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailFormatError = getEmailFormatError(normalizedForm.email);
   const phoneRule = getDialCodePhoneRule(normalizedForm.phoneCountryCode);
   if (!normalizedForm.fullName) {
     errors.fullName = "Full name is required.";
   } else if (normalizedForm.fullName.length < 2) {
     errors.fullName = "Enter a valid full name.";
   }
-  if (!normalizedForm.email) {
-    errors.email = "Email is required.";
-  } else if (!emailPattern.test(normalizedForm.email)) {
-    errors.email = "Enter a valid email address.";
+  if (emailFormatError) {
+    errors.email = emailFormatError;
   }
   if (!normalizedForm.country) {
     errors.country = "Country is required.";
@@ -3889,6 +3925,7 @@ export default function PraeliatorWebsite() {
       title: normalizedForm.title,
       fullName: normalizedForm.fullName,
       email: normalizedForm.email,
+      emailDomain: getEmailDomain(normalizedForm.email),
       phoneCountryCode: normalizedForm.phoneCountryCode,
       phoneNumber: normalizedForm.whatsapp,
       fullPhone:
@@ -3910,6 +3947,42 @@ export default function PraeliatorWebsite() {
           : undefined,
     };
     try {
+      const domainCheckResponse = await fetch(
+        WAITLIST_EMAIL_DOMAIN_CHECK_ENDPOINT,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email: normalizedForm.email }),
+          signal: controller.signal,
+        },
+      );
+      const domainCheckResult = await domainCheckResponse.json();
+      if (!domainCheckResponse.ok || !domainCheckResult?.success) {
+        const domainError =
+          domainCheckResult?.error ||
+          "Please enter a real email address before continuing.";
+        setWaitlistErrors((current) => ({ ...current, email: domainError }));
+        setWaitlistTouched((current) => ({ ...current, email: true }));
+        setWaitlistState({
+          loading: false,
+          success: false,
+          error: domainError,
+          reference: "",
+          serviceMessage: "",
+        });
+        trackWaitlistEvent("waitlist_submit_invalid", {
+          fields: ["email"],
+          reason: domainCheckResult?.errorCode || "email_domain",
+          domain: getEmailDomain(normalizedForm.email),
+        });
+        return;
+      }
+      trackWaitlistEvent("waitlist_email_domain_check_passed", {
+        domain: getEmailDomain(normalizedForm.email),
+      });
       const response = await fetch(waitlistEndpoint, {
         method: "POST",
         headers: {
@@ -4924,6 +4997,7 @@ const renderWaitlistPage = () => (
                       onChange={handleWaitlistChange}
                       onBlur={() => handleWaitlistBlur("email")}
                       autoComplete="email"
+                      inputMode="email"
                       autoCapitalize="none"
                       placeholder="Email address *"
                       maxLength={WAITLIST_FIELD_MAX_LENGTHS.email}
@@ -5080,8 +5154,8 @@ const renderWaitlistPage = () => (
                       placeholder="Optional note"
                     />
                     <FieldNote>
-                      Any detail that affects timing, use, or preferred contact
-                      can go here.
+                      Optional. Maximum 400 characters. Any detail that affects
+                      timing, use, or preferred contact can go here.
                     </FieldNote>
                   </div>
                   <div className="pt-2">
@@ -6222,7 +6296,7 @@ const renderWaitlistPage = () => (
                   placeholder="Optional note"
                 />
                 <FieldNote>
-                  Any detail that affects timing, use, or preferred contact can go here.
+                  Optional. Maximum 400 characters. Any detail that affects timing, use, or preferred contact can go here.
                 </FieldNote>
               </div>
 
