@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Lenis from "lenis";
 import {
   Check,
@@ -112,7 +112,7 @@ const visPageMedia = {
 };
 const customVideoLoaderIcon = "/images/video-loader.svg";
 const brandAssetPaths = {
-  wordmark: "/logo-header.svg",
+  wordmark: "/logo-header.png",
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
@@ -1014,6 +1014,11 @@ function DataList({
     </div>
   );
 }
+function videoPathToAnimatedImagePath(video?: string) {
+  if (!video) return undefined;
+  return video.replace(/\.mp4(\?.*)?$/i, ".avif$1");
+}
+
 function MediaSurface({
   src,
   alt,
@@ -1034,6 +1039,17 @@ function MediaSurface({
     medium: "bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.62))]",
     heavy: "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
   };
+  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
+    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener?.("change", update);
+    return () => mediaQuery.removeEventListener?.("change", update);
+  }, []);
+  const animatedImage = videoPathToAnimatedImagePath(video);
+  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
   return (
     <div
       className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
@@ -1044,7 +1060,15 @@ function MediaSurface({
         aria-label={alt}
         role="img"
       />
-      {video ? (
+      {shouldUseAnimatedImage ? (
+        <img
+          className="absolute inset-0 h-full w-full object-cover"
+          src={animatedImage}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
+      ) : video ? (
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -1610,7 +1634,7 @@ function MobileHomeFooter({
         <div className="rounded-[1.9rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
           <div className="text-center">
             <img
-              src="/logo-header.svg"
+              src="/logo-header.png"
               alt="Praeliator"
               className="mx-auto h-12 w-auto object-contain opacity-95"
             />
@@ -1702,18 +1726,19 @@ function MobileHeader({
     <motion.header className="fixed inset-x-0 top-0 z-50">
       <motion.div
         animate={{
-          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.82)" : "rgba(6,6,6,0.38)",
-          backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(14px)",
+          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.88)" : "rgba(6,6,6,0)",
+          backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
+          borderColor: mobileMenuOpen ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0)",
         }}
         transition={{ duration: 0.45, ease: easeLuxury }}
-        className="border-b border-white/[0.06] bg-[linear-gradient(180deg,rgba(6,6,6,0.84),rgba(6,6,6,0.38),transparent)]"
+        className="border-b border-transparent bg-transparent"
       >
         <Container className="relative flex items-center justify-between py-4">
           <button
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileMenuOpen((current) => !current)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/82 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+            className="inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-300 hover:text-white"
           >
             <PraeliatorMenuWreathIcon
               open={mobileMenuOpen}
@@ -1730,14 +1755,7 @@ function MobileHeader({
             />
           </div>
 
-          <a
-            href={currentPurchaseLink}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-11 items-center rounded-full border border-white/10 bg-white/[0.03] px-3.5 text-[10px] uppercase tracking-[0.24em] text-white/78 transition duration-500 hover:border-white/16 hover:bg-white/[0.05] hover:text-white"
-          >
-            Inquiry
-          </a>
+          <div aria-hidden="true" className="h-11 w-11" />
         </Container>
 
         <AnimatePresence initial={false}>
@@ -2486,271 +2504,6 @@ function FieldError({ id, message }: { id?: string; message?: string }) {
 function FieldNote({ children }: { children: React.ReactNode }) {
   return <p className="mt-2 text-[13px] leading-5 text-white/36">{children}</p>;
 }
-const cursorInteractiveSelector = [
-  "button",
-  "a[href]",
-  "[role='button']",
-  "[data-cursor-label]",
-].join(", ");
-const cursorInputSelector = [
-  "input",
-  "textarea",
-  "select",
-  "[contenteditable='true']",
-  ".browser-form-element",
-  "button[role='combobox']",
-  "[data-cursor-ignore='true']",
-].join(", ");
-const clampCursorValue = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
-const shouldDisableCursorTargetDrift = (target: HTMLElement | null) => {
-  if (!target) return false;
-  if (target.closest("[data-no-button-drift='true']")) return true;
-  if (target.getAttribute("aria-label") === "Praeliator home") return true;
-  return Boolean(
-    target.querySelector(
-      "img[src*='logo-header'], img[src*='wordmark'], img[src*='monogram-mark'], img[src*='laurel-mark']",
-    ),
-  );
-};
-function LuxuryCursor({
-  enabled,
-  reduceMotion,
-}: {
-  enabled: boolean;
-  reduceMotion: boolean | null;
-}) {
-  const rawX = useMotionValue(-120);
-  const rawY = useMotionValue(-120);
-  const coreX = useSpring(rawX, {
-    stiffness: reduceMotion ? 900 : 1120,
-    damping: reduceMotion ? 70 : 62,
-    mass: 0.18,
-  });
-  const coreY = useSpring(rawY, {
-    stiffness: reduceMotion ? 900 : 1120,
-    damping: reduceMotion ? 70 : 62,
-    mass: 0.18,
-  });
-  const shellX = useSpring(rawX, {
-    stiffness: reduceMotion ? 320 : 410,
-    damping: reduceMotion ? 42 : 34,
-    mass: 0.6,
-  });
-  const shellY = useSpring(rawY, {
-    stiffness: reduceMotion ? 320 : 410,
-    damping: reduceMotion ? 42 : 34,
-    mass: 0.6,
-  });
-  const [visible, setVisible] = useState(false);
-  const [magnetic, setMagnetic] = useState(false);
-  const [hiddenForInput, setHiddenForInput] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const interactiveTargetRef = useRef<HTMLElement | null>(null);
-  const overInputRef = useRef(false);
-  const magneticRef = useRef(false);
-  const visibleRef = useRef(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const active = enabled && mediaQuery.matches;
-    document.documentElement.classList.toggle("luxury-cursor-active", active);
-    return () => {
-      document.documentElement.classList.remove("luxury-cursor-active");
-    };
-  }, [enabled]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
-    if (!enabled || !mediaQuery.matches) return;
-
-    const clearInteractiveTarget = () => {
-      if (interactiveTargetRef.current) {
-        interactiveTargetRef.current.style.removeProperty("translate");
-        interactiveTargetRef.current.classList.remove(
-          "luxury-cursor-target-active",
-        );
-        interactiveTargetRef.current = null;
-      }
-    };
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const rawPointerX = event.clientX;
-      const rawPointerY = event.clientY;
-      const source =
-        event.target instanceof HTMLElement ? event.target : document.body;
-
-      if (!visibleRef.current) {
-        visibleRef.current = true;
-        setVisible(true);
-      }
-
-      const inputTarget = source.closest(cursorInputSelector) as HTMLElement | null;
-      if (inputTarget) {
-        clearInteractiveTarget();
-        rawX.set(rawPointerX);
-        rawY.set(rawPointerY);
-        if (!overInputRef.current) {
-          overInputRef.current = true;
-          setHiddenForInput(true);
-        }
-        if (magneticRef.current) {
-          magneticRef.current = false;
-          setMagnetic(false);
-        }
-        return;
-      }
-
-      if (overInputRef.current) {
-        overInputRef.current = false;
-        setHiddenForInput(false);
-      }
-
-      const interactiveTarget = source.closest(
-        cursorInteractiveSelector,
-      ) as HTMLElement | null;
-
-      if (interactiveTarget) {
-        const driftDisabled = shouldDisableCursorTargetDrift(interactiveTarget);
-        if (interactiveTargetRef.current !== interactiveTarget) {
-          clearInteractiveTarget();
-          interactiveTargetRef.current = interactiveTarget;
-          if (!driftDisabled) {
-            interactiveTarget.classList.add("luxury-cursor-target-active");
-          }
-        }
-        const rect = interactiveTarget.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const magnetStrength = reduceMotion ? 0.1 : 0.16;
-        const magnetizedX = rawPointerX + (centerX - rawPointerX) * magnetStrength;
-        const magnetizedY = rawPointerY + (centerY - rawPointerY) * magnetStrength;
-        rawX.set(magnetizedX);
-        rawY.set(magnetizedY);
-        if (driftDisabled) {
-          interactiveTarget.style.removeProperty("translate");
-          interactiveTarget.classList.remove("luxury-cursor-target-active");
-        } else {
-          interactiveTarget.classList.add("luxury-cursor-target-active");
-          interactiveTarget.style.setProperty(
-            "translate",
-            `${clampCursorValue((rawPointerX - centerX) * 0.12, -6, 6).toFixed(2)}px ${clampCursorValue((rawPointerY - centerY) * 0.12, -6, 6).toFixed(2)}px`,
-          );
-        }
-        if (!magneticRef.current) {
-          magneticRef.current = true;
-          setMagnetic(true);
-        }
-        return;
-      }
-
-      clearInteractiveTarget();
-      rawX.set(rawPointerX);
-      rawY.set(rawPointerY);
-      if (magneticRef.current) {
-        magneticRef.current = false;
-        setMagnetic(false);
-      }
-    };
-
-    const handlePointerDown = () => setPressed(true);
-    const handlePointerUp = () => setPressed(false);
-    const handleLeave = () => {
-      visibleRef.current = false;
-      setVisible(false);
-      setPressed(false);
-      setHiddenForInput(false);
-      overInputRef.current = false;
-      magneticRef.current = false;
-      setMagnetic(false);
-      clearInteractiveTarget();
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
-    window.addEventListener("pointerup", handlePointerUp, { passive: true });
-    document.documentElement.addEventListener("mouseleave", handleLeave);
-    window.addEventListener("blur", handleLeave);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("pointerup", handlePointerUp);
-      document.documentElement.removeEventListener("mouseleave", handleLeave);
-      window.removeEventListener("blur", handleLeave);
-      clearInteractiveTarget();
-    };
-  }, [enabled, rawX, rawY, reduceMotion]);
-
-  const shellWidth = magnetic ? 44 : 30;
-  const shellHeight = magnetic ? 44 : 30;
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[140] hidden lg:block"
-    >
-      <motion.div
-        className="luxury-cursor-shell absolute left-0 top-0 flex items-center justify-center overflow-hidden rounded-full border text-[#f4efe7]"
-        style={{
-          x: shellX,
-          y: shellY,
-          translateX: "-50%",
-          translateY: "-50%",
-          mixBlendMode: magnetic ? "normal" : "difference",
-          backdropFilter: magnetic ? "blur(8px)" : "blur(12px)",
-          WebkitBackdropFilter: magnetic ? "blur(8px)" : "blur(12px)",
-        }}
-        animate={{
-          width: shellWidth,
-          height: shellHeight,
-          borderRadius: 9999,
-          opacity: hiddenForInput ? 0 : visible ? 1 : 0,
-          scale: pressed ? 0.88 : magnetic ? 1 : 0.98,
-          backgroundColor: magnetic
-            ? "rgba(12, 11, 10, 0.42)"
-            : "rgba(255,255,255,0.06)",
-          borderColor: magnetic
-            ? "rgba(244,239,231,0.34)"
-            : "rgba(255,255,255,0.18)",
-          boxShadow: magnetic
-            ? "0 14px 34px rgba(0,0,0,0.26), 0 0 0 1px rgba(244,239,231,0.06)"
-            : "0 10px 30px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.04)",
-        }}
-        transition={{
-          duration: magnetic ? 0.22 : 0.18,
-          ease: easeLuxury,
-        }}
-      >
-        <motion.div
-          className="pointer-events-none absolute inset-[1px] rounded-full"
-          animate={{
-            opacity: magnetic ? 0.22 : 0.18,
-            background:
-              "radial-gradient(circle at top, rgba(244,239,231,0.28), transparent 62%)",
-          }}
-          transition={{ duration: 0.2, ease: easeLuxury }}
-        />
-      </motion.div>
-      <motion.div
-        className="absolute left-0 top-0 h-[6px] w-[6px] rounded-full bg-[#f4efe7] shadow-[0_0_12px_rgba(244,239,231,0.28)]"
-        style={{
-          x: coreX,
-          y: coreY,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
-        animate={{
-          opacity: hiddenForInput ? 0 : visible ? 1 : 0,
-          scale: pressed ? 0.76 : magnetic ? 0.9 : 1,
-        }}
-        transition={{ duration: 0.12, ease: easeLuxury }}
-      />
-    </div>
-  );
-}
 function CinematicScene({
   section,
   active,
@@ -2770,13 +2523,26 @@ function CinematicScene({
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
   useEffect(() => {
-    setVideoReady(false);
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
+    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener?.("change", update);
+    return () => mediaQuery.removeEventListener?.("change", update);
+  }, []);
+  const animatedImage = videoPathToAnimatedImagePath(section.video);
+  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  useEffect(() => {
+    setVideoReady(shouldUseAnimatedImage);
     setShowLoader(false);
     if (loaderTimerRef.current) {
       window.clearTimeout(loaderTimerRef.current);
+      loaderTimerRef.current = null;
     }
+    if (shouldUseAnimatedImage) return;
     loaderTimerRef.current = window.setTimeout(() => {
       setShowLoader(true);
     }, 220);
@@ -2786,7 +2552,7 @@ function CinematicScene({
         loaderTimerRef.current = null;
       }
     };
-  }, [section.video]);
+  }, [section.video, shouldUseAnimatedImage]);
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -2808,20 +2574,30 @@ function CinematicScene({
             style={{ backgroundImage: `url(${section.poster})` }}
             aria-hidden="true"
           />
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={section.poster}
-            onCanPlay={markVideoReady}
-            onLoadedData={markVideoReady}
-            onPlaying={markVideoReady}
-          >
-            <source src={section.video} type="video/mp4" />
-          </video>
+          {shouldUseAnimatedImage ? (
+            <img
+              className="absolute inset-0 h-full w-full object-cover"
+              src={animatedImage}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          ) : (
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster={section.poster}
+              onCanPlay={markVideoReady}
+              onLoadedData={markVideoReady}
+              onPlaying={markVideoReady}
+            >
+              <source src={section.video} type="video/mp4" />
+            </video>
+          )}
         </motion.div>
         <AnimatePresence>
           {!videoReady && showLoader ? (
@@ -3017,7 +2793,7 @@ function HomeFooterScene({
         <div className="border-t border-white/18 pt-14">
           <div className="text-center">
             <img
-              src="/logo-header.svg"
+              src="/logo-header.png"
               alt="Praeliator"
               className="mx-auto h-14 w-auto object-contain opacity-95"
             />
@@ -3316,7 +3092,6 @@ function HeaderBrandMark({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
         className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-        data-no-button-drift="true"
         aria-label="Praeliator home"
       >
         {isMonogramMode || isAssemblyMode ? (
@@ -3346,7 +3121,6 @@ function HeaderBrandMark({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.08, ease: easeLuxury }}
       className="absolute left-1/2 top-1/2 flex h-14 min-w-[3.5rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-      data-no-button-drift="true"
       aria-label="Praeliator home"
     >
       <div className="relative flex h-12 min-w-[3.1rem] items-center justify-center">
@@ -3662,138 +3436,7 @@ function FullScreenCinematicHomepage({
 }
 function BrowserFormStyles() {
   return (
-    <style>{`
-      html, body, #root {
-        background: #040404;
-        min-height: 100%;
-      }
-      body {
-        overscroll-behavior-y: none;
-      }
-      .browser-form-element {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        color-scheme: dark;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-        font-size: 16px;
-      }
-      @media (min-width: 640px) {
-        .browser-form-element {
-          font-size: 0.875rem;
-        }
-      }
-      .browser-form-element:focus-visible,
-      button[role='combobox']:focus-visible {
-        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32),
-          0 0 0 3px rgba(185, 161, 141, 0.06);
-      }
-      .browser-form-element:-webkit-autofill,
-      .browser-form-element:-webkit-autofill:hover,
-      .browser-form-element:-webkit-autofill:focus,
-      .browser-form-element:-webkit-autofill:active {
-        -webkit-text-fill-color: #f4efe7;
-        caret-color: #f4efe7;
-        box-shadow: 0 0 0 1000px #0c0b0a inset;
-        -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
-        border-color: rgba(255, 255, 255, 0.08);
-        transition: background-color 999999s ease-out 0s;
-      }
-      .browser-form-element::selection {
-        background: rgba(239, 229, 215, 0.16);
-        color: #f4efe7;
-      }
-      .browser-form-element::-webkit-calendar-picker-indicator {
-        filter: invert(0.92) opacity(0.68);
-      }
-      .browser-form-element::-ms-reveal,
-      .browser-form-element::-ms-clear,
-      .browser-form-element::-webkit-contacts-auto-fill-button,
-      .browser-form-element::-webkit-credentials-auto-fill-button {
-        filter: invert(0.92) opacity(0.68);
-      }
-      .browser-form-element[type='number']::-webkit-outer-spin-button,
-      .browser-form-element[type='number']::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-      .browser-form-element[type='number'] {
-        -moz-appearance: textfield;
-      }
-      .browser-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908;
-      }
-      .browser-scrollbar::-webkit-scrollbar {
-        width: 10px;
-      }
-      .browser-scrollbar::-webkit-scrollbar-track {
-        background: #0a0908;
-      }
-      .browser-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(244, 239, 231, 0.14);
-        border-radius: 9999px;
-        border: 2px solid #0a0908;
-      }
-      .browser-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(244, 239, 231, 0.22);
-      }
-      .browser-submit-spinner {
-        width: 1rem;
-        height: 1rem;
-        border-radius: 9999px;
-        border: 2px solid rgba(21, 18, 16, 0.22);
-        border-top-color: #151210;
-        animation: browser-spin 0.8s linear infinite;
-      }
-      .video-loader-logo {
-        animation: praeliatorLoaderPulse 2.8s ease-in-out infinite;
-      }
-      @media (hover: hover) and (pointer: fine) {
-        .luxury-cursor-active,
-        .luxury-cursor-active body,
-        .luxury-cursor-active a,
-        .luxury-cursor-active button,
-        .luxury-cursor-active [role='button'],
-        .luxury-cursor-active [data-cursor-label] {
-          cursor: none !important;
-        }
-        .luxury-cursor-active input,
-        .luxury-cursor-active textarea,
-        .luxury-cursor-active select,
-        .luxury-cursor-active [contenteditable='true'],
-        .luxury-cursor-active .browser-form-element,
-        .luxury-cursor-active button[role='combobox'],
-        .luxury-cursor-active [data-cursor-ignore='true'] {
-          cursor: text !important;
-        }
-        .luxury-cursor-target-active {
-          transition: translate 220ms cubic-bezier(0.16, 1, 0.3, 1),
-            box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: translate;
-        }
-      }
-      @keyframes browser-spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      @keyframes praeliatorLoaderPulse {
-        0% {
-          opacity: 0.68;
-          transform: scale(0.965);
-        }
-        50% {
-          opacity: 1;
-          transform: scale(1);
-        }
-        100% {
-          opacity: 0.68;
-          transform: scale(0.965);
-        }
-      }
-    `}</style>
+    <style>{`html, body, #root { background: #040404; min-height: 100%; } body { overscroll-behavior-y: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -6818,7 +6461,6 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
-      <LuxuryCursor enabled={isDesktopViewport} reduceMotion={reduceMotion} />
 
       {isDesktopViewport ? (
         <motion.header
