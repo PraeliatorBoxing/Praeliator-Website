@@ -1018,6 +1018,9 @@ function videoPathToAnimatedImagePath(video?: string) {
   if (!video) return undefined;
   return video.replace(/\.mp4(\?.*)?$/i, ".avif$1");
 }
+function getVideoFallbackImage(video?: string, fallback?: string) {
+  return videoPathToAnimatedImagePath(video) ?? fallback;
+}
 
 function MediaSurface({
   src,
@@ -1050,13 +1053,14 @@ function MediaSurface({
   }, []);
   const animatedImage = videoPathToAnimatedImagePath(video);
   const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const fallbackImage = getVideoFallbackImage(video, src);
   return (
     <div
       className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${src})` }}
+        style={{ backgroundImage: `url(${fallbackImage})` }}
         aria-label={alt}
         role="img"
       />
@@ -1075,7 +1079,7 @@ function MediaSurface({
           muted
           loop
           playsInline
-          poster={src}
+          poster={fallbackImage}
           preload="metadata"
         >
           <source src={video} type="video/mp4" />
@@ -2535,6 +2539,7 @@ function CinematicScene({
   }, []);
   const animatedImage = videoPathToAnimatedImagePath(section.video);
   const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const fallbackImage = getVideoFallbackImage(section.video, section.poster);
   useEffect(() => {
     setVideoReady(shouldUseAnimatedImage);
     setShowLoader(false);
@@ -2571,7 +2576,7 @@ function CinematicScene({
         >
           <div
             className="absolute inset-0 scale-[1.02] bg-cover bg-center"
-            style={{ backgroundImage: `url(${section.poster})` }}
+            style={{ backgroundImage: `url(${fallbackImage})` }}
             aria-hidden="true"
           />
           {shouldUseAnimatedImage ? (
@@ -2590,7 +2595,7 @@ function CinematicScene({
               loop
               playsInline
               preload="auto"
-              poster={section.poster}
+              poster={fallbackImage}
               onCanPlay={markVideoReady}
               onLoadedData={markVideoReady}
               onPlaying={markVideoReady}
@@ -3248,16 +3253,16 @@ function FullScreenCinematicHomepage({
   const unlockTimerRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const tailScrollRef = useRef<HTMLDivElement | null>(null);
-  const stackedSectionRefs = useRef<Array<HTMLElement | null>>([]);
   const tailIndex = sections.findIndex((section) => section.kind === "tail");
   useEffect(() => {
     if (typeof window === "undefined") return;
     const update = () => {
-      const coarse =
-        window.matchMedia("(pointer: coarse)").matches ||
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0;
-      setUseStackedFlow(coarse || window.innerWidth < 1024);
+      const isPhone =
+        window.matchMedia("(max-width: 767px)").matches &&
+        (window.matchMedia("(pointer: coarse)").matches ||
+          "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0);
+      setUseStackedFlow(isPhone);
     };
     update();
     window.addEventListener("resize", update);
@@ -3397,6 +3402,35 @@ function FullScreenCinematicHomepage({
     }
     goToIndex(activeIndex + (deltaY > 0 ? 1 : -1));
   };
+  if (useStackedFlow) {
+    return (
+      <div className="relative bg-[#040404]">
+        {sections.map((section) => {
+          if (section.kind === "video") {
+            return (
+              <CinematicScene
+                key={section.key}
+                section={section}
+                active={true}
+              />
+            );
+          }
+          return (
+            <HomeTailScene
+              key={section.key}
+              active={true}
+              goTo={goTo}
+              whatsappGeneralLink={whatsappGeneralLink}
+              instagramLink={instagramLink}
+              emailLink={emailLink}
+              scrollContainerRef={null}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       className="relative h-[100svh] overflow-hidden bg-[#040404]"
@@ -4032,7 +4066,7 @@ export default function PraeliatorWebsite() {
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.025] bg-cover bg-center"
-            style={{ backgroundImage: `url(${visImageSources.hero})` }}
+            style={{ backgroundImage: `url(${getVideoFallbackImage(visPageMedia.heroVideo, visImageSources.hero)})` }}
             aria-hidden="true"
           />
           <video
@@ -4042,7 +4076,7 @@ export default function PraeliatorWebsite() {
             loop
             playsInline
             preload="auto"
-            poster={visImageSources.hero}
+            poster={getVideoFallbackImage(visPageMedia.heroVideo, visImageSources.hero)}
           >
             <source src={visPageMedia.heroVideo} type="video/mp4" />
           </video>
@@ -4447,7 +4481,7 @@ const renderAcquisitionPage = () => (
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute inset-0 scale-[1.03] bg-cover bg-center"
-          style={{ backgroundImage: `url(${homeCinematicMedia.acquisition.poster})` }}
+          style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.acquisition.video, homeCinematicMedia.acquisition.poster)})` }}
           aria-hidden="true"
         />
         <video
@@ -4457,7 +4491,7 @@ const renderAcquisitionPage = () => (
           loop
           playsInline
           preload="auto"
-          poster={homeCinematicMedia.acquisition.poster}
+          poster={getVideoFallbackImage(homeCinematicMedia.acquisition.video, homeCinematicMedia.acquisition.poster)}
         >
           <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
         </video>
@@ -5200,7 +5234,7 @@ const renderWaitlistPage = () => (
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute inset-0 scale-[1.03] bg-cover bg-center"
-            style={{ backgroundImage: `url(${visImageSources.packaging})` }}
+            style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)})` }}
             aria-hidden="true"
           />
           <video
@@ -5210,7 +5244,7 @@ const renderWaitlistPage = () => (
             loop
             playsInline
             preload="auto"
-            poster={visImageSources.packaging}
+            poster={getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)}
           >
             <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
           </video>
