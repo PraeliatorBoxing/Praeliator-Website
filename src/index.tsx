@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+﻿/// <reference types="vite/client" />
 import "@fontsource/cormorant-garamond/latin-600.css";
 import "@fontsource/cormorant-garamond/latin-700.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -24,11 +24,11 @@ const visSpecifications = [
   { label: "Price", value: "$6,000 MXN" },
   { label: "Weight", value: "16 oz" },
   { label: "Closure", value: "Lace-up" },
-  { label: "Use", value: "Training � Technical sparring" },
+  { label: "Use", value: "Training · Technical sparring" },
   { label: "Outer Material", value: "Top-grain cowhide leather" },
-  { label: "Leather Thickness", value: "0.9�1.0 mm" },
+  { label: "Leather Thickness", value: "0.9–1.0 mm" },
   { label: "Lining", value: "4-way stretch lining" },
-  { label: "Palm", value: "Ventilated palm panel � Integrated grip bar" },
+  { label: "Palm", value: "Ventilated palm panel · Integrated grip bar" },
   { label: "Thumb", value: "Attached thumb" },
   { label: "Wrist", value: "Extended lace-up cuff" },
   { label: "Assembly", value: "Hand-assembled in Pakistan" },
@@ -135,6 +135,7 @@ const supabase =
     : null;
 const brandAssetPaths = {
   wordmark: "/logo-header.png",
+  ownershipFaviconMark: "/ownership-favicon-mark.png",
   headerWordmark: "/wordmark-full.png",
   headerMonogramMark: "/monogram-mark.svg",
   headerLaurelMark: "/laurel-mark.svg",
@@ -364,7 +365,7 @@ const countryOptions = [
   { code: "+40", label: "Romania" },
   { code: "+7", label: "Russian Federation" },
   { code: "+250", label: "Rwanda" },
-  { code: "+262", label: "Réunion" },
+  { code: "+262", label: "RÃ©union" },
   { code: "+1869", label: "Saint Kitts and Nevis" },
   { code: "+1758", label: "Saint Lucia" },
   { code: "+508", label: "Saint Pierre and Miquelon" },
@@ -472,11 +473,11 @@ const titleOptions = [
   { value: "Mdm.", label: "Mdm." },
   { value: "Monsieur", label: "Monsieur" },
   { value: "Madame", label: "Madame" },
-  { value: "Señor", label: "Señor" },
-  { value: "Señora", label: "Señora" },
-  { value: "Señorita", label: "Señorita" },
-  { value: "先生", label: "先生" },
-  { value: "女士", label: "女士" },
+  { value: "SeÃ±or", label: "SeÃ±or" },
+  { value: "SeÃ±ora", label: "SeÃ±ora" },
+  { value: "SeÃ±orita", label: "SeÃ±orita" },
+  { value: "å…ˆç”Ÿ", label: "å…ˆç”Ÿ" },
+  { value: "å¥³å£«", label: "å¥³å£«" },
 ];
 const interestOptions = [
   { value: "Praeliator VIS", label: "Praeliator VIS" },
@@ -598,20 +599,20 @@ const pageHeroStats: Record<
   "/praeliator-vis": [
     { label: "Format", value: "16 oz lace-up" },
     { label: "Material", value: "Top-grain cowhide" },
-    { label: "Use", value: "Training � Technical sparring" },
+    { label: "Use", value: "Training · Technical sparring" },
     { label: "Finish", value: "Soft satin" },
   ],
   "/acquisition": [
     { label: "Method", value: "Direct inquiry" },
     { label: "Review", value: "Qualified screening" },
     { label: "Record", value: "Client reference" },
-    { label: "Continuation", value: "Delivery � aftercare" },
+    { label: "Continuation", value: "Delivery · aftercare" },
   ],
   "/waitlist": [
     { label: "Use", value: "Future access" },
     { label: "Return", value: "Client reference" },
     { label: "Review", value: "Private follow-up" },
-    { label: "Route", value: "Waitlist � WhatsApp" },
+    { label: "Route", value: "Waitlist · WhatsApp" },
   ],
   "/contact": [
     { label: "Primary", value: "WhatsApp" },
@@ -1101,7 +1102,7 @@ function getLegacyRefreshRecordState(pair: RegisteredOwnershipPair) {
 }
 
 function formatClaimSeal(claimCodeLast4: string) {
-  return claimCodeLast4 ? `••••${claimCodeLast4}` : "Seal pending";
+  return claimCodeLast4 ? `â€¢â€¢â€¢â€¢${claimCodeLast4}` : "Seal pending";
 }
 
 type OwnershipEditionTheme = {
@@ -1332,7 +1333,7 @@ function OwnershipPairFolio({
   const recordState = getLegacyRefreshRecordState(pair);
   const pairAge = getPairAgeDescriptor(pair.deliveryConfirmedAt);
   const serviceSummary = pair.legacyRefreshRequestStatus
-    ? `${formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}${pair.legacyRefreshRequestedAt ? ` � Requested ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}` : ""}`
+    ? `${formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}${pair.legacyRefreshRequestedAt ? ` · Requested ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}` : ""}`
     : pair.legacyRefreshEligible
       ? "The invitation may now proceed into private review."
       : `Chamber opens ${formatOwnershipDate(pair.legacyRefreshEligibleOn)}.`;
@@ -1624,11 +1625,11 @@ function LegacyRefreshChamberDialog({
                   <div className="rounded-[1.7rem] border border-[#dbcab5] bg-[linear-gradient(180deg,rgba(251,245,238,0.98),rgba(242,232,219,0.98))] p-6 text-center shadow-[0_18px_44px_rgba(77,53,30,0.08)]">
                     <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#d4c19f] bg-[radial-gradient(circle_at_top,rgba(255,252,245,0.95),rgba(240,229,214,0.96))] shadow-[0_14px_34px_rgba(77,53,30,0.08)]">
                       <img
-                        src={brandAssetPaths.headerMonogramMark}
+                        src={brandAssetPaths.ownershipFaviconMark}
                         alt=""
                         aria-hidden="true"
                         draggable={false}
-                        className="h-11 w-11 object-contain opacity-60"
+                        className="h-12 w-12 object-contain opacity-90"
                       />
                     </div>
                     <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
@@ -6697,7 +6698,7 @@ export default function PraeliatorWebsite() {
         key: "vis",
         kind: "video" as const,
         word: "VIS",
-        line: "16 oz � Lace-up � Top-grain cowhide",
+        line: "16 oz · Lace-up · Top-grain cowhide",
         cta: "Enter VIS",
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.vis.video,
@@ -7476,7 +7477,7 @@ const renderWaitlistPage = () => (
         eyebrow="Waitlist"
         title="A quieter route into future access."
         description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
-        note="Future releases � collector interest � private follow-up"
+        note="Future releases · collector interest · private follow-up"
         actions={[
           {
             label: "Direct Inquiry",
@@ -8114,7 +8115,7 @@ const renderWaitlistPage = () => (
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 {[
-                  { label: "Format", value: "16 oz � lace-up" },
+                  { label: "Format", value: "16 oz · lace-up" },
                   { label: "Material", value: "Top-grain cowhide" },
                   { label: "Approach", value: "Quiet luxury" },
                   { label: "Route", value: "Direct acquisition" },
@@ -8314,7 +8315,7 @@ const renderWaitlistPage = () => (
         eyebrow="Praeliator VIS"
         title="A training glove treated like an object study."
         description="VIS was resolved with the calm of a museum piece and the discipline of a serious training instrument."
-        note="16 oz � lace-up only � top-grain cowhide � technical sparring"
+        note="16 oz · lace-up only · top-grain cowhide · technical sparring"
         actions={[
           { label: "Private Inquiry", href: whatsappVisLink, variant: "primary" },
           { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
@@ -8692,7 +8693,7 @@ const renderWaitlistPage = () => (
         eyebrow="Waitlist"
         title="A quieter route into future access."
         description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
-        note="Future releases � collector interest � private follow-up"
+        note="Future releases · collector interest · private follow-up"
         actions={[
           { label: "Direct Inquiry", href: whatsappGeneralLink, variant: "primary" },
           { label: "Contact", onClick: () => goTo("/contact"), variant: "secondary" },
@@ -10783,6 +10784,7 @@ Use a one-time code
     </div>
   );
 }
+
 
 
 
