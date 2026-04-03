@@ -502,7 +502,6 @@ type Route =
   | "/forgot-password"
   | "/reset-password"
   | "/ownership-record"
-  | "/phone-access"
   | "/oauth/consent";
 type HeroAction = {
   label: string;
@@ -546,7 +545,6 @@ const routeTitles: Record<Route, string> = {
   "/forgot-password": "Forgot Password",
   "/reset-password": "Reset Password",
   "/ownership-record": "Ownership Record",
-  "/phone-access": "Phone Access",
   "/oauth/consent": "OAuth Consent",
 };
 const routeMicroLabels: Record<Route, string> = {
@@ -562,7 +560,6 @@ const routeMicroLabels: Record<Route, string> = {
   "/forgot-password": "ACCESS",
   "/reset-password": "ACCESS",
   "/ownership-record": "OWNERSHIP",
-  "/phone-access": "ACCESS",
   "/oauth/consent": "ACCESS",
 };
 const navItems: Array<{ label: string; path: Route }> = [
@@ -971,7 +968,6 @@ function normalizePath(pathname: string): Route {
     clean === "/forgot-password" ||
     clean === "/reset-password" ||
     clean === "/ownership-record" ||
-    clean === "/phone-access" ||
     clean === "/oauth/consent"
   ) {
     return clean as Route;
@@ -4426,7 +4422,7 @@ export default function PraeliatorWebsite() {
 
   const socialRedirectRoute: Route = "/sign-in";
 
-  const beginOAuthSignIn = async (provider: "google" | "apple") => {
+  const beginOAuthSignIn = async (provider: "google") => {
     const client = requireSupabase();
     if (!client) return;
     setAuthLoading(true);
@@ -4439,7 +4435,7 @@ export default function PraeliatorWebsite() {
         },
       });
       if (error) {
-        setAuthNotice(getFriendlyAuthNotice(error.message, `${provider === "google" ? "Google" : "Apple"} sign-in unavailable`));
+        setAuthNotice(getFriendlyAuthNotice(error.message, "Google sign-in unavailable"));
       }
     } finally {
       setAuthLoading(false);
@@ -4555,7 +4551,7 @@ export default function PraeliatorWebsite() {
 
   const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
   const authPrimaryLabel = authSession ? "Ownership Record" : "Sign In";
-  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/phone-access", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
+  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
   const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -7736,7 +7732,7 @@ const renderWaitlistPage = () => (
         </span>
         <div className="h-px flex-1 bg-white/10" />
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-1">
         <Button
           type="button"
           variant="outline"
@@ -7745,23 +7741,6 @@ const renderWaitlistPage = () => (
           className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] disabled:pointer-events-none disabled:opacity-60"
         >
           Continue with Google
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void beginOAuthSignIn("apple")}
-          disabled={authLoading}
-          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] disabled:pointer-events-none disabled:opacity-60"
-        >
-          Continue with Apple
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => goTo("/phone-access")}
-          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05]"
-        >
-          Continue with Phone
         </Button>
       </div>
     </div>
@@ -8375,8 +8354,6 @@ Use a one-time code
         return renderSignUpPage();
       case "/magic-link":
         return renderMagicLinkPage();
-      case "/phone-access":
-        return renderPhoneAccessPage();
       case "/verify-email":
         return renderVerifyEmailPage();
       case "/forgot-password":
@@ -8408,8 +8385,6 @@ Use a one-time code
         return renderSignUpPage();
       case "/magic-link":
         return renderMagicLinkPage();
-      case "/phone-access":
-        return renderPhoneAccessPage();
       case "/verify-email":
         return renderVerifyEmailPage();
       case "/forgot-password":
