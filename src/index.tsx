@@ -6590,6 +6590,12 @@ export default function PraeliatorWebsite() {
   }, [route]);
   useEffect(() => {
     if (reduceMotion || route === "/" || !isDesktopViewport) return;
+    const editorialSmoothScrollRoutes = new Set<Route>([
+      "/praeliator-vis",
+      "/acquisition",
+      "/contact",
+    ]);
+    if (!editorialSmoothScrollRoutes.has(route)) return;
     const isTouchDevice =
       typeof window !== "undefined" &&
       (window.matchMedia("(pointer: coarse)").matches ||
@@ -6597,9 +6603,9 @@ export default function PraeliatorWebsite() {
         navigator.maxTouchPoints > 0);
     if (isTouchDevice) return;
     const lenis = new Lenis({
-      duration: 0.95,
+      duration: 0.72,
       smoothWheel: true,
-      wheelMultiplier: 0.88,
+      wheelMultiplier: 1.04,
     });
     let rafId = 0;
     const raf = (time: number) => {
