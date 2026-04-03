@@ -501,7 +501,9 @@ type Route =
   | "/verify-email"
   | "/forgot-password"
   | "/reset-password"
-  | "/ownership-record";
+  | "/ownership-record"
+  | "/phone-access"
+  | "/oauth/consent";
 type HeroAction = {
   label: string;
   href?: string;
@@ -514,7 +516,8 @@ type AuthNotice = {
   title: string;
   body: string;
 };
-const PENDING_EMAIL_OTP_SESSION_KEY = "praeliator_pending_email_otp";
+const PENDING_OTP_SESSION_KEY = "praeliator_pending_otp";
+const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
@@ -543,6 +546,8 @@ const routeTitles: Record<Route, string> = {
   "/forgot-password": "Forgot Password",
   "/reset-password": "Reset Password",
   "/ownership-record": "Ownership Record",
+  "/phone-access": "Phone Access",
+  "/oauth/consent": "OAuth Consent",
 };
 const routeMicroLabels: Record<Route, string> = {
   "/": "",
@@ -557,6 +562,8 @@ const routeMicroLabels: Record<Route, string> = {
   "/forgot-password": "ACCESS",
   "/reset-password": "ACCESS",
   "/ownership-record": "OWNERSHIP",
+  "/phone-access": "ACCESS",
+  "/oauth/consent": "ACCESS",
 };
 const navItems: Array<{ label: string; path: Route }> = [
   { label: "VIS", path: "/praeliator-vis" },
@@ -963,7 +970,9 @@ function normalizePath(pathname: string): Route {
     clean === "/verify-email" ||
     clean === "/forgot-password" ||
     clean === "/reset-password" ||
-    clean === "/ownership-record"
+    clean === "/ownership-record" ||
+    clean === "/phone-access" ||
+    clean === "/oauth/consent"
   ) {
     return clean as Route;
   }
@@ -1748,6 +1757,312 @@ function MobileHomeFooter({
               </a>
             </div>
           </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+
+
+function OtpCodeField({
+  value,
+  onChange,
+  length = 6,
+  disabled = false,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  length?: number;
+  disabled?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [focused, setFocused] = useState(false);
+  const normalized = value.replace(/\D/g, "").slice(0, length);
+  const activeIndex = Math.min(normalized.length, length - 1);
+
+  return (
+    <div className="grid gap-3">
+      <div
+        onClick={() => inputRef.current?.focus()}
+        className="relative cursor-text"
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]*"
+          maxLength={length}
+          disabled={disabled}
+          value={normalized}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, length))}
+          className="absolute inset-0 h-full w-full opacity-0"
+          aria-label="One-time code"
+        />
+        <div className="grid grid-cols-6 gap-2 sm:gap-3">
+          {Array.from({ length }).map((_, index) => {
+            const isActive = focused && index === activeIndex;
+            const hasValue = Boolean(normalized[index]);
+            return (
+              <div
+                key={index}
+                className={`flex h-[4.4rem] items-center justify-center rounded-[0.95rem] border text-center font-[Arial,Helvetica,sans-serif] text-[1.45rem] font-semibold tracking-[0.08em] transition duration-300 sm:h-[4.9rem] sm:text-[1.7rem] ${
+                  hasValue
+                    ? "border-[#d9cbbb] bg-[#0d0c0b] text-[#f4efe7] shadow-[0_10px_26px_rgba(0,0,0,0.16)]"
+                    : isActive
+                      ? "border-[#efe5d7] bg-[#0f0e0d] text-[#f4efe7] shadow-[0_0_0_1px_rgba(239,229,215,0.16),0_12px_28px_rgba(0,0,0,0.18)]"
+                      : "border-white/[0.08] bg-[#090909] text-white/28"
+                }`}
+              >
+                {normalized[index] || ""}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <p className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+        Enter one digit at a time. Paste also works.
+      </p>
+    </div>
+  );
+}
+
+function OAuthConsentRoute({
+  authInitialized,
+  authSession,
+  goTo,
+}: {
+  authInitialized: boolean;
+  authSession: Session | null;
+  goTo: (nextRoute: Route) => void;
+}) {
+  const [authorizationId, setAuthorizationId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [details, setDetails] = useState<any>(null);
+  const [notice, setNotice] = useState<AuthNotice | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const current = `${window.location.pathname}${window.location.search}`;
+    window.sessionStorage.setItem(OAUTH_CONSENT_RETURN_KEY, current);
+    const params = new URLSearchParams(window.location.search);
+    setAuthorizationId(params.get("authorization_id") || "");
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadAuthorization = async () => {
+      if (!authInitialized) return;
+      if (!authorizationId) {
+        setNotice({
+          tone: "error",
+          title: "Authorization unavailable",
+          body: "The authorization request is missing its identifier. Return to the requesting application and begin again.",
+        });
+        return;
+      }
+      if (!authSession) {
+        setNotice({
+          tone: "info",
+          title: "Sign in required",
+          body: "This authorization request can only be reviewed after you sign in under the house.",
+        });
+        return;
+      }
+      const oauthApi = (supabase?.auth as any)?.oauth;
+      if (!supabase || !oauthApi?.getAuthorizationDetails) {
+        setNotice({
+          tone: "error",
+          title: "OAuth consent is not configured",
+          body: "Enable the OAuth server methods in Supabase before this consent route can continue.",
+        });
+        return;
+      }
+
+      setLoading(true);
+      setNotice(null);
+      try {
+        const { data, error } = await oauthApi.getAuthorizationDetails(authorizationId);
+        if (error) {
+          setNotice({
+            tone: "error",
+            title: "Authorization unavailable",
+            body: error.message,
+          });
+          return;
+        }
+        if (!cancelled) setDetails(data);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void loadAuthorization();
+    return () => {
+      cancelled = true;
+    };
+  }, [authInitialized, authSession, authorizationId]);
+
+  const scopes: string[] = String(details?.scope || "")
+    .split(/\s+/)
+    .map((scope: string) => scope.trim())
+    .filter(Boolean);
+
+  const requestedAppName =
+    details?.client?.client_name ||
+    details?.client?.name ||
+    details?.client_name ||
+    details?.name ||
+    "Connected application";
+
+  const requestedRedirectUri =
+    details?.client?.redirect_uris?.[0] ||
+    details?.redirect_uri ||
+    details?.client?.redirect_uri ||
+    null;
+
+  const handleDecision = async (decision: "approve" | "deny") => {
+    const oauthApi = (supabase?.auth as any)?.oauth;
+    if (!supabase || !oauthApi || !authorizationId) return;
+    setLoading(true);
+    setNotice(null);
+    try {
+      const action = decision === "approve" ? oauthApi.approveAuthorization : oauthApi.denyAuthorization;
+      const { data, error } = await action(authorizationId);
+      if (error) {
+        setNotice({
+          tone: "error",
+          title: decision === "approve" ? "Approval unavailable" : "Authorization could not be denied",
+          body: error.message,
+        });
+        return;
+      }
+      if (typeof window !== "undefined" && data?.redirect_to) {
+        window.sessionStorage.removeItem(OAUTH_CONSENT_RETURN_KEY);
+        window.location.assign(data.redirect_to);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+      <Container className="relative">
+        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+          <Reveal className="flex">
+            <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.38)] sm:p-8 lg:p-10">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">OAuth</p>
+                <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl">Review authorization request.</h1>
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  This route reviews what a connected application is requesting from your Praeliator identity before access is granted or denied.
+                </p>
+              </div>
+              <div className="mt-8 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">Authorization path</p>
+                <p className="mt-3 text-sm leading-7 text-white/60">
+                  Configured at <span className="text-white/82">/oauth/consent</span>. Supabase redirects third-party apps here with an <span className="text-white/82">authorization_id</span> so consent can be reviewed inside the house.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.06}>
+            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              {notice ? (
+                <div className="mb-5">
+                  <AuthStatusNotice notice={notice} />
+                </div>
+              ) : null}
+
+              {!authSession ? (
+                <div className="grid gap-4">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Private access required</p>
+                    <p className="mt-3 text-sm leading-7 text-white/62">
+                      Sign in before reviewing this authorization request. Once the session is active, return here and the consent details will load.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+                    <Button
+                      type="button"
+                      onClick={() => goTo("/sign-in")}
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                    >
+                      Sign In
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => goTo("/sign-up")}
+                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      Create Account
+                    </Button>
+                  </div>
+                </div>
+              ) : loading ? (
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="browser-submit-spinner" />
+                    <p className="text-sm leading-7 text-white/68">The authorization request is being reviewed now.</p>
+                  </div>
+                </div>
+              ) : details ? (
+                <div className="grid gap-5">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Requesting application</p>
+                    <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{requestedAppName}</h2>
+                    {requestedRedirectUri ? (
+                      <p className="mt-4 break-all text-sm leading-7 text-white/56">{requestedRedirectUri}</p>
+                    ) : null}
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Requested access</p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {scopes.length > 0 ? scopes.map((scope) => (
+                        <span
+                          key={scope}
+                          className="rounded-full border border-white/12 bg-[#0d0c0b] px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-[#efe2d1]"
+                        >
+                          {scope}
+                        </span>
+                      )) : (
+                        <span className="text-sm leading-7 text-white/56">No scopes were provided by the requesting application.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap">
+                    <Button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => void handleDecision("approve")}
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      Approve Access
+                    </Button>
+                    <Button
+                      type="button"
+                      disabled={loading}
+                      variant="outline"
+                      onClick={() => void handleDecision("deny")}
+                      className="rounded-full border-[#805148] bg-transparent px-7 py-6 text-sm text-[#ebc2b8] transition duration-500 hover:-translate-y-0.5 hover:border-[#9b6358] hover:bg-[#160f0e] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      Deny Access
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </Reveal>
         </div>
       </Container>
     </section>
@@ -3628,19 +3943,22 @@ export default function PraeliatorWebsite() {
   });
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [magicLinkEmail, setMagicLinkEmail] = useState("");
+  const [phoneAccessForm, setPhoneAccessForm] = useState({ phone: "" });
   const [resetPasswordForm, setResetPasswordForm] = useState({
     password: "",
     confirmPassword: "",
   });
   const [otpVerification, setOtpVerification] = useState<{
-    email: string;
+    identity: string;
     token: string;
-    flow: "sign-up" | "one-time-code";
+    flow: "sign-up" | "one-time-code" | "phone";
+    channel: "email" | "phone";
     active: boolean;
   }>({
-    email: "",
+    identity: "",
     token: "",
     flow: "sign-up",
+    channel: "email",
     active: false,
   });
   const [verifyEmailState, setVerifyEmailState] = useState<{
@@ -3933,23 +4251,29 @@ export default function PraeliatorWebsite() {
   useEffect(() => {
     if (typeof window === "undefined" || route !== "/verify-email") return;
     if (verifyEmailState.status === "pending") return;
-    const raw = window.sessionStorage.getItem(PENDING_EMAIL_OTP_SESSION_KEY);
+    const raw = window.sessionStorage.getItem(PENDING_OTP_SESSION_KEY);
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as {
-        email?: string;
-        flow?: "sign-up" | "one-time-code";
+        identity?: string;
+        flow?: "sign-up" | "one-time-code" | "phone";
+        channel?: "email" | "phone";
       };
-      if (!parsed.email || (parsed.flow !== "sign-up" && parsed.flow !== "one-time-code")) {
+      if (
+        !parsed.identity ||
+        (parsed.flow !== "sign-up" && parsed.flow !== "one-time-code" && parsed.flow !== "phone") ||
+        (parsed.channel !== "email" && parsed.channel !== "phone")
+      ) {
         return;
       }
       setOtpVerification((current) =>
-        current.active && current.email === parsed.email && current.flow === parsed.flow
+        current.active && current.identity === parsed.identity && current.flow === parsed.flow && current.channel === parsed.channel
           ? current
           : {
-              email: parsed.email,
+              identity: parsed.identity,
               token: "",
               flow: parsed.flow,
+              channel: parsed.channel,
               active: true,
             },
       );
@@ -3961,15 +4285,19 @@ export default function PraeliatorWebsite() {
               title:
                 parsed.flow === "sign-up"
                   ? "Enter your confirmation code"
-                  : "Enter your one-time sign-in code",
+                  : parsed.flow === "phone"
+                    ? "Enter your phone verification code"
+                    : "Enter your one-time sign-in code",
               body:
                 parsed.flow === "sign-up"
-                  ? `We sent a six-digit confirmation code to ${parsed.email}. Enter it below to complete your Praeliator account setup.`
-                  : `We sent a six-digit sign-in code to ${parsed.email}. Enter it below to continue into the house.`,
+                  ? `We sent a six-digit confirmation code to ${parsed.identity}. Enter it below to complete your Praeliator account setup.`
+                  : parsed.flow === "phone"
+                    ? `We sent a six-digit verification code to ${parsed.identity}. Enter it below to continue into the house.`
+                    : `We sent a six-digit sign-in code to ${parsed.identity}. Enter it below to continue into the house.`,
             },
       );
     } catch {
-      window.sessionStorage.removeItem(PENDING_EMAIL_OTP_SESSION_KEY);
+      window.sessionStorage.removeItem(PENDING_OTP_SESSION_KEY);
     }
   }, [route, verifyEmailState.status]);
 
@@ -4087,33 +4415,70 @@ export default function PraeliatorWebsite() {
     return new URL(nextRoute, window.location.origin).toString();
   };
 
-  const clearPendingEmailOtp = () => {
+  const normalizeAuthPhone = (value: string) => {
+    const cleaned = value.trim().replace(/[^\d+]/g, "");
+    if (!cleaned) return "";
+    if (cleaned.startsWith("+")) {
+      return `+${cleaned.slice(1).replace(/\D/g, "")}`;
+    }
+    return `+${cleaned.replace(/\D/g, "")}`;
+  };
+
+  const socialRedirectRoute: Route = "/sign-in";
+
+  const beginOAuthSignIn = async (provider: "google" | "apple") => {
+    const client = requireSupabase();
+    if (!client) return;
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: createAuthRedirectUrl(socialRedirectRoute),
+        },
+      });
+      if (error) {
+        setAuthNotice(getFriendlyAuthNotice(error.message, `${provider === "google" ? "Google" : "Apple"} sign-in unavailable`));
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const clearPendingOtp = () => {
     if (typeof window !== "undefined") {
-      window.sessionStorage.removeItem(PENDING_EMAIL_OTP_SESSION_KEY);
+      window.sessionStorage.removeItem(PENDING_OTP_SESSION_KEY);
     }
     setOtpVerification({
-      email: "",
+      identity: "",
       token: "",
       flow: "sign-up",
+      channel: "email",
       active: false,
     });
   };
 
-  const beginEmailOtpVerification = (
-    email: string,
-    flow: "sign-up" | "one-time-code",
+  const beginOtpVerification = (
+    identity: string,
+    flow: "sign-up" | "one-time-code" | "phone",
+    channel: "email" | "phone" = "email",
   ) => {
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedIdentity =
+      channel === "email"
+        ? identity.trim().toLowerCase()
+        : normalizeAuthPhone(identity);
     if (typeof window !== "undefined") {
       window.sessionStorage.setItem(
-        PENDING_EMAIL_OTP_SESSION_KEY,
-        JSON.stringify({ email: normalizedEmail, flow }),
+        PENDING_OTP_SESSION_KEY,
+        JSON.stringify({ identity: normalizedIdentity, flow, channel }),
       );
     }
     setOtpVerification({
-      email: normalizedEmail,
+      identity: normalizedIdentity,
       token: "",
       flow,
+      channel,
       active: true,
     });
     setVerifyEmailState({
@@ -4121,13 +4486,61 @@ export default function PraeliatorWebsite() {
       title:
         flow === "sign-up"
           ? "Enter your confirmation code"
-          : "Enter your one-time sign-in code",
+          : flow === "phone"
+            ? "Enter your phone verification code"
+            : "Enter your one-time sign-in code",
       body:
         flow === "sign-up"
-          ? `We sent a six-digit confirmation code to ${normalizedEmail}. Enter it below to complete your Praeliator account setup.`
-          : `We sent a six-digit sign-in code to ${normalizedEmail}. Enter it below to continue into the house.`,
+          ? `We sent a six-digit confirmation code to ${normalizedIdentity}. Enter it below to complete your Praeliator account setup.`
+          : flow === "phone"
+            ? `We sent a six-digit verification code to ${normalizedIdentity}. Enter it below to continue into the house.`
+            : `We sent a six-digit sign-in code to ${normalizedIdentity}. Enter it below to continue into the house.`,
     });
     replaceRoute("/verify-email");
+  };
+
+  const getFriendlyAuthNotice = (
+    message: string,
+    fallbackTitle: string,
+  ): AuthNotice => {
+    const normalized = message.toLowerCase();
+    if (normalized.includes("email rate limit exceeded")) {
+      return {
+        tone: "error",
+        title: "Too many email requests",
+        body: "Supabase has temporarily blocked another authentication email because the project hit the current sending limit. Wait a bit before requesting another code or confirmation email.",
+      };
+    }
+    if (normalized.includes("sms") && normalized.includes("provider") && normalized.includes("not configured")) {
+      return {
+        tone: "error",
+        title: fallbackTitle,
+        body: "Phone sign-in is enabled in the interface, but Supabase still needs an SMS provider in the dashboard before codes can be delivered.",
+      };
+    }
+    if (normalized.includes("unsupported provider") || normalized.includes("provider is not enabled")) {
+      return {
+        tone: "error",
+        title: fallbackTitle,
+        body: "That sign-in provider is not enabled in Supabase yet. Finish the provider setup in the dashboard and try again.",
+      };
+    }
+    if (
+      normalized.includes("security purposes") ||
+      normalized.includes("60 seconds") ||
+      normalized.includes("rate limit")
+    ) {
+      return {
+        tone: "error",
+        title: fallbackTitle,
+        body: "Another code was requested too recently. Wait a moment before trying again.",
+      };
+    }
+    return {
+      tone: "error",
+      title: fallbackTitle,
+      body: message,
+    };
   };
 
   const requireSupabase = () => {
@@ -4142,7 +4555,7 @@ export default function PraeliatorWebsite() {
 
   const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
   const authPrimaryLabel = authSession ? "Ownership Record" : "Sign In";
-  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password"]);
+  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/phone-access", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
   const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -4224,15 +4637,11 @@ export default function PraeliatorWebsite() {
         },
       });
       if (error) {
-        setAuthNotice({
-          tone: "error",
-          title: "Account could not be created",
-          body: error.message,
-        });
+        setAuthNotice(getFriendlyAuthNotice(error.message, "Account could not be created"));
         return;
       }
       if (data.session) {
-        clearPendingEmailOtp();
+        clearPendingOtp();
         setAuthNotice({
           tone: "success",
           title: "Account created",
@@ -4241,7 +4650,7 @@ export default function PraeliatorWebsite() {
         goTo("/ownership-record");
         return;
       }
-      beginEmailOtpVerification(normalizedEmail, "sign-up");
+      beginOtpVerification(normalizedEmail, "sign-up");
       setAuthNotice({
         tone: "info",
         title: "Check your email",
@@ -4256,7 +4665,7 @@ export default function PraeliatorWebsite() {
     event.preventDefault();
     const client = requireSupabase();
     if (!client) return;
-    if (!otpVerification.email) {
+    if (!otpVerification.identity) {
       setVerifyEmailState({
         status: "error",
         title: "Verification unavailable",
@@ -4272,7 +4681,9 @@ export default function PraeliatorWebsite() {
         title:
           otpVerification.flow === "sign-up"
             ? "Confirmation code required"
-            : "Sign-in code required",
+            : otpVerification.flow === "phone"
+              ? "Phone code required"
+              : "Sign-in code required",
         body: "Enter the full six-digit code before continuing.",
       });
       return;
@@ -4280,32 +4691,50 @@ export default function PraeliatorWebsite() {
     setAuthLoading(true);
     setAuthNotice(null);
     try {
-      const { data, error } = await client.auth.verifyOtp({
-        email: otpVerification.email,
-        token: otpVerification.token.trim(),
-        type: "email",
-      });
+      const params = otpVerification.channel === "phone"
+        ? {
+            phone: otpVerification.identity,
+            token: otpVerification.token.trim(),
+            type: "sms" as const,
+          }
+        : {
+            email: otpVerification.identity,
+            token: otpVerification.token.trim(),
+            type: "email" as const,
+          };
+      const { data, error } = await client.auth.verifyOtp(params as any);
       if (error) {
+        const nextNotice = getFriendlyAuthNotice(
+          error.message,
+          otpVerification.flow === "sign-up"
+            ? "Confirmation unavailable"
+            : otpVerification.flow === "phone"
+              ? "Phone verification unavailable"
+              : "One-time code unavailable",
+        );
         setVerifyEmailState({
           status: "error",
-          title:
-            otpVerification.flow === "sign-up"
-              ? "Confirmation unavailable"
-              : "One-time code unavailable",
-          body: error.message,
+          title: nextNotice.title,
+          body: nextNotice.body,
         });
         return;
       }
-      clearPendingEmailOtp();
+      clearPendingOtp();
       const hasSession = Boolean(data.session);
       setVerifyEmailState({
         status: "success",
         title:
-          otpVerification.flow === "sign-up" ? "Email confirmed" : "Access confirmed",
+          otpVerification.flow === "sign-up"
+            ? "Email confirmed"
+            : otpVerification.flow === "phone"
+              ? "Phone confirmed"
+              : "Access confirmed",
         body:
           otpVerification.flow === "sign-up"
             ? "Your email is now verified under the house. You may continue into Praeliator."
-            : "Your one-time sign-in code has been accepted. You may continue into the house.",
+            : otpVerification.flow === "phone"
+              ? "Your phone verification code has been accepted. You may continue into the house."
+              : "Your one-time sign-in code has been accepted. You may continue into the house.",
         ctaLabel: hasSession ? "Enter Ownership Record" : "Continue to Sign In",
         ctaRoute: hasSession ? "/ownership-record" : "/sign-in",
       });
@@ -4336,11 +4765,7 @@ export default function PraeliatorWebsite() {
         },
       );
       if (error) {
-        setAuthNotice({
-          tone: "error",
-          title: "Reset email unavailable",
-          body: error.message,
-        });
+        setAuthNotice(getFriendlyAuthNotice(error.message, "Reset email unavailable"));
         return;
       }
       setAuthNotice({
@@ -4377,18 +4802,48 @@ export default function PraeliatorWebsite() {
         },
       });
       if (error) {
-        setAuthNotice({
-          tone: "error",
-          title: "One-time code unavailable",
-          body: error.message,
-        });
+        setAuthNotice(getFriendlyAuthNotice(error.message, "One-time code unavailable"));
         return;
       }
-      beginEmailOtpVerification(normalizedEmail, "one-time-code");
+      beginOtpVerification(normalizedEmail, "one-time-code");
       setAuthNotice({
         tone: "success",
         title: "Code sent",
         body: "If this address already belongs to an account, a six-digit one-time code is now in the inbox.",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handlePhoneAccess = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    const normalizedPhone = normalizeAuthPhone(phoneAccessForm.phone);
+    if (!normalizedPhone || normalizedPhone.length < 8) {
+      setAuthNotice({
+        tone: "error",
+        title: "Phone number required",
+        body: "Enter a full phone number in international format, including the + and country code.",
+      });
+      return;
+    }
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.signInWithOtp({
+        phone: normalizedPhone,
+      });
+      if (error) {
+        setAuthNotice(getFriendlyAuthNotice(error.message, "Phone sign-in unavailable"));
+        return;
+      }
+      beginOtpVerification(normalizedPhone, "phone", "phone");
+      setAuthNotice({
+        tone: "success",
+        title: "Code sent",
+        body: "A six-digit verification code was sent to your phone number.",
       });
     } finally {
       setAuthLoading(false);
@@ -7271,6 +7726,47 @@ const renderWaitlistPage = () => (
     </section>
   );
 
+
+  const renderAccessProviderOptions = ({ mode }: { mode: "sign-in" | "sign-up" }) => (
+    <div className="grid gap-3 pt-2">
+      <div className="flex items-center gap-3 py-1">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-[10px] uppercase tracking-[0.24em] text-white/34">
+          {mode === "sign-in" ? "Alternative access" : "Alternative entry"}
+        </span>
+        <div className="h-px flex-1 bg-white/10" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void beginOAuthSignIn("google")}
+          disabled={authLoading}
+          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] disabled:pointer-events-none disabled:opacity-60"
+        >
+          Continue with Google
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void beginOAuthSignIn("apple")}
+          disabled={authLoading}
+          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] disabled:pointer-events-none disabled:opacity-60"
+        >
+          Continue with Apple
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => goTo("/phone-access")}
+          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05]"
+        >
+          Continue with Phone
+        </Button>
+      </div>
+    </div>
+  );
+
   const renderSignInPage = () =>
     renderAuthShell({
       eyebrow: "Access",
@@ -7333,6 +7829,8 @@ const renderWaitlistPage = () => (
               Email One-Time Code
             </Button>
           </div>
+          {renderAccessProviderOptions({ mode: "sign-in" })}
+          {renderAccessProviderOptions({ mode: "sign-up" })}
           <div className="pt-2 text-sm leading-7 text-white/54">
             No account yet?
             <button
@@ -7486,12 +7984,65 @@ Use a one-time code
       ),
     });
 
+
+
+  const renderPhoneAccessPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Request a phone verification code.",
+      description:
+        "Phone access sends a six-digit SMS code to the number you enter here. This route can be used for sign-in or first access, depending on how phone auth is configured in Supabase.",
+      asideTitle: "Phone verification",
+      asideText:
+        "Use full international formatting, including the + and country code. Supabase must have a supported SMS provider configured before this route can deliver codes.",
+      form: (
+        <form className="grid gap-4" onSubmit={handlePhoneAccess}>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Phone</span>
+            <input
+              type="tel"
+              autoComplete="tel"
+              inputMode="tel"
+              value={phoneAccessForm.phone}
+              onChange={(event) =>
+                setPhoneAccessForm({ phone: event.target.value })
+              }
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="+52 55 1234 5678"
+            />
+          </label>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Sending code..." : "Send Phone Code"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </form>
+      ),
+    });
+
   const renderVerifyEmailPage = () =>
     renderAuthShell({
       eyebrow: "Verification",
       title: verifyEmailState.status === "pending" ? "Verifying under the house." : verifyEmailState.title,
       description: verifyEmailState.body,
-      asideTitle: otpVerification.flow === "one-time-code" ? "One-time code" : "Private confirmation",
+      asideTitle:
+        otpVerification.flow === "phone"
+          ? "Phone verification"
+          : otpVerification.flow === "one-time-code"
+            ? "One-time code"
+            : "Private confirmation",
       asideText:
         otpVerification.active
           ? otpVerification.flow === "sign-up"
@@ -7517,32 +8068,27 @@ Use a one-time code
           {verifyEmailState.status !== "success" ? (
             <form className="grid gap-4" onSubmit={handleVerifyEmailCode}>
               <label className="grid gap-2">
-                <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{otpVerification.channel === "phone" ? "Phone" : "Email"}</span>
                 <input
-                  type="email"
-                  value={otpVerification.email}
+                  type={otpVerification.channel === "phone" ? "tel" : "email"}
+                  value={otpVerification.identity}
                   readOnly
                   className={`${formFieldBaseClass} min-h-[3.4rem] opacity-70`}
                 />
               </label>
-              <label className="grid gap-2">
+              <div className="grid gap-2">
                 <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Six-digit code</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
+                <OtpCodeField
                   value={otpVerification.token}
-                  onChange={(event) =>
+                  onChange={(next) =>
                     setOtpVerification((current) => ({
                       ...current,
-                      token: event.target.value.replace(/\D/g, "").slice(0, 6),
+                      token: next,
                     }))
                   }
-                  className={`${formFieldBaseClass} min-h-[3.4rem] tracking-[0.35em]`}
-                  placeholder="123456"
+                  disabled={authLoading}
                 />
-              </label>
+              </div>
               <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
                 <Button
                   type="submit"
@@ -7555,7 +8101,7 @@ Use a one-time code
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    clearPendingEmailOtp();
+                    clearPendingOtp();
                     goTo("/sign-in");
                   }}
                   className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
@@ -7626,6 +8172,14 @@ Use a one-time code
         </div>
       ),
     });
+
+  const renderOAuthConsentPage = () => (
+    <OAuthConsentRoute
+      authInitialized={authInitialized}
+      authSession={authSession}
+      goTo={goTo}
+    />
+  );
 
   const renderForgotPasswordPage = () =>
     renderAuthShell({
@@ -7821,6 +8375,8 @@ Use a one-time code
         return renderSignUpPage();
       case "/magic-link":
         return renderMagicLinkPage();
+      case "/phone-access":
+        return renderPhoneAccessPage();
       case "/verify-email":
         return renderVerifyEmailPage();
       case "/forgot-password":
@@ -7829,6 +8385,8 @@ Use a one-time code
         return renderResetPasswordPage();
       case "/ownership-record":
         return renderOwnershipRecordPage();
+      case "/oauth/consent":
+        return renderOAuthConsentPage();
       default:
         return renderHomePage();
     }
@@ -7850,6 +8408,8 @@ Use a one-time code
         return renderSignUpPage();
       case "/magic-link":
         return renderMagicLinkPage();
+      case "/phone-access":
+        return renderPhoneAccessPage();
       case "/verify-email":
         return renderVerifyEmailPage();
       case "/forgot-password":
@@ -7858,6 +8418,8 @@ Use a one-time code
         return renderResetPasswordPage();
       case "/ownership-record":
         return renderOwnershipRecordPage();
+      case "/oauth/consent":
+        return renderOAuthConsentPage();
       default:
         return renderHomePage();
     }
