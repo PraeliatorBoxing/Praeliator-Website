@@ -1759,8 +1759,6 @@ function MobileHomeFooter({
   );
 }
 
-
-
 function OtpCodeField({
   value,
   onChange,
@@ -4422,26 +4420,6 @@ export default function PraeliatorWebsite() {
 
   const socialRedirectRoute: Route = "/sign-in";
 
-  const beginOAuthSignIn = async (provider: "google") => {
-    const client = requireSupabase();
-    if (!client) return;
-    setAuthLoading(true);
-    setAuthNotice(null);
-    try {
-      const { error } = await client.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: createAuthRedirectUrl(socialRedirectRoute),
-        },
-      });
-      if (error) {
-        setAuthNotice(getFriendlyAuthNotice(error.message, "Google sign-in unavailable"));
-      }
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
   const clearPendingOtp = () => {
     if (typeof window !== "undefined") {
       window.sessionStorage.removeItem(PENDING_OTP_SESSION_KEY);
@@ -4773,7 +4751,6 @@ export default function PraeliatorWebsite() {
       setAuthLoading(false);
     }
   };
-
 
   const handleMagicLink = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -6604,7 +6581,6 @@ const renderWaitlistPage = () => (
     </>
   );
 
-
   const renderMobileHomePage = () => (
     <>
       <section className="relative overflow-hidden pb-6 pt-24">
@@ -7665,7 +7641,6 @@ const renderWaitlistPage = () => (
     </>
   );
 
-
   const renderAuthShell = ({
     eyebrow,
     title,
@@ -7721,31 +7696,6 @@ const renderWaitlistPage = () => (
       </Container>
     </section>
   );
-
-
-  const renderAccessProviderOptions = ({ mode }: { mode: "sign-in" | "sign-up" }) => (
-    <div className="grid gap-3 pt-2">
-      <div className="flex items-center gap-3 py-1">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-[10px] uppercase tracking-[0.24em] text-white/34">
-          {mode === "sign-in" ? "Alternative access" : "Alternative entry"}
-        </span>
-        <div className="h-px flex-1 bg-white/10" />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-1">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void beginOAuthSignIn("google")}
-          disabled={authLoading}
-          className="rounded-full border-white/12 bg-white/[0.02] px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] disabled:pointer-events-none disabled:opacity-60"
-        >
-          Continue with Google
-        </Button>
-      </div>
-    </div>
-  );
-
   const renderSignInPage = () =>
     renderAuthShell({
       eyebrow: "Access",
@@ -7808,8 +7758,6 @@ const renderWaitlistPage = () => (
               Email One-Time Code
             </Button>
           </div>
-          {renderAccessProviderOptions({ mode: "sign-in" })}
-          {renderAccessProviderOptions({ mode: "sign-up" })}
           <div className="pt-2 text-sm leading-7 text-white/54">
             No account yet?
             <button
@@ -7962,8 +7910,6 @@ Use a one-time code
         </form>
       ),
     });
-
-
 
   const renderPhoneAccessPage = () =>
     renderAuthShell({
