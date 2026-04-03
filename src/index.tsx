@@ -497,6 +497,8 @@ type Route =
   | "/contact"
   | "/sign-in"
   | "/sign-up"
+  | "/magic-link"
+  | "/verify-email"
   | "/forgot-password"
   | "/reset-password"
   | "/ownership-record";
@@ -535,6 +537,8 @@ const routeTitles: Record<Route, string> = {
   "/contact": "Contact",
   "/sign-in": "Sign In",
   "/sign-up": "Create Account",
+  "/magic-link": "Magic Link",
+  "/verify-email": "Verify Email",
   "/forgot-password": "Forgot Password",
   "/reset-password": "Reset Password",
   "/ownership-record": "Ownership Record",
@@ -547,6 +551,8 @@ const routeMicroLabels: Record<Route, string> = {
   "/contact": "CONTACT",
   "/sign-in": "ACCESS",
   "/sign-up": "ACCESS",
+  "/magic-link": "ACCESS",
+  "/verify-email": "ACCESS",
   "/forgot-password": "ACCESS",
   "/reset-password": "ACCESS",
   "/ownership-record": "OWNERSHIP",
@@ -952,6 +958,8 @@ function normalizePath(pathname: string): Route {
     clean === "/contact" ||
     clean === "/sign-in" ||
     clean === "/sign-up" ||
+    clean === "/magic-link" ||
+    clean === "/verify-email" ||
     clean === "/forgot-password" ||
     clean === "/reset-password" ||
     clean === "/ownership-record"
@@ -3618,9 +3626,21 @@ export default function PraeliatorWebsite() {
     confirmPassword: "",
   });
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [magicLinkEmail, setMagicLinkEmail] = useState("");
   const [resetPasswordForm, setResetPasswordForm] = useState({
     password: "",
     confirmPassword: "",
+  });
+  const [verifyEmailState, setVerifyEmailState] = useState<{
+    status: "idle" | "pending" | "success" | "error";
+    title: string;
+    body: string;
+    ctaLabel?: string;
+    ctaRoute?: Route;
+  }>({
+    status: "idle",
+    title: "Email verification",
+    body: "Confirmation links issued by the house are verified here before access continues.",
   });
 
   const reduceMotion = useReducedMotion();
@@ -3750,7 +3770,7 @@ export default function PraeliatorWebsite() {
 
     let cancelled = false;
 
-    const finishAuthRedirect = (nextRoute: Route, notice?: AuthNotice) => {
+    const clearAuthSearch = (nextRoute: Route) => {
       const redirectUrl = new URL(window.location.href);
       redirectUrl.pathname = nextRoute;
       redirectUrl.search = "";
@@ -3758,47 +3778,100 @@ export default function PraeliatorWebsite() {
       window.history.replaceState({}, "", redirectUrl.toString());
       setRoute(nextRoute);
       setMobileMenuOpen(false);
+    };
+
+    const finishAuthRedirect = (nextRoute: Route, notice?: AuthNotice) => {
+      clearAuthSearch(nextRoute);
       if (notice) setAuthNotice(notice);
+    };
+
+    const finishVerificationPage = (payload: {
+      status: "pending" | "success" | "error";
+      title: string;
+      body: string;
+      ctaLabel?: string;
+      ctaRoute?: Route;
+    }) => {
+      clearAuthSearch("/verify-email");
+      setVerifyEmailState(payload);
     };
 
     const handleAuthRedirect = async () => {
       setAuthLoading(true);
+      if (route === "/verify-email") {
+        setVerifyEmailState({
+          status: "pending",
+          title: "Verifying access",
+          body: "The house is reviewing the link before access continues.",
+        });
+      }
       try {
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (cancelled) return;
           if (error) {
-            finishAuthRedirect("/sign-in", {
-              tone: "error",
-              title: "Authentication could not be completed",
-              body: error.message,
-            });
+            if (route === "/verify-email") {
+              finishVerificationPage({
+                status: "error",
+                title: "Authentication unavailable",
+                body: error.message,
+                ctaLabel: "Return to Sign In",
+                ctaRoute: "/sign-in",
+              });
+            } else {
+              finishAuthRedirect("/sign-in", {
+                tone: "error",
+                title: "Authentication could not be completed",
+                body: error.message,
+              });
+            }
             return;
           }
-          finishAuthRedirect("/ownership-record", {
-            tone: "success",
-            title: "Authentication complete",
-            body: "Your account session is now active.",
-          });
+          if (route === "/verify-email") {
+            finishVerificationPage({
+              status: "success",
+              title: "Access confirmed",
+              body: "Your secure link has been accepted. You may continue into the house.",
+              ctaLabel: "Enter Ownership Record",
+              ctaRoute: "/ownership-record",
+            });
+          } else {
+            finishAuthRedirect("/ownership-record", {
+              tone: "success",
+              title: "Authentication complete",
+              body: "Your account session is now active.",
+            });
+          }
           return;
         }
 
         if (tokenHash && type) {
+          const normalizedType = type === "magiclink" ? "magiclink" : type === "recovery" ? "recovery" : "email";
           const { error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
-            type: type as any,
+            type: normalizedType as any,
           });
           if (cancelled) return;
           if (error) {
-            finishAuthRedirect(type === "recovery" ? "/forgot-password" : "/sign-in", {
-              tone: "error",
-              title: "Verification could not be completed",
-              body: error.message,
-            });
+            if (route === "/verify-email") {
+              finishVerificationPage({
+                status: "error",
+                title: normalizedType === "magiclink" ? "Magic link unavailable" : "Verification unavailable",
+                body: error.message,
+                ctaLabel: "Return to Sign In",
+                ctaRoute: "/sign-in",
+              });
+            } else {
+              finishAuthRedirect(normalizedType === "recovery" ? "/forgot-password" : "/sign-in", {
+                tone: "error",
+                title: "Verification could not be completed",
+                body: error.message,
+              });
+            }
             return;
           }
 
-          if (type === "recovery") {
+          if (normalizedType === "recovery") {
             finishAuthRedirect("/reset-password", {
               tone: "info",
               title: "Reset link confirmed",
@@ -3807,10 +3880,30 @@ export default function PraeliatorWebsite() {
             return;
           }
 
-          finishAuthRedirect("/ownership-record", {
+          const { data } = await supabase.auth.getSession();
+          const hasSession = Boolean(data.session);
+
+          if (route === "/verify-email") {
+            finishVerificationPage({
+              status: "success",
+              title: normalizedType === "magiclink" ? "Access confirmed" : "Email confirmed",
+              body:
+                normalizedType === "magiclink"
+                  ? "Your secure link has been accepted. You may continue into the house."
+                  : "Your email has been verified under the house. You may now continue into Praeliator.",
+              ctaLabel: hasSession ? "Enter Ownership Record" : "Continue to Sign In",
+              ctaRoute: hasSession ? "/ownership-record" : "/sign-in",
+            });
+            return;
+          }
+
+          finishAuthRedirect(hasSession ? "/ownership-record" : "/sign-in", {
             tone: "success",
-            title: "Email confirmed",
-            body: "Your account is now verified and ready to sign in.",
+            title: normalizedType === "magiclink" ? "Access confirmed" : "Email confirmed",
+            body:
+              normalizedType === "magiclink"
+                ? "Your secure link has been accepted and the session is ready."
+                : "Your account is now verified and ready to sign in.",
           });
         }
       } finally {
@@ -3823,7 +3916,7 @@ export default function PraeliatorWebsite() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [route]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -3951,7 +4044,7 @@ export default function PraeliatorWebsite() {
 
   const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
   const authPrimaryLabel = authSession ? "Ownership Record" : "Sign In";
-  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/forgot-password", "/reset-password"]);
+  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password"]);
   const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -4028,7 +4121,7 @@ export default function PraeliatorWebsite() {
         email: signUpForm.email.trim().toLowerCase(),
         password: signUpForm.password,
         options: {
-          emailRedirectTo: createAuthRedirectUrl("/sign-in"),
+          emailRedirectTo: createAuthRedirectUrl("/verify-email"),
           data: { full_name: signUpForm.fullName.trim() },
         },
       });
@@ -4050,9 +4143,9 @@ export default function PraeliatorWebsite() {
         return;
       }
       setAuthNotice({
-        tone: "success",
-        title: "Verification email sent",
-        body: "Check your inbox to confirm your email before signing in.",
+        tone: "info",
+        title: "Check your email",
+        body: "If this address is new, a verification email has been sent. If it already belongs to an account, sign in, request a magic link, or reset the password.",
       });
       replaceRoute("/sign-in");
     } finally {
@@ -4093,6 +4186,47 @@ export default function PraeliatorWebsite() {
         tone: "success",
         title: "Reset email sent",
         body: "Check your inbox to continue resetting the account password.",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+
+  const handleMagicLink = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    if (!magicLinkEmail.trim()) {
+      setAuthNotice({
+        tone: "error",
+        title: "Email required",
+        body: "Enter the account email to request a magic link.",
+      });
+      return;
+    }
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.signInWithOtp({
+        email: magicLinkEmail.trim().toLowerCase(),
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: createAuthRedirectUrl("/verify-email"),
+        },
+      });
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Magic link unavailable",
+          body: error.message,
+        });
+        return;
+      }
+      setAuthNotice({
+        tone: "success",
+        title: "Magic link sent",
+        body: "If this address already belongs to an account, a secure sign-in link is now in the inbox.",
       });
     } finally {
       setAuthLoading(false);
@@ -7028,6 +7162,14 @@ const renderWaitlistPage = () => (
             >
               Forgot Password
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/magic-link")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Email Magic Link
+            </Button>
           </div>
           <div className="pt-2 text-sm leading-7 text-white/54">
             No account yet?
@@ -7125,7 +7267,109 @@ const renderWaitlistPage = () => (
               Return to Sign In
             </Button>
           </div>
+          <div className="pt-2 text-sm leading-7 text-white/54">
+            Already under the house?
+            <button
+              type="button"
+              onClick={() => goTo("/magic-link")}
+              className="ml-2 text-[#efe5d7] transition hover:text-white"
+            >
+              Request a magic link
+            </button>
+          </div>
         </form>
+      ),
+    });
+
+  const renderMagicLinkPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Request a private sign-in link.",
+      description:
+        "Magic links are for existing accounts only. The link returns to a dedicated Praeliator verification page before access continues.",
+      asideTitle: "Passwordless access",
+      asideText:
+        "This route does not create new accounts. It is reserved for addresses that are already registered under the house.",
+      form: (
+        <form className="grid gap-4" onSubmit={handleMagicLink}>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              value={magicLinkEmail}
+              onChange={(event) => setMagicLinkEmail(event.target.value)}
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="name@example.com"
+            />
+          </label>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Sending magic link..." : "Send Magic Link"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </form>
+      ),
+    });
+
+  const renderVerifyEmailPage = () =>
+    renderAuthShell({
+      eyebrow: "Verification",
+      title: verifyEmailState.status === "pending" ? "Verifying under the house." : verifyEmailState.title,
+      description: verifyEmailState.body,
+      asideTitle: "Private confirmation",
+      asideText:
+        "Email confirmations and magic links should arrive here first, under a dedicated Praeliator route, before access continues.",
+      form: (
+        <div className="grid gap-4">
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+            {verifyEmailState.status === "pending" ? (
+              <div className="flex items-center gap-3">
+                <div className="browser-submit-spinner" />
+                <p className="text-sm leading-7 text-white/68">The link is being reviewed now.</p>
+              </div>
+            ) : (
+              <AuthStatusNotice
+                notice={{
+                  tone: verifyEmailState.status === "error" ? "error" : verifyEmailState.status === "success" ? "success" : "info",
+                  title: verifyEmailState.title,
+                  body: verifyEmailState.body,
+                }}
+              />
+            )}
+          </div>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            {verifyEmailState.ctaRoute && verifyEmailState.ctaLabel ? (
+              <Button
+                type="button"
+                onClick={() => goTo(verifyEmailState.ctaRoute!)}
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+              >
+                {verifyEmailState.ctaLabel}
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </div>
       ),
     });
 
@@ -7321,6 +7565,10 @@ const renderWaitlistPage = () => (
         return renderSignInPage();
       case "/sign-up":
         return renderSignUpPage();
+      case "/magic-link":
+        return renderMagicLinkPage();
+      case "/verify-email":
+        return renderVerifyEmailPage();
       case "/forgot-password":
         return renderForgotPasswordPage();
       case "/reset-password":
@@ -7346,6 +7594,10 @@ const renderWaitlistPage = () => (
         return renderSignInPage();
       case "/sign-up":
         return renderSignUpPage();
+      case "/magic-link":
+        return renderMagicLinkPage();
+      case "/verify-email":
+        return renderVerifyEmailPage();
       case "/forgot-password":
         return renderForgotPasswordPage();
       case "/reset-password":
