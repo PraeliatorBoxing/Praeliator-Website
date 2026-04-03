@@ -514,6 +514,7 @@ type AuthNotice = {
   title: string;
   body: string;
 };
+const PENDING_EMAIL_OTP_SESSION_KEY = "praeliator_pending_email_otp";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
@@ -537,7 +538,7 @@ const routeTitles: Record<Route, string> = {
   "/contact": "Contact",
   "/sign-in": "Sign In",
   "/sign-up": "Create Account",
-  "/magic-link": "Magic Link",
+  "/magic-link": "One-Time Code",
   "/verify-email": "Verify Email",
   "/forgot-password": "Forgot Password",
   "/reset-password": "Reset Password",
@@ -3631,6 +3632,17 @@ export default function PraeliatorWebsite() {
     password: "",
     confirmPassword: "",
   });
+  const [otpVerification, setOtpVerification] = useState<{
+    email: string;
+    token: string;
+    flow: "sign-up" | "one-time-code";
+    active: boolean;
+  }>({
+    email: "",
+    token: "",
+    flow: "sign-up",
+    active: false,
+  });
   const [verifyEmailState, setVerifyEmailState] = useState<{
     status: "idle" | "pending" | "success" | "error";
     title: string;
@@ -3639,8 +3651,8 @@ export default function PraeliatorWebsite() {
     ctaRoute?: Route;
   }>({
     status: "idle",
-    title: "Email verification",
-    body: "Confirmation links issued by the house are verified here before access continues.",
+    title: "Enter your verification code",
+    body: "Verification codes issued by the house are entered here before access continues.",
   });
 
   const reduceMotion = useReducedMotion();
@@ -3831,7 +3843,7 @@ export default function PraeliatorWebsite() {
             finishVerificationPage({
               status: "success",
               title: "Access confirmed",
-              body: "Your secure link has been accepted. You may continue into the house.",
+              body: "Your verification has been accepted. You may continue into the house.",
               ctaLabel: "Enter Ownership Record",
               ctaRoute: "/ownership-record",
             });
@@ -3856,7 +3868,7 @@ export default function PraeliatorWebsite() {
             if (route === "/verify-email") {
               finishVerificationPage({
                 status: "error",
-                title: normalizedType === "magiclink" ? "Magic link unavailable" : "Verification unavailable",
+                title: normalizedType === "magiclink" ? "Access unavailable" : "Verification unavailable",
                 body: error.message,
                 ctaLabel: "Return to Sign In",
                 ctaRoute: "/sign-in",
@@ -3889,7 +3901,7 @@ export default function PraeliatorWebsite() {
               title: normalizedType === "magiclink" ? "Access confirmed" : "Email confirmed",
               body:
                 normalizedType === "magiclink"
-                  ? "Your secure link has been accepted. You may continue into the house."
+                  ? "Your verification has been accepted. You may continue into the house."
                   : "Your email has been verified under the house. You may now continue into Praeliator.",
               ctaLabel: hasSession ? "Enter Ownership Record" : "Continue to Sign In",
               ctaRoute: hasSession ? "/ownership-record" : "/sign-in",
@@ -3902,7 +3914,7 @@ export default function PraeliatorWebsite() {
             title: normalizedType === "magiclink" ? "Access confirmed" : "Email confirmed",
             body:
               normalizedType === "magiclink"
-                ? "Your secure link has been accepted and the session is ready."
+                ? "Your verification has been accepted and the session is ready."
                 : "Your account is now verified and ready to sign in.",
           });
         }
@@ -3917,6 +3929,49 @@ export default function PraeliatorWebsite() {
       cancelled = true;
     };
   }, [route]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || route !== "/verify-email") return;
+    if (verifyEmailState.status === "pending") return;
+    const raw = window.sessionStorage.getItem(PENDING_EMAIL_OTP_SESSION_KEY);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as {
+        email?: string;
+        flow?: "sign-up" | "one-time-code";
+      };
+      if (!parsed.email || (parsed.flow !== "sign-up" && parsed.flow !== "one-time-code")) {
+        return;
+      }
+      setOtpVerification((current) =>
+        current.active && current.email === parsed.email && current.flow === parsed.flow
+          ? current
+          : {
+              email: parsed.email,
+              token: "",
+              flow: parsed.flow,
+              active: true,
+            },
+      );
+      setVerifyEmailState((current) =>
+        current.status === "success"
+          ? current
+          : {
+              status: "idle",
+              title:
+                parsed.flow === "sign-up"
+                  ? "Enter your confirmation code"
+                  : "Enter your one-time sign-in code",
+              body:
+                parsed.flow === "sign-up"
+                  ? `We sent a six-digit confirmation code to ${parsed.email}. Enter it below to complete your Praeliator account setup.`
+                  : `We sent a six-digit sign-in code to ${parsed.email}. Enter it below to continue into the house.`,
+            },
+      );
+    } catch {
+      window.sessionStorage.removeItem(PENDING_EMAIL_OTP_SESSION_KEY);
+    }
+  }, [route, verifyEmailState.status]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -4032,6 +4087,49 @@ export default function PraeliatorWebsite() {
     return new URL(nextRoute, window.location.origin).toString();
   };
 
+  const clearPendingEmailOtp = () => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(PENDING_EMAIL_OTP_SESSION_KEY);
+    }
+    setOtpVerification({
+      email: "",
+      token: "",
+      flow: "sign-up",
+      active: false,
+    });
+  };
+
+  const beginEmailOtpVerification = (
+    email: string,
+    flow: "sign-up" | "one-time-code",
+  ) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(
+        PENDING_EMAIL_OTP_SESSION_KEY,
+        JSON.stringify({ email: normalizedEmail, flow }),
+      );
+    }
+    setOtpVerification({
+      email: normalizedEmail,
+      token: "",
+      flow,
+      active: true,
+    });
+    setVerifyEmailState({
+      status: "idle",
+      title:
+        flow === "sign-up"
+          ? "Enter your confirmation code"
+          : "Enter your one-time sign-in code",
+      body:
+        flow === "sign-up"
+          ? `We sent a six-digit confirmation code to ${normalizedEmail}. Enter it below to complete your Praeliator account setup.`
+          : `We sent a six-digit sign-in code to ${normalizedEmail}. Enter it below to continue into the house.`,
+    });
+    replaceRoute("/verify-email");
+  };
+
   const requireSupabase = () => {
     if (supabase) return supabase;
     setAuthNotice({
@@ -4117,11 +4215,11 @@ export default function PraeliatorWebsite() {
     setAuthLoading(true);
     setAuthNotice(null);
     try {
+      const normalizedEmail = signUpForm.email.trim().toLowerCase();
       const { data, error } = await client.auth.signUp({
-        email: signUpForm.email.trim().toLowerCase(),
+        email: normalizedEmail,
         password: signUpForm.password,
         options: {
-          emailRedirectTo: createAuthRedirectUrl("/verify-email"),
           data: { full_name: signUpForm.fullName.trim() },
         },
       });
@@ -4134,6 +4232,7 @@ export default function PraeliatorWebsite() {
         return;
       }
       if (data.session) {
+        clearPendingEmailOtp();
         setAuthNotice({
           tone: "success",
           title: "Account created",
@@ -4142,12 +4241,74 @@ export default function PraeliatorWebsite() {
         goTo("/ownership-record");
         return;
       }
+      beginEmailOtpVerification(normalizedEmail, "sign-up");
       setAuthNotice({
         tone: "info",
         title: "Check your email",
-        body: "If this address is new, a verification email has been sent. If it already belongs to an account, sign in, request a magic link, or reset the password.",
+        body: "We sent a six-digit confirmation code to complete your Praeliator account setup.",
       });
-      replaceRoute("/sign-in");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleVerifyEmailCode = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    if (!otpVerification.email) {
+      setVerifyEmailState({
+        status: "error",
+        title: "Verification unavailable",
+        body: "Request a fresh code before continuing.",
+        ctaLabel: "Return to Sign In",
+        ctaRoute: "/sign-in",
+      });
+      return;
+    }
+    if (otpVerification.token.trim().length !== 6) {
+      setVerifyEmailState({
+        status: "error",
+        title:
+          otpVerification.flow === "sign-up"
+            ? "Confirmation code required"
+            : "Sign-in code required",
+        body: "Enter the full six-digit code before continuing.",
+      });
+      return;
+    }
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { data, error } = await client.auth.verifyOtp({
+        email: otpVerification.email,
+        token: otpVerification.token.trim(),
+        type: "email",
+      });
+      if (error) {
+        setVerifyEmailState({
+          status: "error",
+          title:
+            otpVerification.flow === "sign-up"
+              ? "Confirmation unavailable"
+              : "One-time code unavailable",
+          body: error.message,
+        });
+        return;
+      }
+      clearPendingEmailOtp();
+      const hasSession = Boolean(data.session);
+      setVerifyEmailState({
+        status: "success",
+        title:
+          otpVerification.flow === "sign-up" ? "Email confirmed" : "Access confirmed",
+        body:
+          otpVerification.flow === "sign-up"
+            ? "Your email is now verified under the house. You may continue into Praeliator."
+            : "Your one-time sign-in code has been accepted. You may continue into the house.",
+        ctaLabel: hasSession ? "Enter Ownership Record" : "Continue to Sign In",
+        ctaRoute: hasSession ? "/ownership-record" : "/sign-in",
+      });
     } finally {
       setAuthLoading(false);
     }
@@ -4201,32 +4362,33 @@ export default function PraeliatorWebsite() {
       setAuthNotice({
         tone: "error",
         title: "Email required",
-        body: "Enter the account email to request a magic link.",
+        body: "Enter the account email to request a one-time sign-in code.",
       });
       return;
     }
     setAuthLoading(true);
     setAuthNotice(null);
     try {
+      const normalizedEmail = magicLinkEmail.trim().toLowerCase();
       const { error } = await client.auth.signInWithOtp({
-        email: magicLinkEmail.trim().toLowerCase(),
+        email: normalizedEmail,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: createAuthRedirectUrl("/verify-email"),
         },
       });
       if (error) {
         setAuthNotice({
           tone: "error",
-          title: "Magic link unavailable",
+          title: "One-time code unavailable",
           body: error.message,
         });
         return;
       }
+      beginEmailOtpVerification(normalizedEmail, "one-time-code");
       setAuthNotice({
         tone: "success",
-        title: "Magic link sent",
-        body: "If this address already belongs to an account, a secure sign-in link is now in the inbox.",
+        title: "Code sent",
+        body: "If this address already belongs to an account, a six-digit one-time code is now in the inbox.",
       });
     } finally {
       setAuthLoading(false);
@@ -7168,7 +7330,7 @@ const renderWaitlistPage = () => (
               onClick={() => goTo("/magic-link")}
               className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
             >
-              Email Magic Link
+              Email One-Time Code
             </Button>
           </div>
           <div className="pt-2 text-sm leading-7 text-white/54">
@@ -7193,7 +7355,7 @@ const renderWaitlistPage = () => (
         "This account becomes the private record layer for registered Praeliator pairs, future eligibility, and continued service under the house.",
       asideTitle: "Email confirmation",
       asideText:
-        "Account creation sends a confirmation email before the record is considered fully active when email confirmations are enabled.",
+        "Account creation sends a six-digit confirmation code before the record is considered fully active under the house.",
       form: (
         <form className="grid gap-4" onSubmit={handleSignUp}>
           <label className="grid gap-2">
@@ -7274,7 +7436,7 @@ const renderWaitlistPage = () => (
               onClick={() => goTo("/magic-link")}
               className="ml-2 text-[#efe5d7] transition hover:text-white"
             >
-              Request a magic link
+Use a one-time code
             </button>
           </div>
         </form>
@@ -7284,9 +7446,9 @@ const renderWaitlistPage = () => (
   const renderMagicLinkPage = () =>
     renderAuthShell({
       eyebrow: "Access",
-      title: "Request a private sign-in link.",
+      title: "Request a one-time sign-in code.",
       description:
-        "Magic links are for existing accounts only. The link returns to a dedicated Praeliator verification page before access continues.",
+        "This route is for existing accounts only. A six-digit code is sent to the inbox and entered here under a dedicated Praeliator verification page before access continues.",
       asideTitle: "Passwordless access",
       asideText:
         "This route does not create new accounts. It is reserved for addresses that are already registered under the house.",
@@ -7309,7 +7471,7 @@ const renderWaitlistPage = () => (
               disabled={authLoading}
               className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
             >
-              {authLoading ? "Sending magic link..." : "Send Magic Link"}
+              {authLoading ? "Sending code..." : "Send One-Time Code"}
             </Button>
             <Button
               type="button"
@@ -7329,10 +7491,102 @@ const renderWaitlistPage = () => (
       eyebrow: "Verification",
       title: verifyEmailState.status === "pending" ? "Verifying under the house." : verifyEmailState.title,
       description: verifyEmailState.body,
-      asideTitle: "Private confirmation",
+      asideTitle: otpVerification.flow === "one-time-code" ? "One-time code" : "Private confirmation",
       asideText:
-        "Email confirmations and magic links should arrive here first, under a dedicated Praeliator route, before access continues.",
-      form: (
+        otpVerification.active
+          ? otpVerification.flow === "sign-up"
+            ? "Enter the six-digit confirmation code sent to your email to complete account creation under the house."
+            : "Enter the six-digit sign-in code sent to your email to continue into Praeliator without a password."
+          : "Email confirmations and secure account recovery continue through this dedicated Praeliator route.",
+      form: otpVerification.active && verifyEmailState.status !== "pending" ? (
+        <div className="grid gap-4">
+          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+            <AuthStatusNotice
+              notice={{
+                tone:
+                  verifyEmailState.status === "error"
+                    ? "error"
+                    : verifyEmailState.status === "success"
+                      ? "success"
+                      : "info",
+                title: verifyEmailState.title,
+                body: verifyEmailState.body,
+              }}
+            />
+          </div>
+          {verifyEmailState.status !== "success" ? (
+            <form className="grid gap-4" onSubmit={handleVerifyEmailCode}>
+              <label className="grid gap-2">
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+                <input
+                  type="email"
+                  value={otpVerification.email}
+                  readOnly
+                  className={`${formFieldBaseClass} min-h-[3.4rem] opacity-70`}
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Six-digit code</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={otpVerification.token}
+                  onChange={(event) =>
+                    setOtpVerification((current) => ({
+                      ...current,
+                      token: event.target.value.replace(/\D/g, "").slice(0, 6),
+                    }))
+                  }
+                  className={`${formFieldBaseClass} min-h-[3.4rem] tracking-[0.35em]`}
+                  placeholder="123456"
+                />
+              </label>
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+                <Button
+                  type="submit"
+                  disabled={authLoading}
+                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {authLoading ? "Verifying..." : "Verify Code"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    clearPendingEmailOtp();
+                    goTo("/sign-in");
+                  }}
+                  className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  Return to Sign In
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+              {verifyEmailState.ctaRoute && verifyEmailState.ctaLabel ? (
+                <Button
+                  type="button"
+                  onClick={() => goTo(verifyEmailState.ctaRoute!)}
+                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                >
+                  {verifyEmailState.ctaLabel}
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/sign-in")}
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                Return to Sign In
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : (
         <div className="grid gap-4">
           <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
             {verifyEmailState.status === "pending" ? (
