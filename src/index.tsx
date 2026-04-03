@@ -515,6 +515,17 @@ type AuthNotice = {
   title: string;
   body: string;
 };
+
+type RegisteredOwnershipPair = {
+  id: string;
+  model: string;
+  serial: string;
+  claimCodeLast4: string;
+  deliveryConfirmedAt: string;
+  registeredAt: string;
+  legacyRefreshEligibleOn: string;
+  legacyRefreshEligible: boolean;
+};
 const PENDING_OTP_SESSION_KEY = "praeliator_pending_otp";
 const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
@@ -952,6 +963,45 @@ function getFormFieldStateClasses({
   if (active)
     return "border-[#6a5545] bg-[#100f0e] shadow-[0_16px_36px_rgba(0,0,0,0.2)]";
   return "border-white/[0.08] bg-[#0c0b0a] hover:border-white/[0.12] focus:border-[#6a5545]";
+}
+
+function formatOwnershipDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Pending";
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function getLegacyRefreshEligibleOn(deliveryConfirmedAt: string) {
+  const baseDate = new Date(deliveryConfirmedAt);
+  if (Number.isNaN(baseDate.getTime())) return new Date().toISOString();
+  const eligibleDate = new Date(baseDate);
+  eligibleDate.setUTCDate(eligibleDate.getUTCDate() + 365);
+  return eligibleDate.toISOString();
+}
+
+function mapOwnershipRow(row: {
+  id: string;
+  model: string | null;
+  serial: string;
+  claim_code_last4: string | null;
+  delivery_confirmed_at: string;
+  current_owner_claimed_at: string | null;
+}): RegisteredOwnershipPair {
+  const legacyRefreshEligibleOn = getLegacyRefreshEligibleOn(row.delivery_confirmed_at);
+  return {
+    id: row.id,
+    model: row.model || "Praeliator VIS",
+    serial: row.serial,
+    claimCodeLast4: row.claim_code_last4 || "",
+    deliveryConfirmedAt: row.delivery_confirmed_at,
+    registeredAt: row.current_owner_claimed_at || row.delivery_confirmed_at,
+    legacyRefreshEligibleOn,
+    legacyRefreshEligible: Date.now() >= new Date(legacyRefreshEligibleOn).getTime(),
+  };
 }
 function normalizePath(pathname: string): Route {
   const clean = pathname.replace(/\/$/, "") || "/";
@@ -3966,6 +4016,14 @@ export default function PraeliatorWebsite() {
     title: "Enter your verification code",
     body: "Verification codes issued by the house are entered here before access continues.",
   });
+  const [ownershipPairs, setOwnershipPairs] = useState<RegisteredOwnershipPair[]>([]);
+  const [pairRegistrationForm, setPairRegistrationForm] = useState({
+    serial: "",
+    claimCode: "",
+  });
+  const [pairRegistrationError, setPairRegistrationError] = useState<string | null>(null);
+  const [ownershipLoading, setOwnershipLoading] = useState(false);
+  const [ownershipInitialized, setOwnershipInitialized] = useState(false);
 
   const reduceMotion = useReducedMotion();
   const [isDesktopViewport, setIsDesktopViewport] = useState(() => {
@@ -4303,6 +4361,48 @@ export default function PraeliatorWebsite() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+  const loadOwnershipPairs = React.useCallback(async () => {
+    if (!supabase || !authSession) {
+      setOwnershipPairs([]);
+      setOwnershipInitialized(Boolean(!authSession));
+      return;
+    }
+
+    setOwnershipLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("pair_registry")
+        .select("id, model, serial, claim_code_last4, delivery_confirmed_at, current_owner_claimed_at")
+        .order("current_owner_claimed_at", { ascending: false });
+
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Ownership Record unavailable",
+          body: error.message,
+        });
+        setOwnershipPairs([]);
+        return;
+      }
+
+      setOwnershipPairs((data || []).map(mapOwnershipRow));
+    } finally {
+      setOwnershipLoading(false);
+      setOwnershipInitialized(true);
+    }
+  }, [authSession]);
+
+  useEffect(() => {
+    if (!authSession) {
+      setOwnershipPairs([]);
+      setOwnershipInitialized(true);
+      setPairRegistrationForm({ serial: "", claimCode: "" });
+      setPairRegistrationError(null);
+      return;
+    }
+    void loadOwnershipPairs();
+  }, [authSession, loadOwnershipPairs]);
+
   useEffect(() => {
     document.title = `${routeTitles[route]} | Praeliator`;
   }, [route]);
@@ -7710,8 +7810,10 @@ const renderWaitlistPage = () => (
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
             <input
+              id="sign-in-email"
+              name="email"
               type="email"
-              autoComplete="email"
+              autoComplete="username"
               value={signInForm.email}
               onChange={(event) =>
                 setSignInForm((current) => ({ ...current, email: event.target.value }))
@@ -7723,6 +7825,8 @@ const renderWaitlistPage = () => (
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
             <input
+              id="sign-in-password"
+              name="password"
               type="password"
               autoComplete="current-password"
               value={signInForm.password}
@@ -7786,8 +7890,11 @@ const renderWaitlistPage = () => (
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Full name</span>
             <input
+              id="sign-up-full-name"
+              name="name"
               type="text"
               autoComplete="name"
+              autoCapitalize="words"
               value={signUpForm.fullName}
               onChange={(event) =>
                 setSignUpForm((current) => ({ ...current, fullName: event.target.value }))
@@ -7799,6 +7906,8 @@ const renderWaitlistPage = () => (
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
             <input
+              id="sign-up-email"
+              name="email"
               type="email"
               autoComplete="email"
               value={signUpForm.email}
@@ -7813,6 +7922,8 @@ const renderWaitlistPage = () => (
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
               <input
+                id="sign-up-password"
+                name="new-password"
                 type="password"
                 autoComplete="new-password"
                 value={signUpForm.password}
@@ -7826,6 +7937,8 @@ const renderWaitlistPage = () => (
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
               <input
+                id="sign-up-confirm-password"
+                name="confirm-password"
                 type="password"
                 autoComplete="new-password"
                 value={signUpForm.confirmPassword}
@@ -7882,8 +7995,10 @@ Use a one-time code
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
             <input
+              id="one-time-code-email"
+              name="email"
               type="email"
-              autoComplete="email"
+              autoComplete="username"
               value={magicLinkEmail}
               onChange={(event) => setMagicLinkEmail(event.target.value)}
               className={`${formFieldBaseClass} min-h-[3.4rem]`}
@@ -8120,6 +8235,8 @@ Use a one-time code
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
             <input
+              id="forgot-password-email"
+              name="email"
               type="email"
               autoComplete="email"
               value={forgotPasswordEmail}
@@ -8211,6 +8328,61 @@ Use a one-time code
       ),
     });
 
+  const handleRegisterPair = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client || !authSession) return;
+
+    const serial = pairRegistrationForm.serial.trim().toUpperCase();
+    const claimCode = pairRegistrationForm.claimCode.trim().toUpperCase();
+
+    if (!serial || serial.length < 6) {
+      setPairRegistrationError("Enter a valid serial number.");
+      return;
+    }
+
+    if (!claimCode || claimCode.length < 6) {
+      setPairRegistrationError("Enter the claim code from the authenticity card.");
+      return;
+    }
+
+    setPairRegistrationError(null);
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.rpc("claim_pair", {
+        p_serial: serial,
+        p_claim_code: claimCode,
+      });
+
+      if (error) {
+        const normalized = error.message.toLowerCase();
+        if (normalized.includes("already registered under this account")) {
+          setPairRegistrationError("That serial is already registered under this account.");
+        } else if (normalized.includes("already attached to another ownership record")) {
+          setPairRegistrationError("This pair is already attached to another Ownership Record.");
+        } else if (normalized.includes("claim code") || normalized.includes("not recognized")) {
+          setPairRegistrationError("The claim code was not recognized for that serial.");
+        } else if (normalized.includes("not found")) {
+          setPairRegistrationError("That serial was not found in the house record.");
+        } else {
+          setPairRegistrationError(error.message);
+        }
+        return;
+      }
+
+      await loadOwnershipPairs();
+      setPairRegistrationForm({ serial: "", claimCode: "" });
+      setAuthNotice({
+        tone: "success",
+        title: "Pair registered",
+        body: `Serial ${serial} has been attached to this Ownership Record.`,
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const renderOwnershipRecordPage = () =>
     renderAuthShell({
       eyebrow: "Ownership",
@@ -8220,37 +8392,205 @@ Use a one-time code
           : "Sign in required"
         : "Loading Ownership Record",
       description: authSession
-        ? "This is the first private foundation of the house. Registered pairs, transfer review, and Legacy Refresh status will live here next."
+        ? "Register authenticated pairs against the house record, review delivery-linked eligibility, and keep ownership continuity attached to the account rather than the browser."
         : "The Ownership Record is available only to authenticated clients. Sign in or create an account to continue.",
-      asideTitle: authSession ? "Current session" : "Access control",
+      asideTitle: authSession ? "Client reference" : "Access control",
       asideText: authSession
-        ? `Signed in as ${authSession.user.email ?? "current client"}.`
+        ? `${authSession.user.email ?? "Current client"} · This record is now connected to Supabase instead of local browser storage.`
         : "Authentication sits behind Supabase Auth and email verification when confirmations are enabled.",
       form: authInitialized ? (
         authSession ? (
-          <div className="grid gap-4">
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Foundation status</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Registered pairs</p>
-                  <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">0</p>
+          <div className="grid gap-5">
+            <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,16,14,0.94),rgba(9,8,8,0.92))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Register a pair</p>
+                    <h3 className="mt-3 text-[1.85rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7]">
+                      Enter the serial and claim code.
+                    </h3>
+                    <p className="mt-4 max-w-xl text-sm leading-7 text-white/58">
+                      Registration now writes against the house-side pair registry. Use the serial number and claim code from the authenticity card to attach an eligible pair to this Ownership Record.
+                    </p>
+                  </div>
+                  <div className="rounded-[1.2rem] border border-[#30251d] bg-[#120f0d] px-4 py-3 text-right">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Registered pairs</p>
+                    <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{ownershipPairs.length}</p>
+                  </div>
                 </div>
-                <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh</p>
-                  <p className="mt-3 text-sm leading-7 text-white/60">Locked until pair registration and pair-age logic are added.</p>
+
+                <form className="mt-6 grid gap-4" onSubmit={handleRegisterPair}>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Serial number</span>
+                      <input
+                        type="text"
+                        name="pairSerial"
+                        value={pairRegistrationForm.serial}
+                        onChange={(event) =>
+                          setPairRegistrationForm((current) => ({
+                            ...current,
+                            serial: event.target.value.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase(),
+                          }))
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                        placeholder="PR-VIS-000001"
+                        autoCapitalize="characters"
+                      />
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Claim code</span>
+                      <input
+                        type="text"
+                        name="pairClaimCode"
+                        value={pairRegistrationForm.claimCode}
+                        onChange={(event) =>
+                          setPairRegistrationForm((current) => ({
+                            ...current,
+                            claimCode: event.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase(),
+                          }))
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                        placeholder="A1B2C3D4"
+                        autoCapitalize="characters"
+                      />
+                    </label>
+                  </div>
+                  <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-sm leading-7 text-white/58">
+                    The claim code is treated as a first-registration credential. Once a pair is under the record, future transfer should go through release or review.
+                  </div>
+                  {pairRegistrationError ? (
+                    <p className="text-sm leading-6 text-[#d99b8d]">{pairRegistrationError}</p>
+                  ) : null}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Button
+                      type="submit"
+                      disabled={authLoading || ownershipLoading}
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      {authLoading ? "Registering..." : "Register Pair"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setPairRegistrationForm({ serial: "", claimCode: "" })}
+                      disabled={authLoading || ownershipLoading}
+                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              <div className="grid gap-4">
+                <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                  <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Foundation status</p>
+                  <div className="mt-4 grid gap-3">
+                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Current session</p>
+                      <p className="mt-3 text-sm leading-7 text-white/70 break-all">{authSession.user.email ?? "Current client"}</p>
+                    </div>
+                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh</p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">
+                        Pair-level eligibility now follows the recorded delivery date. Locked services can open automatically as the record matures.
+                      </p>
+                    </div>
+                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Transfer review</p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">
+                        This first build prepares the record layer and pair registration point. Transfer review can be layered next without rebuilding the shell.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? "Signing out..." : "Sign Out"}
+                  </Button>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
-              <Button
-                type="button"
-                onClick={handleSignOut}
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
-                disabled={authLoading}
-              >
-                {authLoading ? "Signing out..." : "Sign Out"}
-              </Button>
+
+            <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,14,13,0.94),rgba(9,8,8,0.9))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.18)] sm:p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Registered pairs</p>
+                    <p className="mt-3 text-sm leading-7 text-white/58">
+                      Pairs attached to this record appear here immediately after registration.
+                    </p>
+                  </div>
+                </div>
+                {ownershipPairs.length ? (
+                  <div className="mt-5 grid gap-4">
+                    {ownershipPairs.map((pair) => (
+                      <div
+                        key={pair.id}
+                        className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4 sm:p-5"
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">{pair.model}</p>
+                            <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{pair.serial}</p>
+                          </div>
+                          <div className="rounded-full border border-[#2a4732] bg-[#0d1811] px-3 py-2 text-[10px] uppercase tracking-[0.22em] text-[#92b69b]">
+                            Registered
+                          </div>
+                        </div>
+                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Registered on</p>
+                            <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.registeredAt)}</p>
+                          </div>
+                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Claim code</p>
+                            <p className="mt-2 text-sm leading-6 text-white/72">••••{pair.claimCodeLast4}</p>
+                          </div>
+                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Legacy Refresh</p>
+                            <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.legacyRefreshEligibleOn)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-5 rounded-[1.35rem] border border-dashed border-white/12 bg-white/[0.02] p-5 text-sm leading-7 text-white/52">
+                    No pairs are registered yet. The page felt empty because it actually was empty — now the registration point lives above and the pair list starts here.
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Next layer</p>
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Ownership review</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">
+                      Reassignment, release approval, and disputed ownership should sit here next as a dedicated review flow.
+                    </p>
+                  </div>
+                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh gate</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">
+                      Once pair-age logic is connected to the house record, this area can unlock apply states instead of placeholder copy.
+                    </p>
+                  </div>
+                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">House continuity</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">
+                      This layer is now no longer a dead screen. It is the beginning of the real ownership environment.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
