@@ -979,6 +979,44 @@ function formatOwnershipDate(value: string) {
   });
 }
 
+function getPairAgeDescriptor(deliveryConfirmedAt: string) {
+  const deliveryDate = new Date(deliveryConfirmedAt);
+  if (Number.isNaN(deliveryDate.getTime())) {
+    return {
+      label: "Age pending",
+      detail: "The recorded delivery date has not been confirmed yet.",
+    };
+  }
+
+  const diffMs = Math.max(Date.now() - deliveryDate.getTime(), 0);
+  const day = 1000 * 60 * 60 * 24;
+  const month = 30;
+  const year = 365;
+  const diffDays = Math.floor(diffMs / day);
+
+  if (diffDays >= year) {
+    const years = Math.floor(diffDays / year);
+    const remainingMonths = Math.floor((diffDays % year) / month);
+    return {
+      label: `${years} year${years === 1 ? "" : "s"}${remainingMonths ? ` ${remainingMonths} month${remainingMonths === 1 ? "" : "s"}` : ""}`,
+      detail: "Measured from the recorded delivery date retained under the house.",
+    };
+  }
+
+  if (diffDays >= month) {
+    const months = Math.floor(diffDays / month);
+    return {
+      label: `${months} month${months === 1 ? "" : "s"}`,
+      detail: "Measured from the recorded delivery date retained under the house.",
+    };
+  }
+
+  return {
+    label: `${Math.max(diffDays, 1)} day${diffDays === 1 ? "" : "s"}`,
+    detail: "Measured from the recorded delivery date retained under the house.",
+  };
+}
+
 function getLegacyRefreshEligibleOn(deliveryConfirmedAt: string) {
   const baseDate = new Date(deliveryConfirmedAt);
   if (Number.isNaN(baseDate.getTime())) return new Date().toISOString();
@@ -1023,6 +1061,35 @@ function getLegacyRefreshStatusClasses(status?: string | null) {
     default:
       return "border-white/10 bg-white/[0.03] text-white/60";
   }
+}
+
+function getLegacyRefreshRecordState(pair: RegisteredOwnershipPair) {
+  if (pair.legacyRefreshRequestStatus) {
+    return {
+      label: formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus),
+      detail: pair.legacyRefreshRequestedAt
+        ? `Entered the house review on ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}.`
+        : "Entered the house review under this record.",
+      toneClassName: getLegacyRefreshStatusClasses(pair.legacyRefreshRequestStatus),
+      emphasis: "review",
+    };
+  }
+
+  if (pair.legacyRefreshEligible) {
+    return {
+      label: "Eligible now",
+      detail: "Legacy Refresh is now available under the house rules for this pair.",
+      toneClassName: "border-[#355238] bg-[#0d1710] text-[#96c09f]",
+      emphasis: "open",
+    };
+  }
+
+  return {
+    label: `Eligible on ${formatOwnershipDate(pair.legacyRefreshEligibleOn)}`,
+    detail: "Legacy Refresh opens from the recorded delivery date, never the registration date.",
+    toneClassName: "border-[#4f443a] bg-[#15120f] text-[#d7c0a0]",
+    emphasis: "sealed",
+  };
 }
 
 function mapOwnershipRow(
@@ -7829,6 +7896,8 @@ const renderWaitlistPage = () => (
     form,
     asideTitle,
     asideText,
+    shellTone = "midnight",
+    shellNote,
   }: {
     eyebrow: string;
     title: string;
@@ -7836,13 +7905,32 @@ const renderWaitlistPage = () => (
     form: React.ReactNode;
     asideTitle: string;
     asideText: string;
-  }) => (
+    shellTone?: "midnight" | "archive";
+    shellNote?: string;
+  }) => {
+    const archiveTone = shellTone === "archive";
+    const sectionBackground = archiveTone
+      ? "bg-[radial-gradient(circle_at_top,rgba(214,186,149,0.16),transparent_28%),linear-gradient(180deg,#ede3d5_0%,#ded2c2_54%,#cfc2b1_100%)] text-[#231b15]"
+      : "bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]";
+    const introPanel = archiveTone
+      ? "border-[#c6b39b] bg-[linear-gradient(180deg,rgba(247,241,232,0.98),rgba(232,222,209,0.96))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
+      : "border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] text-[#f4efe7] shadow-[0_32px_90px_rgba(0,0,0,0.38)]";
+    const asidePanel = archiveTone
+      ? "border-[#d5c7b4] bg-[#f7f1e8]/88"
+      : "border-white/10 bg-white/[0.025]";
+    const formPanel = archiveTone
+      ? "border-[#cdbca7] bg-[linear-gradient(180deg,rgba(250,245,238,0.98),rgba(236,227,214,0.96))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
+      : "border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] text-[#f4efe7] shadow-[0_30px_80px_rgba(0,0,0,0.28)]";
+    const bodyText = archiveTone ? "text-[#4d4034]" : "text-white/60";
+    const noteText = archiveTone ? "text-[#6c5847]" : "text-white/42";
+
+    return (
     <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+      <div className={`absolute inset-0 ${sectionBackground}`} />
       <Container className="relative">
         <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
           <Reveal className="flex">
-            <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.38)] sm:p-8 lg:p-10">
+            <div className={`flex h-full flex-col justify-between rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${introPanel}`}>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                   {eyebrow}
@@ -7850,21 +7938,26 @@ const renderWaitlistPage = () => (
                 <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl">
                   {title}
                 </h1>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                <p className={`mt-6 max-w-xl text-sm leading-7 sm:text-base sm:leading-8 ${bodyText}`}>
                   {description}
                 </p>
+                {shellNote ? (
+                  <p className={`mt-6 max-w-xl text-[11px] uppercase tracking-[0.24em] ${noteText}`}>
+                    {shellNote}
+                  </p>
+                ) : null}
               </div>
-              <div className="mt-8 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5">
+              <div className={`mt-8 rounded-[1.6rem] border p-5 ${asidePanel}`}>
                 <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                   {asideTitle}
                 </p>
-                <p className="mt-3 text-sm leading-7 text-white/60">{asideText}</p>
+                <p className={`mt-3 text-sm leading-7 ${bodyText}`}>{asideText}</p>
               </div>
             </div>
           </Reveal>
 
           <Reveal delay={0.06}>
-            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+            <div className={`rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${formPanel}`}>
               {authNotice ? (
                 <div className="mb-5">
                   <AuthStatusNotice notice={authNotice} />
@@ -7876,7 +7969,8 @@ const renderWaitlistPage = () => (
         </div>
       </Container>
     </section>
-  );
+    );
+  };
   const renderSignInPage = () =>
     renderAuthShell({
       eyebrow: "Access",
@@ -7886,6 +7980,8 @@ const renderWaitlistPage = () => (
       asideTitle: "Account foundation",
       asideText:
         "This first release covers sign in, account creation, password reset, email confirmation, and the Ownership Record entry point.",
+      shellTone: "archive",
+      shellNote: "Private access / ownership continuity / house memory",
       form: (
         <form className="grid gap-4" onSubmit={handleSignIn}>
           <label className="grid gap-2">
@@ -7966,6 +8062,8 @@ const renderWaitlistPage = () => (
       asideTitle: "Email confirmation",
       asideText:
         "Account creation sends a six-digit confirmation code before the record is considered fully active under the house.",
+      shellTone: "archive",
+      shellNote: "Private access / ownership continuity / house memory",
       form: (
         <form className="grid gap-4" onSubmit={handleSignUp}>
           <label className="grid gap-2">
@@ -8071,6 +8169,8 @@ Use a one-time code
       asideTitle: "Passwordless access",
       asideText:
         "This route does not create new accounts. It is reserved for addresses that are already registered under the house.",
+      shellTone: "archive",
+      shellNote: "One-time code / private access / restrained entry",
       form: (
         <form className="grid gap-4" onSubmit={handleMagicLink}>
           <label className="grid gap-2">
@@ -8170,6 +8270,8 @@ Use a one-time code
             ? "Enter the six-digit confirmation code sent to your email to complete account creation under the house."
             : "Enter the six-digit sign-in code sent to your email to continue into Praeliator without a password."
           : "Email confirmations and secure account recovery continue through this dedicated Praeliator route.",
+      shellTone: "archive",
+      shellNote: "Verification / controlled entry / private identity",
       form: otpVerification.active && verifyEmailState.status !== "pending" ? (
         <div className="grid gap-4">
           <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
@@ -8311,6 +8413,8 @@ Use a one-time code
       asideTitle: "Reset flow",
       asideText:
         "The reset link should return to the dedicated reset route inside the site after email delivery.",
+      shellTone: "archive",
+      shellNote: "Recovery / account continuity / private access",
       form: (
         <form className="grid gap-4" onSubmit={handleForgotPassword}>
           <label className="grid gap-2">
@@ -8358,6 +8462,8 @@ Use a one-time code
         authSession
           ? "The recovery session is active. Set the new password to continue."
           : "Open the reset email again if the recovery session is no longer active.",
+      shellTone: "archive",
+      shellNote: "Recovery / account continuity / private access",
       form: (
         <form className="grid gap-4" onSubmit={handleResetPassword}>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -8520,32 +8626,36 @@ Use a one-time code
       asideText: authSession
         ? `${authSession.user.email ?? "Current client"} · Pair identity, service eligibility, and future review now sit under the house record rather than the browser.`
         : "Authentication sits behind Supabase Auth and email verification when confirmations are enabled.",
+      shellTone: "archive",
+      shellNote: authSession
+        ? "Private archive / delivery age / service review"
+        : "Private access / authenticated continuity / house memory",
       form: authInitialized ? (
         authSession ? (
           <div className="grid gap-6">
             <div className="grid gap-5 xl:grid-cols-[1.06fr_0.94fr]">
-              <div className="rounded-[1.9rem] border border-[#2d241d] bg-[radial-gradient(circle_at_top,rgba(198,163,90,0.08),transparent_34%),linear-gradient(180deg,rgba(18,15,13,0.98),rgba(8,7,7,0.96))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-7">
+              <div className="rounded-[1.9rem] border border-[#cebca6] bg-[radial-gradient(circle_at_top,rgba(201,166,112,0.14),transparent_34%),linear-gradient(180deg,rgba(249,242,233,0.98),rgba(236,226,212,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-2xl">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">The house register</p>
-                    <h3 className="mt-3 text-[2rem] font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-[2.35rem]">
-                      Register the pair, then enter the service ritual.
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Ownership folio</p>
+                    <h3 className="mt-3 text-[2rem] font-semibold leading-[0.92] tracking-[-0.055em] text-[#231b15] sm:text-[2.35rem]">
+                      The pair is retained here under the house.
                     </h3>
-                    <p className="mt-4 max-w-xl text-sm leading-7 text-white/60">
-                      The serial and claim code from the authenticity card do more than unlock a product tile. They attach the pair to a living private record: delivery age, future review, and eventual Legacy Refresh application.
+                    <p className="mt-4 max-w-xl text-sm leading-7 text-[#534538]">
+                      Registration binds a real Praeliator pair to a private client line. Delivery age, service readiness, and future Legacy Refresh review all continue from that act.
                     </p>
                   </div>
-                  <div className="min-w-[11.5rem] rounded-[1.3rem] border border-[#3a2f26] bg-[#120f0d]/92 px-4 py-4 text-right shadow-[0_16px_42px_rgba(0,0,0,0.16)]">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Pairs under record</p>
-                    <p className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7]">{ownershipPairs.length}</p>
-                    <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[#b9a18d]">House-connected</p>
+                  <div className="min-w-[11.5rem] rounded-[1.3rem] border border-[#d3c2ac] bg-[#f8f1e7] px-4 py-4 text-right shadow-[0_10px_24px_rgba(77,53,30,0.08)]">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-[#8d755c]">Pairs retained</p>
+                    <p className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-[#231b15]">{ownershipPairs.length}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[#9f7d58]">Under record</p>
                   </div>
                 </div>
 
                 <form className="mt-7 grid gap-4" onSubmit={handleRegisterPair}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2">
-                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Serial number</span>
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Serial number</span>
                       <input
                         type="text"
                         name="pairSerial"
@@ -8556,13 +8666,13 @@ Use a one-time code
                             serial: event.target.value.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#2b231d] bg-[#0f0d0c] focus:border-[#8b6b53]`}
+                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
                         placeholder="PR-VIS-000001"
                         autoCapitalize="characters"
                       />
                     </label>
                     <label className="grid gap-2">
-                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Claim code</span>
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Claim code</span>
                       <input
                         type="text"
                         name="pairClaimCode"
@@ -8573,30 +8683,30 @@ Use a one-time code
                             claimCode: event.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#2b231d] bg-[#0f0d0c] focus:border-[#8b6b53]`}
+                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
                         placeholder="A1B2C3D4"
                         autoCapitalize="characters"
                       />
                     </label>
                   </div>
-                  <div className="rounded-[1.3rem] border border-[#2b241d] bg-[linear-gradient(180deg,rgba(20,16,13,0.9),rgba(12,10,9,0.84))] px-4 py-4 text-sm leading-7 text-white/58">
-                    This first claim is treated as an ownership act. Once the pair is sealed under the record, future movement belongs to release or review, not another open claim.
+                  <div className="rounded-[1.3rem] border border-[#dbcab5] bg-[#f8f1e7] px-4 py-4 text-sm leading-7 text-[#5b4c40]">
+                    A claim code is consumed once. The pair then continues under custody, recorded age, and future service review.
                   </div>
-                  {pairRegistrationError ? <p className="text-sm leading-6 text-[#d99b8d]">{pairRegistrationError}</p> : null}
+                  {pairRegistrationError ? <p className="text-sm leading-6 text-[#a25d50]">{pairRegistrationError}</p> : null}
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Button
                       type="submit"
                       disabled={authLoading || ownershipLoading}
-                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                      className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
                     >
-                      {authLoading ? "Attaching pair..." : "Register Pair"}
+                      {authLoading ? "Registering pair..." : "Register Pair"}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setPairRegistrationForm({ serial: "", claimCode: "" })}
                       disabled={authLoading || ownershipLoading}
-                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 disabled:pointer-events-none disabled:opacity-60"
+                      className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-60"
                     >
                       Clear
                     </Button>
@@ -8605,26 +8715,26 @@ Use a one-time code
               </div>
 
               <div className="grid gap-4">
-                <div className="rounded-[1.9rem] border border-[#241e18] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.2)] sm:p-7">
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Legacy Refresh chamber</p>
-                  <h3 className="mt-3 text-[1.65rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7]">
+                <div className="rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
+                  <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Legacy Refresh chamber</p>
+                  <h3 className="mt-3 text-[1.65rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#231b15]">
                     A quieter route, reserved for matured pairs.
                   </h3>
-                  <p className="mt-4 text-sm leading-7 text-white/60">
+                  <p className="mt-4 text-sm leading-7 text-[#534538]">
                     Legacy Refresh should not feel like generic aftercare. It belongs to recorded age, private review, and a more ceremonial client-service route once a pair has matured under the house.
                   </p>
                   <div className="mt-5 grid gap-3">
-                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Current session</p>
-                      <p className="mt-3 break-all text-sm leading-7 text-white/72">{authSession.user.email ?? "Current client"}</p>
+                    <div className="rounded-[1.25rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#8d755c]">Current session</p>
+                      <p className="mt-3 break-all text-sm leading-7 text-[#231b15]">{authSession.user.email ?? "Current client"}</p>
                     </div>
-                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Private standard</p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">Pair registration, pair age, and service review now live in one connected record rather than dead placeholder blocks.</p>
+                    <div className="rounded-[1.25rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#8d755c]">Private standard</p>
+                      <p className="mt-3 text-sm leading-7 text-[#5b4c40]">Pair registration, pair age, and service review now live in one connected record rather than dead placeholder blocks.</p>
                     </div>
-                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">House count</p>
-                      <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{ownershipPairs.length}</p>
+                    <div className="rounded-[1.25rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#8d755c]">House count</p>
+                      <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#231b15]">{ownershipPairs.length}</p>
                     </div>
                   </div>
                 </div>
@@ -8632,7 +8742,7 @@ Use a one-time code
                   <Button
                     type="button"
                     onClick={handleSignOut}
-                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                    className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
                     disabled={authLoading}
                   >
                     {authLoading ? "Signing out..." : "Sign Out"}
@@ -8642,12 +8752,12 @@ Use a one-time code
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-              <div className="rounded-[1.9rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(198,163,90,0.05),transparent_42%),linear-gradient(180deg,rgba(16,14,13,0.95),rgba(9,8,8,0.92))] p-6 shadow-[0_26px_70px_rgba(0,0,0,0.18)] sm:p-7">
+              <div className="rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(249,244,236,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Pairs under this record</p>
-                    <p className="mt-3 max-w-xl text-sm leading-7 text-white/58">
-                      Once the pair is attached, this chamber should feel less like a dashboard and more like a private ledger: identity, age, service readiness, and ritual state.
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Registered pairs</p>
+                    <p className="mt-3 max-w-xl text-sm leading-7 text-[#5b4c40]">
+                      The ownership ledger records identity, age, and service state for each pair attached to this client line.
                     </p>
                   </div>
                 </div>
@@ -8659,51 +8769,49 @@ Use a one-time code
                       return (
                         <div
                           key={pair.id}
-                          className="rounded-[1.45rem] border border-[#2b241e] bg-[linear-gradient(180deg,rgba(17,14,12,0.94),rgba(11,9,8,0.92))] p-5 shadow-[0_16px_42px_rgba(0,0,0,0.14)] sm:p-6"
+                          className="rounded-[1.45rem] border border-[#d8c9b5] bg-[linear-gradient(180deg,rgba(255,250,245,0.98),rgba(243,234,222,0.96))] p-5 shadow-[0_18px_38px_rgba(77,53,30,0.08)] sm:p-6"
                         >
                           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div>
-                              <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">{pair.model}</p>
-                              <p className="mt-3 text-[1.9rem] font-semibold tracking-[-0.055em] text-[#f4efe7]">{pair.serial}</p>
-                              <p className="mt-3 max-w-xl text-sm leading-7 text-white/58">
-                                Registered under the house record on {formatOwnershipDate(pair.registeredAt)}. Delivery age and service timing continue from {formatOwnershipDate(pair.deliveryConfirmedAt)}.
+                              <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">{pair.model}</p>
+                              <p className="mt-3 text-[1.9rem] font-semibold tracking-[-0.055em] text-[#231b15]">{pair.serial}</p>
+                              <p className="mt-3 max-w-xl text-sm leading-7 text-[#5b4c40]">
+                                Registered on {formatOwnershipDate(pair.registeredAt)}. Delivery was recorded on {formatOwnershipDate(pair.deliveryConfirmedAt)}.
                               </p>
                             </div>
-                            <div className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.22em] ${pair.legacyRefreshEligible ? "border-[#355238] bg-[#0d1710] text-[#96c09f]" : "border-[#4f443a] bg-[#15120f] text-[#d7c0a0]"}`}>
-                              {pair.legacyRefreshEligible ? "Legacy Refresh open" : "Maturing under record"}
+                            <div className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.22em] ${getLegacyRefreshRecordState(pair).toneClassName}`}>
+                              {getLegacyRefreshRecordState(pair).label}
                             </div>
                           </div>
 
                           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Registered on</p>
-                              <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.registeredAt)}</p>
+                            <div className="rounded-[1rem] border border-[#ddd0be] bg-[#fbf6ef] p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">Pair age</p>
+                              <p className="mt-2 text-sm leading-6 text-[#231b15]">{getPairAgeDescriptor(pair.deliveryConfirmedAt).label}</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Claim code</p>
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">Claim seal</p>
                               <p className="mt-2 text-sm leading-6 text-white/72">••••{pair.claimCodeLast4}</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Eligible on</p>
-                              <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.legacyRefreshEligibleOn)}</p>
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">Eligible on</p>
+                              <p className="mt-2 text-sm leading-6 text-[#231b15]">{formatOwnershipDate(pair.legacyRefreshEligibleOn)}</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Application state</p>
-                              <div className={`mt-2 inline-flex rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] ${getLegacyRefreshStatusClasses(pair.legacyRefreshRequestStatus)}`}>
-                                {formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}
-                              </div>
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">State</p>
+                              <p className="mt-2 text-sm leading-6 text-[#231b15]">{getLegacyRefreshRecordState(pair).label}</p>
                             </div>
                           </div>
 
-                          <div className="mt-5 rounded-[1.2rem] border border-[#2c241d] bg-[linear-gradient(180deg,rgba(20,16,13,0.7),rgba(11,10,9,0.82))] p-4 sm:p-5">
+                          <div className="mt-5 rounded-[1.2rem] border border-[#d9cab6] bg-[#f7efe4] p-4 sm:p-5">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                               <div className="max-w-2xl">
-                                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">Legacy Refresh ritual</p>
-                                <p className="mt-3 text-sm leading-7 text-white/60">
-                                  The route is private by design: request, review, intake, and return under the same record. It should feel closer to a service chamber than a support ticket.
+                                <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">Legacy Refresh chamber</p>
+                                <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                                  {getLegacyRefreshRecordState(pair).detail}
                                 </p>
                                 {pair.legacyRefreshRequestStatus ? (
-                                  <p className="mt-3 text-sm leading-7 text-white/56">
+                                  <p className="mt-3 text-sm leading-7 text-[#6e5c4b]">
                                     {formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}{pair.legacyRefreshRequestedAt ? ` · Requested ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}` : ""}
                                   </p>
                                 ) : null}
@@ -8717,9 +8825,9 @@ Use a one-time code
                                       setLegacyRefreshNote(pair.legacyRefreshNote || "");
                                       setLegacyRefreshError(null);
                                     }}
-                                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                                    className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
                                   >
-                                    Apply for Legacy Refresh
+                                    Enter Legacy Refresh
                                   </Button>
                                 ) : pair.legacyRefreshEligible ? (
                                   <div className={`inline-flex rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.22em] ${getLegacyRefreshStatusClasses(pair.legacyRefreshRequestStatus)}`}>
@@ -8734,33 +8842,33 @@ Use a one-time code
                             </div>
 
                             {draftOpen ? (
-                              <form className="mt-5 grid gap-4 border-t border-white/8 pt-5" onSubmit={handleApplyLegacyRefresh}>
-                                <div className="rounded-[1.15rem] border border-[#2b241d] bg-black/20 p-4 text-sm leading-7 text-white/58">
-                                  This application enters private review under the house. Use the note below only if there is relevant context for the pair: current condition, desired timing, or prior travel through the record.
+                              <form className="mt-5 grid gap-4 border-t border-[#d8c9b5] pt-5" onSubmit={handleApplyLegacyRefresh}>
+                                <div className="rounded-[1.15rem] border border-[#dccdb9] bg-[#fbf6ef] p-4 text-sm leading-7 text-[#5b4c40]">
+                                  Use this note only for relevant context: condition, timing, or anything the house should consider during private review.
                                 </div>
                                 <label className="grid gap-2">
-                                  <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Private note (optional)</span>
+                                  <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Private note</span>
                                   <textarea
                                     name="legacyRefreshNote"
                                     value={legacyRefreshNote}
                                     onChange={(event) => setLegacyRefreshNote(event.target.value.slice(0, 500))}
-                                    className={`${formFieldBaseClass} min-h-[8.5rem] resize-none border-[#2b231d] bg-[#0f0d0c] py-4 focus:border-[#8b6b53]`}
-                                    placeholder="Condition, timing, or relevant context for the house review."
+                                    className={`${formFieldBaseClass} min-h-[8.5rem] resize-none border-[#d0bea6] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                                    placeholder="Condition, timing, or context for private review."
                                     maxLength={500}
                                   />
                                 </label>
-                                <div className="flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-white/34">
+                                <div className="flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-[#7d6a59]">
                                   <span>{legacyRefreshNote.length}/500</span>
-                                  <span>Private review</span>
+                                  <span>House review</span>
                                 </div>
-                                {legacyRefreshError ? <p className="text-sm leading-6 text-[#d99b8d]">{legacyRefreshError}</p> : null}
+                                {legacyRefreshError ? <p className="text-sm leading-6 text-[#a25d50]">{legacyRefreshError}</p> : null}
                                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                                   <Button
                                     type="submit"
                                     disabled={legacyRefreshSubmitting}
-                                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                                    className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
                                   >
-                                    {legacyRefreshSubmitting ? "Submitting ritual..." : "Submit Application"}
+                                    {legacyRefreshSubmitting ? "Submitting request..." : "Submit Request"}
                                   </Button>
                                   <Button
                                     type="button"
@@ -8771,9 +8879,9 @@ Use a one-time code
                                       setLegacyRefreshError(null);
                                     }}
                                     disabled={legacyRefreshSubmitting}
-                                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 disabled:pointer-events-none disabled:opacity-60"
+                                    className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-60"
                                   >
-                                    Close
+                                    Close chamber
                                   </Button>
                                 </div>
                               </form>
@@ -8784,30 +8892,30 @@ Use a one-time code
                     })}
                   </div>
                 ) : (
-                  <div className="mt-6 rounded-[1.45rem] border border-dashed border-[#2a241f] bg-[linear-gradient(180deg,rgba(16,13,11,0.88),rgba(10,9,8,0.82))] p-6 text-sm leading-7 text-white/54">
-                    No pair is under the record yet. The first act is registration; the service chamber appears only after a real pair is attached.
+                  <div className="mt-6 rounded-[1.45rem] border border-dashed border-[#d6c6b1] bg-[#faf4eb] p-6 text-sm leading-7 text-[#5b4c40]">
+                    No pair is retained under this Ownership Record yet. Registration is the first ceremonial act.
                   </div>
                 )}
               </div>
 
-              <div className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,11,0.95),rgba(9,8,7,0.93))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.16)] sm:p-7">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Service ritual</p>
+              <div className="rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">Service ritual</p>
                 <div className="mt-5 grid gap-3">
-                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">01 · Registration</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">The pair enters the house record through serial and claim code rather than an anonymous browser state.</p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">The pair enters the house record through serial and claim code rather than an anonymous browser state.</p>
                   </div>
-                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">02 · Maturation</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">Eligibility follows the recorded delivery date. The service does not open because the page exists; it opens because the pair has matured.</p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">Eligibility follows the recorded delivery date. The service does not open because the page exists; it opens because the pair has matured.</p>
                   </div>
-                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">03 · Private review</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">An application is not an instant booking. It enters review under the house record, keeping the route selective and personal.</p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">An application is not an instant booking. It enters review under the house record, keeping the route selective and personal.</p>
                   </div>
-                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">04 · Return under record</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">The pair returns to the same ownership line it came from, preserving continuity instead of acting like a one-off support job.</p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">The pair returns to the same ownership line it came from, preserving continuity instead of acting like a one-off support job.</p>
                   </div>
                 </div>
               </div>
@@ -8815,14 +8923,14 @@ Use a one-time code
           </div>
         ) : (
           <div className="grid gap-4">
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-white/60">
+            <div className="rounded-[1.5rem] border border-[#d6c7b3] bg-[#faf4eb] p-5 text-sm leading-7 text-[#5b4c40]">
               Sign in to access the private client layer. Pair registration, ownership continuity, and Legacy Refresh eligibility live here.
             </div>
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 onClick={() => goTo("/sign-in")}
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
               >
                 Sign In
               </Button>
@@ -8830,7 +8938,7 @@ Use a one-time code
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/sign-up")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
               >
                 Create Account
               </Button>
@@ -8838,7 +8946,7 @@ Use a one-time code
           </div>
         )
       ) : (
-        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-white/60">
+        <div className="rounded-[1.5rem] border border-[#d6c7b3] bg-[#faf4eb] p-5 text-sm leading-7 text-[#5b4c40]">
           Loading the current account session...
         </div>
       ),
