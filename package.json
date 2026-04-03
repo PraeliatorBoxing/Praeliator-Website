@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.11",
     "@gsap/react": "^2.1.2",
     "@lottiefiles/dotlottie-react": "^0.18.7",
     "@react-three/drei": "^10.7.7",

@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+import "@fontsource/cormorant-garamond/latin-600.css";
+import "@fontsource/cormorant-garamond/latin-700.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
 import {
@@ -1207,7 +1209,7 @@ function OwnershipPairFolio({
       layout
       whileHover={{ y: -4 }}
       transition={{ duration: 0.34, ease: easeLuxury }}
-      className="group relative overflow-hidden rounded-[1.7rem] border border-[#d8c9b5] bg-[linear-gradient(180deg,rgba(255,250,245,0.98),rgba(243,234,222,0.96))] p-5 shadow-[0_18px_42px_rgba(77,53,30,0.08)] sm:p-6"
+      className="ownership-grain ownership-hairline group relative overflow-hidden rounded-[1.8rem] border border-[#d8c9b5] bg-[linear-gradient(180deg,rgba(255,250,245,0.98),rgba(243,234,222,0.96))] p-5 shadow-[0_18px_42px_rgba(77,53,30,0.08)] sm:p-6"
     >
       <OwnershipWatermark
         className="right-[-1.5rem] top-[-1.75rem] h-36 w-36 sm:h-44 sm:w-44"
@@ -1226,7 +1228,7 @@ function OwnershipPairFolio({
               <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-[#7e6751]">
                 {pair.model}
               </p>
-              <p className="mt-4 text-[1.95rem] font-semibold tracking-[-0.06em] text-[#231b15]">
+              <p className="ownership-display mt-4 text-[2.45rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#231b15]">
                 {pair.serial}
               </p>
             </div>
@@ -1363,7 +1365,7 @@ function LegacyRefreshChamberDialog({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 18, scale: 0.985 }}
         transition={{ duration: 0.34, ease: easeLuxury }}
-        className="relative w-full max-w-[70rem] overflow-hidden rounded-[2rem] border border-[#d7c8b4] bg-[linear-gradient(180deg,rgba(252,247,241,0.99),rgba(237,228,215,0.97))] text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)]"
+        className="ownership-grain relative w-full max-w-[70rem] overflow-hidden rounded-[2rem] border border-[#d7c8b4] bg-[linear-gradient(180deg,rgba(252,247,241,0.99),rgba(237,228,215,0.97))] text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)]"
         onClick={(event) => event.stopPropagation()}
       >
         <OwnershipWatermark
@@ -1375,7 +1377,7 @@ function LegacyRefreshChamberDialog({
             <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
               Legacy Refresh invitation
             </p>
-            <h3 className="mt-4 text-[2.15rem] font-semibold leading-[0.92] tracking-[-0.06em] text-[#231b15]">
+            <h3 className="ownership-display mt-4 text-[2.95rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]">
               {pair.serial}
             </h3>
             <div
@@ -4805,6 +4807,39 @@ function BrowserFormStyles() {
     <style>{`
       html, body, #root { background: #040404; min-height: 100%; }
       body { overscroll-behavior-y: none; }
+      .ownership-display {
+        font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-feature-settings: "liga" 1, "dlig" 1, "case" 1;
+      }
+      .ownership-kicker {
+        letter-spacing: 0.28em;
+      }
+      .ownership-grain::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(circle at 20% 20%, rgba(95, 66, 36, 0.045) 0.6px, transparent 0.8px),
+          radial-gradient(circle at 80% 40%, rgba(95, 66, 36, 0.03) 0.6px, transparent 0.8px),
+          linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0));
+        background-size: 16px 16px, 22px 22px, 100% 100%;
+        opacity: 0.28;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+      .ownership-hairline {
+        position: relative;
+      }
+      .ownership-hairline::after {
+        content: "";
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 0;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(191,161,124,0), rgba(191,161,124,0.88), rgba(191,161,124,0));
+        pointer-events: none;
+      }
       html.praeliator-luxury-cursor,
       html.praeliator-luxury-cursor body,
       html.praeliator-luxury-cursor body * {
@@ -8804,6 +8839,9 @@ const renderWaitlistPage = () => (
       : "border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] text-[#f4efe7] shadow-[0_30px_80px_rgba(0,0,0,0.28)]";
     const bodyText = archiveTone ? "text-[#4d4034]" : "text-white/60";
     const noteText = archiveTone ? "text-[#6c5847]" : "text-white/42";
+    const titleClass = archiveTone
+      ? "ownership-display mt-4 text-[clamp(3.1rem,5vw,4.9rem)] font-semibold leading-[0.82] tracking-[-0.055em]"
+      : "mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl";
 
     return (
     <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
@@ -8823,10 +8861,10 @@ const renderWaitlistPage = () => (
               ) : null}
               <div className="relative flex h-full w-full flex-col justify-between">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  <p className="ownership-kicker text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                     {eyebrow}
                   </p>
-                  <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl">
+                  <h1 className={titleClass}>
                     {title}
                   </h1>
                   <p className={`mt-6 max-w-xl text-sm leading-7 sm:text-base sm:leading-8 ${bodyText}`}>
@@ -9596,7 +9634,7 @@ Use a one-time code
         authSession ? (
           <div className="grid gap-6">
             <div className="grid gap-5 xl:grid-cols-[1.06fr_0.94fr]">
-              <div className="relative overflow-hidden rounded-[1.95rem] border border-[#cebca6] bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.22),transparent_34%),linear-gradient(180deg,rgba(251,246,239,0.99),rgba(236,226,213,0.97))] p-6 text-[#231b15] shadow-[0_26px_70px_rgba(77,53,30,0.16)] sm:p-7">
+              <div className="ownership-grain relative overflow-hidden rounded-[1.95rem] border border-[#cebca6] bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.22),transparent_34%),linear-gradient(180deg,rgba(251,246,239,0.99),rgba(236,226,213,0.97))] p-6 text-[#231b15] shadow-[0_26px_70px_rgba(77,53,30,0.16)] sm:p-7">
                 <OwnershipWatermark
                   className="right-[-2rem] top-[-2rem] h-40 w-40 sm:h-48 sm:w-48"
                   opacityClassName="opacity-[0.05]"
@@ -9604,7 +9642,7 @@ Use a one-time code
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-2xl">
                     <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">Threshold chamber</p>
-                    <h3 className="mt-4 text-[2.15rem] font-semibold leading-[0.9] tracking-[-0.06em] text-[#231b15] sm:text-[2.6rem]">
+                    <h3 className="ownership-display mt-4 text-[2.9rem] font-semibold leading-[0.8] tracking-[-0.055em] text-[#231b15] sm:text-[3.5rem]">
                       Ownership retained under the house.
                     </h3>
                     <p className="mt-5 max-w-xl text-sm leading-7 text-[#534538]">
@@ -9708,14 +9746,14 @@ Use a one-time code
               </div>
 
               <div className="grid gap-4">
-                <div className="relative overflow-hidden rounded-[1.95rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
+                <div className="ownership-grain relative overflow-hidden rounded-[1.95rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
                   <OwnershipWatermark
                     className="bottom-[-2rem] right-[-1.75rem] h-36 w-36 sm:h-44 sm:w-44"
                     opacityClassName="opacity-[0.045]"
                   />
                   <div className="relative">
                   <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">Legacy Refresh chamber</p>
-                  <h3 className="mt-4 text-[1.8rem] font-semibold leading-[0.95] tracking-[-0.055em] text-[#231b15]">
+                  <h3 className="ownership-display mt-4 text-[2.5rem] font-semibold leading-[0.82] tracking-[-0.05em] text-[#231b15]">
                     Service remains selective, never generic.
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-[#534538]">
@@ -9763,7 +9801,7 @@ Use a one-time code
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-              <div className="relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(249,244,236,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
+              <div className="ownership-grain relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(249,244,236,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
                 <OwnershipWatermark
                   className="right-[-2rem] top-[-2rem] h-40 w-40 sm:h-48 sm:w-48"
                   opacityClassName="opacity-[0.04]"
@@ -9799,7 +9837,7 @@ Use a one-time code
               </div>
 
               <div className="grid gap-5">
-              <div className="relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
+              <div className="ownership-grain relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_24px_60px_rgba(77,53,30,0.14)] sm:p-7">
                 <OwnershipWatermark
                   className="right-[-1.5rem] top-[-1.5rem] h-32 w-32 sm:h-40 sm:w-40"
                   opacityClassName="opacity-[0.045]"
@@ -9814,7 +9852,7 @@ Use a one-time code
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)] sm:p-7">
+              <div className="ownership-grain relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)] sm:p-7">
                 <OwnershipWatermark
                   className="bottom-[-1.75rem] right-[-1.75rem] h-28 w-28 sm:h-36 sm:w-36"
                   opacityClassName="opacity-[0.04]"
@@ -9869,14 +9907,14 @@ Use a one-time code
           </div>
         ) : (
           <div className="grid gap-5">
-            <div className="overflow-hidden rounded-[2rem] border border-[#d6c7b3] bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.18),transparent_34%),linear-gradient(180deg,rgba(251,246,239,0.99),rgba(237,228,215,0.97))] p-6 text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.16)] sm:p-8">
+            <div className="ownership-grain overflow-hidden rounded-[2rem] border border-[#d6c7b3] bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.18),transparent_34%),linear-gradient(180deg,rgba(251,246,239,0.99),rgba(237,228,215,0.97))] p-6 text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.16)] sm:p-8">
               <OwnershipWatermark
                 className="right-[-2rem] top-[-2rem] h-40 w-40 sm:h-48 sm:w-48"
                 opacityClassName="opacity-[0.05]"
               />
               <div className="relative">
               <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">Access chamber</p>
-              <h3 className="mt-4 max-w-[12ch] text-[2.2rem] font-semibold leading-[0.9] tracking-[-0.06em] text-[#231b15]">
+              <h3 className="ownership-display mt-4 max-w-[12ch] text-[3rem] font-semibold leading-[0.8] tracking-[-0.055em] text-[#231b15]">
                 This archive opens only under a verified client line.
               </h3>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-[#55473b]">
