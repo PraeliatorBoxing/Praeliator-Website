@@ -1,7 +1,9 @@
+/// <reference types="vite/client" />
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Lenis from "lenis";
+import { createClient, type Session } from "@supabase/supabase-js";
 import {
   Check,
   ChevronRight,
@@ -111,6 +113,18 @@ const visPageMedia = {
   ownershipVideo: homeCinematicMedia.ownership.video,
 };
 const customVideoLoaderIcon = "/images/video-loader.svg";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const supabase =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+        },
+      })
+    : null;
 const brandAssetPaths = {
   wordmark: "/logo-header.png",
   headerWordmark: "/wordmark-full.png",
@@ -480,12 +494,23 @@ type Route =
   | "/praeliator-vis"
   | "/acquisition"
   | "/waitlist"
-  | "/contact";
+  | "/contact"
+  | "/sign-in"
+  | "/sign-up"
+  | "/forgot-password"
+  | "/reset-password"
+  | "/ownership-record";
 type HeroAction = {
   label: string;
   href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
+};
+type AuthNoticeTone = "success" | "error" | "info";
+type AuthNotice = {
+  tone: AuthNoticeTone;
+  title: string;
+  body: string;
 };
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
@@ -508,6 +533,11 @@ const routeTitles: Record<Route, string> = {
   "/acquisition": "Acquisition",
   "/waitlist": "Waitlist",
   "/contact": "Contact",
+  "/sign-in": "Sign In",
+  "/sign-up": "Create Account",
+  "/forgot-password": "Forgot Password",
+  "/reset-password": "Reset Password",
+  "/ownership-record": "Ownership Record",
 };
 const routeMicroLabels: Record<Route, string> = {
   "/": "",
@@ -515,6 +545,11 @@ const routeMicroLabels: Record<Route, string> = {
   "/acquisition": "ACQUISITION",
   "/waitlist": "WAITLIST",
   "/contact": "CONTACT",
+  "/sign-in": "ACCESS",
+  "/sign-up": "ACCESS",
+  "/forgot-password": "ACCESS",
+  "/reset-password": "ACCESS",
+  "/ownership-record": "OWNERSHIP",
 };
 const navItems: Array<{ label: string; path: Route }> = [
   { label: "VIS", path: "/praeliator-vis" },
@@ -523,7 +558,7 @@ const navItems: Array<{ label: string; path: Route }> = [
   { label: "Contact", path: "/contact" },
 ];
 const pageHeroStats: Record<
-  Exclude<Route, "/">,
+  "/praeliator-vis" | "/acquisition" | "/waitlist" | "/contact",
   Array<{ label: string; value: string }>
 > = {
   "/praeliator-vis": [
@@ -914,7 +949,12 @@ function normalizePath(pathname: string): Route {
     clean === "/praeliator-vis" ||
     clean === "/acquisition" ||
     clean === "/waitlist" ||
-    clean === "/contact"
+    clean === "/contact" ||
+    clean === "/sign-in" ||
+    clean === "/sign-up" ||
+    clean === "/forgot-password" ||
+    clean === "/reset-password" ||
+    clean === "/ownership-record"
   ) {
     return clean as Route;
   }
@@ -1715,6 +1755,8 @@ function MobileHeader({
   headerLogoBroken,
   onHeaderLogoError,
   goTo,
+  authPrimaryRoute,
+  authPrimaryLabel,
 }: {
   route: Route;
   pageMicroLabel: string;
@@ -1725,6 +1767,8 @@ function MobileHeader({
   headerLogoBroken: boolean;
   onHeaderLogoError: () => void;
   goTo: (nextRoute: Route) => void;
+  authPrimaryRoute: Route;
+  authPrimaryLabel: string;
 }) {
   return (
     <motion.header className="fixed inset-x-0 top-0 z-50">
@@ -1791,7 +1835,7 @@ function MobileHeader({
             >
               <Container className="pb-5 pt-4">
                 <div className="grid gap-3">
-                  {navItems.map((item) => (
+                  {[{ label: authPrimaryLabel, path: authPrimaryRoute }, ...navItems].map((item) => (
                     <button
                       key={item.path}
                       type="button"
@@ -1809,7 +1853,11 @@ function MobileHeader({
                               ? "Private route"
                               : item.label === "Waitlist"
                                 ? "Future access"
-                                : "Direct contact"}
+                                : item.label === "Ownership Record"
+                                  ? "Private account"
+                                  : item.label === "Sign In"
+                                    ? "Account access"
+                                    : "Direct contact"}
                         </p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
@@ -3468,6 +3516,46 @@ function FullScreenCinematicHomepage({
     </div>
   );
 }
+
+function AuthStatusNotice({
+  notice,
+}: {
+  notice: AuthNotice;
+}) {
+  const palette =
+    notice.tone === "success"
+      ? {
+          border: "border-[#5f6b52]",
+          background: "bg-[#10140d]",
+          title: "text-[#dbe7c7]",
+          body: "text-[#b6c49e]",
+        }
+      : notice.tone === "error"
+        ? {
+            border: "border-[#805148]",
+            background: "bg-[#150f0e]",
+            title: "text-[#ebc2b8]",
+            body: "text-[#c9988d]",
+          }
+        : {
+            border: "border-[#5c4c3d]",
+            background: "bg-[#120f0c]",
+            title: "text-[#efe2d1]",
+            body: "text-[#c9b49d]",
+          };
+
+  return (
+    <div
+      className={`rounded-[1.5rem] border ${palette.border} ${palette.background} p-4 sm:p-5`}
+    >
+      <p className={`text-[11px] uppercase tracking-[0.22em] ${palette.title}`}>
+        {notice.title}
+      </p>
+      <p className={`mt-3 text-sm leading-7 ${palette.body}`}>{notice.body}</p>
+    </div>
+  );
+}
+
 function BrowserFormStyles() {
   return (
     <style>{`html, body, #root { background: #040404; min-height: 100%; } body { overscroll-behavior-y: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
@@ -3518,6 +3606,22 @@ export default function PraeliatorWebsite() {
     null,
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
+  const [authSession, setAuthSession] = useState<Session | null>(null);
+  const [authInitialized, setAuthInitialized] = useState(!supabase);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authNotice, setAuthNotice] = useState<AuthNotice | null>(null);
+  const [signInForm, setSignInForm] = useState({ email: "", password: "" });
+  const [signUpForm, setSignUpForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [resetPasswordForm, setResetPasswordForm] = useState({
+    password: "",
+    confirmPassword: "",
+  });
 
   const reduceMotion = useReducedMotion();
   const [isDesktopViewport, setIsDesktopViewport] = useState(() => {
@@ -3614,6 +3718,113 @@ export default function PraeliatorWebsite() {
     }, 1000);
     return () => window.clearInterval(timer);
   }, [waitlistCooldownUntil]);
+  useEffect(() => {
+    if (!supabase) return;
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setAuthSession(data.session ?? null);
+      setAuthInitialized(true);
+    });
+
+    const { data: authSubscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setAuthSession(session ?? null);
+      },
+    );
+
+    return () => {
+      mounted = false;
+      authSubscription.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!supabase || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const tokenHash = url.searchParams.get("token_hash");
+    const type = url.searchParams.get("type");
+    const code = url.searchParams.get("code");
+    if (!code && !(tokenHash && type)) return;
+
+    let cancelled = false;
+
+    const finishAuthRedirect = (nextRoute: Route, notice?: AuthNotice) => {
+      const redirectUrl = new URL(window.location.href);
+      redirectUrl.pathname = nextRoute;
+      redirectUrl.search = "";
+      redirectUrl.hash = "";
+      window.history.replaceState({}, "", redirectUrl.toString());
+      setRoute(nextRoute);
+      setMobileMenuOpen(false);
+      if (notice) setAuthNotice(notice);
+    };
+
+    const handleAuthRedirect = async () => {
+      setAuthLoading(true);
+      try {
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (cancelled) return;
+          if (error) {
+            finishAuthRedirect("/sign-in", {
+              tone: "error",
+              title: "Authentication could not be completed",
+              body: error.message,
+            });
+            return;
+          }
+          finishAuthRedirect("/ownership-record", {
+            tone: "success",
+            title: "Authentication complete",
+            body: "Your account session is now active.",
+          });
+          return;
+        }
+
+        if (tokenHash && type) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: type as any,
+          });
+          if (cancelled) return;
+          if (error) {
+            finishAuthRedirect(type === "recovery" ? "/forgot-password" : "/sign-in", {
+              tone: "error",
+              title: "Verification could not be completed",
+              body: error.message,
+            });
+            return;
+          }
+
+          if (type === "recovery") {
+            finishAuthRedirect("/reset-password", {
+              tone: "info",
+              title: "Reset link confirmed",
+              body: "You may now set a new password for your account.",
+            });
+            return;
+          }
+
+          finishAuthRedirect("/ownership-record", {
+            tone: "success",
+            title: "Email confirmed",
+            body: "Your account is now verified and ready to sign in.",
+          });
+        }
+      } finally {
+        if (!cancelled) setAuthLoading(false);
+      }
+    };
+
+    void handleAuthRedirect();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     const handlePopState = () => {
       setRoute(normalizePath(window.location.pathname));
@@ -3714,6 +3925,250 @@ export default function PraeliatorWebsite() {
     setRoute(nextRoute);
     setMobileMenuOpen(false);
   };
+  const replaceRoute = (nextRoute: Route) => {
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", nextRoute);
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+    setRoute(nextRoute);
+    setMobileMenuOpen(false);
+  };
+
+  const createAuthRedirectUrl = (nextRoute: Route) => {
+    if (typeof window === "undefined") return nextRoute;
+    return new URL(nextRoute, window.location.origin).toString();
+  };
+
+  const requireSupabase = () => {
+    if (supabase) return supabase;
+    setAuthNotice({
+      tone: "error",
+      title: "Authentication is not configured",
+      body: "Add your Supabase URL and anon key to enable account access.",
+    });
+    return null;
+  };
+
+  const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
+  const authPrimaryLabel = authSession ? "Ownership Record" : "Sign In";
+  const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/forgot-password", "/reset-password"]);
+  const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
+
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.signInWithPassword({
+        email: signInForm.email.trim().toLowerCase(),
+        password: signInForm.password,
+      });
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Sign in unavailable",
+          body: error.message,
+        });
+        return;
+      }
+      setAuthNotice({
+        tone: "success",
+        title: "Signed in",
+        body: "Your Ownership Record is now available.",
+      });
+      goTo("/ownership-record");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    if (!signUpForm.fullName.trim()) {
+      setAuthNotice({
+        tone: "error",
+        title: "Full name required",
+        body: "Enter the client name to continue with account creation.",
+      });
+      return;
+    }
+    if (!signUpForm.email.trim()) {
+      setAuthNotice({
+        tone: "error",
+        title: "Email required",
+        body: "Enter an email address to create the account.",
+      });
+      return;
+    }
+    if (signUpForm.password.length < 8) {
+      setAuthNotice({
+        tone: "error",
+        title: "Password too short",
+        body: "Use a password with at least 8 characters.",
+      });
+      return;
+    }
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      setAuthNotice({
+        tone: "error",
+        title: "Passwords do not match",
+        body: "The password confirmation must match before the account can be created.",
+      });
+      return;
+    }
+
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { data, error } = await client.auth.signUp({
+        email: signUpForm.email.trim().toLowerCase(),
+        password: signUpForm.password,
+        options: {
+          emailRedirectTo: createAuthRedirectUrl("/sign-in"),
+          data: { full_name: signUpForm.fullName.trim() },
+        },
+      });
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Account could not be created",
+          body: error.message,
+        });
+        return;
+      }
+      if (data.session) {
+        setAuthNotice({
+          tone: "success",
+          title: "Account created",
+          body: "Your account is active and your Ownership Record is ready.",
+        });
+        goTo("/ownership-record");
+        return;
+      }
+      setAuthNotice({
+        tone: "success",
+        title: "Verification email sent",
+        body: "Check your inbox to confirm your email before signing in.",
+      });
+      replaceRoute("/sign-in");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    if (!forgotPasswordEmail.trim()) {
+      setAuthNotice({
+        tone: "error",
+        title: "Email required",
+        body: "Enter the email address tied to the account to continue.",
+      });
+      return;
+    }
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(
+        forgotPasswordEmail.trim().toLowerCase(),
+        {
+          redirectTo: createAuthRedirectUrl("/reset-password"),
+        },
+      );
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Reset email unavailable",
+          body: error.message,
+        });
+        return;
+      }
+      setAuthNotice({
+        tone: "success",
+        title: "Reset email sent",
+        body: "Check your inbox to continue resetting the account password.",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client) return;
+    if (!authSession) {
+      setAuthNotice({
+        tone: "error",
+        title: "Recovery session unavailable",
+        body: "Open the reset link from your email again before setting a new password.",
+      });
+      return;
+    }
+    if (resetPasswordForm.password.length < 8) {
+      setAuthNotice({
+        tone: "error",
+        title: "Password too short",
+        body: "Use a password with at least 8 characters.",
+      });
+      return;
+    }
+    if (resetPasswordForm.password !== resetPasswordForm.confirmPassword) {
+      setAuthNotice({
+        tone: "error",
+        title: "Passwords do not match",
+        body: "The password confirmation must match before continuing.",
+      });
+      return;
+    }
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.updateUser({
+        password: resetPasswordForm.password,
+      });
+      if (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Password could not be updated",
+          body: error.message,
+        });
+        return;
+      }
+      setAuthNotice({
+        tone: "success",
+        title: "Password updated",
+        body: "Your account password has been updated successfully.",
+      });
+      goTo("/ownership-record");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const client = requireSupabase();
+    if (!client) return;
+    setAuthLoading(true);
+    try {
+      await client.auth.signOut();
+      setAuthNotice({
+        tone: "info",
+        title: "Signed out",
+        body: "The current client session has been closed.",
+      });
+      goTo("/");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const getWaitlistCooldownSeconds = () =>
     waitlistCooldownUntil > Date.now()
       ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000)
@@ -6463,6 +6918,395 @@ const renderWaitlistPage = () => (
     </>
   );
 
+
+  const renderAuthShell = ({
+    eyebrow,
+    title,
+    description,
+    form,
+    asideTitle,
+    asideText,
+  }: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    form: React.ReactNode;
+    asideTitle: string;
+    asideText: string;
+  }) => (
+    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+      <Container className="relative">
+        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
+          <Reveal className="flex">
+            <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.38)] sm:p-8 lg:p-10">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  {eyebrow}
+                </p>
+                <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl">
+                  {title}
+                </h1>
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  {description}
+                </p>
+              </div>
+              <div className="mt-8 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                  {asideTitle}
+                </p>
+                <p className="mt-3 text-sm leading-7 text-white/60">{asideText}</p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.06}>
+            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              {authNotice ? (
+                <div className="mb-5">
+                  <AuthStatusNotice notice={authNotice} />
+                </div>
+              ) : null}
+              {form}
+            </div>
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  );
+
+  const renderSignInPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Sign in to continue into the house.",
+      description:
+        "The Ownership Record is the private record layer where registered pairs, future eligibility, and service continuity are held under the house.",
+      asideTitle: "Account foundation",
+      asideText:
+        "This first release covers sign in, account creation, password reset, email confirmation, and the Ownership Record entry point.",
+      form: (
+        <form className="grid gap-4" onSubmit={handleSignIn}>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              value={signInForm.email}
+              onChange={(event) =>
+                setSignInForm((current) => ({ ...current, email: event.target.value }))
+              }
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="name@example.com"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={signInForm.password}
+              onChange={(event) =>
+                setSignInForm((current) => ({ ...current, password: event.target.value }))
+              }
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="Enter your password"
+            />
+          </label>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading || !authInitialized}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Signing in..." : "Sign In"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/forgot-password")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Forgot Password
+            </Button>
+          </div>
+          <div className="pt-2 text-sm leading-7 text-white/54">
+            No account yet?
+            <button
+              type="button"
+              onClick={() => goTo("/sign-up")}
+              className="ml-2 text-[#efe5d7] transition hover:text-white"
+            >
+              Create one
+            </button>
+          </div>
+        </form>
+      ),
+    });
+
+  const renderSignUpPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Create your Ownership Record.",
+      description:
+        "This account becomes the private record layer for registered Praeliator pairs, future eligibility, and continued service under the house.",
+      asideTitle: "Email confirmation",
+      asideText:
+        "Account creation sends a confirmation email before the record is considered fully active when email confirmations are enabled.",
+      form: (
+        <form className="grid gap-4" onSubmit={handleSignUp}>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Full name</span>
+            <input
+              type="text"
+              autoComplete="name"
+              value={signUpForm.fullName}
+              onChange={(event) =>
+                setSignUpForm((current) => ({ ...current, fullName: event.target.value }))
+              }
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="Client name"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              value={signUpForm.email}
+              onChange={(event) =>
+                setSignUpForm((current) => ({ ...current, email: event.target.value }))
+              }
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="name@example.com"
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                value={signUpForm.password}
+                onChange={(event) =>
+                  setSignUpForm((current) => ({ ...current, password: event.target.value }))
+                }
+                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                placeholder="Minimum 8 characters"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                value={signUpForm.confirmPassword}
+                onChange={(event) =>
+                  setSignUpForm((current) => ({ ...current, confirmPassword: event.target.value }))
+                }
+                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                placeholder="Repeat password"
+              />
+            </label>
+          </div>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Creating account..." : "Create Account"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </form>
+      ),
+    });
+
+  const renderForgotPasswordPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Reset access quietly.",
+      description:
+        "Password recovery stays inside the same private record system. The reset link is delivered by email and returns you to the house to set a new password.",
+      asideTitle: "Reset flow",
+      asideText:
+        "The reset link should return to the dedicated reset route inside the site after email delivery.",
+      form: (
+        <form className="grid gap-4" onSubmit={handleForgotPassword}>
+          <label className="grid gap-2">
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              value={forgotPasswordEmail}
+              onChange={(event) => setForgotPasswordEmail(event.target.value)}
+              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              placeholder="name@example.com"
+            />
+          </label>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Sending reset email..." : "Send Reset Email"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </form>
+      ),
+    });
+
+  const renderResetPasswordPage = () =>
+    renderAuthShell({
+      eyebrow: "Access",
+      title: "Set the new account password.",
+      description:
+        "This route becomes available after the recovery link has been confirmed. Once updated, the Ownership Record remains under the same account.",
+      asideTitle: "Recovery session",
+      asideText:
+        authSession
+          ? "The recovery session is active. Set the new password to continue."
+          : "Open the reset email again if the recovery session is no longer active.",
+      form: (
+        <form className="grid gap-4" onSubmit={handleResetPassword}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">New password</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                value={resetPasswordForm.password}
+                onChange={(event) =>
+                  setResetPasswordForm((current) => ({ ...current, password: event.target.value }))
+                }
+                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                placeholder="Minimum 8 characters"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                value={resetPasswordForm.confirmPassword}
+                onChange={(event) =>
+                  setResetPasswordForm((current) => ({ ...current, confirmPassword: event.target.value }))
+                }
+                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                placeholder="Repeat password"
+              />
+            </label>
+          </div>
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              disabled={authLoading || !authSession}
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+            >
+              {authLoading ? "Updating password..." : "Update Password"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/sign-in")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Return to Sign In
+            </Button>
+          </div>
+        </form>
+      ),
+    });
+
+  const renderOwnershipRecordPage = () =>
+    renderAuthShell({
+      eyebrow: "Ownership",
+      title: authInitialized
+        ? authSession
+          ? "Ownership Record"
+          : "Sign in required"
+        : "Loading Ownership Record",
+      description: authSession
+        ? "This is the first private foundation of the house. Registered pairs, transfer review, and Legacy Refresh status will live here next."
+        : "The Ownership Record is available only to authenticated clients. Sign in or create an account to continue.",
+      asideTitle: authSession ? "Current session" : "Access control",
+      asideText: authSession
+        ? `Signed in as ${authSession.user.email ?? "current client"}.`
+        : "Authentication sits behind Supabase Auth and email verification when confirmations are enabled.",
+      form: authInitialized ? (
+        authSession ? (
+          <div className="grid gap-4">
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Foundation status</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Registered pairs</p>
+                  <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">0</p>
+                </div>
+                <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh</p>
+                  <p className="mt-3 text-sm leading-7 text-white/60">Locked until pair registration and pair-age logic are added.</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+              <Button
+                type="button"
+                onClick={handleSignOut}
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                disabled={authLoading}
+              >
+                {authLoading ? "Signing out..." : "Sign Out"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-white/60">
+              Sign in to access the private client layer. Pair registration, ownership continuity, and Legacy Refresh eligibility will sit inside this environment.
+            </div>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
+              <Button
+                type="button"
+                onClick={() => goTo("/sign-in")}
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+              >
+                Sign In
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/sign-up")}
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              >
+                Create Account
+              </Button>
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-white/60">
+          Loading the current account session...
+        </div>
+      ),
+    });
+
   const renderMobilePage = () => {
     switch (route) {
       case "/praeliator-vis":
@@ -6473,6 +7317,16 @@ const renderWaitlistPage = () => (
         return renderWaitlistPage();
       case "/contact":
         return renderContactPage();
+      case "/sign-in":
+        return renderSignInPage();
+      case "/sign-up":
+        return renderSignUpPage();
+      case "/forgot-password":
+        return renderForgotPasswordPage();
+      case "/reset-password":
+        return renderResetPasswordPage();
+      case "/ownership-record":
+        return renderOwnershipRecordPage();
       default:
         return renderHomePage();
     }
@@ -6488,6 +7342,16 @@ const renderWaitlistPage = () => (
         return renderWaitlistPage();
       case "/contact":
         return renderContactPage();
+      case "/sign-in":
+        return renderSignInPage();
+      case "/sign-up":
+        return renderSignUpPage();
+      case "/forgot-password":
+        return renderForgotPasswordPage();
+      case "/reset-password":
+        return renderResetPasswordPage();
+      case "/ownership-record":
+        return renderOwnershipRecordPage();
       default:
         return renderHomePage();
     }
@@ -6550,17 +7414,28 @@ const renderWaitlistPage = () => (
                 onAssetError={() => setHeaderLogoBroken(true)}
               />
 
-              <motion.a
-                href={currentPurchaseLink}
-                target="_blank"
-                rel="noreferrer"
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+                className="flex items-center gap-6"
               >
-                Private Inquiry
-              </motion.a>
+                <button
+                  type="button"
+                  onClick={() => goTo(authPrimaryRoute)}
+                  className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+                >
+                  {authPrimaryLabel}
+                </button>
+                <a
+                  href={currentPurchaseLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
+                >
+                  Private Inquiry
+                </a>
+              </motion.div>
             </Container>
 
             <AnimatePresence initial={false}>
@@ -6593,7 +7468,7 @@ const renderWaitlistPage = () => (
                   <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
                     <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
                       <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
-                        {navItems.map((item, index) => (
+                        {[{ label: authPrimaryLabel, path: authPrimaryRoute }, ...navItems].map((item, index) => (
                           <motion.button
                             key={item.path}
                             type="button"
@@ -6619,7 +7494,11 @@ const renderWaitlistPage = () => (
                                     ? "Private route"
                                     : item.label === "Waitlist"
                                       ? "Future access"
-                                      : "Direct contact"}
+                                      : item.label === "Ownership Record"
+                                        ? "Private account"
+                                        : item.label === "Sign In"
+                                          ? "Account access"
+                                          : "Direct contact"}
                               </p>
                             </div>
                             <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
@@ -6644,6 +7523,8 @@ const renderWaitlistPage = () => (
           headerLogoBroken={headerLogoBroken}
           onHeaderLogoError={() => setHeaderLogoBroken(true)}
           goTo={goTo}
+          authPrimaryRoute={authPrimaryRoute}
+          authPrimaryLabel={authPrimaryLabel}
         />
       )}
 
@@ -6667,7 +7548,7 @@ const renderWaitlistPage = () => (
         </AnimatePresence>
       </main>
 
-      {route === "/" ? null : isDesktopViewport ? (
+      {route === "/" || !routeUsesFooter ? null : isDesktopViewport ? (
         <ClubFooter
           goTo={goTo}
           whatsappGeneralLink={whatsappGeneralLink}
