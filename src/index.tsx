@@ -1,7 +1,13 @@
 /// <reference types="vite/client" />
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+} from "motion/react";
 import Lenis from "lenis";
 import { createClient, type Session } from "@supabase/supabase-js";
 import {
@@ -4045,9 +4051,333 @@ function AuthStatusNotice({
   );
 }
 
+type LuxuryCursorVariant = "default" | "button" | "hidden";
+
+function LuxuryCursor({ enabled }: { enabled: boolean }) {
+  const pointerX = useMotionValue(-160);
+  const pointerY = useMotionValue(-160);
+  const shellX = useSpring(pointerX, {
+    stiffness: 520,
+    damping: 34,
+    mass: 0.22,
+  });
+  const shellY = useSpring(pointerY, {
+    stiffness: 520,
+    damping: 34,
+    mass: 0.22,
+  });
+  const haloX = useSpring(pointerX, {
+    stiffness: 260,
+    damping: 28,
+    mass: 0.42,
+  });
+  const haloY = useSpring(pointerY, {
+    stiffness: 260,
+    damping: 28,
+    mass: 0.42,
+  });
+  const [visible, setVisible] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [variant, setVariant] = useState<LuxuryCursorVariant>("default");
+  const visibleRef = useRef(false);
+  const variantRef = useRef<LuxuryCursorVariant>("default");
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") {
+      visibleRef.current = false;
+      variantRef.current = "hidden";
+      setVisible(false);
+      setPressed(false);
+      setVariant("hidden");
+      return;
+    }
+
+    const interactiveSelector = [
+      "button",
+      "a[href]",
+      "[role='button']",
+      "summary",
+      "label[for]",
+      "[data-cursor='button']",
+    ].join(", ");
+    const textSelector = [
+      "input",
+      "textarea",
+      "select",
+      "[contenteditable='true']",
+      "[contenteditable='']",
+      "[contenteditable='plaintext-only']",
+    ].join(", ");
+
+    const syncVisible = (nextVisible: boolean) => {
+      if (visibleRef.current === nextVisible) return;
+      visibleRef.current = nextVisible;
+      setVisible(nextVisible);
+    };
+
+    const syncVariant = (nextVariant: LuxuryCursorVariant) => {
+      if (variantRef.current === nextVariant) return;
+      variantRef.current = nextVariant;
+      setVariant(nextVariant);
+    };
+
+    const resolveVariant = (target: EventTarget | null): LuxuryCursorVariant => {
+      if (!(target instanceof Element)) return "default";
+      if (target.closest(textSelector)) return "hidden";
+      if (target.closest(interactiveSelector)) return "button";
+      return "default";
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      pointerX.set(event.clientX);
+      pointerY.set(event.clientY);
+      syncVisible(true);
+      syncVariant(resolveVariant(event.target));
+    };
+
+    const handlePointerOver = (event: PointerEvent) => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      const nextVariant = resolveVariant(event.target);
+      syncVariant(nextVariant);
+      syncVisible(nextVariant !== "hidden");
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      setPressed(true);
+      syncVariant(resolveVariant(event.target));
+    };
+
+    const handlePointerUp = (event: PointerEvent) => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      setPressed(false);
+      syncVariant(resolveVariant(event.target));
+    };
+
+    const hideCursor = () => {
+      syncVisible(false);
+      setPressed(false);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible") hideCursor();
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerover", handlePointerOver, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointerup", handlePointerUp, { passive: true });
+    window.addEventListener("blur", hideCursor);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.documentElement.addEventListener("mouseleave", hideCursor);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerover", handlePointerOver);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("blur", hideCursor);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.documentElement.removeEventListener("mouseleave", hideCursor);
+    };
+  }, [enabled, pointerX, pointerY]);
+
+  if (!enabled) return null;
+
+  const isButtonVariant = variant === "button";
+  const isHidden = !visible || variant === "hidden";
+
+  return (
+    <>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-[140]"
+        style={{ x: haloX, y: haloY }}
+        animate={{
+          opacity: isHidden ? 0 : isButtonVariant ? 0.8 : 0.56,
+          scale: isHidden ? 0.72 : pressed ? 0.92 : 1,
+        }}
+        transition={{ duration: 0.26, ease: easeLuxury }}
+      >
+        <motion.div
+          className="-translate-x-1/2 -translate-y-1/2 rounded-full blur-[24px]"
+          animate={{
+            width: isButtonVariant ? 124 : 76,
+            height: isButtonVariant ? 124 : 76,
+            background:
+              isButtonVariant
+                ? "radial-gradient(circle, rgba(214,186,149,0.24) 0%, rgba(214,186,149,0.06) 48%, rgba(214,186,149,0) 78%)"
+                : "radial-gradient(circle, rgba(239,229,215,0.18) 0%, rgba(214,186,149,0.06) 48%, rgba(214,186,149,0) 76%)",
+          }}
+          transition={{ duration: 0.36, ease: easeLuxury }}
+        />
+      </motion.div>
+
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-[150]"
+        style={{ x: shellX, y: shellY }}
+        animate={{
+          opacity: isHidden ? 0 : 1,
+          scale: isHidden ? 0.76 : pressed ? 0.9 : 1,
+        }}
+        transition={{ duration: 0.24, ease: easeLuxury }}
+      >
+        <motion.div
+          className="-translate-x-1/2 -translate-y-1/2 overflow-hidden border"
+          animate={{
+            width: isButtonVariant ? 88 : 28,
+            height: isButtonVariant ? 40 : 28,
+            borderRadius: 999,
+            backgroundColor: isButtonVariant
+              ? "rgba(245, 239, 231, 0.08)"
+              : "rgba(245, 239, 231, 0.04)",
+            borderColor: isButtonVariant
+              ? "rgba(216, 186, 149, 0.56)"
+              : "rgba(216, 186, 149, 0.34)",
+            boxShadow: isButtonVariant
+              ? "0 12px 38px rgba(40, 25, 11, 0.18), 0 0 0 1px rgba(255,255,255,0.04) inset"
+              : "0 10px 28px rgba(40, 25, 11, 0.12), 0 0 0 1px rgba(255,255,255,0.03) inset",
+          }}
+          transition={{ duration: 0.3, ease: easeLuxury }}
+        >
+          <motion.div
+            className="absolute inset-[1px] rounded-[inherit]"
+            animate={{
+              background: isButtonVariant
+                ? "linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03))"
+                : "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02))",
+              opacity: isButtonVariant ? 1 : 0.82,
+            }}
+            transition={{ duration: 0.3, ease: easeLuxury }}
+          />
+          <motion.div
+            className="absolute inset-x-[18%] top-0 h-px"
+            animate={{
+              opacity: isButtonVariant ? 0.9 : 0.54,
+              background:
+                "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.92), rgba(255,255,255,0))",
+            }}
+            transition={{ duration: 0.24, ease: easeLuxury }}
+          />
+          <motion.span
+            className="absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2"
+            animate={{
+              width: isButtonVariant ? 24 : 6,
+              height: isButtonVariant ? 1.5 : 6,
+              borderRadius: 999,
+              backgroundColor: isButtonVariant
+                ? "rgba(244, 239, 231, 0.9)"
+                : "rgba(244, 239, 231, 0.86)",
+              boxShadow: isButtonVariant
+                ? "0 0 18px rgba(244, 239, 231, 0.35)"
+                : "0 0 14px rgba(244, 239, 231, 0.28)",
+            }}
+            transition={{ duration: 0.28, ease: easeLuxury }}
+          />
+        </motion.div>
+      </motion.div>
+    </>
+  );
+}
+
 function BrowserFormStyles() {
   return (
-    <style>{`html, body, #root { background: #040404; min-height: 100%; } body { overscroll-behavior-y: none; } .browser-form-element { -webkit-appearance: none; -moz-appearance: none; appearance: none; color-scheme: dark; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font-size: 16px; } @media (min-width: 640px) { .browser-form-element { font-size: 0.875rem; } } .browser-form-element:focus-visible, button[role='combobox']:focus-visible { box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06); } .browser-form-element:-webkit-autofill, .browser-form-element:-webkit-autofill:hover, .browser-form-element:-webkit-autofill:focus, .browser-form-element:-webkit-autofill:active { -webkit-text-fill-color: #f4efe7; caret-color: #f4efe7; box-shadow: 0 0 0 1000px #0c0b0a inset; -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset; border-color: rgba(255, 255, 255, 0.08); transition: background-color 999999s ease-out 0s; } .browser-form-element::selection { background: rgba(239, 229, 215, 0.16); color: #f4efe7; } .browser-form-element::-webkit-calendar-picker-indicator { filter: invert(0.92) opacity(0.68); } .browser-form-element::-ms-reveal, .browser-form-element::-ms-clear, .browser-form-element::-webkit-contacts-auto-fill-button, .browser-form-element::-webkit-credentials-auto-fill-button { filter: invert(0.92) opacity(0.68); } .browser-form-element[type='number']::-webkit-outer-spin-button, .browser-form-element[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .browser-form-element[type='number'] { -moz-appearance: textfield; } .browser-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908; } .browser-scrollbar::-webkit-scrollbar { width: 10px; } .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb { background: rgba(244, 239, 231, 0.14); border-radius: 9999px; border: 2px solid #0a0908; } .browser-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(244, 239, 231, 0.22); } .browser-submit-spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(21, 18, 16, 0.22); border-top-color: #151210; animation: browser-spin 0.8s linear infinite; } .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; } @keyframes browser-spin { to { transform: rotate(360deg); } } @keyframes praeliatorLoaderPulse { 0% { opacity: 0.68; transform: scale(0.965); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.68; transform: scale(0.965); } }`}</style>
+    <style>{`
+      html, body, #root { background: #040404; min-height: 100%; }
+      body { overscroll-behavior-y: none; }
+      html.praeliator-luxury-cursor,
+      html.praeliator-luxury-cursor body,
+      html.praeliator-luxury-cursor body * {
+        cursor: none !important;
+      }
+      html.praeliator-luxury-cursor input,
+      html.praeliator-luxury-cursor textarea,
+      html.praeliator-luxury-cursor select,
+      html.praeliator-luxury-cursor [contenteditable='true'],
+      html.praeliator-luxury-cursor [contenteditable=''],
+      html.praeliator-luxury-cursor [contenteditable='plaintext-only'] {
+        cursor: text !important;
+      }
+      .browser-form-element {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        color-scheme: dark;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        font-size: 16px;
+      }
+      @media (min-width: 640px) {
+        .browser-form-element { font-size: 0.875rem; }
+      }
+      .browser-form-element:focus-visible,
+      button[role='combobox']:focus-visible {
+        box-shadow: 0 0 0 1px rgba(185, 161, 141, 0.32), 0 0 0 3px rgba(185, 161, 141, 0.06);
+      }
+      .browser-form-element:-webkit-autofill,
+      .browser-form-element:-webkit-autofill:hover,
+      .browser-form-element:-webkit-autofill:focus,
+      .browser-form-element:-webkit-autofill:active {
+        -webkit-text-fill-color: #f4efe7;
+        caret-color: #f4efe7;
+        box-shadow: 0 0 0 1000px #0c0b0a inset;
+        -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
+        border-color: rgba(255, 255, 255, 0.08);
+        transition: background-color 999999s ease-out 0s;
+      }
+      .browser-form-element::selection {
+        background: rgba(239, 229, 215, 0.16);
+        color: #f4efe7;
+      }
+      .browser-form-element::-webkit-calendar-picker-indicator {
+        filter: invert(0.92) opacity(0.68);
+      }
+      .browser-form-element::-ms-reveal,
+      .browser-form-element::-ms-clear,
+      .browser-form-element::-webkit-contacts-auto-fill-button,
+      .browser-form-element::-webkit-credentials-auto-fill-button {
+        filter: invert(0.92) opacity(0.68);
+      }
+      .browser-form-element[type='number']::-webkit-outer-spin-button,
+      .browser-form-element[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .browser-form-element[type='number'] { -moz-appearance: textfield; }
+      .browser-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(244, 239, 231, 0.14) #0a0908;
+      }
+      .browser-scrollbar::-webkit-scrollbar { width: 10px; }
+      .browser-scrollbar::-webkit-scrollbar-track { background: #0a0908; }
+      .browser-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(244, 239, 231, 0.14);
+        border-radius: 9999px;
+        border: 2px solid #0a0908;
+      }
+      .browser-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(244, 239, 231, 0.22);
+      }
+      .browser-submit-spinner {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 9999px;
+        border: 2px solid rgba(21, 18, 16, 0.22);
+        border-top-color: #151210;
+        animation: browser-spin 0.8s linear infinite;
+      }
+      .video-loader-logo { animation: praeliatorLoaderPulse 2.8s ease-in-out infinite; }
+      @keyframes browser-spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes praeliatorLoaderPulse {
+        0% { opacity: 0.68; transform: scale(0.965); }
+        50% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0.68; transform: scale(0.965); }
+      }
+    `}</style>
   );
 }
 export default function PraeliatorWebsite() {
@@ -4155,6 +4485,7 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return true;
     return window.matchMedia("(min-width: 1024px)").matches;
   });
+  const [luxuryCursorEnabled, setLuxuryCursorEnabled] = useState(false);
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
       if (typeof window === "undefined") return;
@@ -4200,6 +4531,38 @@ export default function PraeliatorWebsite() {
     mediaQuery.addListener(syncViewport);
     return () => mediaQuery.removeListener(syncViewport);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pointerQuery = window.matchMedia("(pointer: fine)");
+    const syncLuxuryCursor = () => {
+      const enabled = isDesktopViewport && !reduceMotion && pointerQuery.matches;
+      setLuxuryCursorEnabled(enabled);
+      document.documentElement.classList.toggle(
+        "praeliator-luxury-cursor",
+        enabled,
+      );
+      document.body.classList.toggle("praeliator-luxury-cursor", enabled);
+    };
+
+    syncLuxuryCursor();
+
+    if (typeof pointerQuery.addEventListener === "function") {
+      pointerQuery.addEventListener("change", syncLuxuryCursor);
+      return () => {
+        pointerQuery.removeEventListener("change", syncLuxuryCursor);
+        document.documentElement.classList.remove("praeliator-luxury-cursor");
+        document.body.classList.remove("praeliator-luxury-cursor");
+      };
+    }
+
+    pointerQuery.addListener(syncLuxuryCursor);
+    return () => {
+      pointerQuery.removeListener(syncLuxuryCursor);
+      document.documentElement.classList.remove("praeliator-luxury-cursor");
+      document.body.classList.remove("praeliator-luxury-cursor");
+    };
+  }, [isDesktopViewport, reduceMotion]);
 
   useEffect(() => {
     if (isDesktopViewport || !mobileMenuOpen) return;
@@ -9016,6 +9379,7 @@ Use a one-time code
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
+      <LuxuryCursor enabled={luxuryCursorEnabled} />
 
       {isDesktopViewport ? (
         <motion.header
