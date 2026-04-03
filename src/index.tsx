@@ -431,6 +431,12 @@ const initialWaitlistForm = {
   contactPreference: "",
   note: "",
 };
+const initialTransferReviewDraft: OwnershipTransferReviewDraft = {
+  nextCustodianName: "",
+  nextCustodianEmail: "",
+  intendedTiming: "",
+  note: "",
+};
 const titleOptions = [
   { value: "Mr.", label: "Mr." },
   { value: "Mrs.", label: "Mrs." },
@@ -538,6 +544,12 @@ type RegisteredOwnershipPair = {
   legacyRefreshRequestStatus?: string | null;
   legacyRefreshRequestedAt?: string | null;
   legacyRefreshNote?: string | null;
+};
+type OwnershipTransferReviewDraft = {
+  nextCustodianName: string;
+  nextCustodianEmail: string;
+  intendedTiming: string;
+  note: string;
 };
 const PENDING_OTP_SESSION_KEY = "praeliator_pending_otp";
 const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
@@ -760,6 +772,118 @@ const contactEntryModes = [
     text: "For clients who want future access or a softer point of entry before direct continuation.",
     action: "Join waitlist",
   },
+];
+const houseArchivePillars = [
+  {
+    title: "Object authority",
+    text: "VIS is treated less like product inventory and more like a resolved training object with a documented standard.",
+  },
+  {
+    title: "Private acquisition",
+    text: "Inquiry, review, allocation, and delivery stay under direct house control instead of open commerce logic.",
+  },
+  {
+    title: "Recorded custody",
+    text: "Registration, age, service maturity, and future review remain attached to one continuous ownership line.",
+  },
+  {
+    title: "House memory",
+    text: "Aftercare is treated as continuation and retention, not generic support once the object has been delivered.",
+  },
+];
+const houseLetterExcerpts = [
+  {
+    title: "Letter I",
+    eyebrow: "House letter",
+    body:
+      "Praeliator is not trying to look like sports equipment refined by fashion. It is trying to behave like a house that understands the object before it understands the sale.",
+    signature: "Praeliator / House note",
+  },
+  {
+    title: "Letter II",
+    eyebrow: "Collector note",
+    body:
+      "The point of the Ownership Record is not storage of data. It is proof that custody, maturity, and aftercare still belong to the same authored system after acquisition.",
+    signature: "Private correspondence",
+  },
+];
+const visDossierEntries = [
+  {
+    label: "Study",
+    value: "VIS is resolved as a training object with the calm of an archival piece.",
+  },
+  {
+    label: "Custody",
+    value: "Authenticity, presentation, and future aftercare continue under one ownership language.",
+  },
+  {
+    label: "Maturity",
+    value: "Legacy Refresh belongs to age and continuity, not a generic service menu.",
+  },
+];
+const visAuthorityStatements = [
+  "The silhouette is engineered to read controlled before it reads aggressive.",
+  "Materials were chosen to avoid synthetic shine and preserve quiet authority.",
+  "Packaging and documentation extend the object system beyond the glove itself.",
+  "Aftercare is treated as continuity, not a detached support feature.",
+];
+const acquisitionPlacementSignals = [
+  {
+    title: "Collector intent",
+    text: "The route can account for collecting, rotation, long-term use, and future custody rather than forcing every client into one checkout pattern.",
+  },
+  {
+    title: "Regional handling",
+    text: "Timing, dispatch route, and destination are considered before allocation is confirmed.",
+  },
+  {
+    title: "Continuity after delivery",
+    text: "The acquisition route is designed to feed directly into ownership record and future service rather than ending at dispatch.",
+  },
+];
+const acquisitionConciergeNotes = [
+  { label: "Placement", value: "Qualified review before allocation" },
+  { label: "Reference", value: "Client line retained after inquiry" },
+  { label: "Dispatch", value: "Destination and timing clarified directly" },
+  { label: "Aftercare", value: "Ownership remains active after delivery" },
+];
+const waitlistCollectorSignals = [
+  {
+    title: "Release signals",
+    text: "The waitlist is meant to keep future access orderly when a client is not yet entering direct acquisition.",
+  },
+  {
+    title: "Collector memory",
+    text: "Collector interest, timeline, and route preference are remembered as part of the intake line rather than discarded after form submission.",
+  },
+  {
+    title: "House correspondence",
+    text: "Follow-up should feel like private correspondence from the house, not automated campaign mail.",
+  },
+];
+const contactResponseStandards = [
+  {
+    title: "Tone",
+    text: "Every reply should sound exact, private, and restrained rather than like a support desk.",
+  },
+  {
+    title: "Hierarchy",
+    text: "WhatsApp remains first for active acquisition, while email and Instagram stay quieter secondary routes.",
+  },
+  {
+    title: "Continuation",
+    text: "The house should remain visible through the channel itself, not disappear behind generic service language.",
+  },
+];
+const ownershipTransferReviewStandards = [
+  "The house reviews continuity before a retained pair changes custody.",
+  "Transfer timing, next custodian, and object condition should be stated clearly.",
+  "The request begins as review, not automatic reassignment.",
+];
+const ownershipServiceLedgerLabels = [
+  "Registration entered",
+  "Delivery age retained",
+  "Legacy Refresh state held under record",
 ];
 const visEditorialBlocks = [
   {
@@ -1102,7 +1226,7 @@ function getLegacyRefreshRecordState(pair: RegisteredOwnershipPair) {
 }
 
 function formatClaimSeal(claimCodeLast4: string) {
-  return claimCodeLast4 ? `â€¢â€¢â€¢â€¢${claimCodeLast4}` : "Seal pending";
+  return claimCodeLast4 ? `****${claimCodeLast4}` : "Seal pending";
 }
 
 type OwnershipEditionTheme = {
@@ -1237,6 +1361,258 @@ function getOwnershipIssuedAt(
   return validDates[0]?.toISOString() ?? null;
 }
 
+function getOwnershipServiceLedger(pair: RegisteredOwnershipPair) {
+  const recordState = getLegacyRefreshRecordState(pair);
+
+  return [
+    {
+      label: ownershipServiceLedgerLabels[0],
+      date: formatOwnershipDate(pair.registeredAt),
+      detail: "The pair was admitted into the Ownership Record under the current client line.",
+    },
+    {
+      label: ownershipServiceLedgerLabels[1],
+      date: formatOwnershipDate(pair.deliveryConfirmedAt),
+      detail: "Every maturity decision continues from the delivery date retained by the house.",
+    },
+    {
+      label: ownershipServiceLedgerLabels[2],
+      date: pair.legacyRefreshRequestStatus
+        ? formatOwnershipDate(
+            pair.legacyRefreshRequestedAt ?? pair.legacyRefreshEligibleOn,
+          )
+        : formatOwnershipDate(pair.legacyRefreshEligibleOn),
+      detail: recordState.detail,
+    },
+  ];
+}
+
+function buildOwnershipCertificateMarkup({
+  clientName,
+  clientEmail,
+  recordReference,
+  issuedAt,
+  pair,
+}: {
+  clientName: string;
+  clientEmail: string | null;
+  recordReference: string;
+  issuedAt: string | null;
+  pair: RegisteredOwnershipPair | null;
+}) {
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  const pairAge = pair ? getPairAgeDescriptor(pair.deliveryConfirmedAt) : null;
+  const refreshState = pair ? getLegacyRefreshRecordState(pair) : null;
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Praeliator Ownership Record</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Times New Roman", Georgia, serif;
+        background:
+          radial-gradient(circle at top right, rgba(201, 171, 129, 0.16), transparent 28%),
+          linear-gradient(180deg, #f5ecdf 0%, #eadbc7 100%);
+        color: #231b15;
+      }
+      .sheet {
+        width: min(980px, calc(100vw - 48px));
+        margin: 24px auto;
+        border: 1px solid #d3c0a7;
+        border-radius: 28px;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(252, 247, 241, 0.99), rgba(238, 228, 214, 0.97));
+        box-shadow: 0 30px 90px rgba(77, 53, 30, 0.18);
+      }
+      .rail {
+        height: 10px;
+        background: linear-gradient(90deg, #86613d, #d5b382);
+      }
+      .topline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 18px 32px;
+        border-bottom: 1px solid #d8c9b5;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 10px;
+        color: #8d755c;
+      }
+      .content {
+        padding: 36px 32px 32px;
+      }
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        font-size: 11px;
+        color: #9f7d58;
+      }
+      h1 {
+        margin: 18px 0 0;
+        max-width: 11ch;
+        font-size: 64px;
+        line-height: 0.84;
+        letter-spacing: -0.06em;
+        font-weight: 600;
+      }
+      .lede {
+        max-width: 760px;
+        margin: 18px 0 0;
+        font-size: 16px;
+        line-height: 1.9;
+        color: #55473b;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 28px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px solid #d8c9b5;
+        border-radius: 18px;
+        background: rgba(251, 246, 239, 0.94);
+        padding: 18px;
+      }
+      .label {
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 10px;
+        color: #8d755c;
+      }
+      .value {
+        margin-top: 10px;
+        font-size: 18px;
+        line-height: 1.6;
+        color: #231b15;
+      }
+      .footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: space-between;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #d8c9b5;
+      }
+      .signature {
+        max-width: 420px;
+      }
+      .signature p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #5b4c40;
+      }
+      .signature strong {
+        display: block;
+        margin-top: 14px;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: #231b15;
+      }
+      @media print {
+        body {
+          background: #f5ecdf;
+        }
+        .sheet {
+          width: auto;
+          margin: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="sheet">
+      <div class="rail"></div>
+      <div class="topline">
+        <span>Praeliator / Ownership Record</span>
+        <span>${recordReference}</span>
+        <span>Issued ${formatOwnershipDate(issuedAt ?? new Date().toISOString())}</span>
+      </div>
+      <div class="content">
+        <p class="eyebrow">Private certificate of custody</p>
+        <h1>Recorded under the house.</h1>
+        <p class="lede">
+          This document confirms that the pair and its continuity remain attached to the Ownership Record under the Praeliator house line.
+        </p>
+        <div class="grid">
+          <section class="card">
+            <p class="label">Client line</p>
+            <p class="value">${escapeHtml(clientName)}</p>
+          </section>
+          <section class="card">
+            <p class="label">Client address</p>
+            <p class="value">${escapeHtml(clientEmail ?? "Private line retained")}</p>
+          </section>
+          <section class="card">
+            <p class="label">House reference</p>
+            <p class="value">${escapeHtml(recordReference)}</p>
+          </section>
+          <section class="card">
+            <p class="label">Retained pair</p>
+            <p class="value">${escapeHtml(pair?.serial ?? "Awaiting first retained pair")}</p>
+          </section>
+          <section class="card">
+            <p class="label">Recorded delivery</p>
+            <p class="value">${escapeHtml(pair ? formatOwnershipDate(pair.deliveryConfirmedAt) : "Pending record")}</p>
+          </section>
+          <section class="card">
+            <p class="label">Legacy Refresh posture</p>
+            <p class="value">${escapeHtml(refreshState?.label ?? "No retained pair under review")}</p>
+          </section>
+          <section class="card">
+            <p class="label">Pair age</p>
+            <p class="value">${escapeHtml(pairAge?.label ?? "Age pending")}</p>
+          </section>
+          <section class="card">
+            <p class="label">Claim seal</p>
+            <p class="value">${escapeHtml(pair ? formatClaimSeal(pair.claimCodeLast4) : "Seal pending")}</p>
+          </section>
+          <section class="card">
+            <p class="label">Next service threshold</p>
+            <p class="value">${escapeHtml(pair ? formatOwnershipDate(pair.legacyRefreshEligibleOn) : "Pending first retention")}</p>
+          </section>
+        </div>
+        <div class="footer">
+          <div class="signature">
+            <p>
+              The object remains recorded with continuity of delivery age, service eligibility, and future review under the same private line.
+            </p>
+            <strong>Praeliator / House archive</strong>
+          </div>
+          <div class="signature">
+            <p>
+              Print or save this certificate as PDF to retain an offline copy of the record at its present state.
+            </p>
+          </div>
+        </div>
+      </div>
+    </article>
+  </body>
+</html>`;
+}
+
 function OwnershipWatermark({
   className = "",
   opacityClassName = "opacity-[0.07]",
@@ -1314,14 +1690,54 @@ function OwnershipContinuityTimeline({
   );
 }
 
+function OwnershipServiceLedger({
+  pair,
+}: {
+  pair: RegisteredOwnershipPair;
+}) {
+  const ledgerEntries = getOwnershipServiceLedger(pair);
+
+  return (
+    <div className="rounded-[1.15rem] border border-[#ddd0be] bg-[#fbf6ef]/86 p-4">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">
+        Service ledger
+      </p>
+      <div className="mt-4 grid gap-3">
+        {ledgerEntries.map((entry) => (
+          <div
+            key={entry.label}
+            className="rounded-[1rem] border border-[#e1d5c6] bg-white/50 p-3"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">
+                {entry.label}
+              </p>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#a18467]">
+                {entry.date}
+              </p>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-[#5b4c40]">
+              {entry.detail}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function OwnershipPairFolio({
   pair,
   index,
   onEnterLegacyRefresh,
+  onOpenTransferReview,
+  onExportCertificate,
 }: {
   pair: RegisteredOwnershipPair;
   index: number;
   onEnterLegacyRefresh: (pair: RegisteredOwnershipPair) => void;
+  onOpenTransferReview: (pair: RegisteredOwnershipPair) => void;
+  onExportCertificate: (pair: RegisteredOwnershipPair) => void;
 }) {
   const editionTheme = getOwnershipEditionTheme(pair.serial, index);
   const hasActiveRequest = Boolean(
@@ -1471,14 +1887,15 @@ function OwnershipPairFolio({
                   repeated folios still feel singular in the archive.
                 </p>
               </div>
+              <OwnershipServiceLedger pair={pair} />
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4">
             <p className="text-[11px] uppercase tracking-[0.18em] text-[#7d6a59]">
               Invitation state: {serviceSummary}
             </p>
-            <div className="flex flex-col gap-3 sm:items-end">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               {pair.legacyRefreshEligible && !hasActiveRequest ? (
                 <Button
                   type="button"
@@ -1498,6 +1915,22 @@ function OwnershipPairFolio({
                   Opens {formatOwnershipDate(pair.legacyRefreshEligibleOn)}
                 </div>
               )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onExportCertificate(pair)}
+                className="rounded-full border-[#cdbca7] bg-transparent px-5 py-5 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
+              >
+                Export Certificate
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenTransferReview(pair)}
+                className="rounded-full border-[#cdbca7] bg-transparent px-5 py-5 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
+              >
+                Review Transfer
+              </Button>
             </div>
           </div>
         </div>
@@ -1802,6 +2235,231 @@ function LegacyRefreshChamberDialog({
   );
 }
 
+function TransferReviewChamberDialog({
+  pair,
+  draft,
+  error,
+  submitting,
+  onDraftChange,
+  onClose,
+  onSubmit,
+}: {
+  pair: RegisteredOwnershipPair;
+  draft: OwnershipTransferReviewDraft;
+  error: string | null;
+  submitting: boolean;
+  onDraftChange: (
+    field: keyof OwnershipTransferReviewDraft,
+    value: string,
+  ) => void;
+  onClose: () => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}) {
+  const editionTheme = getOwnershipEditionTheme(pair.serial, 1);
+  const pairAge = getPairAgeDescriptor(pair.deliveryConfirmedAt);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[160] flex items-center justify-center bg-[rgba(29,21,15,0.42)] px-4 py-6 backdrop-blur-[10px] sm:px-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.26, ease: easeLuxury }}
+      onClick={() => {
+        if (submitting) return;
+        onClose();
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 18, scale: 0.985 }}
+        transition={{ duration: 0.34, ease: easeLuxury }}
+        className={`ownership-grain relative w-full max-w-[72rem] overflow-hidden rounded-[2.2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] ${editionTheme.surfaceClassName}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div
+          className={`pointer-events-none absolute inset-y-0 left-0 w-[0.65rem] ${editionTheme.accentBarClassName}`}
+        />
+        <OwnershipWatermark
+          className="right-[-2.25rem] top-[-2.25rem] h-44 w-44 sm:h-56 sm:w-56"
+          opacityClassName="opacity-[0.05]"
+        />
+        <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="relative border-b border-[#d8c9b5] p-6 sm:p-8 lg:border-b-0 lg:border-r">
+            <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
+              Transfer review chamber
+            </p>
+            <div
+              className={`mt-4 inline-flex rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.22em] ${editionTheme.tabClassName}`}
+            >
+              Continuity review
+            </div>
+            <h3 className="ownership-display mt-4 text-[2.9rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]">
+              {pair.serial}
+            </h3>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#55473b]">
+              A retained pair does not change custody automatically. The house
+              reviews continuity, timing, and the identity of the next line
+              before a transfer is acknowledged.
+            </p>
+
+            <div className="mt-6 grid gap-3">
+              <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                  Pair age
+                </p>
+                <p className="mt-3 text-sm leading-7 text-[#231b15]">
+                  {pairAge.label}
+                </p>
+              </div>
+              <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                  Delivery recorded
+                </p>
+                <p className="mt-3 text-sm leading-7 text-[#231b15]">
+                  {formatOwnershipDate(pair.deliveryConfirmedAt)}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3">
+              {ownershipTransferReviewStandards.map((item, index) => (
+                <div
+                  key={item}
+                  className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                    Review {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <form
+            className="relative grid gap-4 p-6 sm:p-8"
+            onSubmit={onSubmit}
+          >
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">
+                Private review letter
+              </p>
+              <p className="mt-3 max-w-xl text-sm leading-7 text-[#5b4c40]">
+                This submission prepares a structured transfer-review brief and
+                drafts the continuation email so the request stays authored and
+                precise.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                  Next custodian
+                </span>
+                <input
+                  type="text"
+                  value={draft.nextCustodianName}
+                  onChange={(event) =>
+                    onDraftChange("nextCustodianName", event.target.value)
+                  }
+                  className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                  placeholder="Full name"
+                  autoComplete="name"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                  Next custodian email
+                </span>
+                <input
+                  type="email"
+                  value={draft.nextCustodianEmail}
+                  onChange={(event) =>
+                    onDraftChange("nextCustodianEmail", event.target.value)
+                  }
+                  className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                />
+              </label>
+            </div>
+
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                Intended timing
+              </span>
+              <input
+                type="text"
+                value={draft.intendedTiming}
+                onChange={(event) =>
+                  onDraftChange("intendedTiming", event.target.value)
+                }
+                className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                placeholder="Within 30 days / after review / future only"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                Continuity note
+              </span>
+              <textarea
+                value={draft.note}
+                onChange={(event) =>
+                  onDraftChange("note", event.target.value.slice(0, 500))
+                }
+                className={`${formFieldBaseClass} min-h-[10rem] resize-none border-[#d0bea6] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                placeholder="Object condition, provenance, or any continuity detail the house should review."
+                maxLength={500}
+              />
+            </label>
+
+            <div className="flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-[#7d6a59]">
+              <span>{draft.note.length}/500</span>
+              <span>Prepared for house review</span>
+            </div>
+
+            <div className="rounded-[1.35rem] border border-[#dbcab5] bg-[linear-gradient(180deg,rgba(248,240,228,0.96),rgba(241,230,216,0.98))] p-4">
+              <p className="text-sm leading-7 text-[#5b4c40]">
+                Submission copies the transfer brief to the clipboard and opens a
+                drafted email so the review can continue under the house rather
+                than inside a generic account action.
+              </p>
+            </div>
+
+            {error ? (
+              <p className="text-sm leading-6 text-[#a25d50]">{error}</p>
+            ) : null}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className={`rounded-full px-7 py-6 text-sm transition duration-500 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60 ${editionTheme.buttonClassName}`}
+              >
+                {submitting ? "Preparing review..." : "Prepare Transfer Review"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={submitting}
+                className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-60"
+              >
+                Return to Record
+              </Button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function mapOwnershipRow(
   row: {
     id: string;
@@ -1946,6 +2604,45 @@ function DataList({
           </p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function HouseLetterCard({
+  eyebrow,
+  title,
+  body,
+  signature,
+  className = "",
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  signature: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`ownership-grain relative overflow-hidden rounded-[1.8rem] border border-[#d8c9b5] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(238,228,214,0.96))] p-6 text-[#231b15] shadow-[0_20px_48px_rgba(77,53,30,0.1)] sm:p-7 ${className}`}
+    >
+      <OwnershipWatermark
+        className="right-[-1.5rem] top-[-1.5rem] h-28 w-28 sm:h-36 sm:w-36"
+        opacityClassName="opacity-[0.04]"
+      />
+      <div className="relative">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+          {eyebrow}
+        </p>
+        <h3 className="ownership-display mt-4 max-w-[12ch] text-[2.4rem] font-semibold leading-[0.86] tracking-[-0.05em] text-[#231b15] sm:text-[2.9rem]">
+          {title}
+        </h3>
+        <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5b4c40] sm:text-base sm:leading-8">
+          {body}
+        </p>
+        <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[#7d6753]">
+          {signature}
+        </p>
+      </div>
     </div>
   );
 }
@@ -3976,21 +4673,49 @@ function ExploreFurtherScene({
     },
   ];
   return (
-    <section className="relative isolate flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-center bg-[#111111] px-8 py-24 sm:px-12 lg:px-16">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_38%)]" />
+    <section className="relative isolate bg-[linear-gradient(180deg,#15110d_0%,#0f0d0b_100%)] px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.11),transparent_34%)]" />
       <motion.div
         animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
         transition={{ duration: 0.8, ease: easeLuxury }}
         className="relative z-10 mx-auto w-full max-w-[120rem]"
       >
-        <div className="text-center">
-          <p className="text-[clamp(1.25rem,2.8vw,2.4rem)] font-light uppercase tracking-[0.18em] text-white/92">
-            Explore Further
+        <div className="mx-auto max-w-[64rem] text-center">
+          <p className="text-[10px] uppercase tracking-[0.34em] text-[#c7a97e] sm:text-xs">
+            House continuation
           </p>
-          <p className="mt-3 text-[clamp(0.8rem,1vw,1rem)] uppercase tracking-[0.14em] text-white/62">
-            Continue your journey
+          <h2 className="ownership-display mt-5 text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-[#f4efe7]">
+            The house continues after the opening sequence.
+          </h2>
+          <p className="mx-auto mt-6 max-w-[42rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+            The first three chambers stay cinematic and untouched. Beyond them,
+            the site should begin to prove that Praeliator is a house with
+            object authority, private acquisition, recorded custody, and memory.
           </p>
         </div>
+
+        <div className="mt-14 grid gap-4 lg:grid-cols-4 lg:gap-5">
+          {houseArchivePillars.map((pillar, index) => (
+            <motion.div
+              key={pillar.title}
+              animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+              transition={{
+                duration: 0.8,
+                delay: 0.08 + index * 0.05,
+                ease: easeLuxury,
+              }}
+              className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,15,13,0.88),rgba(12,10,9,0.94))] p-5 shadow-[0_22px_60px_rgba(0,0,0,0.18)]"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#c7a97e]">
+                {pillar.title}
+              </p>
+              <p className="mt-4 text-sm leading-7 text-white/60">
+                {pillar.text}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+
         <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
             <motion.button
@@ -4000,20 +4725,23 @@ function ExploreFurtherScene({
               animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
               transition={{
                 duration: 0.8,
-                delay: 0.12 + index * 0.08,
+                delay: 0.18 + index * 0.08,
                 ease: easeLuxury,
               }}
-              className="group overflow-hidden border-l border-white/18 bg-transparent text-left"
+              className="group overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.88),rgba(11,10,9,0.92))] text-left shadow-[0_24px_70px_rgba(0,0,0,0.2)]"
             >
               <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
                 <div
                   className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
                   style={{ backgroundImage: `url(${card.image})` }}
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.22))]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.36))]" />
               </div>
               <div className="px-7 py-7">
-                <p className="text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#c7a97e]">
+                  Continue
+                </p>
+                <p className="mt-4 text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
                   {card.title}
                 </p>
                 <p className="mt-4 max-w-[24rem] text-[clamp(0.88rem,0.95vw,1rem)] leading-7 text-white/68">
@@ -4021,6 +4749,27 @@ function ExploreFurtherScene({
                 </p>
               </div>
             </motion.button>
+          ))}
+        </div>
+
+        <div className="mt-16 grid gap-5 lg:grid-cols-2 lg:gap-6">
+          {houseLetterExcerpts.map((letter, index) => (
+            <motion.div
+              key={letter.title}
+              animate={{ opacity: active ? 1 : 0.5, y: active ? 0 : 18 }}
+              transition={{
+                duration: 0.8,
+                delay: 0.34 + index * 0.08,
+                ease: easeLuxury,
+              }}
+            >
+              <HouseLetterCard
+                eyebrow={letter.eyebrow}
+                title={letter.title}
+                body={letter.body}
+                signature={letter.signature}
+              />
+            </motion.div>
           ))}
         </div>
       </motion.div>
@@ -5354,6 +6103,10 @@ export default function PraeliatorWebsite() {
   const [legacyRefreshNote, setLegacyRefreshNote] = useState("");
   const [legacyRefreshError, setLegacyRefreshError] = useState<string | null>(null);
   const [legacyRefreshSubmitting, setLegacyRefreshSubmitting] = useState(false);
+  const [transferReviewDraftPairId, setTransferReviewDraftPairId] = useState<string | null>(null);
+  const [transferReviewDraft, setTransferReviewDraft] = useState<OwnershipTransferReviewDraft>(initialTransferReviewDraft);
+  const [transferReviewError, setTransferReviewError] = useState<string | null>(null);
+  const [transferReviewSubmitting, setTransferReviewSubmitting] = useState(false);
   const [ownershipLoading, setOwnershipLoading] = useState(false);
   const [ownershipInitialized, setOwnershipInitialized] = useState(false);
 
@@ -5786,6 +6539,9 @@ export default function PraeliatorWebsite() {
       setLegacyRefreshDraftPairId(null);
       setLegacyRefreshNote("");
       setLegacyRefreshError(null);
+      setTransferReviewDraftPairId(null);
+      setTransferReviewDraft(initialTransferReviewDraft);
+      setTransferReviewError(null);
       return;
     }
     void loadOwnershipPairs();
@@ -7097,6 +7853,51 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <div className="grid gap-6 lg:grid-cols-[0.94fr_1.06fr] lg:items-start lg:gap-8">
+            <Reveal>
+              <HouseLetterCard
+                eyebrow="Object dossier"
+                title="VIS should feel recorded before it feels merchandised."
+                body="The glove is strongest when the site treats it like an authored object: something with construction evidence, custody language, and future continuity already built into its presentation."
+                signature="Praeliator / Object note"
+              />
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,14,13,0.9),rgba(10,9,8,0.95))] p-6 shadow-[0_26px_70px_rgba(0,0,0,0.24)] sm:p-8">
+                <div className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr] lg:gap-8">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                      Dossier
+                    </p>
+                    <div className="mt-5">
+                      <DataList items={visDossierEntries} compact />
+                    </div>
+                  </div>
+                  <div className="border-t border-white/10 pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                      House authority
+                    </p>
+                    <div className="mt-5 space-y-4">
+                      {visAuthorityStatements.map((statement) => (
+                        <p
+                          key={statement}
+                          className="border-b border-white/8 pb-4 text-sm leading-7 text-white/62 last:border-b-0 last:pb-0"
+                        >
+                          {statement}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
@@ -7343,6 +8144,64 @@ const renderAcquisitionPage = () => (
                 </div>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section className="relative py-16 sm:py-20 lg:py-24">
+      <Container>
+        <div className="grid gap-10 xl:grid-cols-[0.94fr_1.06fr] xl:gap-14">
+          <Reveal>
+            <HouseLetterCard
+              eyebrow="House letter / placement"
+              title="Placement should feel considered before it feels available."
+              body="Praeliator handles acquisition like placement into a private line, not as open product traffic. Timing, region, and collector intent are clarified early so continuation stays controlled from the first exchange."
+              signature="Praeliator / acquisition desk"
+              className="h-full"
+            />
+          </Reveal>
+
+          <div className="grid gap-5">
+            <Reveal delay={0.05}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,15,14,0.92),rgba(11,10,9,0.96))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  Placement signals
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  {acquisitionPlacementSignals.map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.96))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.22)] sm:p-8">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  Concierge handling
+                </p>
+                <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
+                  {acquisitionConciergeNotes.map((item) => (
+                    <div key={item} className="py-4">
+                      <p className="text-sm leading-7 text-white/62">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </Container>
@@ -7893,6 +8752,83 @@ const renderWaitlistPage = () => (
           </div>
         </Container>
       </section>
+
+      <section className="relative py-10 sm:py-12 lg:py-16">
+        <Container>
+          <div className="grid gap-10 xl:grid-cols-[0.96fr_1.04fr] xl:gap-14">
+            <Reveal>
+              <HouseLetterCard
+                eyebrow="House letter / collector line"
+                title="Interest can be retained before it needs to be answered."
+                body="The waitlist is not a promotional funnel. It is a quieter register for future access, collector posture, and timing before a more direct continuation becomes necessary."
+                signature="Praeliator / collector register"
+                className="h-full"
+              />
+            </Reveal>
+
+            <div className="grid gap-5">
+              <Reveal delay={0.05}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.97))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Collector signals
+                  </p>
+                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                    {waitlistCollectorSignals.map((item) => (
+                      <div
+                        key={item.title}
+                        className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                          {item.title}
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-white/62">
+                          {item.text}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.92),rgba(9,8,8,0.96))] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.2)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Returned under reference
+                  </p>
+                  <p className="mt-4 max-w-2xl text-sm leading-7 text-white/62">
+                    Once submitted, the inquiry is retained under a client
+                    reference rather than disappearing into a generic mailing
+                    list. That reference becomes the quiet line for future
+                    continuation.
+                  </p>
+                  <div className="mt-5 grid gap-3">
+                    <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        Future release posture
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">
+                        The waitlist remains appropriate for future access,
+                        collector visibility, or quiet intent before immediate
+                        inquiry becomes necessary.
+                      </p>
+                    </div>
+                    <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        Direct continuation
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">
+                        When timing matters, the route may still continue
+                        directly on WhatsApp without losing the recorded
+                        reference.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </Container>
+      </section>
     </>
   );
   const renderContactPage = () => (
@@ -8063,6 +8999,64 @@ const renderWaitlistPage = () => (
                 where appropriate.
               </p>
             </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="relative py-16 sm:py-18 lg:py-22">
+        <Container>
+          <div className="grid gap-10 xl:grid-cols-[0.94fr_1.06fr] xl:gap-14">
+            <Reveal>
+              <HouseLetterCard
+                eyebrow="House letter / response"
+                title="Even direct contact should still feel like the house."
+                body="The route matters as much as the channel. Whether inquiry begins on WhatsApp, email, or Instagram, the response should remain calm, exact, and private rather than collapsing into customer-support language."
+                signature="Praeliator / direct correspondence"
+                className="h-full"
+              />
+            </Reveal>
+
+            <div className="grid gap-5">
+              <Reveal delay={0.05}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.96))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Response standards
+                  </p>
+                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                    {contactResponseStandards.map((item) => (
+                      <div
+                        key={item.title}
+                        className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                          {item.title}
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-white/62">
+                          {item.text}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={0.1}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(13,12,11,0.92),rgba(8,8,7,0.96))] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.2)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Channel posture
+                  </p>
+                  <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
+                    {contactStandards.map((item) => (
+                      <div key={item} className="py-4">
+                        <p className="text-sm leading-7 text-white/62">
+                          {item}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            </div>
           </div>
         </Container>
       </section>
@@ -9876,8 +10870,144 @@ Use a one-time code
     }
   };
 
+  const handleTransferReviewDraftChange = React.useCallback(
+    (field: keyof OwnershipTransferReviewDraft, value: string) => {
+      setTransferReviewDraft((current) => ({
+        ...current,
+        [field]: value,
+      }));
+    },
+    [],
+  );
+
+  const handleExportOwnershipCertificate = React.useCallback(
+    (pair: RegisteredOwnershipPair | null) => {
+      if (typeof window === "undefined" || !authSession) return;
+
+      const activePair = pair ?? ownershipPairs[0] ?? null;
+      const previewWindow = window.open("", "_blank", "width=1120,height=820");
+
+      if (!previewWindow) {
+        setAuthNotice({
+          tone: "error",
+          title: "Certificate blocked",
+          body: "The certificate could not be opened. Allow pop-ups for this site and try again.",
+        });
+        return;
+      }
+
+      previewWindow.document.open();
+      previewWindow.document.write(
+        buildOwnershipCertificateMarkup({
+          clientName: getOwnershipDisplayName(authSession),
+          clientEmail: authSession.user.email ?? null,
+          recordReference: getOwnershipRecordReference(authSession.user.id),
+          issuedAt: getOwnershipIssuedAt(authSession, ownershipPairs),
+          pair: activePair,
+        }),
+      );
+      previewWindow.document.close();
+      previewWindow.focus();
+
+      window.setTimeout(() => {
+        try {
+          previewWindow.print();
+        } catch {
+          // Print remains optional; opening the certificate is the main outcome.
+        }
+      }, 180);
+
+      setAuthNotice({
+        tone: "success",
+        title: "Certificate prepared",
+        body: activePair
+          ? `A print-ready certificate for ${activePair.serial} has been opened in a separate window.`
+          : "A print-ready Ownership Record certificate has been opened in a separate window.",
+      });
+    },
+    [authSession, ownershipPairs],
+  );
+
+  const handleSubmitTransferReview = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (typeof window === "undefined" || !authSession || !transferReviewDraftPairId) {
+      return;
+    }
+
+    const pair =
+      ownershipPairs.find((item) => item.id === transferReviewDraftPairId) ?? null;
+    if (!pair) return;
+
+    const nextCustodianName = transferReviewDraft.nextCustodianName.trim();
+    const nextCustodianEmail = transferReviewDraft.nextCustodianEmail.trim();
+    const intendedTiming = transferReviewDraft.intendedTiming.trim();
+    const note = transferReviewDraft.note.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!nextCustodianName) {
+      setTransferReviewError("State the intended next custodian before review can begin.");
+      return;
+    }
+
+    if (!intendedTiming) {
+      setTransferReviewError("State the intended transfer timing for the house review.");
+      return;
+    }
+
+    if (nextCustodianEmail && !emailPattern.test(nextCustodianEmail)) {
+      setTransferReviewError("Enter a valid next-custodian email address or leave it blank.");
+      return;
+    }
+
+    setTransferReviewError(null);
+    setTransferReviewSubmitting(true);
+
+    const reviewBody = [
+      "Praeliator Transfer Review",
+      "",
+      `Ownership Record: ${getOwnershipRecordReference(authSession.user.id)}`,
+      `Current client: ${getOwnershipDisplayName(authSession)}`,
+      `Client email: ${authSession.user.email ?? "Private line retained"}`,
+      `Pair: ${pair.serial}`,
+      `Recorded delivery: ${formatOwnershipDate(pair.deliveryConfirmedAt)}`,
+      `Next custodian: ${nextCustodianName}`,
+      `Next custodian email: ${nextCustodianEmail || "Not yet supplied"}`,
+      `Intended timing: ${intendedTiming}`,
+      `Legacy Refresh posture: ${getLegacyRefreshRecordState(pair).label}`,
+      "",
+      "Continuity note:",
+      note || "No additional continuity note supplied.",
+    ].join("\n");
+
+    try {
+      try {
+        await navigator.clipboard.writeText(reviewBody);
+      } catch {
+        // Clipboard support is helpful but not required for the review letter.
+      }
+
+      window.location.href = `mailto:praeliatorboxing@gmail.com?subject=${encodeURIComponent(
+        `Praeliator Transfer Review / ${pair.serial}`,
+      )}&body=${encodeURIComponent(reviewBody)}`;
+
+      setTransferReviewDraftPairId(null);
+      setTransferReviewDraft(initialTransferReviewDraft);
+      setAuthNotice({
+        tone: "success",
+        title: "Transfer review prepared",
+        body: `The review brief for ${pair.serial} has been copied and a drafted email has been prepared for continuation.`,
+      });
+    } finally {
+      setTransferReviewSubmitting(false);
+    }
+  };
+
   const legacyRefreshDraftPair =
     ownershipPairs.find((pair) => pair.id === legacyRefreshDraftPairId) ?? null;
+  const transferReviewDraftPair =
+    ownershipPairs.find((pair) => pair.id === transferReviewDraftPairId) ?? null;
   const ownershipEligibleNowCount = ownershipPairs.filter(
     (pair) => pair.legacyRefreshEligible,
   ).length;
@@ -10211,8 +11341,31 @@ Use a one-time code
                   <div className="mt-8 flex flex-col gap-3">
                     <Button
                       type="button"
+                      onClick={() =>
+                        handleExportOwnershipCertificate(latestRetainedPair)
+                      }
+                      className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
+                    >
+                      Export Ownership Certificate
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        if (!latestRetainedPair) return;
+                        setTransferReviewDraftPairId(latestRetainedPair.id);
+                        setTransferReviewDraft(initialTransferReviewDraft);
+                        setTransferReviewError(null);
+                      }}
+                      disabled={!latestRetainedPair}
+                      className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      Review Latest Transfer
+                    </Button>
+                    <Button
+                      type="button"
                       onClick={handleSignOut}
-                      className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
+                      className="rounded-full bg-[#201914] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
                       disabled={authLoading}
                     >
                       {authLoading ? "Signing out..." : "Sign Out"}
@@ -10397,6 +11550,12 @@ Use a one-time code
                           );
                           setLegacyRefreshError(null);
                         }}
+                        onOpenTransferReview={(selectedPair) => {
+                          setTransferReviewDraftPairId(selectedPair.id);
+                          setTransferReviewDraft(initialTransferReviewDraft);
+                          setTransferReviewError(null);
+                        }}
+                        onExportCertificate={handleExportOwnershipCertificate}
                       />
                     ))}
                   </div>
@@ -10442,50 +11601,110 @@ Use a one-time code
                   />
                   <div className="relative">
                     <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
-                      Archive note
+                      Certificate chamber
                     </p>
                     <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
-                      The Ownership Record exists so the relationship does not end
-                      at delivery. Registration, maturity, review, and return all
-                      belong to one authored system rather than disconnected
-                      account features.
+                      Export a print-ready certificate whenever the current line
+                      needs an offline record of custody, delivery age, and
+                      present service posture.
                     </p>
 
                     <div className="mt-5 grid gap-3">
                       <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                         <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                          Next maturity
+                          House reference
                         </p>
                         <p className="mt-3 text-sm leading-7 text-[#231b15]">
-                          {nextLegacyRefreshPair
-                            ? `${nextLegacyRefreshPair.serial} / ${formatOwnershipDate(nextLegacyRefreshPair.legacyRefreshEligibleOn)}`
-                            : ownershipPairs.length
-                              ? "No future maturity date remains; the retained pairs have already crossed their threshold."
-                              : "Awaiting the first retained pair."}
+                          {ownershipRecordReference}
                         </p>
                       </div>
                       <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
                         <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                          Completed refreshes
-                        </p>
-                        <p className="mt-3 text-sm leading-7 text-[#231b15]">
-                          {ownershipCompletedRefreshCount} completed under the
-                          house record.
-                        </p>
-                      </div>
-                      <div className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                          Latest retained pair
+                          Current certificate pair
                         </p>
                         <p className="mt-3 text-sm leading-7 text-[#231b15]">
                           {latestRetainedPair
-                            ? `${latestRetainedPair.serial} is the most recent pair attached to this line.`
-                            : "No retained pair has yet entered the archive."}
+                            ? latestRetainedPair.serial
+                            : "The first certificate will appear after the first retained pair."}
                         </p>
                       </div>
                     </div>
+
+                    <div className="mt-6 flex flex-col gap-3">
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          handleExportOwnershipCertificate(latestRetainedPair)
+                        }
+                        className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
+                      >
+                        Export Current Certificate
+                      </Button>
+                    </div>
                   </div>
                 </div>
+
+                <div className="ownership-grain relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-6 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)] sm:p-7">
+                  <div className="relative">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                      Transfer review
+                    </p>
+                    <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                      When custody is meant to continue under another client
+                      line, the house reviews the transition before the record
+                      is allowed to move.
+                    </p>
+
+                    <div className="mt-5 grid gap-3">
+                      {ownershipTransferReviewStandards.map((item) => (
+                        <div
+                          key={item}
+                          className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4"
+                        >
+                          <p className="text-sm leading-7 text-[#5b4c40]">
+                            {item}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 flex flex-col gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          if (!latestRetainedPair) return;
+                          setTransferReviewDraftPairId(latestRetainedPair.id);
+                          setTransferReviewDraft(initialTransferReviewDraft);
+                          setTransferReviewError(null);
+                        }}
+                        disabled={!latestRetainedPair}
+                        className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        {latestRetainedPair
+                          ? `Open Review For ${latestRetainedPair.serial}`
+                          : "Awaiting first retained pair"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {latestRetainedPair ? (
+                  <div className="ownership-grain relative overflow-hidden rounded-[1.9rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(236,226,214,0.96))] p-6 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)] sm:p-7">
+                    <div className="relative">
+                      <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                        Current ledger
+                      </p>
+                      <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                        The latest retained pair remains visible as a living
+                        sequence of registration, age, and service posture.
+                      </p>
+                      <div className="mt-5">
+                        <OwnershipServiceLedger pair={latestRetainedPair} />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           </Container>
@@ -10505,6 +11724,21 @@ Use a one-time code
                 setLegacyRefreshError(null);
               }}
               onSubmit={handleApplyLegacyRefresh}
+            />
+          ) : null}
+          {transferReviewDraftPair ? (
+            <TransferReviewChamberDialog
+              pair={transferReviewDraftPair}
+              draft={transferReviewDraft}
+              error={transferReviewError}
+              submitting={transferReviewSubmitting}
+              onDraftChange={handleTransferReviewDraftChange}
+              onClose={() => {
+                setTransferReviewDraftPairId(null);
+                setTransferReviewDraft(initialTransferReviewDraft);
+                setTransferReviewError(null);
+              }}
+              onSubmit={handleSubmitTransferReview}
             />
           ) : null}
         </AnimatePresence>
