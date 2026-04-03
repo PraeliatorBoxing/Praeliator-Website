@@ -525,6 +525,10 @@ type RegisteredOwnershipPair = {
   registeredAt: string;
   legacyRefreshEligibleOn: string;
   legacyRefreshEligible: boolean;
+  legacyRefreshRequestId?: string | null;
+  legacyRefreshRequestStatus?: string | null;
+  legacyRefreshRequestedAt?: string | null;
+  legacyRefreshNote?: string | null;
 };
 const PENDING_OTP_SESSION_KEY = "praeliator_pending_otp";
 const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
@@ -983,14 +987,60 @@ function getLegacyRefreshEligibleOn(deliveryConfirmedAt: string) {
   return eligibleDate.toISOString();
 }
 
-function mapOwnershipRow(row: {
-  id: string;
-  model: string | null;
-  serial: string;
-  claim_code_last4: string | null;
-  delivery_confirmed_at: string;
-  current_owner_claimed_at: string | null;
-}): RegisteredOwnershipPair {
+function formatLegacyRefreshStatus(status?: string | null) {
+  switch (status) {
+    case "pending_review":
+      return "Application received";
+    case "under_review":
+      return "Under private review";
+    case "approved":
+      return "Approved for intake";
+    case "declined":
+      return "Declined";
+    case "completed":
+      return "Completed";
+    case "withdrawn":
+      return "Withdrawn";
+    default:
+      return "No application";
+  }
+}
+
+function getLegacyRefreshStatusClasses(status?: string | null) {
+  switch (status) {
+    case "pending_review":
+      return "border-[#594726] bg-[#17120b] text-[#d8b87a]";
+    case "under_review":
+      return "border-[#355067] bg-[#0b131a] text-[#96b7d2]";
+    case "approved":
+      return "border-[#335238] bg-[#0d1710] text-[#96c09f]";
+    case "declined":
+      return "border-[#65413a] bg-[#160e0d] text-[#d49b90]";
+    case "completed":
+      return "border-[#394f33] bg-[#10160e] text-[#a7c593]";
+    case "withdrawn":
+      return "border-[#4b4540] bg-[#141210] text-[#b7ada4]";
+    default:
+      return "border-white/10 bg-white/[0.03] text-white/60";
+  }
+}
+
+function mapOwnershipRow(
+  row: {
+    id: string;
+    model: string | null;
+    serial: string;
+    claim_code_last4: string | null;
+    delivery_confirmed_at: string;
+    current_owner_claimed_at: string | null;
+  },
+  request?: {
+    id: string;
+    status: string | null;
+    requested_at: string;
+    note: string | null;
+  } | null,
+): RegisteredOwnershipPair {
   const legacyRefreshEligibleOn = getLegacyRefreshEligibleOn(row.delivery_confirmed_at);
   return {
     id: row.id,
@@ -1001,6 +1051,10 @@ function mapOwnershipRow(row: {
     registeredAt: row.current_owner_claimed_at || row.delivery_confirmed_at,
     legacyRefreshEligibleOn,
     legacyRefreshEligible: Date.now() >= new Date(legacyRefreshEligibleOn).getTime(),
+    legacyRefreshRequestId: request?.id ?? null,
+    legacyRefreshRequestStatus: request?.status ?? null,
+    legacyRefreshRequestedAt: request?.requested_at ?? null,
+    legacyRefreshNote: request?.note ?? null,
   };
 }
 function normalizePath(pathname: string): Route {
@@ -4022,6 +4076,10 @@ export default function PraeliatorWebsite() {
     claimCode: "",
   });
   const [pairRegistrationError, setPairRegistrationError] = useState<string | null>(null);
+  const [legacyRefreshDraftPairId, setLegacyRefreshDraftPairId] = useState<string | null>(null);
+  const [legacyRefreshNote, setLegacyRefreshNote] = useState("");
+  const [legacyRefreshError, setLegacyRefreshError] = useState<string | null>(null);
+  const [legacyRefreshSubmitting, setLegacyRefreshSubmitting] = useState(false);
   const [ownershipLoading, setOwnershipLoading] = useState(false);
   const [ownershipInitialized, setOwnershipInitialized] = useState(false);
 
@@ -4385,7 +4443,27 @@ export default function PraeliatorWebsite() {
         return;
       }
 
-      setOwnershipPairs((data || []).map(mapOwnershipRow));
+      const { data: refreshRows, error: refreshError } = await supabase
+        .from("legacy_refresh_requests")
+        .select("id, pair_id, status, requested_at, note")
+        .order("requested_at", { ascending: false });
+
+      if (refreshError) {
+        setAuthNotice({
+          tone: "error",
+          title: "Legacy Refresh unavailable",
+          body: refreshError.message,
+        });
+      }
+
+      const latestRequestByPair = new Map<string, { id: string; status: string | null; requested_at: string; note: string | null }>();
+      (refreshRows || []).forEach((row: any) => {
+        if (!latestRequestByPair.has(row.pair_id)) {
+          latestRequestByPair.set(row.pair_id, row);
+        }
+      });
+
+      setOwnershipPairs((data || []).map((row: any) => mapOwnershipRow(row, latestRequestByPair.get(row.id) || null)));
     } finally {
       setOwnershipLoading(false);
       setOwnershipInitialized(true);
@@ -4398,6 +4476,9 @@ export default function PraeliatorWebsite() {
       setOwnershipInitialized(true);
       setPairRegistrationForm({ serial: "", claimCode: "" });
       setPairRegistrationError(null);
+      setLegacyRefreshDraftPairId(null);
+      setLegacyRefreshNote("");
+      setLegacyRefreshError(null);
       return;
     }
     void loadOwnershipPairs();
@@ -8383,6 +8464,47 @@ Use a one-time code
     }
   };
 
+  const handleApplyLegacyRefresh = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const client = requireSupabase();
+    if (!client || !authSession || !legacyRefreshDraftPairId) return;
+
+    setLegacyRefreshError(null);
+    setLegacyRefreshSubmitting(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.rpc("apply_legacy_refresh", {
+        p_pair_id: legacyRefreshDraftPairId,
+        p_note: legacyRefreshNote.trim() || null,
+      });
+
+      if (error) {
+        const normalized = error.message.toLowerCase();
+        if (normalized.includes("not yet eligible")) {
+          setLegacyRefreshError("Legacy Refresh is still sealed for this pair. The ritual opens only after the recorded eligibility date.");
+        } else if (normalized.includes("already has an active legacy refresh request")) {
+          setLegacyRefreshError("A Legacy Refresh request is already active for this pair.");
+        } else if (normalized.includes("not attached to this ownership record")) {
+          setLegacyRefreshError("This pair is not attached to the current Ownership Record.");
+        } else {
+          setLegacyRefreshError(error.message);
+        }
+        return;
+      }
+
+      await loadOwnershipPairs();
+      setLegacyRefreshDraftPairId(null);
+      setLegacyRefreshNote("");
+      setAuthNotice({
+        tone: "success",
+        title: "Legacy Refresh requested",
+        body: "The application has entered private review under the house record.",
+      });
+    } finally {
+      setLegacyRefreshSubmitting(false);
+    }
+  };
+
   const renderOwnershipRecordPage = () =>
     renderAuthShell({
       eyebrow: "Ownership",
@@ -8392,34 +8514,35 @@ Use a one-time code
           : "Sign in required"
         : "Loading Ownership Record",
       description: authSession
-        ? "Register authenticated pairs against the house record, review delivery-linked eligibility, and keep ownership continuity attached to the account rather than the browser."
-        : "The Ownership Record is available only to authenticated clients. Sign in or create an account to continue.",
-      asideTitle: authSession ? "Client reference" : "Access control",
+        ? "The ownership layer should feel like entry into a private chamber of the house: authenticated pairs, recorded age, service continuity, and the first route into Legacy Refresh."
+        : "The Ownership Record is reserved for authenticated clients. Sign in or create an account to continue into the private layer.",
+      asideTitle: authSession ? "Private client line" : "Access control",
       asideText: authSession
-        ? `${authSession.user.email ?? "Current client"} · This record is now connected to Supabase instead of local browser storage.`
+        ? `${authSession.user.email ?? "Current client"} · Pair identity, service eligibility, and future review now sit under the house record rather than the browser.`
         : "Authentication sits behind Supabase Auth and email verification when confirmations are enabled.",
       form: authInitialized ? (
         authSession ? (
-          <div className="grid gap-5">
-            <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-              <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,16,14,0.94),rgba(9,8,8,0.92))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-6">
+          <div className="grid gap-6">
+            <div className="grid gap-5 xl:grid-cols-[1.06fr_0.94fr]">
+              <div className="rounded-[1.9rem] border border-[#2d241d] bg-[radial-gradient(circle_at_top,rgba(198,163,90,0.08),transparent_34%),linear-gradient(180deg,rgba(18,15,13,0.98),rgba(8,7,7,0.96))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Register a pair</p>
-                    <h3 className="mt-3 text-[1.85rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7]">
-                      Enter the serial and claim code.
+                  <div className="max-w-2xl">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">The house register</p>
+                    <h3 className="mt-3 text-[2rem] font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-[2.35rem]">
+                      Register the pair, then enter the service ritual.
                     </h3>
-                    <p className="mt-4 max-w-xl text-sm leading-7 text-white/58">
-                      Registration now writes against the house-side pair registry. Use the serial number and claim code from the authenticity card to attach an eligible pair to this Ownership Record.
+                    <p className="mt-4 max-w-xl text-sm leading-7 text-white/60">
+                      The serial and claim code from the authenticity card do more than unlock a product tile. They attach the pair to a living private record: delivery age, future review, and eventual Legacy Refresh application.
                     </p>
                   </div>
-                  <div className="rounded-[1.2rem] border border-[#30251d] bg-[#120f0d] px-4 py-3 text-right">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Registered pairs</p>
-                    <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{ownershipPairs.length}</p>
+                  <div className="min-w-[11.5rem] rounded-[1.3rem] border border-[#3a2f26] bg-[#120f0d]/92 px-4 py-4 text-right shadow-[0_16px_42px_rgba(0,0,0,0.16)]">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Pairs under record</p>
+                    <p className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-[#f4efe7]">{ownershipPairs.length}</p>
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-[#b9a18d]">House-connected</p>
                   </div>
                 </div>
 
-                <form className="mt-6 grid gap-4" onSubmit={handleRegisterPair}>
+                <form className="mt-7 grid gap-4" onSubmit={handleRegisterPair}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2">
                       <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Serial number</span>
@@ -8433,7 +8556,7 @@ Use a one-time code
                             serial: event.target.value.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#2b231d] bg-[#0f0d0c] focus:border-[#8b6b53]`}
                         placeholder="PR-VIS-000001"
                         autoCapitalize="characters"
                       />
@@ -8450,25 +8573,23 @@ Use a one-time code
                             claimCode: event.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#2b231d] bg-[#0f0d0c] focus:border-[#8b6b53]`}
                         placeholder="A1B2C3D4"
                         autoCapitalize="characters"
                       />
                     </label>
                   </div>
-                  <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-sm leading-7 text-white/58">
-                    The claim code is treated as a first-registration credential. Once a pair is under the record, future transfer should go through release or review.
+                  <div className="rounded-[1.3rem] border border-[#2b241d] bg-[linear-gradient(180deg,rgba(20,16,13,0.9),rgba(12,10,9,0.84))] px-4 py-4 text-sm leading-7 text-white/58">
+                    This first claim is treated as an ownership act. Once the pair is sealed under the record, future movement belongs to release or review, not another open claim.
                   </div>
-                  {pairRegistrationError ? (
-                    <p className="text-sm leading-6 text-[#d99b8d]">{pairRegistrationError}</p>
-                  ) : null}
+                  {pairRegistrationError ? <p className="text-sm leading-6 text-[#d99b8d]">{pairRegistrationError}</p> : null}
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Button
                       type="submit"
                       disabled={authLoading || ownershipLoading}
-                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
                     >
-                      {authLoading ? "Registering..." : "Register Pair"}
+                      {authLoading ? "Attaching pair..." : "Register Pair"}
                     </Button>
                     <Button
                       type="button"
@@ -8484,24 +8605,26 @@ Use a one-time code
               </div>
 
               <div className="grid gap-4">
-                <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Foundation status</p>
-                  <div className="mt-4 grid gap-3">
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                <div className="rounded-[1.9rem] border border-[#241e18] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.2)] sm:p-7">
+                  <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Legacy Refresh chamber</p>
+                  <h3 className="mt-3 text-[1.65rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#f4efe7]">
+                    A quieter route, reserved for matured pairs.
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/60">
+                    Legacy Refresh should not feel like generic aftercare. It belongs to recorded age, private review, and a more ceremonial client-service route once a pair has matured under the house.
+                  </p>
+                  <div className="mt-5 grid gap-3">
+                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Current session</p>
-                      <p className="mt-3 text-sm leading-7 text-white/70 break-all">{authSession.user.email ?? "Current client"}</p>
+                      <p className="mt-3 break-all text-sm leading-7 text-white/72">{authSession.user.email ?? "Current client"}</p>
                     </div>
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh</p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">
-                        Pair-level eligibility now follows the recorded delivery date. Locked services can open automatically as the record matures.
-                      </p>
+                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Private standard</p>
+                      <p className="mt-3 text-sm leading-7 text-white/60">Pair registration, pair age, and service review now live in one connected record rather than dead placeholder blocks.</p>
                     </div>
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Transfer review</p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">
-                        This first build prepares the record layer and pair registration point. Transfer review can be layered next without rebuilding the shell.
-                      </p>
+                    <div className="rounded-[1.25rem] border border-[#2c241d] bg-black/25 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">House count</p>
+                      <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{ownershipPairs.length}</p>
                     </div>
                   </div>
                 </div>
@@ -8518,76 +8641,173 @@ Use a one-time code
               </div>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-              <div className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,14,13,0.94),rgba(9,8,8,0.9))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.18)] sm:p-6">
-                <div className="flex items-center justify-between gap-4">
+            <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-[1.9rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(198,163,90,0.05),transparent_42%),linear-gradient(180deg,rgba(16,14,13,0.95),rgba(9,8,8,0.92))] p-6 shadow-[0_26px_70px_rgba(0,0,0,0.18)] sm:p-7">
+                <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Registered pairs</p>
-                    <p className="mt-3 text-sm leading-7 text-white/58">
-                      Pairs attached to this record appear here immediately after registration.
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Pairs under this record</p>
+                    <p className="mt-3 max-w-xl text-sm leading-7 text-white/58">
+                      Once the pair is attached, this chamber should feel less like a dashboard and more like a private ledger: identity, age, service readiness, and ritual state.
                     </p>
                   </div>
                 </div>
                 {ownershipPairs.length ? (
-                  <div className="mt-5 grid gap-4">
-                    {ownershipPairs.map((pair) => (
-                      <div
-                        key={pair.id}
-                        className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4 sm:p-5"
-                      >
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">{pair.model}</p>
-                            <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-[#f4efe7]">{pair.serial}</p>
+                  <div className="mt-6 grid gap-4">
+                    {ownershipPairs.map((pair) => {
+                      const hasActiveRequest = Boolean(pair.legacyRefreshRequestStatus && !["declined", "withdrawn", "completed"].includes(pair.legacyRefreshRequestStatus));
+                      const draftOpen = legacyRefreshDraftPairId === pair.id;
+                      return (
+                        <div
+                          key={pair.id}
+                          className="rounded-[1.45rem] border border-[#2b241e] bg-[linear-gradient(180deg,rgba(17,14,12,0.94),rgba(11,9,8,0.92))] p-5 shadow-[0_16px_42px_rgba(0,0,0,0.14)] sm:p-6"
+                        >
+                          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                              <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">{pair.model}</p>
+                              <p className="mt-3 text-[1.9rem] font-semibold tracking-[-0.055em] text-[#f4efe7]">{pair.serial}</p>
+                              <p className="mt-3 max-w-xl text-sm leading-7 text-white/58">
+                                Registered under the house record on {formatOwnershipDate(pair.registeredAt)}. Delivery age and service timing continue from {formatOwnershipDate(pair.deliveryConfirmedAt)}.
+                              </p>
+                            </div>
+                            <div className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.22em] ${pair.legacyRefreshEligible ? "border-[#355238] bg-[#0d1710] text-[#96c09f]" : "border-[#4f443a] bg-[#15120f] text-[#d7c0a0]"}`}>
+                              {pair.legacyRefreshEligible ? "Legacy Refresh open" : "Maturing under record"}
+                            </div>
                           </div>
-                          <div className="rounded-full border border-[#2a4732] bg-[#0d1811] px-3 py-2 text-[10px] uppercase tracking-[0.22em] text-[#92b69b]">
-                            Registered
+
+                          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Registered on</p>
+                              <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.registeredAt)}</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Claim code</p>
+                              <p className="mt-2 text-sm leading-6 text-white/72">••••{pair.claimCodeLast4}</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Eligible on</p>
+                              <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.legacyRefreshEligibleOn)}</p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Application state</p>
+                              <div className={`mt-2 inline-flex rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] ${getLegacyRefreshStatusClasses(pair.legacyRefreshRequestStatus)}`}>
+                                {formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-5 rounded-[1.2rem] border border-[#2c241d] bg-[linear-gradient(180deg,rgba(20,16,13,0.7),rgba(11,10,9,0.82))] p-4 sm:p-5">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                              <div className="max-w-2xl">
+                                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">Legacy Refresh ritual</p>
+                                <p className="mt-3 text-sm leading-7 text-white/60">
+                                  The route is private by design: request, review, intake, and return under the same record. It should feel closer to a service chamber than a support ticket.
+                                </p>
+                                {pair.legacyRefreshRequestStatus ? (
+                                  <p className="mt-3 text-sm leading-7 text-white/56">
+                                    {formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}{pair.legacyRefreshRequestedAt ? ` · Requested ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}` : ""}
+                                  </p>
+                                ) : null}
+                              </div>
+                              <div className="flex flex-col gap-3 sm:items-end">
+                                {pair.legacyRefreshEligible && !hasActiveRequest ? (
+                                  <Button
+                                    type="button"
+                                    onClick={() => {
+                                      setLegacyRefreshDraftPairId(pair.id);
+                                      setLegacyRefreshNote(pair.legacyRefreshNote || "");
+                                      setLegacyRefreshError(null);
+                                    }}
+                                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                                  >
+                                    Apply for Legacy Refresh
+                                  </Button>
+                                ) : pair.legacyRefreshEligible ? (
+                                  <div className={`inline-flex rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.22em] ${getLegacyRefreshStatusClasses(pair.legacyRefreshRequestStatus)}`}>
+                                    {formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}
+                                  </div>
+                                ) : (
+                                  <div className="inline-flex rounded-full border border-[#4f443a] bg-[#15120f] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#d7c0a0]">
+                                    Opens {formatOwnershipDate(pair.legacyRefreshEligibleOn)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {draftOpen ? (
+                              <form className="mt-5 grid gap-4 border-t border-white/8 pt-5" onSubmit={handleApplyLegacyRefresh}>
+                                <div className="rounded-[1.15rem] border border-[#2b241d] bg-black/20 p-4 text-sm leading-7 text-white/58">
+                                  This application enters private review under the house. Use the note below only if there is relevant context for the pair: current condition, desired timing, or prior travel through the record.
+                                </div>
+                                <label className="grid gap-2">
+                                  <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Private note (optional)</span>
+                                  <textarea
+                                    name="legacyRefreshNote"
+                                    value={legacyRefreshNote}
+                                    onChange={(event) => setLegacyRefreshNote(event.target.value.slice(0, 500))}
+                                    className={`${formFieldBaseClass} min-h-[8.5rem] resize-none border-[#2b231d] bg-[#0f0d0c] py-4 focus:border-[#8b6b53]`}
+                                    placeholder="Condition, timing, or relevant context for the house review."
+                                    maxLength={500}
+                                  />
+                                </label>
+                                <div className="flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-white/34">
+                                  <span>{legacyRefreshNote.length}/500</span>
+                                  <span>Private review</span>
+                                </div>
+                                {legacyRefreshError ? <p className="text-sm leading-6 text-[#d99b8d]">{legacyRefreshError}</p> : null}
+                                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                                  <Button
+                                    type="submit"
+                                    disabled={legacyRefreshSubmitting}
+                                    className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                                  >
+                                    {legacyRefreshSubmitting ? "Submitting ritual..." : "Submit Application"}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setLegacyRefreshDraftPairId(null);
+                                      setLegacyRefreshNote("");
+                                      setLegacyRefreshError(null);
+                                    }}
+                                    disabled={legacyRefreshSubmitting}
+                                    className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5 disabled:pointer-events-none disabled:opacity-60"
+                                  >
+                                    Close
+                                  </Button>
+                                </div>
+                              </form>
+                            ) : null}
                           </div>
                         </div>
-                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Registered on</p>
-                            <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.registeredAt)}</p>
-                          </div>
-                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Claim code</p>
-                            <p className="mt-2 text-sm leading-6 text-white/72">••••{pair.claimCodeLast4}</p>
-                          </div>
-                          <div className="rounded-[1rem] border border-white/10 bg-white/[0.02] p-3">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/34">Legacy Refresh</p>
-                            <p className="mt-2 text-sm leading-6 text-white/72">{formatOwnershipDate(pair.legacyRefreshEligibleOn)}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-[1.35rem] border border-dashed border-white/12 bg-white/[0.02] p-5 text-sm leading-7 text-white/52">
-                    No pairs are registered yet. The page felt empty because it actually was empty — now the registration point lives above and the pair list starts here.
+                  <div className="mt-6 rounded-[1.45rem] border border-dashed border-[#2a241f] bg-[linear-gradient(180deg,rgba(16,13,11,0.88),rgba(10,9,8,0.82))] p-6 text-sm leading-7 text-white/54">
+                    No pair is under the record yet. The first act is registration; the service chamber appears only after a real pair is attached.
                   </div>
                 )}
               </div>
 
-              <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Next layer</p>
-                <div className="mt-4 grid gap-3">
+              <div className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,11,0.95),rgba(9,8,7,0.93))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.16)] sm:p-7">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Service ritual</p>
+                <div className="mt-5 grid gap-3">
                   <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Ownership review</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">
-                      Reassignment, release approval, and disputed ownership should sit here next as a dedicated review flow.
-                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">01 · Registration</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">The pair enters the house record through serial and claim code rather than an anonymous browser state.</p>
                   </div>
                   <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">Legacy Refresh gate</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">
-                      Once pair-age logic is connected to the house record, this area can unlock apply states instead of placeholder copy.
-                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">02 · Maturation</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">Eligibility follows the recorded delivery date. The service does not open because the page exists; it opens because the pair has matured.</p>
                   </div>
                   <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">House continuity</p>
-                    <p className="mt-3 text-sm leading-7 text-white/60">
-                      This layer is now no longer a dead screen. It is the beginning of the real ownership environment.
-                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">03 · Private review</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">An application is not an instant booking. It enters review under the house record, keeping the route selective and personal.</p>
+                  </div>
+                  <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/34">04 · Return under record</p>
+                    <p className="mt-3 text-sm leading-7 text-white/60">The pair returns to the same ownership line it came from, preserving continuity instead of acting like a one-off support job.</p>
                   </div>
                 </div>
               </div>
@@ -8596,7 +8816,7 @@ Use a one-time code
         ) : (
           <div className="grid gap-4">
             <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-white/60">
-              Sign in to access the private client layer. Pair registration, ownership continuity, and Legacy Refresh eligibility will sit inside this environment.
+              Sign in to access the private client layer. Pair registration, ownership continuity, and Legacy Refresh eligibility live here.
             </div>
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
               <Button
