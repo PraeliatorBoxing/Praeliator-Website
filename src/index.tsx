@@ -5555,6 +5555,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const variantRef = useRef<LuxuryCursorVariant>("default");
   const buttonFrameRef = useRef<LuxuryCursorFrame>(defaultLuxuryCursorFrame);
   const activeInteractiveElementRef = useRef<HTMLElement | null>(null);
+  const lastPointerPositionRef = useRef({ x: -160, y: -160 });
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") {
@@ -5562,6 +5563,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       variantRef.current = "hidden";
       activeInteractiveElementRef.current = null;
       buttonFrameRef.current = defaultLuxuryCursorFrame;
+      lastPointerPositionRef.current = { x: -160, y: -160 };
       setVisible(false);
       setPressed(false);
       setVariant("hidden");
@@ -5629,7 +5631,10 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       return target.closest(interactiveSelector) as HTMLElement | null;
     };
 
-    const updateInteractiveFrame = (element: HTMLElement | null) => {
+    const updateInteractiveFrame = (
+      element: HTMLElement | null,
+      pointer?: { x: number; y: number },
+    ) => {
       if (!element || !element.isConnected) return false;
       const rect = element.getBoundingClientRect();
       if (rect.width < 4 || rect.height < 4) return false;
@@ -5648,8 +5653,13 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         16,
         Math.min(frameWidth / 2, 999),
       );
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
+      const rectCenterX = rect.left + rect.width / 2;
+      const rectCenterY = rect.top + rect.height / 2;
+      const pointerSource = pointer ?? lastPointerPositionRef.current;
+      const mixX = rect.width >= 120 ? 0.42 : 0.32;
+      const mixY = rect.height >= 54 ? 0.46 : 0.34;
+      const centerX = rectCenterX + (pointerSource.x - rectCenterX) * mixX;
+      const centerY = rectCenterY + (pointerSource.y - rectCenterY) * mixY;
 
       activeInteractiveElementRef.current = element;
       pointerX.set(centerX);
@@ -5679,10 +5689,19 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
       const nextVariant = resolveVariant(event.target);
       syncVariant(nextVariant);
+      lastPointerPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
 
       if (nextVariant === "button") {
         const interactiveElement = resolveInteractiveElement(event.target);
-        if (updateInteractiveFrame(interactiveElement)) {
+        if (
+          updateInteractiveFrame(interactiveElement, {
+            x: event.clientX,
+            y: event.clientY,
+          })
+        ) {
           syncVisible(true);
           return;
         }
@@ -5702,7 +5721,12 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
       if (nextVariant === "button") {
         const interactiveElement = resolveInteractiveElement(event.target);
-        syncVisible(updateInteractiveFrame(interactiveElement));
+        syncVisible(
+          updateInteractiveFrame(interactiveElement, {
+            x: event.clientX,
+            y: event.clientY,
+          }),
+        );
         return;
       }
 
@@ -5714,8 +5738,15 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       if (event.pointerType && event.pointerType !== "mouse") return;
       setPressed(true);
       syncVariant(resolveVariant(event.target));
+      lastPointerPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
       if (resolveVariant(event.target) === "button") {
-        updateInteractiveFrame(resolveInteractiveElement(event.target));
+        updateInteractiveFrame(resolveInteractiveElement(event.target), {
+          x: event.clientX,
+          y: event.clientY,
+        });
       }
     };
 
@@ -5724,8 +5755,15 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       setPressed(false);
       const nextVariant = resolveVariant(event.target);
       syncVariant(nextVariant);
+      lastPointerPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
       if (nextVariant === "button") {
-        updateInteractiveFrame(resolveInteractiveElement(event.target));
+        updateInteractiveFrame(resolveInteractiveElement(event.target), {
+          x: event.clientX,
+          y: event.clientY,
+        });
       }
     };
 
@@ -8191,14 +8229,8 @@ const renderAcquisitionPage = () => (
                 <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                   Concierge handling
                 </p>
-                <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-                  {acquisitionConciergeNotes.map((item) => (
-                    <div key={item} className="py-4">
-                      <p className="text-sm leading-7 text-white/62">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
+                <div className="mt-5">
+                  <DataList items={acquisitionConciergeNotes} compact />
                 </div>
               </div>
             </Reveal>
