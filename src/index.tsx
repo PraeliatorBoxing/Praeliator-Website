@@ -4053,6 +4053,22 @@ function AuthStatusNotice({
 
 type LuxuryCursorVariant = "default" | "button" | "hidden";
 
+type LuxuryCursorFrame = {
+  width: number;
+  height: number;
+  radius: number;
+  centerX: number;
+  centerY: number;
+};
+
+const defaultLuxuryCursorFrame: LuxuryCursorFrame = {
+  width: 88,
+  height: 40,
+  radius: 999,
+  centerX: -160,
+  centerY: -160,
+};
+
 function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const pointerX = useMotionValue(-160);
   const pointerY = useMotionValue(-160);
@@ -4079,16 +4095,24 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [variant, setVariant] = useState<LuxuryCursorVariant>("default");
+  const [buttonFrame, setButtonFrame] = useState<LuxuryCursorFrame>(
+    defaultLuxuryCursorFrame,
+  );
   const visibleRef = useRef(false);
   const variantRef = useRef<LuxuryCursorVariant>("default");
+  const buttonFrameRef = useRef<LuxuryCursorFrame>(defaultLuxuryCursorFrame);
+  const activeInteractiveElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") {
       visibleRef.current = false;
       variantRef.current = "hidden";
+      activeInteractiveElementRef.current = null;
+      buttonFrameRef.current = defaultLuxuryCursorFrame;
       setVisible(false);
       setPressed(false);
       setVariant("hidden");
+      setButtonFrame(defaultLuxuryCursorFrame);
       return;
     }
 
@@ -4108,6 +4132,12 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       "[contenteditable='']",
       "[contenteditable='plaintext-only']",
     ].join(", ");
+    const clamp = (value: number, min: number, max: number) =>
+      Math.min(max, Math.max(min, value));
+    const readRadius = (value: string) => {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
 
     const syncVisible = (nextVisible: boolean) => {
       if (visibleRef.current === nextVisible) return;
@@ -4121,6 +4151,19 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       setVariant(nextVariant);
     };
 
+    const syncButtonFrame = (nextFrame: LuxuryCursorFrame) => {
+      const current = buttonFrameRef.current;
+      const matches =
+        Math.abs(current.width - nextFrame.width) < 0.5 &&
+        Math.abs(current.height - nextFrame.height) < 0.5 &&
+        Math.abs(current.radius - nextFrame.radius) < 0.5 &&
+        Math.abs(current.centerX - nextFrame.centerX) < 0.5 &&
+        Math.abs(current.centerY - nextFrame.centerY) < 0.5;
+      if (matches) return;
+      buttonFrameRef.current = nextFrame;
+      setButtonFrame(nextFrame);
+    };
+
     const resolveVariant = (target: EventTarget | null): LuxuryCursorVariant => {
       if (!(target instanceof Element)) return "default";
       if (target.closest(textSelector)) return "hidden";
@@ -4128,18 +4171,89 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       return "default";
     };
 
+    const resolveInteractiveElement = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null;
+      return target.closest(interactiveSelector) as HTMLElement | null;
+    };
+
+    const updateInteractiveFrame = (element: HTMLElement | null) => {
+      if (!element || !element.isConnected) return false;
+      const rect = element.getBoundingClientRect();
+      if (rect.width < 4 || rect.height < 4) return false;
+
+      const styles = window.getComputedStyle(element);
+      const cornerRadius = Math.max(
+        readRadius(styles.borderTopLeftRadius),
+        readRadius(styles.borderTopRightRadius),
+        readRadius(styles.borderBottomRightRadius),
+        readRadius(styles.borderBottomLeftRadius),
+      );
+      const frameWidth = clamp(rect.width + 12, 54, 280);
+      const frameHeight = clamp(rect.height + 12, 34, 86);
+      const frameRadius = clamp(
+        Math.max(cornerRadius + 10, frameHeight * 0.46),
+        16,
+        Math.min(frameWidth / 2, 999),
+      );
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      activeInteractiveElementRef.current = element;
+      pointerX.set(centerX);
+      pointerY.set(centerY);
+      syncButtonFrame({
+        width: frameWidth,
+        height: frameHeight,
+        radius: frameRadius,
+        centerX,
+        centerY,
+      });
+      return true;
+    };
+
+    const refreshInteractiveFrame = () => {
+      if (variantRef.current !== "button") return;
+      const activeElement = activeInteractiveElementRef.current;
+      if (!activeElement || !activeElement.isConnected) {
+        activeInteractiveElementRef.current = null;
+        return;
+      }
+      updateInteractiveFrame(activeElement);
+    };
+
     const handlePointerMove = (event: PointerEvent) => {
       if (event.pointerType && event.pointerType !== "mouse") return;
+
+      const nextVariant = resolveVariant(event.target);
+      syncVariant(nextVariant);
+
+      if (nextVariant === "button") {
+        const interactiveElement = resolveInteractiveElement(event.target);
+        if (updateInteractiveFrame(interactiveElement)) {
+          syncVisible(true);
+          return;
+        }
+      }
+
+      activeInteractiveElementRef.current = null;
       pointerX.set(event.clientX);
       pointerY.set(event.clientY);
-      syncVisible(true);
-      syncVariant(resolveVariant(event.target));
+      syncVisible(nextVariant !== "hidden");
     };
 
     const handlePointerOver = (event: PointerEvent) => {
       if (event.pointerType && event.pointerType !== "mouse") return;
+
       const nextVariant = resolveVariant(event.target);
       syncVariant(nextVariant);
+
+      if (nextVariant === "button") {
+        const interactiveElement = resolveInteractiveElement(event.target);
+        syncVisible(updateInteractiveFrame(interactiveElement));
+        return;
+      }
+
+      activeInteractiveElementRef.current = null;
       syncVisible(nextVariant !== "hidden");
     };
 
@@ -4147,15 +4261,23 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       if (event.pointerType && event.pointerType !== "mouse") return;
       setPressed(true);
       syncVariant(resolveVariant(event.target));
+      if (resolveVariant(event.target) === "button") {
+        updateInteractiveFrame(resolveInteractiveElement(event.target));
+      }
     };
 
     const handlePointerUp = (event: PointerEvent) => {
       if (event.pointerType && event.pointerType !== "mouse") return;
       setPressed(false);
-      syncVariant(resolveVariant(event.target));
+      const nextVariant = resolveVariant(event.target);
+      syncVariant(nextVariant);
+      if (nextVariant === "button") {
+        updateInteractiveFrame(resolveInteractiveElement(event.target));
+      }
     };
 
     const hideCursor = () => {
+      activeInteractiveElementRef.current = null;
       syncVisible(false);
       setPressed(false);
     };
@@ -4168,6 +4290,11 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     window.addEventListener("pointerover", handlePointerOver, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     window.addEventListener("pointerup", handlePointerUp, { passive: true });
+    window.addEventListener("resize", refreshInteractiveFrame, { passive: true });
+    window.addEventListener("scroll", refreshInteractiveFrame, {
+      passive: true,
+      capture: true,
+    });
     window.addEventListener("blur", hideCursor);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     document.documentElement.addEventListener("mouseleave", hideCursor);
@@ -4177,6 +4304,8 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       window.removeEventListener("pointerover", handlePointerOver);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("resize", refreshInteractiveFrame);
+      window.removeEventListener("scroll", refreshInteractiveFrame, true);
       window.removeEventListener("blur", hideCursor);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.documentElement.removeEventListener("mouseleave", hideCursor);
@@ -4187,6 +4316,16 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
   const isButtonVariant = variant === "button";
   const isHidden = !visible || variant === "hidden";
+  const shellWidth = isButtonVariant ? buttonFrame.width : 28;
+  const shellHeight = isButtonVariant ? buttonFrame.height : 28;
+  const shellRadius = isButtonVariant ? buttonFrame.radius : 999;
+  const haloWidth = isButtonVariant ? buttonFrame.width + 44 : 76;
+  const haloHeight = isButtonVariant ? buttonFrame.height + 44 : 76;
+  const haloRadius = isButtonVariant ? buttonFrame.radius + 24 : 999;
+  const centerGlyphWidth = isButtonVariant
+    ? Math.min(Math.max(buttonFrame.width * 0.22, 18), 34)
+    : 6;
+  const centerGlyphHeight = isButtonVariant ? 1.5 : 6;
 
   return (
     <>
@@ -4201,10 +4340,11 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         transition={{ duration: 0.26, ease: easeLuxury }}
       >
         <motion.div
-          className="-translate-x-1/2 -translate-y-1/2 rounded-full blur-[24px]"
+          className="-translate-x-1/2 -translate-y-1/2 blur-[24px]"
           animate={{
-            width: isButtonVariant ? 124 : 76,
-            height: isButtonVariant ? 124 : 76,
+            width: haloWidth,
+            height: haloHeight,
+            borderRadius: haloRadius,
             background:
               isButtonVariant
                 ? "radial-gradient(circle, rgba(214,186,149,0.24) 0%, rgba(214,186,149,0.06) 48%, rgba(214,186,149,0) 78%)"
@@ -4227,9 +4367,9 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         <motion.div
           className="-translate-x-1/2 -translate-y-1/2 overflow-hidden border"
           animate={{
-            width: isButtonVariant ? 88 : 28,
-            height: isButtonVariant ? 40 : 28,
-            borderRadius: 999,
+            width: shellWidth,
+            height: shellHeight,
+            borderRadius: shellRadius,
             backgroundColor: isButtonVariant
               ? "rgba(245, 239, 231, 0.08)"
               : "rgba(245, 239, 231, 0.04)",
@@ -4264,8 +4404,8 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
           <motion.span
             className="absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2"
             animate={{
-              width: isButtonVariant ? 24 : 6,
-              height: isButtonVariant ? 1.5 : 6,
+              width: centerGlyphWidth,
+              height: centerGlyphHeight,
               borderRadius: 999,
               backgroundColor: isButtonVariant
                 ? "rgba(244, 239, 231, 0.9)"
