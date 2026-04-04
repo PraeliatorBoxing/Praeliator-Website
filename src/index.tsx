@@ -1321,6 +1321,27 @@ function getFormFieldStateClasses({
   return "border-white/[0.08] bg-[#0c0b0a] hover:border-white/[0.12] focus:border-[#6a5545]";
 }
 
+function getReadableErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+  if (error && typeof error === "object") {
+    const message =
+      "message" in error && typeof error.message === "string"
+        ? error.message
+        : "error" in error && typeof error.error === "string"
+          ? error.error
+          : null;
+    if (message?.trim()) {
+      return message;
+    }
+  }
+  return fallback;
+}
+
 function formatOwnershipDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Pending";
@@ -8027,10 +8048,6 @@ export default function PraeliatorWebsite() {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    const pendingPopup =
-      typeof window !== "undefined"
-        ? window.open("", "_blank", "noopener,noreferrer")
-        : null;
     const normalizedForm = {
       ...acquisitionWhatsAppForm,
       fullName: normalizeWaitlistFieldValue(
@@ -8045,9 +8062,6 @@ export default function PraeliatorWebsite() {
     markAcquisitionWhatsAppFieldsTouched(acquisitionWhatsAppRequiredFields);
 
     if (Object.keys(nextErrors).length > 0) {
-      if (pendingPopup && !pendingPopup.closed) {
-        pendingPopup.close();
-      }
       setAcquisitionWhatsAppState({
         loading: false,
         success: false,
@@ -8092,10 +8106,17 @@ export default function PraeliatorWebsite() {
         }),
         signal: controller.signal,
       });
-      const result = await response.json();
+      const result = await response
+        .json()
+        .catch(() => ({ success: false, error: "The brief could not be retained." }));
 
       if (!response.ok || !result?.success) {
-        throw new Error(result?.error || "The brief could not be retained.");
+        throw new Error(
+          getReadableErrorMessage(
+            result?.error,
+            "The brief could not be retained.",
+          ),
+        );
       }
 
       setAcquisitionWhatsAppState({
@@ -8120,22 +8141,16 @@ export default function PraeliatorWebsite() {
       const whatsappLink = createWhatsAppLink(message);
 
       if (typeof window !== "undefined") {
-        if (pendingPopup && !pendingPopup.closed) {
-          pendingPopup.location.href = whatsappLink;
-        } else {
-          window.location.href = whatsappLink;
-        }
+        window.location.assign(whatsappLink);
       }
     } catch (error) {
-      if (pendingPopup && !pendingPopup.closed) {
-        pendingPopup.close();
-      }
       const message =
         error instanceof DOMException && error.name === "AbortError"
           ? "The brief took too long to retain. You can still continue directly on WhatsApp."
-          : error instanceof Error
-            ? error.message
-            : "The brief could not be retained. You can still continue directly on WhatsApp.";
+          : getReadableErrorMessage(
+              error,
+              "The brief could not be retained. You can still continue directly on WhatsApp.",
+            );
       setAcquisitionWhatsAppState({
         loading: false,
         success: false,
@@ -9767,20 +9782,23 @@ const renderAcquisitionPage = () => (
                 </AnimatePresence>
 
                 {acquisitionWhatsAppState.error ? (
-                  <p className="text-sm leading-6 text-[#d99b8d]">
+                  <div className="rounded-[1.35rem] border border-[#65413a] bg-[#160e0d] p-4 text-sm leading-6 text-[#f0c1b8]">
                     {acquisitionWhatsAppState.error}
-                  </p>
+                  </div>
                 ) : null}
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
-                    asChild
+                    type="button"
                     variant="outline"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.location.assign(whatsappGeneralLink);
+                      }
+                    }}
                     className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                      Open WhatsApp Without Brief
-                    </a>
+                    Open WhatsApp Without Brief
                   </Button>
                 </div>
               </form>
