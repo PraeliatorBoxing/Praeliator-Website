@@ -524,16 +524,7 @@ const contactPreferenceOptions = [
   { value: "Email", label: "Email" },
   { value: "Either", label: "Either" },
 ];
-const acquisitionTitleOptions = [
-  { value: "Mr.", label: "Mr." },
-  { value: "Mrs.", label: "Mrs." },
-  { value: "Ms.", label: "Ms." },
-  { value: "Dr.", label: "Dr." },
-  { value: "Sir", label: "Sir" },
-  { value: "Lady", label: "Lady" },
-  { value: "H.E.", label: "H.E." },
-  { value: "H.R.H.", label: "H.R.H." },
-];
+const acquisitionTitleOptions = titleOptions;
 const acquisitionCollectorIntentOptions = [
   { value: "Immediate private acquisition", label: "Immediate acquisition" },
   { value: "Collector placement consideration", label: "Collector placement" },
@@ -4441,6 +4432,7 @@ function SelectField({
               className="browser-scrollbar max-h-[min(18rem,45vh)] overflow-y-auto overscroll-contain py-2 sm:max-h-72"
               role="listbox"
               aria-labelledby={labelId}
+              data-native-cursor="true"
               onWheelCapture={(event) => {
                 event.stopPropagation();
               }}
@@ -4463,6 +4455,7 @@ function SelectField({
                     type="button"
                     role="option"
                     aria-selected={isSelected}
+                    data-native-cursor="true"
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitValue(option.value)}
                     className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
@@ -4686,6 +4679,7 @@ function SearchPicker({
               className="browser-scrollbar max-h-[min(18rem,45vh)] overflow-y-auto overscroll-contain py-2 sm:max-h-72"
               role="listbox"
               aria-labelledby={labelId}
+              data-native-cursor="true"
               onWheelCapture={(event) => {
                 event.stopPropagation();
               }}
@@ -4705,6 +4699,7 @@ function SearchPicker({
                     type="button"
                     role="option"
                     aria-selected={isSelected}
+                    data-native-cursor="true"
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => commitSelection(option)}
                     className={`${formOptionRowClass} ${isHighlighted ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"}`}
@@ -5911,12 +5906,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     const resolveVariant = (target: EventTarget | null): LuxuryCursorVariant => {
       if (!(target instanceof Element)) return "default";
       if (target.closest(textSelector)) return "hidden";
+      if (target.closest("[data-native-cursor='true']")) return "hidden";
       if (target.closest(interactiveSelector)) return "button";
       return "default";
     };
 
     const resolveInteractiveElement = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return null;
+      if (target.closest("[data-native-cursor='true']")) return null;
       return target.closest(interactiveSelector) as HTMLElement | null;
     };
 
@@ -6244,6 +6241,10 @@ function BrowserFormStyles() {
       html.praeliator-luxury-cursor body,
       html.praeliator-luxury-cursor body * {
         cursor: none !important;
+      }
+      html.praeliator-luxury-cursor [data-native-cursor='true'],
+      html.praeliator-luxury-cursor [data-native-cursor='true'] * {
+        cursor: default !important;
       }
       html.praeliator-luxury-cursor input,
       html.praeliator-luxury-cursor textarea,
@@ -9578,6 +9579,9 @@ const renderAcquisitionPage = () => (
                     onBlur={() => handleAcquisitionWhatsAppBlur("title")}
                     placeholder="Title"
                     options={acquisitionTitleOptions}
+                    searchable
+                    searchPlaceholder="Search title"
+                    fieldLabel="Honorific"
                     invalid={Boolean(getVisibleAcquisitionWhatsAppError("title"))}
                     success={getAcquisitionWhatsAppSuccess("title")}
                   />
