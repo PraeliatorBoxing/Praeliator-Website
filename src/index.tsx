@@ -3,6 +3,8 @@ import "@fontsource/cormorant-garamond/latin-600.css";
 import "@fontsource/cormorant-garamond/latin-700.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
+import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
+import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
 import {
   AnimatePresence,
   motion,
@@ -431,6 +433,21 @@ const initialWaitlistForm = {
   contactPreference: "",
   note: "",
 };
+const initialAcquisitionIntakeForm = {
+  title: "",
+  fullName: "",
+  email: "",
+  phoneCountryCode: "+52",
+  whatsapp: "",
+  country: "Mexico",
+  interest: "Praeliator VIS",
+  timeline: "",
+  contactPreference: "",
+  collectorIntent: "",
+  purchasePurpose: "",
+  destinationRegion: "",
+  note: "",
+};
 const initialTransferReviewDraft: OwnershipTransferReviewDraft = {
   nextCustodianName: "",
   nextCustodianEmail: "",
@@ -502,8 +519,24 @@ const contactPreferenceOptions = [
   { value: "Email", label: "Email" },
   { value: "Either", label: "Either" },
 ];
+const acquisitionCollectorIntentOptions = [
+  { value: "Immediate private acquisition", label: "Immediate acquisition" },
+  { value: "Collector placement consideration", label: "Collector placement" },
+  { value: "Regional allocation inquiry", label: "Regional allocation" },
+  { value: "Future house relationship", label: "Future relationship" },
+];
+const acquisitionPurposeOptions = [
+  { value: "Personal rotation", label: "Personal rotation" },
+  { value: "Collector archive", label: "Collector archive" },
+  { value: "Gift with continuity", label: "Gift with continuity" },
+  { value: "Private training use", label: "Private training use" },
+];
 type WaitlistFieldName = keyof typeof initialWaitlistForm;
 type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
+type AcquisitionIntakeFieldName = keyof typeof initialAcquisitionIntakeForm;
+type AcquisitionIntakeErrors = Partial<
+  Record<AcquisitionIntakeFieldName, string>
+>;
 type Route =
   | "/"
   | "/praeliator-vis"
@@ -567,6 +600,18 @@ const waitlistRequiredFields: WaitlistFieldName[] = [
   "interest",
   "timeline",
   "contactPreference",
+];
+const acquisitionRequiredFields: AcquisitionIntakeFieldName[] = [
+  "fullName",
+  "email",
+  "phoneCountryCode",
+  "whatsapp",
+  "country",
+  "interest",
+  "timeline",
+  "contactPreference",
+  "collectorIntent",
+  "purchasePurpose",
 ];
 const routeTitles: Record<Route, string> = {
   "/": "Home",
@@ -827,6 +872,56 @@ const visAuthorityStatements = [
   "Packaging and documentation extend the object system beyond the glove itself.",
   "Aftercare is treated as continuity, not a detached support feature.",
 ];
+const visArchiveSlides = [
+  {
+    eyebrow: "Silhouette register",
+    title: "The line reads resolved before it reads forceful.",
+    body: "VIS gains authority through silhouette control rather than exaggeration. The wrist transition, hand chamber, and cuff all belong to one restrained profile.",
+    image: visImageSources.hero,
+    alt: "Praeliator VIS silhouette study",
+    notes: [
+      { label: "Profile", value: "Balanced volume with a disciplined taper into the wrist." },
+      { label: "Cuff", value: "An extended lace-up cuff that anchors the object visually." },
+      { label: "Read", value: "Controlled first, technical second, luxurious throughout." },
+    ],
+  },
+  {
+    eyebrow: "Material plate",
+    title: "Surface depth matters more than shine.",
+    body: "The leather was chosen to feel warm, quiet, and resolved under light. It avoids the synthetic gloss that makes premium sports equipment feel generic.",
+    image: visImageSources.leather,
+    alt: "Praeliator VIS leather macro",
+    notes: [
+      { label: "Leather", value: "Top-grain cowhide chosen for depth rather than flash." },
+      { label: "Finish", value: "Soft satin with espresso warmth beneath the black." },
+      { label: "Tone", value: "Quiet authority instead of coated brightness." },
+    ],
+  },
+  {
+    eyebrow: "Construction plate",
+    title: "Technical decisions stay inside the same visual language.",
+    body: "Palm ventilation, grip bar, thumb attachment, and layered impact structure are treated as part of the object's discipline, not as noisy feature marketing.",
+    image: visImageSources.plate,
+    alt: "Praeliator VIS logo and construction detail",
+    notes: [
+      { label: "Padding", value: "A layered stack that reads stable, not swollen." },
+      { label: "Palm", value: "Ventilation integrated without breaking the silhouette." },
+      { label: "Discipline", value: "Technical seriousness without visual clutter." },
+    ],
+  },
+  {
+    eyebrow: "Custody plate",
+    title: "Presentation and aftercare extend the object system.",
+    body: "Packaging, authenticity, ownership continuity, and future Legacy Refresh are not accessories to the glove. They are part of the full Praeliator object.",
+    image: visImageSources.packaging,
+    alt: "Praeliator VIS packaging and ownership continuity",
+    notes: [
+      { label: "Presentation", value: "Rigid box, silk dust bag, and authored documentation." },
+      { label: "Custody", value: "Ownership is retained rather than left behind after dispatch." },
+      { label: "Aftercare", value: "Legacy Refresh remains tied to maturity and continuity." },
+    ],
+  },
+];
 const acquisitionPlacementSignals = [
   {
     title: "Collector intent",
@@ -997,6 +1092,64 @@ const normalizeWaitlistForm = (form: typeof initialWaitlistForm) => ({
   ),
   note: normalizeWaitlistFieldValue("note", form.note, "submit"),
 });
+const normalizeAcquisitionFieldValue = (
+  field: AcquisitionIntakeFieldName,
+  value: string,
+  stage: "change" | "blur" | "submit" = "change",
+) => {
+  if (field in initialWaitlistForm) {
+    return normalizeWaitlistFieldValue(
+      field as WaitlistFieldName,
+      value,
+      stage,
+    );
+  }
+  if (field === "destinationRegion") {
+    return stage === "change"
+      ? normalizeInlineText(value)
+      : normalizeFinalText(value);
+  }
+  return stage === "change"
+    ? value.replace(/^\s+/g, "")
+    : value.trim();
+};
+const normalizeAcquisitionForm = (
+  form: typeof initialAcquisitionIntakeForm,
+) => ({
+  title: normalizeAcquisitionFieldValue("title", form.title, "submit"),
+  fullName: normalizeAcquisitionFieldValue("fullName", form.fullName, "submit"),
+  email: normalizeAcquisitionFieldValue("email", form.email, "submit"),
+  phoneCountryCode: normalizeAcquisitionFieldValue(
+    "phoneCountryCode",
+    form.phoneCountryCode,
+    "submit",
+  ),
+  whatsapp: normalizeAcquisitionFieldValue("whatsapp", form.whatsapp, "submit"),
+  country: normalizeAcquisitionFieldValue("country", form.country, "submit"),
+  interest: normalizeAcquisitionFieldValue("interest", form.interest, "submit"),
+  timeline: normalizeAcquisitionFieldValue("timeline", form.timeline, "submit"),
+  contactPreference: normalizeAcquisitionFieldValue(
+    "contactPreference",
+    form.contactPreference,
+    "submit",
+  ),
+  collectorIntent: normalizeAcquisitionFieldValue(
+    "collectorIntent",
+    form.collectorIntent,
+    "submit",
+  ),
+  purchasePurpose: normalizeAcquisitionFieldValue(
+    "purchasePurpose",
+    form.purchasePurpose,
+    "submit",
+  ),
+  destinationRegion: normalizeAcquisitionFieldValue(
+    "destinationRegion",
+    form.destinationRegion,
+    "submit",
+  ),
+  note: normalizeAcquisitionFieldValue("note", form.note, "submit"),
+});
 const getDialCodePhoneRule = (dialCode: string) => {
   const normalizedDialCode = normalizeDialCode(dialCode);
   const rules: Record<string, { min: number; max: number; message: string }> = {
@@ -1084,6 +1237,33 @@ const validateWaitlistForm = (
   if (!normalizedForm.timeline) errors.timeline = "Select a timeline.";
   if (!normalizedForm.contactPreference)
     errors.contactPreference = "Select a preferred contact method.";
+  return errors;
+};
+const validateAcquisitionForm = (
+  form: typeof initialAcquisitionIntakeForm,
+): AcquisitionIntakeErrors => {
+  const normalizedForm = normalizeAcquisitionForm(form);
+  const baseErrors = validateWaitlistForm({
+    title: normalizedForm.title,
+    fullName: normalizedForm.fullName,
+    email: normalizedForm.email,
+    phoneCountryCode: normalizedForm.phoneCountryCode,
+    whatsapp: normalizedForm.whatsapp,
+    country: normalizedForm.country,
+    interest: normalizedForm.interest,
+    timeline: normalizedForm.timeline,
+    contactPreference: normalizedForm.contactPreference,
+    note: normalizedForm.note,
+  });
+  const errors: AcquisitionIntakeErrors = { ...baseErrors };
+
+  if (!normalizedForm.collectorIntent) {
+    errors.collectorIntent = "Select the collector posture for this inquiry.";
+  }
+  if (!normalizedForm.purchasePurpose) {
+    errors.purchasePurpose = "Select how the pair is meant to be placed.";
+  }
+
   return errors;
 };
 function getFormFieldStateClasses({
@@ -1384,6 +1564,67 @@ function getOwnershipServiceLedger(pair: RegisteredOwnershipPair) {
         : formatOwnershipDate(pair.legacyRefreshEligibleOn),
       detail: recordState.detail,
     },
+  ];
+}
+
+function getOwnershipHouseCorrespondence({
+  clientName,
+  latestPair,
+  nextPair,
+  activeReviewCount,
+}: {
+  clientName: string;
+  latestPair: RegisteredOwnershipPair | null;
+  nextPair: RegisteredOwnershipPair | null;
+  activeReviewCount: number;
+}) {
+  const latestPairAge = latestPair
+    ? getPairAgeDescriptor(latestPair.deliveryConfirmedAt)
+    : null;
+  const latestPairState = latestPair
+    ? getLegacyRefreshRecordState(latestPair)
+    : null;
+
+  return [
+    latestPair
+      ? {
+          eyebrow: "House correspondence / retention",
+          title: `${latestPair.serial} has been retained under ${clientName}.`,
+          body: `The pair entered the record on ${formatOwnershipDate(
+            latestPair.registeredAt,
+          )} and continues to mature from the delivery date held by the house. Current age posture: ${latestPairAge?.label}.`,
+          signature: "Praeliator / ownership register",
+        }
+      : {
+          eyebrow: "House correspondence / threshold",
+          title: "The archive is ready for its first retained pair.",
+          body: "Once a real pair enters the Ownership Record, the house begins holding continuity, maturity, and future service against that object rather than leaving ownership in the browser.",
+          signature: "Praeliator / ownership register",
+        },
+    nextPair
+      ? {
+          eyebrow: "House correspondence / invitation",
+          title: `${nextPair.serial} opens toward Legacy Refresh on ${formatOwnershipDate(
+            nextPair.legacyRefreshEligibleOn,
+          )}.`,
+          body: "Legacy Refresh remains governed by maturity, not by the existence of a form. The next invitation appears only when the recorded delivery line has ripened enough under the house rules.",
+          signature: "Praeliator / service chamber",
+        }
+      : {
+          eyebrow: "House correspondence / review line",
+          title:
+            activeReviewCount > 0
+              ? `${activeReviewCount} pair${
+                  activeReviewCount === 1 ? "" : "s"
+                } currently remain under private review.`
+              : "No retained pair is under private review right now.",
+          body:
+            activeReviewCount > 0
+              ? "Applications already under review continue through the house without reopening the route as a generic service queue."
+              : latestPairState?.detail ||
+                "The next correspondence will emerge from retention, maturity, or a future service invitation.",
+          signature: "Praeliator / continuity office",
+        },
   ];
 }
 
@@ -2349,9 +2590,9 @@ function TransferReviewChamberDialog({
                 Private review letter
               </p>
               <p className="mt-3 max-w-xl text-sm leading-7 text-[#5b4c40]">
-                This submission prepares a structured transfer-review brief and
-                drafts the continuation email so the request stays authored and
-                precise.
+                This submission enters a structured transfer-review brief into
+                the private record so the continuity request remains authored,
+                retained, and reviewable under the house.
               </p>
             </div>
 
@@ -2425,9 +2666,9 @@ function TransferReviewChamberDialog({
 
             <div className="rounded-[1.35rem] border border-[#dbcab5] bg-[linear-gradient(180deg,rgba(248,240,228,0.96),rgba(241,230,216,0.98))] p-4">
               <p className="text-sm leading-7 text-[#5b4c40]">
-                Submission copies the transfer brief to the clipboard and opens a
-                drafted email so the review can continue under the house rather
-                than inside a generic account action.
+                Submission creates a real house review record. The request is
+                logged under a reference before continuation ever reaches direct
+                correspondence.
               </p>
             </div>
 
@@ -2441,7 +2682,7 @@ function TransferReviewChamberDialog({
                 disabled={submitting}
                 className={`rounded-full px-7 py-6 text-sm transition duration-500 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60 ${editionTheme.buttonClassName}`}
               >
-                {submitting ? "Preparing review..." : "Prepare Transfer Review"}
+                {submitting ? "Entering review..." : "Enter Transfer Review"}
               </Button>
               <Button
                 type="button"
@@ -6061,6 +6302,8 @@ export default function PraeliatorWebsite() {
     "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
   const instagramLink = "https://instagram.com/praeliatorboxing";
   const waitlistEndpoint = "/api/private-client-intake";
+  const acquisitionIntakeEndpoint = "/api/private-acquisition-intake";
+  const transferReviewEndpoint = "/api/ownership-transfer-review";
   const [route, setRoute] = useState<Route>(() => {
     if (typeof window === "undefined") return "/";
     return normalizePath(window.location.pathname);
@@ -6082,13 +6325,27 @@ export default function PraeliatorWebsite() {
     reference: "",
     serviceMessage: "",
   });
+  const [acquisitionForm, setAcquisitionForm] = useState(
+    initialAcquisitionIntakeForm,
+  );
+  const [acquisitionErrors, setAcquisitionErrors] =
+    useState<AcquisitionIntakeErrors>({});
+  const [acquisitionState, setAcquisitionState] = useState({
+    loading: false,
+    success: false,
+    error: "",
+    reference: "",
+    serviceMessage: "",
+  });
   const [waitlistHoneypot, setWaitlistHoneypot] = useState("");
+  const [acquisitionHoneypot, setAcquisitionHoneypot] = useState("");
   const [waitlistCooldownUntil, setWaitlistCooldownUntil] = useState(0);
   const [waitlistStarted, setWaitlistStarted] = useState(false);
   const [waitlistStartedAt, setWaitlistStartedAt] = useState<number | null>(
     null,
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
+  const acquisitionRequestControllerRef = useRef<AbortController | null>(null);
   const [authSession, setAuthSession] = useState<Session | null>(null);
   const [authInitialized, setAuthInitialized] = useState(!supabase);
   const [authLoading, setAuthLoading] = useState(false);
@@ -6184,6 +6441,7 @@ export default function PraeliatorWebsite() {
     }
     return () => {
       waitlistRequestControllerRef.current?.abort();
+      acquisitionRequestControllerRef.current?.abort();
     };
   }, []);
 
@@ -7482,6 +7740,152 @@ export default function PraeliatorWebsite() {
       waitlistRequestControllerRef.current = null;
     }
   };
+  const handleAcquisitionFieldChange = React.useCallback(
+    (field: AcquisitionIntakeFieldName, value: string) => {
+      const normalizedValue = normalizeAcquisitionFieldValue(field, value, "change");
+      setAcquisitionForm((current) => ({
+        ...current,
+        [field]: normalizedValue,
+      }));
+      if (acquisitionErrors[field]) {
+        setAcquisitionErrors((current) => ({
+          ...current,
+          [field]: undefined,
+        }));
+      }
+      if (acquisitionState.success || acquisitionState.error) {
+        setAcquisitionState((current) => ({
+          ...current,
+          success: false,
+          error: "",
+          reference: "",
+          serviceMessage: "",
+        }));
+      }
+    },
+    [acquisitionErrors, acquisitionState.error, acquisitionState.success],
+  );
+  const handleAcquisitionSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (acquisitionHoneypot.trim()) {
+      setAcquisitionState({
+        loading: false,
+        success: false,
+        error: "Submission could not be completed.",
+        reference: "",
+        serviceMessage: "",
+      });
+      return;
+    }
+
+    const normalizedForm = normalizeAcquisitionForm(acquisitionForm);
+    setAcquisitionForm(normalizedForm);
+    const nextErrors = validateAcquisitionForm(normalizedForm);
+    setAcquisitionErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      setAcquisitionState({
+        loading: false,
+        success: false,
+        error: "Please correct the highlighted fields.",
+        reference: "",
+        serviceMessage: "",
+      });
+      return;
+    }
+
+    setAcquisitionState({
+      loading: true,
+      success: false,
+      error: "",
+      reference: "",
+      serviceMessage: "",
+    });
+
+    const controller = new AbortController();
+    acquisitionRequestControllerRef.current?.abort();
+    acquisitionRequestControllerRef.current = controller;
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      WAITLIST_REQUEST_TIMEOUT_MS,
+    );
+
+    const payload = {
+      title: normalizedForm.title,
+      fullName: normalizedForm.fullName,
+      email: normalizedForm.email,
+      phoneCountryCode: normalizedForm.phoneCountryCode,
+      phoneNumber: normalizedForm.whatsapp,
+      fullPhone:
+        `${normalizedForm.phoneCountryCode} ${normalizedForm.whatsapp}`.trim(),
+      country: normalizedForm.country,
+      interest: normalizedForm.interest,
+      timeline: normalizedForm.timeline,
+      contactPreference: normalizedForm.contactPreference,
+      collectorIntent: normalizedForm.collectorIntent,
+      purchasePurpose: normalizedForm.purchasePurpose,
+      destinationRegion:
+        normalizedForm.destinationRegion || normalizedForm.country,
+      note: normalizedForm.note,
+      sourceRoute: route,
+      clientTimestamp: new Date().toISOString(),
+      timezone:
+        typeof window !== "undefined"
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : undefined,
+    };
+
+    try {
+      const response = await fetch(acquisitionIntakeEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Praeliator-Intake": "acquisition",
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || "Submission failed.");
+      }
+
+      setAcquisitionState({
+        loading: false,
+        success: true,
+        error: "",
+        reference: result.reference || "",
+        serviceMessage:
+          result.serviceMessage ||
+          "A private placement response follows after review.",
+      });
+      setAcquisitionForm(initialAcquisitionIntakeForm);
+      setAcquisitionErrors({});
+      setAcquisitionHoneypot("");
+    } catch (error) {
+      const message =
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Request timed out. Please try again or continue directly on WhatsApp."
+          : error instanceof Error
+            ? error.message
+            : "Submission failed. Please continue directly with Praeliator.";
+      setAcquisitionState({
+        loading: false,
+        success: false,
+        error: message,
+        reference: "",
+        serviceMessage: "",
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+      acquisitionRequestControllerRef.current = null;
+    }
+  };
   const renderHomePage = () => {
     const cinematicSections = [
       {
@@ -7942,6 +8346,27 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
+      <section className="relative py-8 sm:py-10 lg:py-12">
+        <Container>
+          <Reveal>
+            <div className="mb-8 max-w-3xl">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                Archive strip
+              </p>
+              <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
+                A slower dossier for the parts that justify the object.
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                VIS is strongest when the page lingers on proportion, material,
+                construction, and continuity long enough for the logic of the
+                object to feel inevitable.
+              </p>
+            </div>
+            <ObjectDossierCarousel slides={visArchiveSlides} />
+          </Reveal>
+        </Container>
+      </section>
+
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
@@ -7987,8 +8412,15 @@ export default function PraeliatorWebsite() {
     </>
   );
 
-const renderAcquisitionPage = () => (
-  <>
+const renderAcquisitionPage = () => {
+  const acquisitionFollowUpLink = acquisitionState.reference
+    ? createWhatsAppLink(
+        `Hello Praeliator, I would like to continue my private acquisition inquiry. Reference: ${acquisitionState.reference}.`,
+      )
+    : whatsappGeneralLink;
+
+  return (
+    <>
     <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -8365,8 +8797,484 @@ const renderAcquisitionPage = () => (
         </div>
       </Container>
     </section>
-  </>
-);
+
+      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
+        <Container className="relative">
+          <div className="grid gap-8 xl:grid-cols-[0.82fr_1.18fr] xl:items-start xl:gap-10">
+            <Reveal>
+              <div className="grid gap-5">
+                <HouseLetterCard
+                  eyebrow="Concierge intake / house placement"
+                  title="State the line clearly, and the house can handle the route properly."
+                  body="The strongest acquisition routes are not rushed. They clarify collector posture, intended use, region, and timing early so placement feels considered before it feels available."
+                  signature="Praeliator / acquisition desk"
+                />
+
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,15,14,0.94),rgba(10,9,8,0.98))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Placement desk
+                  </p>
+                  <div className="mt-5">
+                    <DataList
+                      items={[
+                        {
+                          label: "Intent",
+                          value:
+                            "Collector posture and intended use are clarified before allocation continues.",
+                        },
+                        {
+                          label: "Region",
+                          value:
+                            "Destination, delivery rhythm, and handling route are retained in the same record.",
+                        },
+                        {
+                          label: "Continuation",
+                          value:
+                            "The inquiry is authored to flow toward ownership and future aftercare rather than ending at dispatch.",
+                        },
+                      ]}
+                      compact
+                    />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(10,9,8,0.99))] p-6 shadow-[0_34px_100px_rgba(0,0,0,0.32)] sm:p-8 lg:p-10">
+                <div className="max-w-3xl">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+                    Concierge dossier
+                  </p>
+                  <h2 className="mt-4 max-w-[12ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
+                    Enter the route with more precision.
+                  </h2>
+                  <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    This intake does not replace direct contact. It prepares it.
+                    The house receives the acquisition line with better context,
+                    stronger continuity, and a reference already in place.
+                  </p>
+                </div>
+
+                <form
+                  className="mt-8 grid gap-4 sm:gap-5"
+                  onSubmit={handleAcquisitionSubmit}
+                  noValidate
+                >
+                  <div className="hidden" aria-hidden="true">
+                    <label htmlFor="acquisitionCompanyWebsite">
+                      Leave this field empty
+                    </label>
+                    <input
+                      id="acquisitionCompanyWebsite"
+                      name="acquisitionCompanyWebsite"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={acquisitionHoneypot}
+                      onChange={(event) => setAcquisitionHoneypot(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Full name
+                      </span>
+                      <input
+                        type="text"
+                        autoComplete="name"
+                        value={acquisitionForm.fullName}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("fullName", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.fullName),
+                        })}`}
+                        placeholder="Client name"
+                      />
+                      {acquisitionErrors.fullName ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.fullName}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Email
+                      </span>
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        value={acquisitionForm.email}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("email", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.email),
+                        })}`}
+                        placeholder="name@example.com"
+                      />
+                      {acquisitionErrors.email ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.email}
+                        </p>
+                      ) : null}
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Dial code
+                      </span>
+                      <input
+                        type="tel"
+                        autoComplete="tel-country-code"
+                        value={acquisitionForm.phoneCountryCode}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange(
+                            "phoneCountryCode",
+                            event.target.value,
+                          )
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.phoneCountryCode),
+                        })}`}
+                        placeholder="+52"
+                      />
+                      {acquisitionErrors.phoneCountryCode ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.phoneCountryCode}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Phone / WhatsApp
+                      </span>
+                      <input
+                        type="tel"
+                        autoComplete="tel-national"
+                        inputMode="tel"
+                        value={acquisitionForm.whatsapp}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("whatsapp", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.whatsapp),
+                        })}`}
+                        placeholder="Phone number"
+                      />
+                      {acquisitionErrors.whatsapp ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.whatsapp}
+                        </p>
+                      ) : null}
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Country
+                      </span>
+                      <input
+                        type="text"
+                        autoComplete="country-name"
+                        value={acquisitionForm.country}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("country", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.country),
+                        })}`}
+                        placeholder="Country"
+                      />
+                      {acquisitionErrors.country ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.country}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Destination region
+                      </span>
+                      <input
+                        type="text"
+                        autoComplete="address-level1"
+                        value={acquisitionForm.destinationRegion}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange(
+                            "destinationRegion",
+                            event.target.value,
+                          )
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] ${getFormFieldStateClasses({})}`}
+                        placeholder="City / region / destination if relevant"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Interest
+                      </span>
+                      <select
+                        value={acquisitionForm.interest}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("interest", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] appearance-none ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.interest),
+                        })}`}
+                      >
+                        <option value="">Select interest</option>
+                        {interestOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {acquisitionErrors.interest ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.interest}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Timing
+                      </span>
+                      <select
+                        value={acquisitionForm.timeline}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange("timeline", event.target.value)
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] appearance-none ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.timeline),
+                        })}`}
+                      >
+                        <option value="">Select timing</option>
+                        {timelineOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {acquisitionErrors.timeline ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.timeline}
+                        </p>
+                      ) : null}
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Collector intent
+                      </span>
+                      <select
+                        value={acquisitionForm.collectorIntent}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange(
+                            "collectorIntent",
+                            event.target.value,
+                          )
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] appearance-none ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.collectorIntent),
+                        })}`}
+                      >
+                        <option value="">Select intent</option>
+                        {acquisitionCollectorIntentOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {acquisitionErrors.collectorIntent ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.collectorIntent}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Placement purpose
+                      </span>
+                      <select
+                        value={acquisitionForm.purchasePurpose}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange(
+                            "purchasePurpose",
+                            event.target.value,
+                          )
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] appearance-none ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.purchasePurpose),
+                        })}`}
+                      >
+                        <option value="">Select purpose</option>
+                        {acquisitionPurposeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {acquisitionErrors.purchasePurpose ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.purchasePurpose}
+                        </p>
+                      ) : null}
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Preferred contact
+                      </span>
+                      <select
+                        value={acquisitionForm.contactPreference}
+                        onChange={(event) =>
+                          handleAcquisitionFieldChange(
+                            "contactPreference",
+                            event.target.value,
+                          )
+                        }
+                        className={`${formFieldBaseClass} min-h-[3.55rem] appearance-none ${getFormFieldStateClasses({
+                          invalid: Boolean(acquisitionErrors.contactPreference),
+                        })}`}
+                      >
+                        <option value="">Select route</option>
+                        {contactPreferenceOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {acquisitionErrors.contactPreference ? (
+                        <p className="text-sm leading-6 text-[#d99b8d]">
+                          {acquisitionErrors.contactPreference}
+                        </p>
+                      ) : null}
+                    </label>
+                  </div>
+
+                  <label className="grid gap-2">
+                    <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                      House note
+                    </span>
+                    <textarea
+                      rows={6}
+                      value={acquisitionForm.note}
+                      onChange={(event) =>
+                        handleAcquisitionFieldChange("note", event.target.value)
+                      }
+                      className={`${formFieldBaseClass} min-h-[10rem] resize-none py-4 ${getFormFieldStateClasses({})}`}
+                      placeholder="Condition of interest, destination considerations, collector context, or anything the house should understand before direct continuation."
+                    />
+                  </label>
+
+                  <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 text-sm leading-7 text-white/58">
+                    Qualified inquiries receive a reference first. The direct
+                    conversation can then continue with context already held
+                    under the house.
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Button
+                      type="submit"
+                      disabled={acquisitionState.loading}
+                      className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      {acquisitionState.loading
+                        ? "Submitting dossier..."
+                        : "Submit Concierge Intake"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setAcquisitionForm(initialAcquisitionIntakeForm);
+                        setAcquisitionErrors({});
+                        setAcquisitionState({
+                          loading: false,
+                          success: false,
+                          error: "",
+                          reference: "",
+                          serviceMessage: "",
+                        });
+                      }}
+                      className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+
+                  <AnimatePresence>
+                    {acquisitionState.success ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.24, ease: easeLuxury }}
+                        className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                      >
+                        <div className="border-b border-white/[0.08] px-5 py-4">
+                          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                            Placement reference
+                          </p>
+                          <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
+                            {acquisitionState.reference || "Reference pending"}
+                          </p>
+                        </div>
+                        <div className="space-y-4 px-5 py-5">
+                          <p className="text-sm leading-6 text-white/62">
+                            {acquisitionState.serviceMessage}
+                          </p>
+                          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                            <Button
+                              asChild
+                              className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                            >
+                              <a
+                                href={acquisitionFollowUpLink}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                Continue on WhatsApp
+                              </a>
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => goTo("/ownership-record")}
+                              className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                            >
+                              Ownership Record
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+
+                  {acquisitionState.error ? (
+                    <p className="text-sm leading-6 text-[#d99b8d]">
+                      {acquisitionState.error}
+                    </p>
+                  ) : null}
+                </form>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+    </>
+  );
+};
 
 const renderWaitlistPage = () => (
     <>
@@ -10919,49 +11827,71 @@ Use a one-time code
   );
 
   const handleExportOwnershipCertificate = React.useCallback(
-    (pair: RegisteredOwnershipPair | null) => {
+    async (pair: RegisteredOwnershipPair | null) => {
       if (typeof window === "undefined" || !authSession) return;
 
       const activePair = pair ?? ownershipPairs[0] ?? null;
-      const previewWindow = window.open("", "_blank", "width=1120,height=820");
+      const pairAge = activePair
+        ? getPairAgeDescriptor(activePair.deliveryConfirmedAt)
+        : {
+            label: "Awaiting retained pair",
+            detail:
+              "The certificate will fill with maturity details once the first pair enters record.",
+          };
+      const serviceState = activePair
+        ? getLegacyRefreshRecordState(activePair)
+        : {
+            label: "Record ready",
+            detail:
+              "The house reference is active and waiting for its first retained pair.",
+          };
 
-      if (!previewWindow) {
-        setAuthNotice({
-          tone: "error",
-          title: "Certificate blocked",
-          body: "The certificate could not be opened. Allow pop-ups for this site and try again.",
-        });
-        return;
-      }
-
-      previewWindow.document.open();
-      previewWindow.document.write(
-        buildOwnershipCertificateMarkup({
+      try {
+        await downloadOwnershipCertificatePdf({
           clientName: getOwnershipDisplayName(authSession),
           clientEmail: authSession.user.email ?? null,
           recordReference: getOwnershipRecordReference(authSession.user.id),
-          issuedAt: getOwnershipIssuedAt(authSession, ownershipPairs),
-          pair: activePair,
-        }),
-      );
-      previewWindow.document.close();
-      previewWindow.focus();
-
-      window.setTimeout(() => {
-        try {
-          previewWindow.print();
-        } catch {
-          // Print remains optional; opening the certificate is the main outcome.
-        }
-      }, 180);
-
-      setAuthNotice({
-        tone: "success",
-        title: "Certificate prepared",
-        body: activePair
-          ? `A print-ready certificate for ${activePair.serial} has been opened in a separate window.`
-          : "A print-ready Ownership Record certificate has been opened in a separate window.",
-      });
+          issuedAtLabel: formatOwnershipDate(
+            getOwnershipIssuedAt(authSession, ownershipPairs) ??
+              authSession.user.created_at,
+          ),
+          pair: activePair
+            ? {
+                model: activePair.model,
+                serial: activePair.serial,
+                claimCodeLast4: activePair.claimCodeLast4,
+                deliveryConfirmedAtLabel: formatOwnershipDate(
+                  activePair.deliveryConfirmedAt,
+                ),
+                registeredAtLabel: formatOwnershipDate(activePair.registeredAt),
+                eligibleOnLabel: formatOwnershipDate(
+                  activePair.legacyRefreshEligibleOn,
+                ),
+              }
+            : null,
+          pairAgeLabel: pairAge.label,
+          pairAgeDetail: pairAge.detail,
+          serviceStateLabel: serviceState.label,
+          serviceStateDetail: serviceState.detail,
+          logoPath: brandAssetPaths.ownershipFaviconMark,
+        });
+        setAuthNotice({
+          tone: "success",
+          title: "Certificate prepared",
+          body: activePair
+            ? `A true PDF certificate for ${activePair.serial} has been prepared under the house record.`
+            : "A true PDF certificate for the current Ownership Record has been prepared.",
+        });
+      } catch (error) {
+        setAuthNotice({
+          tone: "error",
+          title: "Certificate unavailable",
+          body:
+            error instanceof Error
+              ? error.message
+              : "The certificate could not be prepared right now.",
+        });
+      }
     },
     [authSession, ownershipPairs],
   );
@@ -11002,41 +11932,49 @@ Use a one-time code
     setTransferReviewError(null);
     setTransferReviewSubmitting(true);
 
-    const reviewBody = [
-      "Praeliator Transfer Review",
-      "",
-      `Ownership Record: ${getOwnershipRecordReference(authSession.user.id)}`,
-      `Current client: ${getOwnershipDisplayName(authSession)}`,
-      `Client email: ${authSession.user.email ?? "Private line retained"}`,
-      `Pair: ${pair.serial}`,
-      `Recorded delivery: ${formatOwnershipDate(pair.deliveryConfirmedAt)}`,
-      `Next custodian: ${nextCustodianName}`,
-      `Next custodian email: ${nextCustodianEmail || "Not yet supplied"}`,
-      `Intended timing: ${intendedTiming}`,
-      `Legacy Refresh posture: ${getLegacyRefreshRecordState(pair).label}`,
-      "",
-      "Continuity note:",
-      note || "No additional continuity note supplied.",
-    ].join("\n");
-
     try {
-      try {
-        await navigator.clipboard.writeText(reviewBody);
-      } catch {
-        // Clipboard support is helpful but not required for the review letter.
-      }
+      const response = await fetch(transferReviewEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Praeliator-Intake": "transfer-review",
+        },
+        body: JSON.stringify({
+          currentOwnerName: getOwnershipDisplayName(authSession),
+          currentOwnerEmail: authSession.user.email ?? "",
+          recordReference: getOwnershipRecordReference(authSession.user.id),
+          pairId: pair.id,
+          pairSerial: pair.serial,
+          deliveryConfirmedAt: pair.deliveryConfirmedAt,
+          nextCustodianName,
+          nextCustodianEmail,
+          intendedTiming,
+          note,
+          sourceRoute: route,
+        }),
+      });
+      const result = await response.json();
 
-      window.location.href = `mailto:praeliatorboxing@gmail.com?subject=${encodeURIComponent(
-        `Praeliator Transfer Review / ${pair.serial}`,
-      )}&body=${encodeURIComponent(reviewBody)}`;
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || "Transfer review failed.");
+      }
 
       setTransferReviewDraftPairId(null);
       setTransferReviewDraft(initialTransferReviewDraft);
       setAuthNotice({
         tone: "success",
-        title: "Transfer review prepared",
-        body: `The review brief for ${pair.serial} has been copied and a drafted email has been prepared for continuation.`,
+        title: "Transfer review entered",
+        body: result.reference
+          ? `${pair.serial} has entered private review under reference ${result.reference}.`
+          : `The transfer review for ${pair.serial} has entered private record.`,
       });
+    } catch (error) {
+      setTransferReviewError(
+        error instanceof Error
+          ? error.message
+          : "Transfer review could not be entered right now.",
+      );
     } finally {
       setTransferReviewSubmitting(false);
     }
@@ -11125,6 +12063,12 @@ Use a one-time code
     const ownershipReviewLine = ownershipActiveReviewCount
       ? `${ownershipActiveReviewCount} pair${ownershipActiveReviewCount === 1 ? "" : "s"} currently remain under private review.`
       : "No pair is under private review at this moment.";
+    const ownershipCorrespondenceEntries = getOwnershipHouseCorrespondence({
+      clientName: ownershipClientName,
+      latestPair: latestRetainedPair,
+      nextPair: nextLegacyRefreshPair,
+      activeReviewCount: ownershipActiveReviewCount,
+    });
 
     if (!authInitialized) {
       return (
@@ -11642,8 +12586,8 @@ Use a one-time code
                       Certificate chamber
                     </p>
                     <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
-                      Export a print-ready certificate whenever the current line
-                      needs an offline record of custody, delivery age, and
+                      Export a house-grade PDF certificate whenever the current
+                      line needs an offline record of custody, delivery age, and
                       present service posture.
                     </p>
 
@@ -11744,6 +12688,38 @@ Use a one-time code
                   </div>
                 ) : null}
               </div>
+            </div>
+          </Container>
+        </section>
+
+        <section className="relative py-6 sm:py-8 lg:py-10">
+          <Container>
+            <div className="border-b border-white/10 pb-6">
+              <p className="text-[10px] uppercase tracking-[0.28em] text-[#c7a97e]">
+                House correspondence
+              </p>
+              <h2 className="ownership-display mt-4 max-w-[12ch] text-[2.7rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#f3e8d8] sm:text-[3.4rem]">
+                The archive should speak back.
+              </h2>
+              <p className="mt-5 max-w-3xl text-sm leading-7 text-white/62">
+                Ownership feels deeper when the record produces correspondence:
+                retention, invitation, review, and continuity framed as house
+                memory rather than as software state.
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-5 lg:grid-cols-3">
+              {ownershipCorrespondenceEntries.map((entry, index) => (
+                <Reveal key={entry.title} delay={0.04 * index}>
+                  <HouseLetterCard
+                    eyebrow={entry.eyebrow}
+                    title={entry.title}
+                    body={entry.body}
+                    signature={entry.signature}
+                    className="h-full"
+                  />
+                </Reveal>
+              ))}
             </div>
           </Container>
         </section>

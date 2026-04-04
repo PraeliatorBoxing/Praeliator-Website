@@ -3,7 +3,7 @@ import {
   persistPrivateInquiry,
 } from "./_lib/private-inquiry";
 
-type IntakePayload = {
+type AcquisitionPayload = {
   title?: string;
   fullName?: string;
   email?: string;
@@ -15,13 +15,16 @@ type IntakePayload = {
   timeline?: string;
   contactPreference?: string;
   note?: string;
+  collectorIntent?: string;
+  purchasePurpose?: string;
+  destinationRegion?: string;
   sourceRoute?: string;
 };
 
 const SERVICE_MESSAGE =
-  "A private response follows after review. Your client record is now open.";
+  "A private placement response follows after review. Your acquisition reference is now open.";
 
-function normalizePayload(raw: IntakePayload) {
+function normalizePayload(raw: AcquisitionPayload) {
   return {
     title: (raw.title || "").trim(),
     fullName: (raw.fullName || "").trim(),
@@ -34,7 +37,10 @@ function normalizePayload(raw: IntakePayload) {
     timeline: (raw.timeline || "").trim(),
     contactPreference: (raw.contactPreference || "").trim(),
     note: (raw.note || "").trim(),
-    sourceRoute: (raw.sourceRoute || "/waitlist").trim(),
+    collectorIntent: (raw.collectorIntent || "").trim(),
+    purchasePurpose: (raw.purchasePurpose || "").trim(),
+    destinationRegion: (raw.destinationRegion || "").trim(),
+    sourceRoute: (raw.sourceRoute || "/acquisition").trim(),
   };
 }
 
@@ -49,18 +55,31 @@ function validatePayload(payload: ReturnType<typeof normalizePayload>) {
   if (!payload.contactPreference) {
     return "Preferred contact method is required.";
   }
+  if (!payload.collectorIntent) return "Collector intent is required.";
+  if (!payload.purchasePurpose) return "Placement purpose is required.";
   return null;
 }
 
 export async function POST(request: Request) {
   try {
-    const rawPayload = (await request.json()) as IntakePayload;
+    const rawPayload = (await request.json()) as AcquisitionPayload;
     const payload = normalizePayload(rawPayload);
     const validationError = validatePayload(payload);
 
     if (validationError) {
       return jsonResponse({ success: false, error: validationError }, 400);
     }
+
+    const compiledNote = [
+      `Collector intent: ${payload.collectorIntent}`,
+      `Placement purpose: ${payload.purchasePurpose}`,
+      payload.destinationRegion
+        ? `Destination region: ${payload.destinationRegion}`
+        : null,
+      payload.note ? `House note: ${payload.note}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const result = await persistPrivateInquiry({
       title: payload.title,
@@ -75,7 +94,7 @@ export async function POST(request: Request) {
       interest: payload.interest,
       timeline: payload.timeline,
       contactPreference: payload.contactPreference,
-      note: payload.note,
+      note: compiledNote,
       sourceRoute: payload.sourceRoute,
       lifecycleStage: "lead",
       serviceMessage: SERVICE_MESSAGE,
@@ -84,7 +103,9 @@ export async function POST(request: Request) {
     return jsonResponse({ success: true, ...result }, 200);
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Private intake failed.";
+      error instanceof Error
+        ? error.message
+        : "Private acquisition intake failed.";
 
     return jsonResponse({ success: false, error: message }, 500);
   }
