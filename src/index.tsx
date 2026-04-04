@@ -4003,16 +4003,16 @@ function MobileHeader({
         transition={{ duration: 0.45, ease: easeLuxury }}
         className="border-b border-transparent bg-transparent"
       >
-        <Container className="relative flex items-center justify-between py-4">
+        <Container className="relative flex items-center justify-between py-4 md:py-5">
           <button
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileMenuOpen((current) => !current)}
-            className="inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-300 hover:text-white"
+            className="inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-300 hover:text-white md:h-12 md:w-12"
           >
             <PraeliatorMenuWreathIcon
               open={mobileMenuOpen}
-              className="h-[2.25rem] w-[2.25rem]"
+              className="h-[2.25rem] w-[2.25rem] md:h-[2.55rem] md:w-[2.55rem]"
             />
           </button>
 
@@ -4025,7 +4025,7 @@ function MobileHeader({
             />
           </div>
 
-          <div aria-hidden="true" className="h-11 w-11" />
+          <div aria-hidden="true" className="h-11 w-11 md:h-12 md:w-12" />
         </Container>
 
         <AnimatePresence initial={false}>
@@ -4035,10 +4035,10 @@ function MobileHeader({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.35, ease: easeLuxury }}
-              className="pb-3"
+              className="pb-3 md:pb-4"
             >
               <Container className="flex justify-center">
-                <p className="text-[9px] uppercase tracking-[0.34em] text-white/34">
+                <p className="text-[9px] uppercase tracking-[0.34em] text-white/34 md:text-[10px]">
                   {pageMicroLabel}
                 </p>
               </Container>
@@ -4055,20 +4055,20 @@ function MobileHeader({
               transition={{ duration: 0.4, ease: easeLuxury }}
               className="overflow-hidden border-t border-white/[0.06]"
             >
-              <Container className="pb-5 pt-4">
-                <div className="grid gap-3">
+              <Container className="pb-5 pt-4 md:pb-8 md:pt-6">
+                <div className="grid gap-3 md:grid-cols-2">
                   {[{ label: authPrimaryLabel, path: authPrimaryRoute }, ...navItems].map((item) => (
                     <button
                       key={item.path}
                       type="button"
                       onClick={() => goTo(item.path)}
-                      className="group flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+                      className="group flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05] md:min-h-[5.5rem] md:px-5"
                     >
                       <div>
-                        <p className="text-base uppercase tracking-[0.14em] text-white/88">
+                        <p className="text-base uppercase tracking-[0.14em] text-white/88 md:text-[1.05rem]">
                           {item.label}
                         </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/34">
+                        <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/34 md:text-[11px]">
                           {item.label === "VIS"
                             ? "Flagship"
                             : item.label === "Acquisition"
@@ -6328,6 +6328,22 @@ function BrowserFormStyles() {
   );
 }
 export default function PraeliatorWebsite() {
+  const getViewportMode = React.useCallback((): "mobile" | "tablet" | "desktop" => {
+    if (typeof window === "undefined") return "desktop";
+
+    const width = window.innerWidth;
+    const coarsePointer =
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(hover: none)").matches;
+    const isIPadLikeDevice =
+      /iPad/i.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    if (width < 768) return "mobile";
+    if (width >= 1024 && !coarsePointer && !isIPadLikeDevice) return "desktop";
+    return "tablet";
+  }, []);
+
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
     `${whatsappBase}?text=${encodeURIComponent(message)}`;
@@ -6465,10 +6481,12 @@ export default function PraeliatorWebsite() {
   const [ownershipInitialized, setOwnershipInitialized] = useState(false);
 
   const reduceMotion = useReducedMotion();
-  const [isDesktopViewport, setIsDesktopViewport] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return window.matchMedia("(min-width: 1024px)").matches;
-  });
+  const [viewportMode, setViewportMode] = useState<
+    "mobile" | "tablet" | "desktop"
+  >(() => getViewportMode());
+  const isDesktopViewport = viewportMode === "desktop";
+  const isTabletViewport = viewportMode === "tablet";
+  const usesDesktopSurfaceLayout = viewportMode !== "mobile";
   const [luxuryCursorEnabled, setLuxuryCursorEnabled] = useState(false);
   const trackWaitlistEvent = React.useCallback(
     (name: string, detail: Record<string, unknown> = {}) => {
@@ -6506,16 +6524,15 @@ export default function PraeliatorWebsite() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
-    const syncViewport = () => setIsDesktopViewport(mediaQuery.matches);
+    const syncViewport = () => setViewportMode(getViewportMode());
     syncViewport();
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", syncViewport);
-      return () => mediaQuery.removeEventListener("change", syncViewport);
-    }
-    mediaQuery.addListener(syncViewport);
-    return () => mediaQuery.removeListener(syncViewport);
-  }, []);
+    window.addEventListener("resize", syncViewport, { passive: true });
+    window.addEventListener("orientationchange", syncViewport);
+    return () => {
+      window.removeEventListener("resize", syncViewport);
+      window.removeEventListener("orientationchange", syncViewport);
+    };
+  }, [getViewportMode]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -6982,7 +6999,7 @@ export default function PraeliatorWebsite() {
           : "monogram";
   const mobileHeaderBrandMode: HeaderBrandMode =
     route === "/" ? "wordmark" : "monogram";
-  const activeHeaderBrandMode: HeaderBrandMode = isDesktopViewport
+  const activeHeaderBrandMode: HeaderBrandMode = usesDesktopSurfaceLayout
     ? headerBrandMode
     : mobileHeaderBrandMode;
   const headerLifted =
@@ -11716,7 +11733,7 @@ const renderWaitlistPage = () => (
     <section className="relative min-h-[100svh] overflow-hidden pb-8 pt-24 sm:pb-12 sm:pt-32 lg:pb-16 lg:pt-36">
       <div className={`absolute inset-0 ${sectionBackground}`} />
       <Container className="relative">
-        <div className="grid gap-5 sm:gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
+        <div className="grid gap-5 sm:gap-6 md:grid-cols-[0.88fr_1.12fr] md:items-stretch">
           <Reveal className="flex">
             <div className={`relative flex h-full overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10 ${introPanel}`}>
               {archiveTone ? (
@@ -14113,18 +14130,18 @@ Use a one-time code
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${isDesktopViewport ? "desktop" : "mobile"}-${route}`}
+            key={`${viewportMode}-${route}`}
             variants={pageTransition}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {isDesktopViewport ? renderPage() : renderMobilePage()}
+            {usesDesktopSurfaceLayout ? renderPage() : renderMobilePage()}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {route === "/" || !routeUsesFooter ? null : isDesktopViewport ? (
+      {route === "/" || !routeUsesFooter ? null : usesDesktopSurfaceLayout ? (
         <ClubFooter
           goTo={goTo}
           whatsappGeneralLink={whatsappGeneralLink}
