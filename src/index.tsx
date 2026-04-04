@@ -1051,6 +1051,18 @@ const formPanelClass =
   "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.25rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl sm:rounded-[1.45rem]";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
+const archiveAuthInputClass =
+  "browser-form-element min-h-[3.55rem] w-full rounded-[1.35rem] border border-[#d2c1ab] bg-[rgba(255,250,244,0.86)] px-5 text-[16px] text-[#231b15] shadow-[inset_0_1px_0_rgba(255,255,255,0.56)] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-[#8d755c]/68 focus:border-[#a27f59] focus:bg-[#fffaf4] sm:text-sm";
+const archiveAuthInputMutedClass = `${archiveAuthInputClass} opacity-80`;
+const archiveAuthPrimaryButtonClass =
+  "rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_16px_36px_rgba(45,31,20,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60";
+const archiveAuthSecondaryButtonClass =
+  "rounded-full border border-[#cdbca7] bg-[rgba(251,245,236,0.78)] px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-60";
+const archiveAuthInlineCopyClass = "pt-2 text-sm leading-7 text-[#6a5848]";
+const archiveAuthInlineLinkClass =
+  "ml-2 text-[#231b15] transition hover:text-[#6f5339]";
+const archiveAuthNoticeSurfaceClass =
+  "rounded-[1.5rem] border border-[#d8c9b5] bg-[#fbf6ef]/88 p-5";
 const normalizeInlineText = (value: string) =>
   value.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
 const normalizeFinalText = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -3643,16 +3655,19 @@ function OtpCodeField({
   onChange,
   length = 6,
   disabled = false,
+  tone = "midnight",
 }: {
   value: string;
   onChange: (next: string) => void;
   length?: number;
   disabled?: boolean;
+  tone?: "midnight" | "archive";
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [focused, setFocused] = useState(false);
   const normalized = value.replace(/\D/g, "").slice(0, length);
   const activeIndex = Math.min(normalized.length, length - 1);
+  const archiveTone = tone === "archive";
 
   return (
     <div className="grid gap-3">
@@ -3684,10 +3699,16 @@ function OtpCodeField({
                 key={index}
                 className={`flex h-[4.4rem] items-center justify-center rounded-[0.95rem] border text-center font-[Arial,Helvetica,sans-serif] text-[1.45rem] font-semibold tracking-[0.08em] transition duration-300 sm:h-[4.9rem] sm:text-[1.7rem] ${
                   hasValue
-                    ? "border-[#d9cbbb] bg-[#0d0c0b] text-[#f4efe7] shadow-[0_10px_26px_rgba(0,0,0,0.16)]"
+                    ? archiveTone
+                      ? "border-[#cdbca7] bg-[#fffaf4] text-[#231b15] shadow-[0_10px_26px_rgba(77,53,30,0.08)]"
+                      : "border-[#d9cbbb] bg-[#0d0c0b] text-[#f4efe7] shadow-[0_10px_26px_rgba(0,0,0,0.16)]"
                     : isActive
-                      ? "border-[#efe5d7] bg-[#0f0e0d] text-[#f4efe7] shadow-[0_0_0_1px_rgba(239,229,215,0.16),0_12px_28px_rgba(0,0,0,0.18)]"
-                      : "border-white/[0.08] bg-[#090909] text-white/28"
+                      ? archiveTone
+                        ? "border-[#a27f59] bg-[#fffaf4] text-[#231b15] shadow-[0_0_0_1px_rgba(162,127,89,0.12),0_12px_28px_rgba(77,53,30,0.1)]"
+                        : "border-[#efe5d7] bg-[#0f0e0d] text-[#f4efe7] shadow-[0_0_0_1px_rgba(239,229,215,0.16),0_12px_28px_rgba(0,0,0,0.18)]"
+                      : archiveTone
+                        ? "border-[#d7c8b5] bg-[#f7f1e8] text-[#b39c83]"
+                        : "border-white/[0.08] bg-[#090909] text-white/28"
                 }`}
               >
                 {normalized[index] || ""}
@@ -3696,7 +3717,11 @@ function OtpCodeField({
           })}
         </div>
       </div>
-      <p className="text-[11px] uppercase tracking-[0.16em] text-white/34">
+      <p
+        className={`text-[11px] uppercase tracking-[0.16em] ${
+          archiveTone ? "text-[#7a6756]" : "text-white/34"
+        }`}
+      >
         Enter one digit at a time. Paste also works.
       </p>
     </div>
@@ -11670,25 +11695,25 @@ const renderWaitlistPage = () => (
   }) => {
     const archiveTone = shellTone === "archive";
     const sectionBackground = archiveTone
-      ? "bg-[radial-gradient(circle_at_top,rgba(214,186,149,0.16),transparent_28%),linear-gradient(180deg,#ede3d5_0%,#ded2c2_54%,#cfc2b1_100%)] text-[#231b15]"
+      ? "bg-[radial-gradient(circle_at_top,rgba(214,186,149,0.12),transparent_30%),linear-gradient(180deg,#e8dccd_0%,#d9cab8_56%,#cbbba8_100%)] text-[#231b15]"
       : "bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]";
     const introPanel = archiveTone
-      ? "border-[#c6b39b] bg-[linear-gradient(180deg,rgba(247,241,232,0.98),rgba(232,222,209,0.96))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
+      ? "border-[#c6b39b] bg-[linear-gradient(180deg,rgba(247,241,232,0.98),rgba(234,225,214,0.96))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
       : "border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] text-[#f4efe7] shadow-[0_32px_90px_rgba(0,0,0,0.38)]";
     const asidePanel = archiveTone
       ? "border-[#d5c7b4] bg-[#f7f1e8]/88"
       : "border-white/10 bg-white/[0.025]";
     const formPanel = archiveTone
-      ? "border-[#cdbca7] bg-[linear-gradient(180deg,rgba(250,245,238,0.98),rgba(236,227,214,0.96))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
+      ? "border-[#cdbca7] bg-[linear-gradient(180deg,rgba(249,243,235,0.98),rgba(236,227,214,0.97))] text-[#231b15] shadow-[0_28px_80px_rgba(77,53,30,0.18)]"
       : "border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] text-[#f4efe7] shadow-[0_30px_80px_rgba(0,0,0,0.28)]";
-    const bodyText = archiveTone ? "text-[#4d4034]" : "text-white/60";
-    const noteText = archiveTone ? "text-[#6c5847]" : "text-white/42";
+    const bodyText = archiveTone ? "text-[#45382d]" : "text-white/60";
+    const noteText = archiveTone ? "text-[#655242]" : "text-white/42";
     const titleClass = archiveTone
       ? "ownership-display mt-4 text-[clamp(2.55rem,10vw,4.9rem)] font-semibold leading-[0.82] tracking-[-0.055em]"
       : "mt-5 text-[clamp(2.5rem,9vw,3rem)] font-semibold leading-[0.92] tracking-[-0.055em] sm:text-5xl";
 
     return (
-    <section className="relative overflow-hidden pt-24 sm:pt-32 lg:pt-36">
+    <section className="relative min-h-[100svh] overflow-hidden pb-8 pt-24 sm:pb-12 sm:pt-32 lg:pb-16 lg:pt-36">
       <div className={`absolute inset-0 ${sectionBackground}`} />
       <Container className="relative">
         <div className="grid gap-5 sm:gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
@@ -11780,7 +11805,7 @@ const renderWaitlistPage = () => (
               onChange={(event) =>
                 setSignInForm((current) => ({ ...current, email: event.target.value }))
               }
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="name@example.com"
             />
           </label>
@@ -11795,7 +11820,7 @@ const renderWaitlistPage = () => (
               onChange={(event) =>
                 setSignInForm((current) => ({ ...current, password: event.target.value }))
               }
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="Enter your password"
             />
           </label>
@@ -11803,7 +11828,7 @@ const renderWaitlistPage = () => (
             <Button
               type="submit"
               disabled={authLoading || !authInitialized}
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+              className={archiveAuthPrimaryButtonClass}
             >
               {authLoading ? "Signing in..." : "Sign In"}
             </Button>
@@ -11811,7 +11836,7 @@ const renderWaitlistPage = () => (
               type="button"
               variant="outline"
               onClick={() => goTo("/forgot-password")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Forgot Password
             </Button>
@@ -11819,17 +11844,17 @@ const renderWaitlistPage = () => (
               type="button"
               variant="outline"
               onClick={() => goTo("/magic-link")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Email One-Time Code
             </Button>
           </div>
-          <div className="pt-2 text-sm leading-7 text-white/54">
+          <div className={archiveAuthInlineCopyClass}>
             No account yet?
             <button
               type="button"
               onClick={() => goTo("/sign-up")}
-              className="ml-2 text-[#efe5d7] transition hover:text-white"
+              className={archiveAuthInlineLinkClass}
             >
               Create one
             </button>
@@ -11863,7 +11888,7 @@ const renderWaitlistPage = () => (
               onChange={(event) =>
                 setSignUpForm((current) => ({ ...current, fullName: event.target.value }))
               }
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="Client name"
             />
           </label>
@@ -11878,7 +11903,7 @@ const renderWaitlistPage = () => (
               onChange={(event) =>
                 setSignUpForm((current) => ({ ...current, email: event.target.value }))
               }
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="name@example.com"
             />
           </label>
@@ -11894,7 +11919,7 @@ const renderWaitlistPage = () => (
                 onChange={(event) =>
                   setSignUpForm((current) => ({ ...current, password: event.target.value }))
                 }
-                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                className={archiveAuthInputClass}
                 placeholder="Minimum 8 characters"
               />
             </label>
@@ -11909,7 +11934,7 @@ const renderWaitlistPage = () => (
                 onChange={(event) =>
                   setSignUpForm((current) => ({ ...current, confirmPassword: event.target.value }))
                 }
-                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                className={archiveAuthInputClass}
                 placeholder="Repeat password"
               />
             </label>
@@ -11918,7 +11943,7 @@ const renderWaitlistPage = () => (
             <Button
               type="submit"
               disabled={authLoading}
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+              className={archiveAuthPrimaryButtonClass}
             >
               {authLoading ? "Creating account..." : "Create Account"}
             </Button>
@@ -11926,17 +11951,17 @@ const renderWaitlistPage = () => (
               type="button"
               variant="outline"
               onClick={() => goTo("/sign-in")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Return to Sign In
             </Button>
           </div>
-          <div className="pt-2 text-sm leading-7 text-white/54">
+          <div className={archiveAuthInlineCopyClass}>
             Already under the house?
             <button
               type="button"
               onClick={() => goTo("/magic-link")}
-              className="ml-2 text-[#efe5d7] transition hover:text-white"
+              className={archiveAuthInlineLinkClass}
             >
 Use a one-time code
             </button>
@@ -11967,7 +11992,7 @@ Use a one-time code
               autoComplete="username"
               value={magicLinkEmail}
               onChange={(event) => setMagicLinkEmail(event.target.value)}
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="name@example.com"
             />
           </label>
@@ -11975,7 +12000,7 @@ Use a one-time code
             <Button
               type="submit"
               disabled={authLoading}
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+              className={archiveAuthPrimaryButtonClass}
             >
               {authLoading ? "Sending code..." : "Send One-Time Code"}
             </Button>
@@ -11983,7 +12008,7 @@ Use a one-time code
               type="button"
               variant="outline"
               onClick={() => goTo("/sign-in")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Return to Sign In
             </Button>
@@ -12059,7 +12084,7 @@ Use a one-time code
       shellNote: "Verification / controlled entry / private identity",
       form: otpVerification.active && verifyEmailState.status !== "pending" ? (
         <div className="grid gap-4">
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+          <div className={archiveAuthNoticeSurfaceClass}>
             <AuthStatusNotice
               notice={{
                 tone:
@@ -12081,7 +12106,7 @@ Use a one-time code
                   type={otpVerification.channel === "phone" ? "tel" : "email"}
                   value={otpVerification.identity}
                   readOnly
-                  className={`${formFieldBaseClass} min-h-[3.4rem] opacity-70`}
+                  className={archiveAuthInputMutedClass}
                 />
               </label>
               <div className="grid gap-2">
@@ -12095,13 +12120,14 @@ Use a one-time code
                     }))
                   }
                   disabled={authLoading}
+                  tone="archive"
                 />
               </div>
               <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
                 <Button
                   type="submit"
                   disabled={authLoading}
-                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+                  className={archiveAuthPrimaryButtonClass}
                 >
                   {authLoading ? "Verifying..." : "Verify Code"}
                 </Button>
@@ -12112,7 +12138,7 @@ Use a one-time code
                     clearPendingOtp();
                     goTo("/sign-in");
                   }}
-                  className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  className={archiveAuthSecondaryButtonClass}
                 >
                   Return to Sign In
                 </Button>
@@ -12124,7 +12150,7 @@ Use a one-time code
                 <Button
                   type="button"
                   onClick={() => goTo(verifyEmailState.ctaRoute!)}
-                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                  className={archiveAuthPrimaryButtonClass}
                 >
                   {verifyEmailState.ctaLabel}
                 </Button>
@@ -12133,7 +12159,7 @@ Use a one-time code
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/sign-in")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                className={archiveAuthSecondaryButtonClass}
               >
                 Return to Sign In
               </Button>
@@ -12142,11 +12168,11 @@ Use a one-time code
         </div>
       ) : (
         <div className="grid gap-4">
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+          <div className={archiveAuthNoticeSurfaceClass}>
             {verifyEmailState.status === "pending" ? (
               <div className="flex items-center gap-3">
                 <div className="browser-submit-spinner" />
-                <p className="text-sm leading-7 text-white/68">The link is being reviewed now.</p>
+                <p className="text-sm leading-7 text-[#5f4f42]">The link is being reviewed now.</p>
               </div>
             ) : (
               <AuthStatusNotice
@@ -12163,7 +12189,7 @@ Use a one-time code
               <Button
                 type="button"
                 onClick={() => goTo(verifyEmailState.ctaRoute!)}
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                className={archiveAuthPrimaryButtonClass}
               >
                 {verifyEmailState.ctaLabel}
               </Button>
@@ -12172,7 +12198,7 @@ Use a one-time code
               type="button"
               variant="outline"
               onClick={() => goTo("/sign-in")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Return to Sign In
             </Button>
@@ -12211,7 +12237,7 @@ Use a one-time code
               autoComplete="email"
               value={forgotPasswordEmail}
               onChange={(event) => setForgotPasswordEmail(event.target.value)}
-              className={`${formFieldBaseClass} min-h-[3.4rem]`}
+              className={archiveAuthInputClass}
               placeholder="name@example.com"
             />
           </label>
@@ -12219,7 +12245,7 @@ Use a one-time code
             <Button
               type="submit"
               disabled={authLoading}
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+              className={archiveAuthPrimaryButtonClass}
             >
               {authLoading ? "Sending reset email..." : "Send Reset Email"}
             </Button>
@@ -12227,7 +12253,7 @@ Use a one-time code
               type="button"
               variant="outline"
               onClick={() => goTo("/sign-in")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Return to Sign In
             </Button>
@@ -12261,7 +12287,7 @@ Use a one-time code
                 onChange={(event) =>
                   setResetPasswordForm((current) => ({ ...current, password: event.target.value }))
                 }
-                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                className={archiveAuthInputClass}
                 placeholder="Minimum 8 characters"
               />
             </label>
@@ -12274,7 +12300,7 @@ Use a one-time code
                 onChange={(event) =>
                   setResetPasswordForm((current) => ({ ...current, confirmPassword: event.target.value }))
                 }
-                className={`${formFieldBaseClass} min-h-[3.4rem]`}
+                className={archiveAuthInputClass}
                 placeholder="Repeat password"
               />
             </label>
@@ -12283,7 +12309,7 @@ Use a one-time code
             <Button
               type="submit"
               disabled={authLoading || !authSession}
-              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:pointer-events-none disabled:opacity-60"
+              className={archiveAuthPrimaryButtonClass}
             >
               {authLoading ? "Updating password..." : "Update Password"}
             </Button>
@@ -12291,7 +12317,7 @@ Use a one-time code
               type="button"
               variant="outline"
               onClick={() => goTo("/sign-in")}
-              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className={archiveAuthSecondaryButtonClass}
             >
               Return to Sign In
             </Button>
