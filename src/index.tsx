@@ -6332,6 +6332,7 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return "desktop";
 
     const width = window.innerWidth;
+    const shortestSide = Math.min(window.innerWidth, window.innerHeight);
     const coarsePointer =
       window.matchMedia("(pointer: coarse)").matches ||
       window.matchMedia("(hover: none)").matches;
@@ -6339,7 +6340,7 @@ export default function PraeliatorWebsite() {
       /iPad/i.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-    if (width < 768) return "mobile";
+    if (shortestSide < 768) return "mobile";
     if (width >= 1024 && !coarsePointer && !isIPadLikeDevice) return "desktop";
     return "tablet";
   }, []);
