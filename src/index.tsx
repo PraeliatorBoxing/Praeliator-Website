@@ -448,6 +448,11 @@ const initialAcquisitionIntakeForm = {
   destinationRegion: "",
   note: "",
 };
+const initialAcquisitionWhatsAppForm = {
+  title: "",
+  fullName: "",
+  interest: "",
+};
 const initialTransferReviewDraft: OwnershipTransferReviewDraft = {
   nextCustodianName: "",
   nextCustodianEmail: "",
@@ -519,6 +524,16 @@ const contactPreferenceOptions = [
   { value: "Email", label: "Email" },
   { value: "Either", label: "Either" },
 ];
+const acquisitionTitleOptions = [
+  { value: "Mr.", label: "Mr." },
+  { value: "Mrs.", label: "Mrs." },
+  { value: "Ms.", label: "Ms." },
+  { value: "Dr.", label: "Dr." },
+  { value: "Sir", label: "Sir" },
+  { value: "Lady", label: "Lady" },
+  { value: "H.E.", label: "H.E." },
+  { value: "H.R.H.", label: "H.R.H." },
+];
 const acquisitionCollectorIntentOptions = [
   { value: "Immediate private acquisition", label: "Immediate acquisition" },
   { value: "Collector placement consideration", label: "Collector placement" },
@@ -536,6 +551,10 @@ type WaitlistErrors = Partial<Record<WaitlistFieldName, string>>;
 type AcquisitionIntakeFieldName = keyof typeof initialAcquisitionIntakeForm;
 type AcquisitionIntakeErrors = Partial<
   Record<AcquisitionIntakeFieldName, string>
+>;
+type AcquisitionWhatsAppFieldName = keyof typeof initialAcquisitionWhatsAppForm;
+type AcquisitionWhatsAppErrors = Partial<
+  Record<AcquisitionWhatsAppFieldName, string>
 >;
 type Route =
   | "/"
@@ -612,6 +631,11 @@ const acquisitionRequiredFields: AcquisitionIntakeFieldName[] = [
   "contactPreference",
   "collectorIntent",
   "purchasePurpose",
+];
+const acquisitionWhatsAppRequiredFields: AcquisitionWhatsAppFieldName[] = [
+  "title",
+  "fullName",
+  "interest",
 ];
 const routeTitles: Record<Route, string> = {
   "/": "Home",
@@ -1262,6 +1286,30 @@ const validateAcquisitionForm = (
   }
   if (!normalizedForm.purchasePurpose) {
     errors.purchasePurpose = "Select how the pair is meant to be placed.";
+  }
+
+  return errors;
+};
+const validateAcquisitionWhatsAppForm = (
+  form: typeof initialAcquisitionWhatsAppForm,
+): AcquisitionWhatsAppErrors => {
+  const errors: AcquisitionWhatsAppErrors = {};
+  const normalizedName = normalizeWaitlistFieldValue(
+    "fullName",
+    form.fullName,
+    "submit",
+  );
+
+  if (!form.title.trim()) {
+    errors.title = "Select a title.";
+  }
+  if (!normalizedName) {
+    errors.fullName = "Full name is required.";
+  } else if (normalizedName.length < 2) {
+    errors.fullName = "Enter a valid full name.";
+  }
+  if (!form.interest.trim()) {
+    errors.interest = "Select an interest.";
   }
 
   return errors;
@@ -6337,6 +6385,14 @@ export default function PraeliatorWebsite() {
     reference: "",
     serviceMessage: "",
   });
+  const [acquisitionWhatsAppForm, setAcquisitionWhatsAppForm] = useState(
+    initialAcquisitionWhatsAppForm,
+  );
+  const [acquisitionWhatsAppErrors, setAcquisitionWhatsAppErrors] =
+    useState<AcquisitionWhatsAppErrors>({});
+  const [acquisitionWhatsAppTouched, setAcquisitionWhatsAppTouched] = useState<
+    Partial<Record<AcquisitionWhatsAppFieldName, boolean>>
+  >({});
   const [waitlistHoneypot, setWaitlistHoneypot] = useState("");
   const [acquisitionHoneypot, setAcquisitionHoneypot] = useState("");
   const [waitlistCooldownUntil, setWaitlistCooldownUntil] = useState(0);
@@ -7886,6 +7942,111 @@ export default function PraeliatorWebsite() {
       acquisitionRequestControllerRef.current = null;
     }
   };
+  const markAcquisitionWhatsAppFieldTouched = (
+    field: AcquisitionWhatsAppFieldName,
+  ) => {
+    setAcquisitionWhatsAppTouched((current) => ({
+      ...current,
+      [field]: true,
+    }));
+  };
+  const markAcquisitionWhatsAppFieldsTouched = (
+    fields: AcquisitionWhatsAppFieldName[],
+  ) => {
+    setAcquisitionWhatsAppTouched((current) => ({
+      ...current,
+      ...Object.fromEntries(fields.map((field) => [field, true])),
+    }));
+  };
+  const getVisibleAcquisitionWhatsAppError = (
+    field: AcquisitionWhatsAppFieldName,
+  ) => (acquisitionWhatsAppTouched[field] ? acquisitionWhatsAppErrors[field] : undefined);
+  const getAcquisitionWhatsAppSuccess = (field: AcquisitionWhatsAppFieldName) => {
+    if (!acquisitionWhatsAppTouched[field]) return false;
+    if (acquisitionWhatsAppErrors[field]) return false;
+    const value = acquisitionWhatsAppForm[field];
+    return typeof value === "string" ? value.trim().length > 0 : false;
+  };
+  const handleAcquisitionWhatsAppChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const field = event.target.name as AcquisitionWhatsAppFieldName;
+    const nextValue =
+      field === "fullName"
+        ? normalizeWaitlistFieldValue("fullName", event.target.value, "change")
+        : event.target.value;
+    setAcquisitionWhatsAppForm((current) => ({
+      ...current,
+      [field]: nextValue,
+    }));
+    if (Object.keys(acquisitionWhatsAppTouched).length > 0) {
+      setAcquisitionWhatsAppErrors(
+        validateAcquisitionWhatsAppForm({
+          ...acquisitionWhatsAppForm,
+          [field]: nextValue,
+        }),
+      );
+    }
+  };
+  const handleAcquisitionWhatsAppBlur = (field: AcquisitionWhatsAppFieldName) => {
+    markAcquisitionWhatsAppFieldTouched(field);
+    const normalizedForm = {
+      ...acquisitionWhatsAppForm,
+      fullName:
+        field === "fullName"
+          ? normalizeWaitlistFieldValue(
+              "fullName",
+              acquisitionWhatsAppForm.fullName,
+              "blur",
+            )
+          : acquisitionWhatsAppForm.fullName,
+    };
+    if (field === "fullName") {
+      setAcquisitionWhatsAppForm(normalizedForm);
+    }
+    setAcquisitionWhatsAppErrors(validateAcquisitionWhatsAppForm(normalizedForm));
+  };
+  const handleAcquisitionWhatsAppSubmit = (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const normalizedForm = {
+      ...acquisitionWhatsAppForm,
+      fullName: normalizeWaitlistFieldValue(
+        "fullName",
+        acquisitionWhatsAppForm.fullName,
+        "submit",
+      ),
+    };
+    setAcquisitionWhatsAppForm(normalizedForm);
+    const nextErrors = validateAcquisitionWhatsAppForm(normalizedForm);
+    setAcquisitionWhatsAppErrors(nextErrors);
+    markAcquisitionWhatsAppFieldsTouched(acquisitionWhatsAppRequiredFields);
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    const fullName = [normalizedForm.title, normalizedForm.fullName]
+      .filter(Boolean)
+      .join(" ");
+    const message = [
+      "Hello Praeliator, I would like to begin a private acquisition inquiry.",
+      "",
+      `Name: ${fullName}`,
+      `Interest: ${normalizedForm.interest}`,
+    ].join("\n");
+    const whatsappLink = createWhatsAppLink(message);
+
+    if (typeof window !== "undefined") {
+      const popup = window.open(whatsappLink, "_blank", "noopener,noreferrer");
+      if (!popup) {
+        window.location.href = whatsappLink;
+      }
+    }
+  };
   const renderHomePage = () => {
     const cinematicSections = [
       {
@@ -8412,7 +8573,7 @@ export default function PraeliatorWebsite() {
     </>
   );
 
-const renderAcquisitionPage = () => {
+const renderAcquisitionPageLegacy = () => {
   const acquisitionFollowUpLink = acquisitionState.reference
     ? createWhatsAppLink(
         `Hello Praeliator, I would like to continue my private acquisition inquiry. Reference: ${acquisitionState.reference}.`,
@@ -9275,6 +9436,217 @@ const renderAcquisitionPage = () => {
     </>
   );
 };
+
+const renderAcquisitionPage = () => (
+  <>
+    <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute inset-0 scale-[1.03] bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${getVideoFallbackImage(
+              homeCinematicMedia.acquisition.video,
+              homeCinematicMedia.acquisition.poster,
+            )})`,
+          }}
+          aria-hidden="true"
+        />
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={getVideoFallbackImage(
+            homeCinematicMedia.acquisition.video,
+            homeCinematicMedia.acquisition.poster,
+          )}
+        >
+          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
+        <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
+      </div>
+
+      <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+        <motion.div
+          initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.05, ease: easeLuxury }}
+          className="max-w-[56rem]"
+        >
+          <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
+            Private acquisition
+          </p>
+          <h1 className="mt-5 max-w-[12ch] text-[clamp(3.1rem,7.8vw,7.6rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+            Begin directly on WhatsApp.
+          </h1>
+          <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8 lg:max-w-3xl">
+            Acquisition should stay close to the house. A short private brief
+            prepares the message, then the conversation continues immediately
+            where it should.
+          </p>
+
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button
+              asChild
+              className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+            >
+              <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                Open WhatsApp
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goTo("/waitlist")}
+              className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+            >
+              Join Waitlist
+            </Button>
+          </div>
+        </motion.div>
+      </Container>
+    </section>
+
+    <section className="relative py-14 sm:py-16 lg:py-20">
+      <Container>
+        <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:gap-10">
+          <Reveal>
+            <div className="grid gap-5">
+              <HouseLetterCard
+                eyebrow="Direct route"
+                title="The strongest acquisition route is still a direct conversation."
+                body="There is no need for a long intake chamber here. State your title, name, and interest, then continue immediately on WhatsApp with the message already prepared."
+                signature="Praeliator / direct line"
+              />
+
+              <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,15,14,0.92),rgba(10,9,8,0.98))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:p-7">
+                <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                  What happens
+                </p>
+                <div className="mt-5 grid gap-4">
+                  {[
+                    "Complete the short brief below.",
+                    "Select Send Text.",
+                    "WhatsApp opens with your details already written into the message.",
+                    "Edit anything you want, then send directly.",
+                  ].map((item, index) => (
+                    <div
+                      key={item}
+                      className="rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                        Step {String(index + 1).padStart(2, "0")}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.06}>
+            <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.92),rgba(11,10,9,0.98))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+                Private brief
+              </p>
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
+                Prepare the message, then send it.
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                This brief does one thing only: it prepares a cleaner opening
+                message for the direct line.
+              </p>
+
+              <form
+                id="acquisition-whatsapp-brief"
+                className="mt-8 grid gap-4"
+                onSubmit={handleAcquisitionWhatsAppSubmit}
+                noValidate
+              >
+                <div>
+                  <SelectField
+                    name="title"
+                    value={acquisitionWhatsAppForm.title}
+                    onChange={handleAcquisitionWhatsAppChange}
+                    onBlur={() => handleAcquisitionWhatsAppBlur("title")}
+                    placeholder="Title"
+                    options={acquisitionTitleOptions}
+                    invalid={Boolean(getVisibleAcquisitionWhatsAppError("title"))}
+                    success={getAcquisitionWhatsAppSuccess("title")}
+                  />
+                  <FieldError message={getVisibleAcquisitionWhatsAppError("title")} />
+                </div>
+
+                <div>
+                  <InputField
+                    name="fullName"
+                    value={acquisitionWhatsAppForm.fullName}
+                    onChange={handleAcquisitionWhatsAppChange}
+                    onBlur={() => handleAcquisitionWhatsAppBlur("fullName")}
+                    autoComplete="name"
+                    autoCapitalize="words"
+                    placeholder="Full name"
+                    invalid={Boolean(getVisibleAcquisitionWhatsAppError("fullName"))}
+                    success={getAcquisitionWhatsAppSuccess("fullName")}
+                  />
+                  <FieldError message={getVisibleAcquisitionWhatsAppError("fullName")} />
+                </div>
+
+                <div>
+                  <SelectField
+                    name="interest"
+                    value={acquisitionWhatsAppForm.interest}
+                    onChange={handleAcquisitionWhatsAppChange}
+                    onBlur={() => handleAcquisitionWhatsAppBlur("interest")}
+                    placeholder="Interest"
+                    options={interestOptions}
+                    invalid={Boolean(getVisibleAcquisitionWhatsAppError("interest"))}
+                    success={getAcquisitionWhatsAppSuccess("interest")}
+                  />
+                  <FieldError message={getVisibleAcquisitionWhatsAppError("interest")} />
+                  {!getVisibleAcquisitionWhatsAppError("interest") ? (
+                    <FieldNote>
+                      The message opens with these details already written into
+                      the WhatsApp text.
+                    </FieldNote>
+                  ) : null}
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    type="submit"
+                    className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                  >
+                    Send Text
+                  </Button>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  >
+                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                      Open WhatsApp Without Brief
+                    </a>
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  </>
+);
 
 const renderWaitlistPage = () => (
     <>
