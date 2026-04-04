@@ -11317,6 +11317,7 @@ const renderWaitlistPage = () => (
                 onChange={(event) => handleWaitlistSelectChange("title", event)}
                 onBlur={() => handleWaitlistBlur("title")}
                 placeholder="Title"
+                options={titleOptions}
                 searchable
                 searchPlaceholder="Search title"
                 fieldLabel="Honorific"
