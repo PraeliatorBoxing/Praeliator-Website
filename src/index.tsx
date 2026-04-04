@@ -5906,7 +5906,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     const resolveVariant = (target: EventTarget | null): LuxuryCursorVariant => {
       if (!(target instanceof Element)) return "default";
       if (target.closest(textSelector)) return "hidden";
-      if (target.closest("[data-native-cursor='true']")) return "hidden";
+      if (target.closest("[data-native-cursor='true']")) return "default";
       if (target.closest(interactiveSelector)) return "button";
       return "default";
     };
@@ -6241,10 +6241,6 @@ function BrowserFormStyles() {
       html.praeliator-luxury-cursor body,
       html.praeliator-luxury-cursor body * {
         cursor: none !important;
-      }
-      html.praeliator-luxury-cursor [data-native-cursor='true'],
-      html.praeliator-luxury-cursor [data-native-cursor='true'] * {
-        cursor: default !important;
       }
       html.praeliator-luxury-cursor input,
       html.praeliator-luxury-cursor textarea,
