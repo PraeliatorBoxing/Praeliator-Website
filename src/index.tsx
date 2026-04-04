@@ -1048,7 +1048,7 @@ const pageTransition = {
 const formFieldBaseClass =
   "browser-form-element min-h-[3.75rem] w-full rounded-[1.45rem] border px-5 text-[16px] text-[#f4efe7] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-white/24 sm:text-sm";
 const formPanelClass =
-  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.45rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl";
+  "absolute left-0 right-0 top-[calc(100%+0.65rem)] z-30 overflow-hidden rounded-[1.25rem] border border-[#231d18] bg-[#0a0908]/98 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl sm:rounded-[1.45rem]";
 const formOptionRowClass =
   "flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left transition duration-200";
 const normalizeInlineText = (value: string) =>
@@ -2268,7 +2268,7 @@ function LegacyRefreshChamberDialog({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[160] flex items-center justify-center bg-[rgba(29,21,15,0.42)] px-4 py-6 backdrop-blur-[10px] sm:px-6"
+      className="fixed inset-0 z-[160] flex items-end justify-center bg-[rgba(29,21,15,0.42)] px-3 pb-3 pt-12 backdrop-blur-[10px] sm:items-center sm:px-6 sm:py-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -2283,7 +2283,7 @@ function LegacyRefreshChamberDialog({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 18, scale: 0.985 }}
         transition={{ duration: 0.34, ease: easeLuxury }}
-        className={`ownership-grain relative w-full max-w-[74rem] overflow-hidden rounded-[2.2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] ${editionTheme.surfaceClassName}`}
+        className={`ownership-grain relative max-h-[calc(100svh-1.5rem)] w-full max-w-[74rem] overflow-hidden rounded-[2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] sm:max-h-[calc(100svh-3rem)] sm:rounded-[2.2rem] ${editionTheme.surfaceClassName}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
@@ -2293,7 +2293,7 @@ function LegacyRefreshChamberDialog({
           className="right-[-2.5rem] top-[-2.5rem] h-44 w-44 sm:h-56 sm:w-56"
           opacityClassName="opacity-[0.055]"
         />
-        <div className="grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="grid max-h-[calc(100svh-1.5rem)] gap-0 overflow-y-auto overscroll-contain sm:max-h-[calc(100svh-3rem)] lg:grid-cols-[0.92fr_1.08fr]">
           <div className="relative border-b border-[#d8c9b5] p-6 sm:p-8 lg:border-b-0 lg:border-r">
             <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
               Legacy Refresh invitation
@@ -2561,7 +2561,7 @@ function TransferReviewChamberDialog({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[160] flex items-center justify-center bg-[rgba(29,21,15,0.42)] px-4 py-6 backdrop-blur-[10px] sm:px-6"
+      className="fixed inset-0 z-[160] flex items-end justify-center bg-[rgba(29,21,15,0.42)] px-3 pb-3 pt-12 backdrop-blur-[10px] sm:items-center sm:px-6 sm:py-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -2576,7 +2576,7 @@ function TransferReviewChamberDialog({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 18, scale: 0.985 }}
         transition={{ duration: 0.34, ease: easeLuxury }}
-        className={`ownership-grain relative w-full max-w-[72rem] overflow-hidden rounded-[2.2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] ${editionTheme.surfaceClassName}`}
+        className={`ownership-grain relative max-h-[calc(100svh-1.5rem)] w-full max-w-[72rem] overflow-hidden rounded-[2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] sm:max-h-[calc(100svh-3rem)] sm:rounded-[2.2rem] ${editionTheme.surfaceClassName}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
@@ -2586,7 +2586,7 @@ function TransferReviewChamberDialog({
           className="right-[-2.25rem] top-[-2.25rem] h-44 w-44 sm:h-56 sm:w-56"
           opacityClassName="opacity-[0.05]"
         />
-        <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid max-h-[calc(100svh-1.5rem)] gap-0 overflow-y-auto overscroll-contain sm:max-h-[calc(100svh-3rem)] lg:grid-cols-[0.9fr_1.1fr]">
           <div className="relative border-b border-[#d8c9b5] p-6 sm:p-8 lg:border-b-0 lg:border-r">
             <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
               Transfer review chamber
@@ -4444,13 +4444,13 @@ function SelectField({
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder={searchPlaceholder}
-                  className={`${formFieldBaseClass} min-h-[3rem] rounded-[1.05rem] border-white/[0.08] bg-[#100f0e] px-4 text-[16px] placeholder:text-white/22 focus:border-[#6a5545] sm:text-sm`}
+                  className={`${formFieldBaseClass} min-h-[3.15rem] rounded-[1.05rem] border-white/[0.08] bg-[#100f0e] px-4 text-[16px] placeholder:text-white/22 focus:border-[#6a5545] sm:text-sm`}
                 />
               </div>
             ) : null}
             <div
               id={listboxId}
-              className="browser-scrollbar max-h-[min(18rem,45vh)] overflow-y-auto overscroll-contain py-2 sm:max-h-72"
+              className="browser-scrollbar max-h-[min(16rem,42svh)] overflow-y-auto overscroll-contain py-2 sm:max-h-[min(18rem,45vh)]"
               role="listbox"
               aria-labelledby={labelId}
               data-native-cursor="true"
@@ -10977,10 +10977,14 @@ const renderWaitlistPage = () => (
     <>
       <MobilePageHeroBanner
         eyebrow="Private acquisition"
-        title="Handled directly. Continued properly."
-        description="Inquiry, review, allocation, dispatch, and aftercare remain inside one controlled route."
+        title="WhatsApp stays first. The brief stays private."
+        description="A short acquisition brief can be retained quietly before the direct line opens, so the conversation begins with house context instead of public self-introduction."
         actions={[
-          { label: "Begin Inquiry", href: whatsappGeneralLink, variant: "primary" },
+          {
+            label: "Open WhatsApp",
+            href: whatsappGeneralLink,
+            variant: "primary",
+          },
           { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
         ]}
         media={{
@@ -10988,19 +10992,40 @@ const renderWaitlistPage = () => (
           alt: "Praeliator acquisition hero",
           video: homeCinematicMedia.acquisition.video,
           badge: "Private acquisition",
-          overlayTitle: "The route is part of the object.",
+          overlayTitle: "The route should feel direct, not procedural.",
         }}
-        stats={pageHeroStats["/acquisition"]}
+        stats={[
+          { label: "Primary route", value: "WhatsApp" },
+          { label: "Brief", value: "Title · name · interest" },
+          { label: "Record", value: "Privately retained" },
+          { label: "Tone", value: "Quiet handoff" },
+        ]}
       />
 
       <MobileSectionFrame
-        eyebrow="Acquisition principle"
-        title="The route is part of the object."
-        description="Luxury does not end at the glove. The way access is handled and the way ownership continues after delivery all carry the same tone as the product itself."
+        eyebrow="Acquisition route"
+        title="Short, direct, and properly retained."
+        description="This page should not feel like a lead form. It exists only to let the house retain context before the direct conversation continues."
       >
         <div className="grid gap-3">
-          {acquisitionPrinciples.map((item) => (
-            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          {[
+            {
+              title: "Private first",
+              text: "The house can retain the brief before WhatsApp opens, so the client does not need to introduce themselves in the message thread.",
+            },
+            {
+              title: "Direct second",
+              text: "WhatsApp remains the real acquisition route. The brief exists only to support that handoff, never to replace it.",
+            },
+            {
+              title: "Quiet tone",
+              text: "Only a minimal title, name, and interest are requested. Nothing here should feel like a normal intake funnel.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+            >
               <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                 {item.title}
               </p>
@@ -11008,107 +11033,177 @@ const renderWaitlistPage = () => (
             </div>
           ))}
         </div>
-        <div className="mt-4 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-            Standard
-          </p>
-          <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
-            {acquisitionStandards.map((item) => (
-              <div key={item} className="py-4">
-                <p className="text-sm leading-7 text-white/64">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </MobileSectionFrame>
 
-      <MobileSectionFrame
-        eyebrow="The route"
-        title="A direct procession, not a checkout flow."
-        description="The sequence is quiet by design. Inquiry stays qualified, timing stays clear, and continuation stays attached to the same record from the beginning."
-      >
-        <div className="grid gap-3">
-          {acquisitionSteps.map((item) => (
-            <div key={item.step} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                    Stage {item.step}
+      <section className="relative py-6">
+        <Container>
+          <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.92),rgba(11,10,9,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.28)]">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+              Private brief
+            </p>
+            <h2 className="mt-4 max-w-[12ch] text-[2.7rem] font-semibold leading-[0.88] tracking-[-0.06em] text-[#f4efe7]">
+              Retain the brief, then continue.
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-white/60">
+              The house keeps the details first. WhatsApp then opens with a
+              quieter reference instead of a full introduction.
+            </p>
+
+            <div className="mt-5 grid gap-3">
+              {[
+                "The house retains the brief privately.",
+                "WhatsApp then opens with a quieter reference.",
+                "The direct conversation stays primary from there.",
+              ].map((item, index) => (
+                <div
+                  key={item}
+                  className="rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
+                    Step {String(index + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="mt-3 text-2xl font-semibold leading-[0.94] tracking-[-0.045em] text-[#f4efe7]">
-                    {item.title}
-                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-white/62">
+                    {item}
+                  </p>
                 </div>
-                <p className="text-3xl font-semibold leading-none tracking-[-0.08em] text-white/[0.08]">
-                  {item.step}
-                </p>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-white/62">{item.text}</p>
+              ))}
             </div>
-          ))}
-        </div>
-      </MobileSectionFrame>
 
-      <MobileSectionFrame
-        eyebrow="Why not a cart"
-        title="Open checkout would flatten the route."
-        description="The point is not artificial friction. The point is to protect tone, qualification, and continuity before and after purchase."
-      >
-        <div className="grid gap-4">
-          {acquisitionContrasts.map((column) => (
-            <div key={column.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {column.title}
-              </p>
-              <div className="mt-4 space-y-3">
-                {column.lines.map((line) => (
-                  <p key={line} className="text-sm leading-7 text-white/60">
-                    {line}
-                  </p>
-                ))}
+            <form
+              id="acquisition-whatsapp-brief-mobile"
+              className="mt-6 grid gap-4"
+              onSubmit={handleAcquisitionWhatsAppSubmit}
+              noValidate
+            >
+              <div>
+                <SelectField
+                  name="title"
+                  value={acquisitionWhatsAppForm.title}
+                  onChange={handleAcquisitionWhatsAppChange}
+                  onBlur={() => handleAcquisitionWhatsAppBlur("title")}
+                  placeholder="Title"
+                  options={acquisitionTitleOptions}
+                  searchable
+                  searchPlaceholder="Search title"
+                  fieldLabel="Honorific"
+                  invalid={Boolean(
+                    getVisibleAcquisitionWhatsAppError("title"),
+                  )}
+                  success={getAcquisitionWhatsAppSuccess("title")}
+                />
+                <FieldError
+                  message={getVisibleAcquisitionWhatsAppError("title")}
+                />
               </div>
-            </div>
-          ))}
-        </div>
-      </MobileSectionFrame>
 
-      <MobileSectionFrame
-        eyebrow="Entry"
-        title="Immediate inquiry or quieter entry."
-        description="Some clients want to begin contact immediately. Others want a softer point of entry into future releases."
-      >
-        <div className="grid gap-3">
-          {acquisitionModeCards.map((item) => (
-            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.action}
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                {item.title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 flex flex-col gap-3">
-          <Button
-            asChild
-            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
-          >
-            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-              Begin Inquiry
-            </a>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => goTo("/waitlist")}
-            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
-          >
-            Enter Waitlist
-          </Button>
-        </div>
-      </MobileSectionFrame>
+              <div>
+                <InputField
+                  name="fullName"
+                  value={acquisitionWhatsAppForm.fullName}
+                  onChange={handleAcquisitionWhatsAppChange}
+                  onBlur={() => handleAcquisitionWhatsAppBlur("fullName")}
+                  autoComplete="name"
+                  autoCapitalize="words"
+                  placeholder="Full name"
+                  invalid={Boolean(
+                    getVisibleAcquisitionWhatsAppError("fullName"),
+                  )}
+                  success={getAcquisitionWhatsAppSuccess("fullName")}
+                />
+                <FieldError
+                  message={getVisibleAcquisitionWhatsAppError("fullName")}
+                />
+              </div>
+
+              <div>
+                <SelectField
+                  name="interest"
+                  value={acquisitionWhatsAppForm.interest}
+                  onChange={handleAcquisitionWhatsAppChange}
+                  onBlur={() => handleAcquisitionWhatsAppBlur("interest")}
+                  placeholder="Interest"
+                  options={interestOptions}
+                  invalid={Boolean(
+                    getVisibleAcquisitionWhatsAppError("interest"),
+                  )}
+                  success={getAcquisitionWhatsAppSuccess("interest")}
+                />
+                <FieldError
+                  message={getVisibleAcquisitionWhatsAppError("interest")}
+                />
+                {!getVisibleAcquisitionWhatsAppError("interest") ? (
+                  <FieldNote>
+                    Only the title, name, and interest are retained here before
+                    the direct line opens.
+                  </FieldNote>
+                ) : null}
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={acquisitionWhatsAppState.loading}
+                  className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                >
+                  {acquisitionWhatsAppState.loading
+                    ? "Retaining brief..."
+                    : "Retain Brief & Open WhatsApp"}
+                </Button>
+              </div>
+
+              <AnimatePresence>
+                {acquisitionWhatsAppState.success ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.22, ease: easeLuxury }}
+                    className="overflow-hidden rounded-[1.5rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                  >
+                    <div className="border-b border-white/[0.08] px-5 py-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        Brief retained
+                      </p>
+                      <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
+                        {acquisitionWhatsAppState.reference ||
+                          "Reference pending"}
+                      </p>
+                    </div>
+                    <div className="space-y-4 px-5 py-5">
+                      <p className="text-sm leading-6 text-white/62">
+                        {acquisitionWhatsAppState.serviceMessage}
+                      </p>
+                      <div className="rounded-[1.2rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                        WhatsApp can now stay sparse. The fuller details are
+                        already retained under the house record.
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {acquisitionWhatsAppState.error ? (
+                <div className="rounded-[1.35rem] border border-[#65413a] bg-[#160e0d] p-4 text-sm leading-6 text-[#f0c1b8]">
+                  {acquisitionWhatsAppState.error}
+                </div>
+              ) : null}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.location.assign(whatsappGeneralLink);
+                  }
+                }}
+                className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+              >
+                Open WhatsApp Without Brief
+              </Button>
+            </form>
+          </div>
+        </Container>
+      </section>
     </>
   );
 
@@ -11589,16 +11684,16 @@ const renderWaitlistPage = () => (
     const bodyText = archiveTone ? "text-[#4d4034]" : "text-white/60";
     const noteText = archiveTone ? "text-[#6c5847]" : "text-white/42";
     const titleClass = archiveTone
-      ? "ownership-display mt-4 text-[clamp(3.1rem,5vw,4.9rem)] font-semibold leading-[0.82] tracking-[-0.055em]"
-      : "mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl";
+      ? "ownership-display mt-4 text-[clamp(2.55rem,10vw,4.9rem)] font-semibold leading-[0.82] tracking-[-0.055em]"
+      : "mt-5 text-[clamp(2.5rem,9vw,3rem)] font-semibold leading-[0.92] tracking-[-0.055em] sm:text-5xl";
 
     return (
-    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+    <section className="relative overflow-hidden pt-24 sm:pt-32 lg:pt-36">
       <div className={`absolute inset-0 ${sectionBackground}`} />
       <Container className="relative">
-        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
+        <div className="grid gap-5 sm:gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
           <Reveal className="flex">
-            <div className={`relative flex h-full overflow-hidden rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${introPanel}`}>
+            <div className={`relative flex h-full overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10 ${introPanel}`}>
               {archiveTone ? (
                 <>
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.2),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0))]" />
@@ -11636,7 +11731,7 @@ const renderWaitlistPage = () => (
           </Reveal>
 
           <Reveal delay={0.06}>
-            <div className={`relative overflow-hidden rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${formPanel}`}>
+            <div className={`relative overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10 ${formPanel}`}>
               {archiveTone ? (
                 <>
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0))]" />
@@ -13245,16 +13340,520 @@ Use a one-time code
     );
   };
 
+  const renderMobileOwnershipRecordPage = () => {
+    const ownershipClientName = getOwnershipDisplayName(authSession);
+    const ownershipRecordReference = authSession
+      ? getOwnershipRecordReference(authSession.user.id)
+      : "OR-PRAE-0001";
+    const ownershipIssuedAt = getOwnershipIssuedAt(authSession, ownershipPairs);
+    const latestRetainedPair =
+      [...ownershipPairs].sort(
+        (left, right) =>
+          new Date(right.registeredAt).getTime() -
+          new Date(left.registeredAt).getTime(),
+      )[0] ?? null;
+    const ownershipInvitationLine = ownershipEligibleNowCount
+      ? `${ownershipEligibleNowCount} retained pair${ownershipEligibleNowCount === 1 ? "" : "s"} may now proceed into Legacy Refresh.`
+      : nextLegacyRefreshPair
+        ? `${nextLegacyRefreshPair.serial} reaches eligibility on ${formatOwnershipDate(nextLegacyRefreshPair.legacyRefreshEligibleOn)}.`
+        : ownershipPairs.length
+          ? "Every retained pair has already crossed its Legacy Refresh threshold."
+          : "The house is waiting for its first retained pair.";
+    const ownershipReviewLine = ownershipActiveReviewCount
+      ? `${ownershipActiveReviewCount} pair${ownershipActiveReviewCount === 1 ? "" : "s"} currently remain under private review.`
+      : "No pair is under private review at this moment.";
+    const ownershipCorrespondenceEntries = getOwnershipHouseCorrespondence({
+      clientName: ownershipClientName,
+      latestPair: latestRetainedPair,
+      nextPair: nextLegacyRefreshPair,
+      activeReviewCount: ownershipActiveReviewCount,
+    });
+
+    if (!authInitialized) {
+      return (
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.18),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-24">
+          <Container className="relative pb-6">
+            <div className="ownership-grain relative overflow-hidden rounded-[2rem] border border-[#d5c3ab] bg-[linear-gradient(180deg,rgba(252,247,241,0.99),rgba(238,228,214,0.97))] p-5 text-[#231b15] shadow-[0_30px_90px_rgba(77,53,30,0.16)]">
+              <OwnershipWatermark
+                className="right-[-1.75rem] top-[-1.75rem] h-36 w-36"
+                opacityClassName="opacity-[0.05]"
+              />
+              <p className="text-[10px] uppercase tracking-[0.26em] text-[#9f7d58]">
+                Ownership Record
+              </p>
+              <h1 className="ownership-display mt-4 max-w-[10ch] text-[2.8rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]">
+                Preparing the private archive.
+              </h1>
+              <p className="mt-5 text-sm leading-7 text-[#55473b]">
+                The current client line is being restored now. Registered pairs,
+                delivery age, and Legacy Refresh continuity will appear here once
+                the session has been confirmed.
+              </p>
+            </div>
+          </Container>
+        </section>
+      );
+    }
+
+    if (!authSession) {
+      return (
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.2),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-24">
+          <Container className="relative pb-6">
+            {authNotice ? (
+              <div className="mb-4">
+                <AuthStatusNotice notice={authNotice} />
+              </div>
+            ) : null}
+            <div className="ownership-grain relative overflow-hidden rounded-[2rem] border border-[#d4c2aa] bg-[linear-gradient(180deg,rgba(252,247,241,0.99),rgba(238,228,214,0.97))] text-[#231b15] shadow-[0_34px_100px_rgba(77,53,30,0.18)]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-[0.55rem] bg-[linear-gradient(180deg,#8d6741,#d8ba8a)]" />
+              <OwnershipWatermark
+                className="right-[-1.5rem] top-[-1.5rem] h-36 w-36"
+                opacityClassName="opacity-[0.05]"
+              />
+              <div className="relative p-5">
+                <p className="text-[10px] uppercase tracking-[0.26em] text-[#9f7d58]">
+                  Threshold chamber
+                </p>
+                <h1 className="ownership-display mt-4 max-w-[9ch] text-[2.85rem] font-semibold leading-[0.8] tracking-[-0.055em] text-[#231b15]">
+                  This archive opens only under a verified client line.
+                </h1>
+                <p className="mt-5 text-sm leading-7 text-[#55473b]">
+                  Sign in or create an account to enter the Ownership Record.
+                  Once authenticated, registration, delivery age, and Legacy
+                  Refresh continuity all remain under the same private line.
+                </p>
+
+                <div className="mt-6">
+                  <OwnershipChamberSequence markers={ownershipChamberMarkers} />
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    onClick={() => goTo("/sign-in")}
+                    className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => goTo("/sign-up")}
+                    className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
+                  >
+                    Create Account
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+      );
+    }
+
+    return (
+      <>
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.24),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#eadccc_54%,#140f0b_100%)] pt-24">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(20,15,11,0),rgba(20,15,11,0.96))]" />
+          <Container className="relative pb-6">
+            {authNotice ? (
+              <div className="mb-4">
+                <AuthStatusNotice notice={authNotice} />
+              </div>
+            ) : null}
+
+            <div className="ownership-grain relative overflow-hidden rounded-[2rem] border border-[#d4c2aa] bg-[linear-gradient(180deg,rgba(252,247,241,0.995),rgba(237,227,214,0.975))] text-[#231b15] shadow-[0_34px_110px_rgba(77,53,30,0.18)]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-[0.55rem] bg-[linear-gradient(180deg,#8a633e,#d8ba8a)]" />
+              <OwnershipWatermark
+                className="right-[-1.75rem] top-[-1.75rem] h-40 w-40"
+                opacityClassName="opacity-[0.05]"
+              />
+              <div className="relative p-5">
+                <div className="flex flex-col gap-2 text-[10px] uppercase tracking-[0.22em] text-[#8d755c]">
+                  <span>Ownership Record / House archive</span>
+                  <span>{ownershipRecordReference}</span>
+                  <span>
+                    Issued{" "}
+                    {formatOwnershipDate(
+                      ownershipIssuedAt ?? authSession.user.created_at,
+                    )}
+                  </span>
+                </div>
+
+                <div className="mt-6 border-t border-[#d8c9b5] pt-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                    Client line
+                  </p>
+                  <h1 className="ownership-display mt-4 max-w-[10ch] text-[3rem] font-semibold leading-[0.8] tracking-[-0.06em] text-[#231b15]">
+                    {ownershipClientName}
+                  </h1>
+                  <p className="mt-3 break-all text-sm leading-7 text-[#5b4c40]">
+                    {authSession.user.email ?? "Current client"}
+                  </p>
+                </div>
+
+                <div className="mt-6 border-t border-[#d8c9b5] pt-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                    Record of Ownership
+                  </p>
+                  <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                    A private certificate of custody, continuity, and service.
+                    Registered pairs remain tied to recorded delivery age and
+                    advance into Legacy Refresh only when the object itself has
+                    matured.
+                  </p>
+                </div>
+
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Retained pairs
+                    </p>
+                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
+                      {ownershipPairs.length}
+                    </p>
+                  </div>
+                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Eligible now
+                    </p>
+                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
+                      {ownershipEligibleNowCount}
+                    </p>
+                  </div>
+                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Active review
+                    </p>
+                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
+                      {ownershipActiveReviewCount}
+                    </p>
+                  </div>
+                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Completed refreshes
+                    </p>
+                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
+                      {ownershipCompletedRefreshCount}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-3">
+                  <div className="rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Current posture
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                      {ownershipInvitationLine}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                      Review posture
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                      {ownershipReviewLine}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <OwnershipChamberSequence markers={ownershipChamberMarkers} />
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      handleExportOwnershipCertificate(latestRetainedPair)
+                    }
+                    className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
+                  >
+                    Export Ownership Certificate
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      if (!latestRetainedPair) return;
+                      setTransferReviewDraftPairId(latestRetainedPair.id);
+                      setTransferReviewDraft(initialTransferReviewDraft);
+                      setTransferReviewError(null);
+                    }}
+                    disabled={!latestRetainedPair}
+                    className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    Review Latest Transfer
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="rounded-full bg-[#201914] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? "Signing out..." : "Sign Out"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        <section className="relative py-4">
+          <Container>
+            <div className="grid gap-4">
+              <div className="ownership-grain relative overflow-hidden rounded-[1.8rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(236,226,214,0.96))] p-5 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)]">
+                <OwnershipWatermark
+                  className="bottom-[-1.25rem] right-[-1.25rem] h-24 w-24"
+                  opacityClassName="opacity-[0.04]"
+                />
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                  Registration chamber
+                </p>
+                <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.5rem] font-semibold leading-[0.84] tracking-[-0.05em] text-[#231b15]">
+                  Register a pair under the house.
+                </h2>
+                <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                  Serial and claim code admit a real pair into custody. Once
+                  entered, the object keeps its recorded delivery date, service
+                  maturity, and future review under this same line.
+                </p>
+
+                <form className="mt-6 grid gap-4" onSubmit={handleRegisterPair}>
+                  <label className="grid gap-2">
+                    <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                      Serial number
+                    </span>
+                    <input
+                      type="text"
+                      name="pairSerial"
+                      value={pairRegistrationForm.serial}
+                      onChange={(event) =>
+                        setPairRegistrationForm((current) => ({
+                          ...current,
+                          serial: event.target.value
+                            .replace(/[^a-zA-Z0-9-]/g, "")
+                            .toUpperCase(),
+                        }))
+                      }
+                      className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      placeholder="PR-VIS-000001"
+                      autoCapitalize="characters"
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                      Claim code
+                    </span>
+                    <input
+                      type="text"
+                      name="pairClaimCode"
+                      value={pairRegistrationForm.claimCode}
+                      onChange={(event) =>
+                        setPairRegistrationForm((current) => ({
+                          ...current,
+                          claimCode: event.target.value
+                            .replace(/[^a-zA-Z0-9]/g, "")
+                            .toUpperCase(),
+                        }))
+                      }
+                      className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      placeholder="A1B2C3D4"
+                      autoCapitalize="characters"
+                    />
+                  </label>
+
+                  <div className="rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4 text-sm leading-7 text-[#5b4c40]">
+                    The first claim is treated as an ownership act. Once the
+                    pair is sealed under the record, future movement belongs to
+                    release or review, not another open claim.
+                  </div>
+
+                  {pairRegistrationError ? (
+                    <p className="text-sm leading-6 text-[#a25d50]">
+                      {pairRegistrationError}
+                    </p>
+                  ) : null}
+
+                  <div className="flex flex-col gap-3">
+                    <Button
+                      type="submit"
+                      disabled={authLoading || ownershipLoading}
+                      className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      {authLoading ? "Attaching pair..." : "Register Pair"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        setPairRegistrationForm({ serial: "", claimCode: "" })
+                      }
+                      disabled={authLoading || ownershipLoading}
+                      className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              <div className="ownership-grain relative overflow-hidden rounded-[1.8rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(247,240,232,0.98),rgba(233,223,210,0.96))] p-5 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)]">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                  Continuity chamber
+                </p>
+                <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                  Registration, maturation, private review, and return should
+                  read as one continuous house logic.
+                </p>
+                <div className="mt-5">
+                  <OwnershipContinuityTimeline steps={ownershipContinuitySteps} />
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        <section className="relative py-4">
+          <Container>
+            <div className="border-b border-white/10 pb-5">
+              <p className="text-[10px] uppercase tracking-[0.28em] text-[#c7a97e]">
+                Retained pairs
+              </p>
+              <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.6rem] font-semibold leading-[0.84] tracking-[-0.055em] text-[#f3e8d8]">
+                The archive should feel singular, even in sequence.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-white/62">
+                Each retained pair holds identity, age, and service posture in a
+                single authored folio.
+              </p>
+            </div>
+
+            {ownershipPairs.length ? (
+              <div className="mt-5 grid gap-4">
+                {ownershipPairs.map((pair, index) => (
+                  <OwnershipPairFolio
+                    key={pair.id}
+                    pair={pair}
+                    index={index}
+                    onEnterLegacyRefresh={(selectedPair) => {
+                      setLegacyRefreshDraftPairId(selectedPair.id);
+                      setLegacyRefreshNote(selectedPair.legacyRefreshNote || "");
+                      setLegacyRefreshError(null);
+                    }}
+                    onOpenTransferReview={(selectedPair) => {
+                      setTransferReviewDraftPairId(selectedPair.id);
+                      setTransferReviewDraft(initialTransferReviewDraft);
+                      setTransferReviewError(null);
+                    }}
+                    onExportCertificate={handleExportOwnershipCertificate}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-[1.45rem] border border-dashed border-[#2a241f] bg-[linear-gradient(180deg,rgba(16,13,11,0.88),rgba(10,9,8,0.82))] p-5 text-sm leading-7 text-white/54">
+                No pair is under the record yet. The first act is registration;
+                the service chamber appears only after a real pair is attached.
+              </div>
+            )}
+          </Container>
+        </section>
+
+        <section className="relative py-4 pb-8">
+          <Container>
+            <div className="grid gap-4">
+              {latestRetainedPair ? (
+                <div className="ownership-grain relative overflow-hidden rounded-[1.8rem] border border-[#cebca6] bg-[linear-gradient(180deg,rgba(251,246,239,0.98),rgba(236,226,214,0.96))] p-5 text-[#231b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)]">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
+                    Current ledger
+                  </p>
+                  <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                    The latest retained pair remains visible as a living sequence
+                    of registration, age, and service posture.
+                  </p>
+                  <div className="mt-5">
+                    <OwnershipServiceLedger pair={latestRetainedPair} />
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="border-b border-white/10 pb-5 pt-2">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#c7a97e]">
+                  House correspondence
+                </p>
+                <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.45rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#f3e8d8]">
+                  The archive should speak back.
+                </h2>
+                <p className="mt-4 text-sm leading-7 text-white/62">
+                  Ownership deepens when the record produces correspondence:
+                  retention, invitation, review, and continuity framed as house
+                  memory rather than software state.
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                {ownershipCorrespondenceEntries.map((entry, index) => (
+                  <Reveal key={entry.title} delay={0.04 * index}>
+                    <HouseLetterCard
+                      eyebrow={entry.eyebrow}
+                      title={entry.title}
+                      body={entry.body}
+                      signature={entry.signature}
+                    />
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        <AnimatePresence>
+          {legacyRefreshDraftPair ? (
+            <LegacyRefreshChamberDialog
+              pair={legacyRefreshDraftPair}
+              note={legacyRefreshNote}
+              error={legacyRefreshError}
+              submitting={legacyRefreshSubmitting}
+              onNoteChange={setLegacyRefreshNote}
+              onClose={() => {
+                setLegacyRefreshDraftPairId(null);
+                setLegacyRefreshNote("");
+                setLegacyRefreshError(null);
+              }}
+              onSubmit={handleApplyLegacyRefresh}
+            />
+          ) : null}
+          {transferReviewDraftPair ? (
+            <TransferReviewChamberDialog
+              pair={transferReviewDraftPair}
+              draft={transferReviewDraft}
+              error={transferReviewError}
+              submitting={transferReviewSubmitting}
+              onDraftChange={handleTransferReviewDraftChange}
+              onClose={() => {
+                setTransferReviewDraftPairId(null);
+                setTransferReviewDraft(initialTransferReviewDraft);
+                setTransferReviewError(null);
+              }}
+              onSubmit={handleSubmitTransferReview}
+            />
+          ) : null}
+        </AnimatePresence>
+      </>
+    );
+  };
+
   const renderMobilePage = () => {
     switch (route) {
       case "/praeliator-vis":
-        return renderVisPage();
+        return renderMobileVisPage();
       case "/acquisition":
-        return renderAcquisitionPage();
+        return renderMobileAcquisitionPage();
       case "/waitlist":
-        return renderWaitlistPage();
+        return renderMobileWaitlistPage();
       case "/contact":
-        return renderContactPage();
+        return renderMobileContactPage();
       case "/sign-in":
         return renderSignInPage();
       case "/sign-up":
@@ -13268,7 +13867,7 @@ Use a one-time code
       case "/reset-password":
         return renderResetPasswordPage();
       case "/ownership-record":
-        return renderOwnershipRecordPage();
+        return renderMobileOwnershipRecordPage();
       case "/oauth/consent":
         return renderOAuthConsentPage();
       default:
