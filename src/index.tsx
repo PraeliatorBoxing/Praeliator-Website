@@ -5892,13 +5892,6 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       "[contenteditable='']",
       "[contenteditable='plaintext-only']",
     ].join(", ");
-    const clamp = (value: number, min: number, max: number) =>
-      Math.min(max, Math.max(min, value));
-    const readRadius = (value: string) => {
-      const parsed = Number.parseFloat(value);
-      return Number.isFinite(parsed) ? parsed : 0;
-    };
-
     const syncVisible = (nextVisible: boolean) => {
       if (visibleRef.current === nextVisible) return;
       visibleRef.current = nextVisible;
@@ -5939,57 +5932,17 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     };
 
     const updateInteractiveFrame = (
-      element: HTMLElement | null,
+      _element: HTMLElement | null,
       pointer?: { x: number; y: number },
     ) => {
-      if (!element || !element.isConnected) return false;
-      const rect = element.getBoundingClientRect();
-      if (rect.width < 4 || rect.height < 4) return false;
-
-      const styles = window.getComputedStyle(element);
-      const cornerRadius = Math.max(
-        readRadius(styles.borderTopLeftRadius),
-        readRadius(styles.borderTopRightRadius),
-        readRadius(styles.borderBottomRightRadius),
-        readRadius(styles.borderBottomLeftRadius),
-      );
-      const frameWidth = clamp(rect.width + 12, 54, 280);
-      const frameHeight = clamp(rect.height + 12, 34, 86);
-      const frameRadius = clamp(
-        Math.max(cornerRadius + 10, frameHeight * 0.46),
-        16,
-        Math.min(frameWidth / 2, 999),
-      );
-      const rectCenterX = rect.left + rect.width / 2;
-      const rectCenterY = rect.top + rect.height / 2;
       const pointerSource = pointer ?? lastPointerPositionRef.current;
-      const mixX = rect.width >= 120 ? 0.42 : 0.32;
-      const mixY = rect.height >= 54 ? 0.46 : 0.34;
-      const centerX = rectCenterX + (pointerSource.x - rectCenterX) * mixX;
-      const centerY = rectCenterY + (pointerSource.y - rectCenterY) * mixY;
-
-      activeInteractiveElementRef.current = element;
-      pointerX.set(centerX);
-      pointerY.set(centerY);
-      syncButtonFrame({
-        width: frameWidth,
-        height: frameHeight,
-        radius: frameRadius,
-        centerX,
-        centerY,
-      });
+      activeInteractiveElementRef.current = null;
+      pointerX.set(pointerSource.x);
+      pointerY.set(pointerSource.y);
       return true;
     };
 
-    const refreshInteractiveFrame = () => {
-      if (variantRef.current !== "button") return;
-      const activeElement = activeInteractiveElementRef.current;
-      if (!activeElement || !activeElement.isConnected) {
-        activeInteractiveElementRef.current = null;
-        return;
-      }
-      updateInteractiveFrame(activeElement);
-    };
+    const refreshInteractiveFrame = () => {};
 
     const handlePointerMove = (event: PointerEvent) => {
       if (event.pointerType && event.pointerType !== "mouse") return;
@@ -6114,16 +6067,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
   const isButtonVariant = variant === "button";
   const isHidden = !visible || variant === "hidden";
-  const shellWidth = isButtonVariant ? buttonFrame.width : 28;
-  const shellHeight = isButtonVariant ? buttonFrame.height : 28;
-  const shellRadius = isButtonVariant ? buttonFrame.radius : 999;
-  const haloWidth = isButtonVariant ? buttonFrame.width + 44 : 76;
-  const haloHeight = isButtonVariant ? buttonFrame.height + 44 : 76;
-  const haloRadius = isButtonVariant ? buttonFrame.radius + 24 : 999;
-  const centerGlyphWidth = isButtonVariant
-    ? Math.min(Math.max(buttonFrame.width * 0.22, 18), 34)
-    : 6;
-  const centerGlyphHeight = isButtonVariant ? 1.5 : 6;
+  const shellWidth = isButtonVariant ? 34 : 26;
+  const shellHeight = isButtonVariant ? 34 : 26;
+  const shellRadius = 999;
+  const haloWidth = isButtonVariant ? 72 : 58;
+  const haloHeight = isButtonVariant ? 72 : 58;
+  const haloRadius = 999;
+  const centerGlyphWidth = 5.5;
+  const centerGlyphHeight = 5.5;
 
   return (
     <>
@@ -6132,21 +6083,21 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         className="pointer-events-none fixed left-0 top-0 z-[140]"
         style={{ x: haloX, y: haloY }}
         animate={{
-          opacity: isHidden ? 0 : isButtonVariant ? 0.8 : 0.56,
-          scale: isHidden ? 0.72 : pressed ? 0.92 : 1,
+          opacity: isHidden ? 0 : isButtonVariant ? 0.46 : 0.34,
+          scale: isHidden ? 0.76 : pressed ? 0.9 : isButtonVariant ? 1.02 : 1,
         }}
         transition={{ duration: 0.26, ease: easeLuxury }}
       >
         <motion.div
-          className="-translate-x-1/2 -translate-y-1/2 blur-[24px]"
+          className="-translate-x-1/2 -translate-y-1/2 blur-[18px]"
           animate={{
             width: haloWidth,
             height: haloHeight,
             borderRadius: haloRadius,
             background:
               isButtonVariant
-                ? "radial-gradient(circle, rgba(214,186,149,0.24) 0%, rgba(214,186,149,0.06) 48%, rgba(214,186,149,0) 78%)"
-                : "radial-gradient(circle, rgba(239,229,215,0.18) 0%, rgba(214,186,149,0.06) 48%, rgba(214,186,149,0) 76%)",
+                ? "radial-gradient(circle, rgba(214,186,149,0.16) 0%, rgba(214,186,149,0.04) 48%, rgba(214,186,149,0) 78%)"
+                : "radial-gradient(circle, rgba(239,229,215,0.12) 0%, rgba(214,186,149,0.03) 48%, rgba(214,186,149,0) 76%)",
           }}
           transition={{ duration: 0.36, ease: easeLuxury }}
         />
@@ -6158,7 +6109,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         style={{ x: shellX, y: shellY }}
         animate={{
           opacity: isHidden ? 0 : 1,
-          scale: isHidden ? 0.76 : pressed ? 0.9 : 1,
+          scale: isHidden ? 0.8 : pressed ? 0.9 : isButtonVariant ? 1.04 : 1,
         }}
         transition={{ duration: 0.24, ease: easeLuxury }}
       >
@@ -6169,14 +6120,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
             height: shellHeight,
             borderRadius: shellRadius,
             backgroundColor: isButtonVariant
-              ? "rgba(245, 239, 231, 0.08)"
-              : "rgba(245, 239, 231, 0.04)",
+              ? "rgba(245, 239, 231, 0.06)"
+              : "rgba(245, 239, 231, 0.035)",
             borderColor: isButtonVariant
-              ? "rgba(216, 186, 149, 0.56)"
-              : "rgba(216, 186, 149, 0.34)",
+              ? "rgba(216, 186, 149, 0.38)"
+              : "rgba(216, 186, 149, 0.26)",
             boxShadow: isButtonVariant
-              ? "0 12px 38px rgba(40, 25, 11, 0.18), 0 0 0 1px rgba(255,255,255,0.04) inset"
-              : "0 10px 28px rgba(40, 25, 11, 0.12), 0 0 0 1px rgba(255,255,255,0.03) inset",
+              ? "0 10px 24px rgba(40, 25, 11, 0.12), 0 0 0 1px rgba(255,255,255,0.035) inset"
+              : "0 8px 18px rgba(40, 25, 11, 0.08), 0 0 0 1px rgba(255,255,255,0.025) inset",
           }}
           transition={{ duration: 0.3, ease: easeLuxury }}
         >
@@ -6184,16 +6135,16 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
             className="absolute inset-[1px] rounded-[inherit]"
             animate={{
               background: isButtonVariant
-                ? "linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03))"
-                : "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02))",
-              opacity: isButtonVariant ? 1 : 0.82,
+                ? "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03))"
+                : "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))",
+              opacity: isButtonVariant ? 0.92 : 0.72,
             }}
             transition={{ duration: 0.3, ease: easeLuxury }}
           />
           <motion.div
             className="absolute inset-x-[18%] top-0 h-px"
             animate={{
-              opacity: isButtonVariant ? 0.9 : 0.54,
+              opacity: isButtonVariant ? 0.52 : 0.28,
               background:
                 "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.92), rgba(255,255,255,0))",
             }}
@@ -6207,10 +6158,10 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
               borderRadius: 999,
               backgroundColor: isButtonVariant
                 ? "rgba(244, 239, 231, 0.9)"
-                : "rgba(244, 239, 231, 0.86)",
+                : "rgba(244, 239, 231, 0.82)",
               boxShadow: isButtonVariant
-                ? "0 0 18px rgba(244, 239, 231, 0.35)"
-                : "0 0 14px rgba(244, 239, 231, 0.28)",
+                ? "0 0 12px rgba(244, 239, 231, 0.22)"
+                : "0 0 10px rgba(244, 239, 231, 0.16)",
             }}
             transition={{ duration: 0.28, ease: easeLuxury }}
           />
