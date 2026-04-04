@@ -1,7 +1,7 @@
 import {
   jsonResponse,
   persistPrivateInquiry,
-} from "./_lib/private-inquiry";
+} from "./_lib/private-inquiry.js";
 
 type TransferReviewPayload = {
   currentOwnerName?: string;
