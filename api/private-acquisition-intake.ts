@@ -1,5 +1,6 @@
 import {
   jsonResponse,
+  persistPrivateAcquisitionBrief,
   persistPrivateInquiry,
 } from "./_lib/private-inquiry";
 
@@ -19,6 +20,8 @@ type AcquisitionPayload = {
   purchasePurpose?: string;
   destinationRegion?: string;
   sourceRoute?: string;
+  briefMode?: boolean;
+  destinationNumber?: string;
 };
 
 const SERVICE_MESSAGE =
@@ -41,10 +44,18 @@ function normalizePayload(raw: AcquisitionPayload) {
     purchasePurpose: (raw.purchasePurpose || "").trim(),
     destinationRegion: (raw.destinationRegion || "").trim(),
     sourceRoute: (raw.sourceRoute || "/acquisition").trim(),
+    briefMode: Boolean(raw.briefMode),
+    destinationNumber: (raw.destinationNumber || "").trim(),
   };
 }
 
 function validatePayload(payload: ReturnType<typeof normalizePayload>) {
+  if (payload.briefMode) {
+    if (!payload.title) return "Title is required.";
+    if (!payload.fullName) return "Full name is required.";
+    if (!payload.interest) return "Interest is required.";
+    return null;
+  }
   if (!payload.fullName) return "Full name is required.";
   if (!payload.email) return "Email is required.";
   if (!payload.phoneCountryCode) return "Dial code is required.";
@@ -68,6 +79,18 @@ export async function POST(request: Request) {
 
     if (validationError) {
       return jsonResponse({ success: false, error: validationError }, 400);
+    }
+
+    if (payload.briefMode) {
+      const result = await persistPrivateAcquisitionBrief({
+        title: payload.title,
+        fullName: payload.fullName,
+        interest: payload.interest,
+        sourceRoute: payload.sourceRoute,
+        destinationNumber: payload.destinationNumber,
+      });
+
+      return jsonResponse({ success: true, ...result }, 200);
     }
 
     const compiledNote = [

@@ -19,12 +19,24 @@ export type PrivateInquiryRecordInput = {
   updateClientRecord?: boolean;
 };
 
+export type PrivateAcquisitionBriefInput = {
+  title?: string;
+  fullName: string;
+  interest: string;
+  sourceRoute: string;
+  destinationNumber?: string;
+  note?: string;
+  serviceMessage?: string;
+};
+
 type HubSpotUpsertResponse = {
   results?: Array<{ id?: string }>;
 };
 
 const DEFAULT_SERVICE_MESSAGE =
   "A private response follows after review. Your client record is now open.";
+const DEFAULT_ACQUISITION_BRIEF_MESSAGE =
+  "The brief has been retained under the house record. Continue on WhatsApp with the reference only.";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -202,5 +214,63 @@ export async function persistPrivateInquiry(
   return {
     reference,
     serviceMessage: payload.serviceMessage || DEFAULT_SERVICE_MESSAGE,
+  };
+}
+
+export async function persistPrivateAcquisitionBrief(
+  input: PrivateAcquisitionBriefInput,
+): Promise<{ reference: string; serviceMessage: string }> {
+  const payload: PrivateAcquisitionBriefInput = {
+    ...input,
+    title: (input.title || "").trim(),
+    fullName: input.fullName.trim(),
+    interest: input.interest.trim(),
+    sourceRoute: input.sourceRoute.trim(),
+    destinationNumber: (input.destinationNumber || "").trim(),
+    note: (input.note || "").trim(),
+    serviceMessage:
+      input.serviceMessage?.trim() || DEFAULT_ACQUISITION_BRIEF_MESSAGE,
+  };
+
+  const reference = buildReference();
+  const submittedAt = new Date().toISOString();
+  const supabase = createSupabaseAdmin();
+  const syntheticEmail = `brief+${reference.toLowerCase()}@praeliator.local`;
+  const compiledNote = [
+    "Acquisition brief retained before WhatsApp contact.",
+    payload.destinationNumber
+      ? `Destination number: ${payload.destinationNumber}`
+      : null,
+    payload.note || null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const { error } = await supabase.from("private_client_inquiries").insert({
+    reference_code: reference,
+    status: "new",
+    title: payload.title || null,
+    full_name: payload.fullName,
+    email: syntheticEmail,
+    dial_code: "+52",
+    phone_number: "5540658550",
+    full_phone: payload.destinationNumber || "+52 5540658550",
+    country: "WhatsApp route",
+    interest: payload.interest,
+    timeline: "Immediate",
+    contact_preference: "WhatsApp",
+    note: compiledNote || null,
+    source_route: payload.sourceRoute,
+    crm_contact_id: null,
+    submitted_at: submittedAt,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    reference,
+    serviceMessage: payload.serviceMessage || DEFAULT_ACQUISITION_BRIEF_MESSAGE,
   };
 }

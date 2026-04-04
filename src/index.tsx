@@ -6387,6 +6387,13 @@ export default function PraeliatorWebsite() {
   );
   const [acquisitionWhatsAppErrors, setAcquisitionWhatsAppErrors] =
     useState<AcquisitionWhatsAppErrors>({});
+  const [acquisitionWhatsAppState, setAcquisitionWhatsAppState] = useState({
+    loading: false,
+    success: false,
+    error: "",
+    reference: "",
+    serviceMessage: "",
+  });
   const [acquisitionWhatsAppTouched, setAcquisitionWhatsAppTouched] = useState<
     Partial<Record<AcquisitionWhatsAppFieldName, boolean>>
   >({});
@@ -6399,6 +6406,8 @@ export default function PraeliatorWebsite() {
   );
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
   const acquisitionRequestControllerRef = useRef<AbortController | null>(null);
+  const acquisitionWhatsAppRequestControllerRef =
+    useRef<AbortController | null>(null);
   const [authSession, setAuthSession] = useState<Session | null>(null);
   const [authInitialized, setAuthInitialized] = useState(!supabase);
   const [authLoading, setAuthLoading] = useState(false);
@@ -7978,6 +7987,15 @@ export default function PraeliatorWebsite() {
       ...current,
       [field]: nextValue,
     }));
+    if (acquisitionWhatsAppState.success || acquisitionWhatsAppState.error) {
+      setAcquisitionWhatsAppState({
+        loading: false,
+        success: false,
+        error: "",
+        reference: "",
+        serviceMessage: "",
+      });
+    }
     if (Object.keys(acquisitionWhatsAppTouched).length > 0) {
       setAcquisitionWhatsAppErrors(
         validateAcquisitionWhatsAppForm({
@@ -8005,10 +8023,14 @@ export default function PraeliatorWebsite() {
     }
     setAcquisitionWhatsAppErrors(validateAcquisitionWhatsAppForm(normalizedForm));
   };
-  const handleAcquisitionWhatsAppSubmit = (
+  const handleAcquisitionWhatsAppSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    const pendingPopup =
+      typeof window !== "undefined"
+        ? window.open("", "_blank", "noopener,noreferrer")
+        : null;
     const normalizedForm = {
       ...acquisitionWhatsAppForm,
       fullName: normalizeWaitlistFieldValue(
@@ -8023,25 +8045,107 @@ export default function PraeliatorWebsite() {
     markAcquisitionWhatsAppFieldsTouched(acquisitionWhatsAppRequiredFields);
 
     if (Object.keys(nextErrors).length > 0) {
+      if (pendingPopup && !pendingPopup.closed) {
+        pendingPopup.close();
+      }
+      setAcquisitionWhatsAppState({
+        loading: false,
+        success: false,
+        error: "Please correct the highlighted fields.",
+        reference: "",
+        serviceMessage: "",
+      });
       return;
     }
 
-    const fullName = [normalizedForm.title, normalizedForm.fullName]
-      .filter(Boolean)
-      .join(" ");
-    const message = [
-      "Hello Praeliator, I would like to begin a private acquisition inquiry.",
-      "",
-      `Name: ${fullName}`,
-      `Interest: ${normalizedForm.interest}`,
-    ].join("\n");
-    const whatsappLink = createWhatsAppLink(message);
+    setAcquisitionWhatsAppState({
+      loading: true,
+      success: false,
+      error: "",
+      reference: "",
+      serviceMessage: "",
+    });
 
-    if (typeof window !== "undefined") {
-      const popup = window.open(whatsappLink, "_blank", "noopener,noreferrer");
-      if (!popup) {
-        window.location.href = whatsappLink;
+    const controller = new AbortController();
+    acquisitionWhatsAppRequestControllerRef.current?.abort();
+    acquisitionWhatsAppRequestControllerRef.current = controller;
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      WAITLIST_REQUEST_TIMEOUT_MS,
+    );
+
+    try {
+      const response = await fetch(acquisitionIntakeEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Praeliator-Intake": "acquisition-brief",
+        },
+        body: JSON.stringify({
+          briefMode: true,
+          title: normalizedForm.title,
+          fullName: normalizedForm.fullName,
+          interest: normalizedForm.interest,
+          sourceRoute: route,
+          destinationNumber: `+${whatsappBase.replace(/[^\d]/g, "")}`,
+        }),
+        signal: controller.signal,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || "The brief could not be retained.");
       }
+
+      setAcquisitionWhatsAppState({
+        loading: false,
+        success: true,
+        error: "",
+        reference: result.reference || "",
+        serviceMessage:
+          result.serviceMessage ||
+          "The brief has been retained under the house record.",
+      });
+      setAcquisitionWhatsAppForm(initialAcquisitionWhatsAppForm);
+      setAcquisitionWhatsAppErrors({});
+      setAcquisitionWhatsAppTouched({});
+
+      const message = [
+        "Hello Praeliator, I would like to begin a private acquisition inquiry.",
+        result.reference ? `Reference: ${result.reference}.` : null,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+      const whatsappLink = createWhatsAppLink(message);
+
+      if (typeof window !== "undefined") {
+        if (pendingPopup && !pendingPopup.closed) {
+          pendingPopup.location.href = whatsappLink;
+        } else {
+          window.location.href = whatsappLink;
+        }
+      }
+    } catch (error) {
+      if (pendingPopup && !pendingPopup.closed) {
+        pendingPopup.close();
+      }
+      const message =
+        error instanceof DOMException && error.name === "AbortError"
+          ? "The brief took too long to retain. You can still continue directly on WhatsApp."
+          : error instanceof Error
+            ? error.message
+            : "The brief could not be retained. You can still continue directly on WhatsApp.";
+      setAcquisitionWhatsAppState({
+        loading: false,
+        success: false,
+        error: message,
+        reference: "",
+        serviceMessage: "",
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+      acquisitionWhatsAppRequestControllerRef.current = null;
     }
   };
   const renderHomePage = () => {
@@ -9554,11 +9658,11 @@ const renderAcquisitionPage = () => (
                 Private brief
               </p>
               <h2 className="mt-4 max-w-[12ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
-                Prepare the message, then send it.
+                Retain the brief, then continue.
               </h2>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                This brief does one thing only: it prepares a cleaner opening
-                message for the direct line.
+                The house keeps the details first. WhatsApp then opens with a
+                quieter reference instead of a full introduction.
               </p>
 
               <form
@@ -9613,8 +9717,8 @@ const renderAcquisitionPage = () => (
                   <FieldError message={getVisibleAcquisitionWhatsAppError("interest")} />
                   {!getVisibleAcquisitionWhatsAppError("interest") ? (
                     <FieldNote>
-                      The message opens with these details already written into
-                      the WhatsApp text.
+                      The title, name, and interest are retained privately
+                      before the direct line opens.
                     </FieldNote>
                   ) : null}
                 </div>
@@ -9622,11 +9726,51 @@ const renderAcquisitionPage = () => (
                 <div className="pt-2">
                   <Button
                     type="submit"
+                    disabled={acquisitionWhatsAppState.loading}
                     className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
-                    Send Text
+                    {acquisitionWhatsAppState.loading
+                      ? "Retaining brief..."
+                      : "Retain Brief & Open WhatsApp"}
                   </Button>
                 </div>
+
+                <AnimatePresence>
+                  {acquisitionWhatsAppState.success ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.22, ease: easeLuxury }}
+                      className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                    >
+                      <div className="border-b border-white/[0.08] px-5 py-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                          Brief retained
+                        </p>
+                        <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
+                          {acquisitionWhatsAppState.reference ||
+                            "Reference pending"}
+                        </p>
+                      </div>
+                      <div className="space-y-4 px-5 py-5">
+                        <p className="text-sm leading-6 text-white/62">
+                          {acquisitionWhatsAppState.serviceMessage}
+                        </p>
+                        <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
+                          The direct message can now stay sparse. The fuller
+                          details are already under the house record.
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+
+                {acquisitionWhatsAppState.error ? (
+                  <p className="text-sm leading-6 text-[#d99b8d]">
+                    {acquisitionWhatsAppState.error}
+                  </p>
+                ) : null}
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button
