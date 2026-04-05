@@ -7,13 +7,17 @@ import {
   jsonResponse,
 } from "./_lib/private-acquisition.js";
 
-type MapboxFeature = {
-  id?: string;
-  mapbox_id?: string;
-  name?: string;
-  full_address?: string;
-  place_formatted?: string;
-  context?: Record<string, unknown> | Array<Record<string, unknown>>;
+type GeoapifyFeature = {
+  properties?: {
+    place_id?: string;
+    formatted?: string;
+    address_line1?: string;
+    address_line2?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+  };
 };
 
 const COUNTRY_HINT_TO_ISO2: Record<string, string> = {
@@ -34,10 +38,10 @@ const COUNTRY_HINT_TO_ISO2: Record<string, string> = {
   uae: "ae",
 };
 
-function getMapboxAccessToken() {
-  const value = process.env.MAPBOX_ACCESS_TOKEN?.trim();
+function getGeoapifyApiKey() {
+  const value = process.env.GEOAPIFY_API_KEY?.trim();
   if (!value) {
-    throw new Error("Missing environment variable: MAPBOX_ACCESS_TOKEN");
+    throw new Error("Missing environment variable: GEOAPIFY_API_KEY");
   }
   return value;
 }
@@ -55,87 +59,30 @@ function buildQuery(query: string, countryHint: string) {
   return `${query}, ${countryHint}`;
 }
 
-function getContextEntry(feature: MapboxFeature, key: string) {
-  const context = feature.context;
-  if (!context) return null;
-
-  if (Array.isArray(context)) {
-    return (
-      context.find((entry) => {
-        const entryId = String(entry.id || "");
-        const featureType = String(
-          entry.feature_type || entry.type || entry.kind || "",
-        );
-        return entryId.startsWith(`${key}.`) || featureType === key;
-      }) || null
-    );
-  }
-
-  if (typeof context === "object") {
-    const direct = context[key];
-    if (direct && typeof direct === "object") {
-      return direct as Record<string, unknown>;
-    }
-
-    for (const value of Object.values(context)) {
-      if (!value || typeof value !== "object") continue;
-      const record = value as Record<string, unknown>;
-      const entryId = String(record.id || "");
-      const featureType = String(
-        record.feature_type || record.type || record.kind || "",
-      );
-      if (entryId.startsWith(`${key}.`) || featureType === key) {
-        return record;
-      }
-    }
-  }
-
-  return null;
-}
-
-function getContextName(feature: MapboxFeature, key: string) {
-  const entry = getContextEntry(feature, key);
-  if (!entry) return "";
-  return String(
-    entry.name || entry.text || entry.name_preferred || entry.place_name || "",
-  ).trim();
-}
-
-function mapFeatureToSuggestion(feature: MapboxFeature, fallbackCountry: string) {
-  const neighborhood = getContextName(feature, "neighborhood");
-  const locality = getContextName(feature, "locality");
-  const district = getContextName(feature, "district");
-  const place = getContextName(feature, "place");
-  const region = getContextName(feature, "region");
-  const postalCode = getContextName(feature, "postcode");
-  const country = getContextName(feature, "country") || fallbackCountry;
-
-  const addressLine1 = String(feature.name || "").trim();
-  const addressLine2 = [neighborhood, district]
-    .filter(Boolean)
-    .filter((value, index, array) => array.indexOf(value) === index)
-    .join(", ");
-
+function mapFeatureToSuggestion(feature: GeoapifyFeature, fallbackCountry: string) {
+  const properties = feature.properties || {};
   const secondaryText = [
-    locality || place,
-    district && district !== locality ? district : "",
-    postalCode,
-    region,
-    country,
+    properties.address_line2,
+    properties.city,
+    properties.postcode,
+    properties.state,
+    properties.country || fallbackCountry,
   ]
     .filter(Boolean)
     .join(", ");
 
   return {
-    id: String(feature.mapbox_id || feature.id || feature.full_address || addressLine1),
-    label: String(feature.full_address || feature.name || "").trim(),
-    secondaryText: secondaryText || feature.place_formatted || null,
-    addressLine1,
-    addressLine2: addressLine2 || null,
-    city: locality || place || district || "",
-    region: region || "",
-    postalCode: postalCode || "",
-    country: country || "",
+    id: String(properties.place_id || properties.formatted || properties.address_line1 || ""),
+    label: String(
+      properties.formatted || properties.address_line1 || "",
+    ).trim(),
+    secondaryText: secondaryText || null,
+    addressLine1: String(properties.address_line1 || "").trim(),
+    addressLine2: String(properties.address_line2 || "").trim() || null,
+    city: String(properties.city || "").trim(),
+    region: String(properties.state || "").trim(),
+    postalCode: String(properties.postcode || "").trim(),
+    country: String(properties.country || fallbackCountry || "").trim(),
   };
 }
 
@@ -213,16 +160,16 @@ export async function GET(request: Request) {
     }
 
     const countryHint = session.shipping_country || providedCountryHint;
-    const mapboxCountry = normalizeCountryHint(countryHint);
-    const searchUrl = new URL("https://api.mapbox.com/search/geocode/v6/forward");
-    searchUrl.searchParams.set("q", buildQuery(query, countryHint));
-    searchUrl.searchParams.set("autocomplete", "true");
+    const countryCode = normalizeCountryHint(countryHint);
+    const searchUrl = new URL("https://api.geoapify.com/v1/geocode/autocomplete");
+    searchUrl.searchParams.set("text", buildQuery(query, countryHint));
     searchUrl.searchParams.set("limit", "5");
-    searchUrl.searchParams.set("types", "address,street");
-    searchUrl.searchParams.set("language", locale);
-    searchUrl.searchParams.set("access_token", getMapboxAccessToken());
-    if (mapboxCountry) {
-      searchUrl.searchParams.set("country", mapboxCountry);
+    searchUrl.searchParams.set("lang", locale);
+    searchUrl.searchParams.set("type", "street");
+    searchUrl.searchParams.set("format", "json");
+    searchUrl.searchParams.set("apiKey", getGeoapifyApiKey());
+    if (countryCode) {
+      searchUrl.searchParams.set("filter", `countrycode:${countryCode}`);
     }
 
     const response = await fetch(searchUrl, {
@@ -236,7 +183,7 @@ export async function GET(request: Request) {
       throw new Error("Address lookup is unavailable right now.");
     }
 
-    const data = (await response.json()) as { features?: MapboxFeature[] };
+    const data = (await response.json()) as { features?: GeoapifyFeature[] };
     const suggestions = Array.isArray(data.features)
       ? data.features
           .map((feature) => mapFeatureToSuggestion(feature, countryHint))
