@@ -4,6 +4,7 @@ import {
   createSupabaseAdmin,
   createStripeServerClient,
   ensureStripePaymentState,
+  hasCompletedDeliveryDetails,
   getPresentationState,
   getPrivateAcquisitionSessionByToken,
   getStripePublishableKey,
@@ -104,6 +105,18 @@ export async function POST(request: Request) {
         {
           "Set-Cookie": buildClearedGrantCookie(request),
         },
+      );
+    }
+
+    if (!hasCompletedDeliveryDetails(session)) {
+      return jsonResponse(
+        {
+          success: false,
+          state: "delivery_required",
+          error:
+            "The destination record must be completed before the payment chamber can open.",
+        },
+        403,
       );
     }
 

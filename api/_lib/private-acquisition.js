@@ -10,6 +10,18 @@ const FAILED_ATTEMPT_LIMIT = 5;
 const LOCKOUT_WINDOW_MS = 1000 * 60 * 15;
 const STRIPE_API_VERSION = "2026-02-25.clover";
 const REFERENCE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const DELIVERY_NOTES_LIMIT = 500;
+
+const DELIVERY_REQUIRED_FIELD_KEYS = [
+  "client_name",
+  "client_email",
+  "client_phone",
+  "shipping_country",
+  "shipping_region",
+  "shipping_city",
+  "shipping_postal_code",
+  "shipping_address_line1",
+];
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -84,6 +96,10 @@ export function normalizeReferenceCode(value) {
 
 export function normalizeCurrency(value) {
   return (value || "").trim().toLowerCase();
+}
+
+function normalizeInlineText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
 }
 
 export function generateAcquisitionToken() {
@@ -468,6 +484,8 @@ export function serializeAcquisitionSession(session) {
     id: session.id,
     referenceCode: session.reference_code,
     clientName: session.client_name,
+    clientEmail: session.client_email,
+    clientPhone: session.client_phone,
     productName: session.product_name,
     productSnapshot,
     orderSnapshot,
@@ -478,11 +496,138 @@ export function serializeAcquisitionSession(session) {
     totalAmount: session.total_amount,
     shippingCountry: session.shipping_country,
     shippingRegion: session.shipping_region,
+    shippingCity: session.shipping_city,
+    shippingPostalCode: session.shipping_postal_code,
+    shippingAddressLine1: session.shipping_address_line1,
+    shippingAddressLine2: session.shipping_address_line2,
+    shippingRecipientName: session.shipping_recipient_name,
+    shippingDeliveryNotes: session.shipping_delivery_notes,
     expiresAt: session.expires_at,
     status: session.status,
     paidAt: session.paid_at,
     validatedAt: session.validated_at,
+    deliveryDetailsCompletedAt: session.delivery_details_completed_at,
   };
+}
+
+export function hasCompletedDeliveryDetails(session) {
+  if (!session?.delivery_details_completed_at) return false;
+
+  return DELIVERY_REQUIRED_FIELD_KEYS.every((key) =>
+    Boolean(normalizeInlineText(session[key])),
+  );
+}
+
+export function normalizeDeliveryDetailsInput(input) {
+  return {
+    clientName: normalizeInlineText(input.clientName),
+    clientEmail: normalizeInlineText(input.clientEmail).toLowerCase(),
+    clientPhone: normalizeInlineText(input.clientPhone),
+    shippingCountry: normalizeInlineText(input.shippingCountry),
+    shippingRegion: normalizeInlineText(input.shippingRegion),
+    shippingCity: normalizeInlineText(input.shippingCity),
+    shippingPostalCode: normalizeInlineText(input.shippingPostalCode),
+    shippingAddressLine1: normalizeInlineText(input.shippingAddressLine1),
+    shippingAddressLine2: normalizeInlineText(input.shippingAddressLine2) || null,
+    shippingRecipientName:
+      normalizeInlineText(input.shippingRecipientName) || null,
+    shippingDeliveryNotes:
+      String(input.shippingDeliveryNotes || "").trim().slice(0, DELIVERY_NOTES_LIMIT) ||
+      null,
+    confirmDetails: Boolean(input.confirmDetails),
+  };
+}
+
+export function validateDeliveryDetailsInput(input) {
+  const normalized = normalizeDeliveryDetailsInput(input);
+  const fieldErrors = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const digitsOnlyPhone = normalized.clientPhone.replace(/[^\d+()\-\s]/g, "");
+
+  if (!normalized.clientName || normalized.clientName.length < 2) {
+    fieldErrors.clientName =
+      "Enter the full name to be attached to this acquisition record.";
+  }
+
+  if (!normalized.clientEmail || !emailPattern.test(normalized.clientEmail)) {
+    fieldErrors.clientEmail =
+      "Enter a valid email address for delivery correspondence.";
+  }
+
+  if (!digitsOnlyPhone || digitsOnlyPhone.replace(/[^\d]/g, "").length < 6) {
+    fieldErrors.clientPhone =
+      "Enter a valid phone number for delivery contact.";
+  }
+
+  if (!normalized.shippingCountry) {
+    fieldErrors.shippingCountry = "Enter the destination country.";
+  }
+
+  if (!normalized.shippingAddressLine1 || normalized.shippingAddressLine1.length < 5) {
+    fieldErrors.shippingAddressLine1 =
+      "Enter the primary destination line in full.";
+  }
+
+  if (!normalized.shippingCity) {
+    fieldErrors.shippingCity = "Enter the destination city.";
+  }
+
+  if (!normalized.shippingRegion) {
+    fieldErrors.shippingRegion = "Enter the state or region.";
+  }
+
+  if (!normalized.shippingPostalCode || normalized.shippingPostalCode.length < 3) {
+    fieldErrors.shippingPostalCode = "Enter the postal code for this destination.";
+  }
+
+  if (
+    normalized.shippingRecipientName &&
+    normalized.shippingRecipientName.length < 2
+  ) {
+    fieldErrors.shippingRecipientName =
+      "Enter the recipient name in full or leave the field empty.";
+  }
+
+  if (!normalized.confirmDetails) {
+    fieldErrors.confirmDetails =
+      "Confirm the destination record before payment can continue.";
+  }
+
+  return {
+    normalized,
+    fieldErrors,
+  };
+}
+
+export async function saveDeliveryDetails(sessionId, input) {
+  const supabase = createSupabaseAdmin();
+  const timestamp = nowIso();
+  const { normalized } = validateDeliveryDetailsInput(input);
+
+  const { data, error } = await supabase
+    .from("private_acquisition_sessions")
+    .update({
+      client_name: normalized.clientName,
+      client_email: normalized.clientEmail,
+      client_phone: normalized.clientPhone,
+      shipping_country: normalized.shippingCountry,
+      shipping_region: normalized.shippingRegion,
+      shipping_city: normalized.shippingCity,
+      shipping_postal_code: normalized.shippingPostalCode,
+      shipping_address_line1: normalized.shippingAddressLine1,
+      shipping_address_line2: normalized.shippingAddressLine2,
+      shipping_recipient_name: normalized.shippingRecipientName,
+      shipping_delivery_notes: normalized.shippingDeliveryNotes,
+      delivery_details_completed_at: timestamp,
+      updated_at: timestamp,
+    })
+    .eq("id", sessionId)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  return data;
 }
 
 export async function recordFailedAccessAttempt(session) {

@@ -12,6 +12,8 @@ import { Button } from "./ui/button";
 type AcquisitionSessionSummary = {
   referenceCode: string;
   clientName?: string | null;
+  clientEmail?: string | null;
+  clientPhone?: string | null;
   productName: string;
   productSnapshot?: {
     specifications?: Array<{ label: string; value: string }>;
@@ -25,10 +27,17 @@ type AcquisitionSessionSummary = {
   totalAmount: number;
   shippingCountry?: string | null;
   shippingRegion?: string | null;
+  shippingCity?: string | null;
+  shippingPostalCode?: string | null;
+  shippingAddressLine1?: string | null;
+  shippingAddressLine2?: string | null;
+  shippingRecipientName?: string | null;
+  shippingDeliveryNotes?: string | null;
   expiresAt: string;
   status: string;
   paidAt?: string | null;
   validatedAt?: string | null;
+  deliveryDetailsCompletedAt?: string | null;
 };
 
 type StateResponse =
@@ -87,7 +96,39 @@ type PaymentIntentResponse =
       error?: string;
     };
 
+type DeliveryFormState = {
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  shippingCountry: string;
+  shippingAddressLine1: string;
+  shippingAddressLine2: string;
+  shippingCity: string;
+  shippingRegion: string;
+  shippingPostalCode: string;
+  shippingRecipientName: string;
+  shippingDeliveryNotes: string;
+  confirmDetails: boolean;
+};
+
+type DeliveryResponse =
+  | {
+      success: true;
+      state: "delivery_saved" | "paid";
+      session: AcquisitionSessionSummary;
+    }
+  | {
+      success: false;
+      state: string;
+      error?: string;
+      fieldErrors?: Partial<Record<keyof DeliveryFormState, string>>;
+    };
+
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const chamberFieldClass =
+  "min-h-[3.95rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
+const chamberTextareaClass =
+  "min-h-[8.5rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 py-4 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
 
 function formatMoney(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -105,6 +146,79 @@ function formatDate(value?: string | null) {
     month: "long",
     day: "numeric",
   });
+}
+
+function createDeliveryFormState(
+  session?: AcquisitionSessionSummary | null,
+): DeliveryFormState {
+  return {
+    clientName: session?.clientName || "",
+    clientEmail: session?.clientEmail || "",
+    clientPhone: session?.clientPhone || "",
+    shippingCountry: session?.shippingCountry || "",
+    shippingAddressLine1: session?.shippingAddressLine1 || "",
+    shippingAddressLine2: session?.shippingAddressLine2 || "",
+    shippingCity: session?.shippingCity || "",
+    shippingRegion: session?.shippingRegion || "",
+    shippingPostalCode: session?.shippingPostalCode || "",
+    shippingRecipientName: session?.shippingRecipientName || "",
+    shippingDeliveryNotes: session?.shippingDeliveryNotes || "",
+    confirmDetails: Boolean(session?.deliveryDetailsCompletedAt),
+  };
+}
+
+function validateDeliveryFormState(form: DeliveryFormState) {
+  const errors: Partial<Record<keyof DeliveryFormState, string>> = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!form.clientName.trim() || form.clientName.trim().length < 2) {
+    errors.clientName =
+      "Enter the full name to be attached to this acquisition record.";
+  }
+
+  if (!form.clientEmail.trim() || !emailPattern.test(form.clientEmail.trim())) {
+    errors.clientEmail =
+      "Enter a valid email address for delivery correspondence.";
+  }
+
+  if (form.clientPhone.replace(/[^\d]/g, "").length < 6) {
+    errors.clientPhone = "Enter a valid phone number for delivery contact.";
+  }
+
+  if (!form.shippingCountry.trim()) {
+    errors.shippingCountry = "Enter the destination country.";
+  }
+
+  if (!form.shippingAddressLine1.trim() || form.shippingAddressLine1.trim().length < 5) {
+    errors.shippingAddressLine1 = "Enter the primary destination line in full.";
+  }
+
+  if (!form.shippingCity.trim()) {
+    errors.shippingCity = "Enter the destination city.";
+  }
+
+  if (!form.shippingRegion.trim()) {
+    errors.shippingRegion = "Enter the state or region.";
+  }
+
+  if (!form.shippingPostalCode.trim() || form.shippingPostalCode.trim().length < 3) {
+    errors.shippingPostalCode = "Enter the postal code for this destination.";
+  }
+
+  if (
+    form.shippingRecipientName.trim() &&
+    form.shippingRecipientName.trim().length < 2
+  ) {
+    errors.shippingRecipientName =
+      "Enter the recipient name in full or leave the field empty.";
+  }
+
+  if (!form.confirmDetails) {
+    errors.confirmDetails =
+      "Confirm the destination record before payment can continue.";
+  }
+
+  return errors;
 }
 
 function getSessionToken() {
@@ -300,6 +414,15 @@ export function PrivateAcquisitionRoute({
   const [referenceCode, setReferenceCode] = useState("");
   const [accessSubmitting, setAccessSubmitting] = useState(false);
   const [accessError, setAccessError] = useState("");
+  const [deliveryForm, setDeliveryForm] = useState<DeliveryFormState>(
+    createDeliveryFormState(),
+  );
+  const [deliveryErrors, setDeliveryErrors] = useState<
+    Partial<Record<keyof DeliveryFormState, string>>
+  >({});
+  const [deliverySubmitting, setDeliverySubmitting] = useState(false);
+  const [deliveryError, setDeliveryError] = useState("");
+  const [deliveryNotice, setDeliveryNotice] = useState("");
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [publishableKey, setPublishableKey] = useState("");
@@ -354,6 +477,31 @@ export function PrivateAcquisitionRoute({
       ? stateResponse.session
       : null;
 
+  useEffect(() => {
+    setDeliveryForm(createDeliveryFormState(activeSession));
+    setDeliveryErrors({});
+    setDeliveryError("");
+    setDeliveryNotice("");
+  }, [
+    activeSession?.referenceCode,
+    activeSession?.clientName,
+    activeSession?.clientEmail,
+    activeSession?.clientPhone,
+    activeSession?.shippingCountry,
+    activeSession?.shippingAddressLine1,
+    activeSession?.shippingAddressLine2,
+    activeSession?.shippingCity,
+    activeSession?.shippingRegion,
+    activeSession?.shippingPostalCode,
+    activeSession?.shippingRecipientName,
+    activeSession?.shippingDeliveryNotes,
+    activeSession?.deliveryDetailsCompletedAt,
+  ]);
+
+  const deliveryDetailsCompleted = Boolean(
+    activeSession?.deliveryDetailsCompletedAt,
+  );
+
   const handleUnlock = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!token) return;
@@ -401,8 +549,109 @@ export function PrivateAcquisitionRoute({
     }
   };
 
+  const handleDeliveryFieldChange = <
+    Key extends keyof DeliveryFormState,
+  >(
+    field: Key,
+    value: DeliveryFormState[Key],
+  ) => {
+    setDeliveryForm((current) => ({ ...current, [field]: value }));
+    if (deliveryErrors[field]) {
+      setDeliveryErrors((current) => {
+        const next = { ...current };
+        delete next[field];
+        return next;
+      });
+    }
+    if (deliveryError) setDeliveryError("");
+    if (deliveryNotice) setDeliveryNotice("");
+    if (paymentError) setPaymentError("");
+    if (clientSecret) setClientSecret("");
+    if (publishableKey) setPublishableKey("");
+  };
+
+  const handleSaveDeliveryDetails = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (!token) return;
+
+    const clientErrors = validateDeliveryFormState(deliveryForm);
+    if (Object.keys(clientErrors).length > 0) {
+      setDeliveryErrors(clientErrors);
+      return;
+    }
+
+    setDeliverySubmitting(true);
+    setDeliveryErrors({});
+    setDeliveryError("");
+    setDeliveryNotice("");
+    setPaymentError("");
+
+    try {
+      const response = await fetch("/api/private-acquisition-delivery", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          ...deliveryForm,
+        }),
+      });
+
+      const result = (await response.json()) as DeliveryResponse;
+
+      if (!response.ok || !result.success) {
+        setDeliveryErrors(result.fieldErrors || {});
+        setDeliveryError(
+          result.error ||
+            "The destination record could not be retained under this issuance.",
+        );
+        setDeliveryNotice("");
+        return;
+      }
+
+      if (result.state === "paid") {
+        setStateResponse({
+          success: true,
+          state: "paid",
+          session: result.session,
+        });
+        return;
+      }
+
+      setStateResponse({
+        success: true,
+        state: "unlocked",
+        session: result.session,
+      });
+      setClientSecret("");
+      setPublishableKey("");
+      setDeliveryNotice(
+        "The destination record has been retained. Payment may now continue within this page.",
+      );
+    } catch (error) {
+      setDeliveryError(
+        error instanceof Error
+          ? error.message
+          : "The destination record could not be retained under this issuance.",
+      );
+    } finally {
+      setDeliverySubmitting(false);
+    }
+  };
+
   const handlePreparePayment = async () => {
     if (!token) return;
+
+    if (!deliveryDetailsCompleted) {
+      setPaymentError(
+        "The acquisition can proceed once the destination record is complete.",
+      );
+      return;
+    }
 
     setPaymentSubmitting(true);
     setPaymentError("");
@@ -856,6 +1105,333 @@ export function PrivateAcquisitionRoute({
                           </div>
                         </div>
                       </div>
+
+                      <form
+                        className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6"
+                        onSubmit={handleSaveDeliveryDetails}
+                      >
+                        <div>
+                          <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                            Destination record
+                          </p>
+                          <p className="mt-4 font-['Cormorant_Garamond'] text-[2.2rem] leading-[0.94] tracking-[-0.06em] text-[#241912]">
+                            Retain the delivery details before payment opens.
+                          </p>
+                          <p className="mt-5 text-base leading-8 text-[#5f4b3c]">
+                            These details remain attached to the acquisition
+                            record and are required before the payment chamber
+                            can proceed.
+                          </p>
+                        </div>
+
+                        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Full name
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.clientName}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "clientName",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Name attached to this acquisition"
+                              autoComplete="name"
+                            />
+                            {deliveryErrors.clientName ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.clientName}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Email
+                            </span>
+                            <input
+                              type="email"
+                              value={deliveryForm.clientEmail}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "clientEmail",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Delivery correspondence"
+                              autoComplete="email"
+                            />
+                            {deliveryErrors.clientEmail ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.clientEmail}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Phone
+                            </span>
+                            <input
+                              type="tel"
+                              value={deliveryForm.clientPhone}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "clientPhone",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Delivery contact number"
+                              autoComplete="tel"
+                            />
+                            {deliveryErrors.clientPhone ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.clientPhone}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Country
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingCountry}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingCountry",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Destination country"
+                              autoComplete="country-name"
+                            />
+                            {deliveryErrors.shippingCountry ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingCountry}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              State / region
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingRegion}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingRegion",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="State or region"
+                              autoComplete="address-level1"
+                            />
+                            {deliveryErrors.shippingRegion ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingRegion}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Address line 1
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingAddressLine1}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingAddressLine1",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Primary delivery line"
+                              autoComplete="address-line1"
+                            />
+                            {deliveryErrors.shippingAddressLine1 ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingAddressLine1}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Address line 2
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingAddressLine2}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingAddressLine2",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Apartment, suite, or additional detail"
+                              autoComplete="address-line2"
+                            />
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              City
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingCity}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingCity",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Destination city"
+                              autoComplete="address-level2"
+                            />
+                            {deliveryErrors.shippingCity ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingCity}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Postal code
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingPostalCode}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingPostalCode",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Postal code"
+                              autoComplete="postal-code"
+                            />
+                            {deliveryErrors.shippingPostalCode ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingPostalCode}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Recipient name
+                            </span>
+                            <input
+                              type="text"
+                              value={deliveryForm.shippingRecipientName}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingRecipientName",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Only if the recipient differs"
+                              autoComplete="shipping name"
+                            />
+                            {deliveryErrors.shippingRecipientName ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingRecipientName}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Delivery notes
+                            </span>
+                            <textarea
+                              value={deliveryForm.shippingDeliveryNotes}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingDeliveryNotes",
+                                  event.target.value.slice(0, 500),
+                                )
+                              }
+                              className={chamberTextareaClass}
+                              placeholder="Any detail the house should retain for delivery."
+                              maxLength={500}
+                            />
+                          </label>
+                        </div>
+
+                        <label className="mt-5 flex items-start gap-3 rounded-[1.4rem] border border-[#d8c3aa] bg-[#f8f2ea] px-4 py-4">
+                          <input
+                            type="checkbox"
+                            checked={deliveryForm.confirmDetails}
+                            onChange={(event) =>
+                              handleDeliveryFieldChange(
+                                "confirmDetails",
+                                event.target.checked,
+                              )
+                            }
+                            className="mt-1 h-4 w-4 rounded border-[#b8916d] text-[#211711] focus:ring-[#a37a56]"
+                          />
+                          <span className="text-sm leading-7 text-[#5f4b3c]">
+                            I confirm that these delivery details are correct and
+                            may be attached to this acquisition record.
+                          </span>
+                        </label>
+                        {deliveryErrors.confirmDetails ? (
+                          <p className="mt-2 text-sm leading-7 text-[#815c42]">
+                            {deliveryErrors.confirmDetails}
+                          </p>
+                        ) : null}
+
+                        {deliveryNotice ? (
+                          <p className="mt-4 text-sm leading-7 text-[#5f4b3c]">
+                            {deliveryNotice}
+                          </p>
+                        ) : null}
+                        {deliveryError ? (
+                          <p className="mt-4 text-sm leading-7 text-[#815c42]">
+                            {deliveryError}
+                          </p>
+                        ) : null}
+
+                        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                          <Button
+                            type="submit"
+                            disabled={deliverySubmitting}
+                            className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
+                          >
+                            {deliverySubmitting
+                              ? "Retaining destination..."
+                              : deliveryDetailsCompleted
+                                ? "Update Destination Record"
+                                : "Confirm Destination Record"}
+                          </Button>
+                          <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b6b4f]">
+                            {deliveryDetailsCompleted
+                              ? "Destination retained"
+                              : "Payment remains sealed"}
+                          </p>
+                        </div>
+                      </form>
                     </div>
 
                     <div className="flex flex-col rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6">
@@ -867,9 +1443,9 @@ export function PrivateAcquisitionRoute({
                           Confirm the prepared acquisition within the site.
                         </p>
                         <p className="mt-5 text-base leading-8 text-[#5f4b3c]">
-                          The payment step is opened only after the issued
-                          session and reference agree. Completion closes the
-                          issuance automatically.
+                          The destination record must be complete before payment
+                          opens. Once confirmed, completion closes the issuance
+                          automatically.
                         </p>
                       </div>
 
@@ -885,9 +1461,9 @@ export function PrivateAcquisitionRoute({
                         ) : (
                           <div className="rounded-[1.8rem] border border-dashed border-[#d8c3aa] bg-[#f8f2ea] p-6">
                             <p className="text-sm leading-8 text-[#5f4b3c]">
-                              Payment is still closed. When you are ready, the
-                              chamber can be prepared inside this page without
-                              sending you to an external payment link.
+                              {deliveryDetailsCompleted
+                                ? "The destination record is complete. Payment can now be prepared inside this page without sending you to an external link."
+                                : "The acquisition can proceed once the destination record is complete and retained under this issuance."}
                             </p>
                             {paymentError ? (
                               <p className="mt-4 text-sm leading-7 text-[#815c42]">
@@ -898,12 +1474,14 @@ export function PrivateAcquisitionRoute({
                               <Button
                                 type="button"
                                 onClick={handlePreparePayment}
-                                disabled={paymentSubmitting}
+                                disabled={paymentSubmitting || !deliveryDetailsCompleted}
                                 className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
                               >
                                 {paymentSubmitting
                                   ? "Preparing payment..."
-                                  : "Open Private Payment"}
+                                  : deliveryDetailsCompleted
+                                    ? "Open Private Payment"
+                                    : "Complete Destination Record First"}
                               </Button>
                             </div>
                           </div>
