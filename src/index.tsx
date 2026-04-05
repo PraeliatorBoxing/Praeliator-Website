@@ -6,6 +6,13 @@ import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
 import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
 import {
+  getInitialSiteLocale,
+  getSiteCopy,
+  SITE_LOCALE_STORAGE_KEY,
+  type SiteLocale,
+  siteLocaleOptions,
+} from "./lib/site-locale";
+import {
   AnimatePresence,
   motion,
   useMotionValue,
@@ -3267,11 +3274,17 @@ function ClubFooter({
   whatsappGeneralLink,
   instagramLink,
   emailLink,
+  privateInquiryLabel,
+  waitlistLabel,
+  navLinks,
 }: {
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
   instagramLink: string;
   emailLink: string;
+  privateInquiryLabel: string;
+  waitlistLabel: string;
+  navLinks: Array<{ label: string; path: Route }>;
 }) {
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
@@ -3300,7 +3313,7 @@ function ClubFooter({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Private Inquiry
+                    {privateInquiryLabel}
                   </a>
                 </Button>
                 <Button
@@ -3309,7 +3322,7 @@ function ClubFooter({
                   onClick={() => goTo("/waitlist")}
                   className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                 >
-                  Join Waitlist
+                  {waitlistLabel}
                 </Button>
               </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -3338,7 +3351,7 @@ function ClubFooter({
                   </p>
                   {"links" in column ? (
                     <div className="mt-6 space-y-4">
-                      {column.links.map((item) => (
+                      {(column.title === "Explore" ? navLinks : column.links).map((item) => (
                         <button
                           key={item.label}
                           type="button"
@@ -3895,7 +3908,7 @@ function OAuthConsentRoute({
                       onClick={() => goTo("/sign-in")}
                       className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                     >
-                      Sign In
+                      {copy.signIn}
                     </Button>
                     <Button
                       type="button"
@@ -3903,7 +3916,7 @@ function OAuthConsentRoute({
                       onClick={() => goTo("/sign-up")}
                       className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                     >
-                      Create Account
+                      {ownershipCopy.createAccount}
                     </Button>
                   </div>
                 </div>
@@ -3981,6 +3994,10 @@ function MobileHeader({
   goTo,
   authPrimaryRoute,
   authPrimaryLabel,
+  locale,
+  onLocaleChange,
+  languageLabel,
+  menuItems,
 }: {
   route: Route;
   pageMicroLabel: string;
@@ -3993,6 +4010,10 @@ function MobileHeader({
   goTo: (nextRoute: Route) => void;
   authPrimaryRoute: Route;
   authPrimaryLabel: string;
+  locale: SiteLocale;
+  onLocaleChange: (locale: SiteLocale) => void;
+  languageLabel: string;
+  menuItems: Array<{ label: string; path: Route; meta: string }>;
 }) {
   return (
     <motion.header className="fixed inset-x-0 top-0 z-50">
@@ -4027,7 +4048,12 @@ function MobileHeader({
             />
           </div>
 
-          <div aria-hidden="true" className="h-11 w-11 md:h-12 md:w-12" />
+          <LanguageSwitcher
+            locale={locale}
+            onChange={onLocaleChange}
+            label={languageLabel}
+            compact
+          />
         </Container>
 
         <AnimatePresence initial={false}>
@@ -4059,7 +4085,7 @@ function MobileHeader({
             >
               <Container className="pb-5 pt-4 md:pb-8 md:pt-6">
                 <div className="grid gap-3 md:grid-cols-2">
-                  {[{ label: authPrimaryLabel, path: authPrimaryRoute }, ...navItems].map((item) => (
+                  {menuItems.map((item) => (
                     <button
                       key={item.path}
                       type="button"
@@ -4071,17 +4097,7 @@ function MobileHeader({
                           {item.label}
                         </p>
                         <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/34 md:text-[11px]">
-                          {item.label === "VIS"
-                            ? "Flagship"
-                            : item.label === "Acquisition"
-                              ? "Private route"
-                              : item.label === "Waitlist"
-                                ? "Future access"
-                                : item.label === "Ownership Record"
-                                  ? "Private account"
-                                  : item.label === "Sign In"
-                                    ? "Account access"
-                                    : "Direct contact"}
+                          {item.meta}
                         </p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
@@ -4102,11 +4118,17 @@ function MobileClubFooter({
   whatsappGeneralLink,
   instagramLink,
   emailLink,
+  privateInquiryLabel,
+  waitlistLabel,
+  navLinks,
 }: {
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
   instagramLink: string;
   emailLink: string;
+  privateInquiryLabel: string;
+  waitlistLabel: string;
+  navLinks: Array<{ label: string; path: Route }>;
 }) {
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10">
@@ -4130,7 +4152,7 @@ function MobileClubFooter({
               className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Private Inquiry
+                {privateInquiryLabel}
               </a>
             </Button>
             <Button
@@ -4139,12 +4161,12 @@ function MobileClubFooter({
               onClick={() => goTo("/waitlist")}
               className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
             >
-              Join Waitlist
+              {waitlistLabel}
             </Button>
           </div>
 
           <div className="mt-8 grid gap-3">
-            {clubFooterColumns[0].links.map((item) => (
+            {navLinks.map((item) => (
               <button
                 key={item.route}
                 type="button"
@@ -4307,6 +4329,86 @@ function PasswordField({
           <Eye className="h-4 w-4" aria-hidden="true" />
         )}
       </button>
+    </div>
+  );
+}
+function LanguageSwitcher({
+  locale,
+  onChange,
+  label,
+  compact = false,
+}: {
+  locale: SiteLocale;
+  onChange: (locale: SiteLocale) => void;
+  label: string;
+  compact?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const currentOption =
+    siteLocaleOptions.find((option) => option.value === locale) ??
+    siteLocaleOptions[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className={`inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] text-white/78 transition duration-300 hover:border-white/18 hover:bg-white/[0.08] hover:text-white ${
+          compact
+            ? "h-10 px-3 text-[11px] uppercase tracking-[0.24em]"
+            : "h-10 px-4 text-[10px] uppercase tracking-[0.26em]"
+        }`}
+        aria-label={label}
+        aria-expanded={open}
+      >
+        <span>{currentOption.shortLabel}</span>
+      </button>
+
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2, ease: easeLuxury }}
+            className="absolute right-0 top-[calc(100%+0.65rem)] z-[90] min-w-[11rem] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#0b0a09]/96 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.34)] backdrop-blur-xl"
+          >
+            {siteLocaleOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-left text-sm transition duration-200 ${
+                  option.value === locale
+                    ? "bg-white/[0.08] text-white"
+                    : "text-white/72 hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                <span>{option.label}</span>
+                <span className="text-[10px] uppercase tracking-[0.22em] text-white/34">
+                  {option.shortLabel}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
@@ -6419,6 +6521,7 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return "/";
     return normalizePath(window.location.pathname);
   });
+  const [locale, setLocale] = useState<SiteLocale>(() => getInitialSiteLocale());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [homeSectionIndex, setHomeSectionIndex] = useState(0);
@@ -6972,9 +7075,97 @@ export default function PraeliatorWebsite() {
     void loadOwnershipPairs();
   }, [authSession, loadOwnershipPairs]);
 
-  useEffect(() => {
-    document.title = `${routeTitles[route]} | Praeliator`;
+  const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
+  const copy = useMemo(() => getSiteCopy(locale), [locale]);
+  const authCopy = copy.auth;
+  const acquisitionCopy = copy.acquisition;
+  const waitlistCopy = copy.waitlist;
+  const contactCopy = copy.contact;
+  const ownershipCopy = copy.ownership;
+  const localizedRouteTitles = copy.routeTitles as Record<Route, string>;
+  const localizedRouteMicroLabels = copy.routeMicroLabels as Record<Route, string>;
+  const localizedInterestOptions = useMemo(
+    () =>
+      interestOptions.map((option) => ({
+        ...option,
+        label: copy.optionLabels.interests[option.value] ?? option.label,
+      })),
+    [copy],
+  );
+  const localizedTimelineOptions = useMemo(
+    () =>
+      timelineOptions.map((option) => ({
+        ...option,
+        label: copy.optionLabels.timelines[option.value] ?? option.label,
+      })),
+    [copy],
+  );
+  const localizedContactPreferenceOptions = useMemo(
+    () =>
+      contactPreferenceOptions.map((option) => ({
+        ...option,
+        label:
+          copy.optionLabels.contactPreferences[option.value] ?? option.label,
+      })),
+    [copy],
+  );
+  const localizedNavItems = useMemo(
+    () => [
+      {
+        label: copy.nav.vis,
+        path: "/praeliator-vis" as Route,
+        meta: copy.navMeta.vis,
+      },
+      {
+        label: copy.nav.acquisition,
+        path: "/acquisition" as Route,
+        meta: copy.navMeta.acquisition,
+      },
+      {
+        label: copy.nav.waitlist,
+        path: "/waitlist" as Route,
+        meta: copy.navMeta.waitlist,
+      },
+      {
+        label: copy.nav.contact,
+        path: "/contact" as Route,
+        meta: copy.navMeta.contact,
+      },
+    ],
+    [copy],
+  );
+  const authPrimaryLabel =
+    authSession ? copy.ownershipRecord : copy.signIn;
+  const headerMenuItems = useMemo(
+    () => [
+      {
+        label: authPrimaryLabel,
+        path: authPrimaryRoute,
+        meta: authSession
+          ? copy.navMeta.ownershipRecord
+          : copy.navMeta.signIn,
+      },
+      ...localizedNavItems,
+    ],
+    [authPrimaryLabel, authPrimaryRoute, authSession, copy, localizedNavItems],
+  );
+  const currentPurchaseLink = useMemo(() => {
+    if (route === "/praeliator-vis") return whatsappVisLink;
+    if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
+    return whatsappGeneralLink;
   }, [route]);
+  const pageMicroLabel = route !== "/" ? localizedRouteMicroLabels[route] : "";
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(SITE_LOCALE_STORAGE_KEY, locale);
+    document.documentElement.lang = locale;
+  }, [locale]);
+
+  useEffect(() => {
+    document.title = `${localizedRouteTitles[route]} | Praeliator`;
+  }, [localizedRouteTitles, route]);
+
   useEffect(() => {
     if (reduceMotion || route === "/" || !isDesktopViewport) return;
     const editorialSmoothScrollRoutes = new Set<Route>([
@@ -7036,12 +7227,6 @@ export default function PraeliatorWebsite() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isDesktopViewport, mobileMenuOpen, route]);
-  const currentPurchaseLink = useMemo(() => {
-    if (route === "/praeliator-vis") return whatsappVisLink;
-    if (route === "/waitlist") return whatsappWaitlistFollowUpLink;
-    return whatsappGeneralLink;
-  }, [route]);
-  const pageMicroLabel = route !== "/" ? routeMicroLabels[route] : "";
   const headerBrandMode: HeaderBrandMode =
     route !== "/"
       ? "monogram"
@@ -7202,8 +7387,6 @@ export default function PraeliatorWebsite() {
     return null;
   };
 
-  const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
-  const authPrimaryLabel = authSession ? "Ownership Record" : "Sign In";
   const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
   const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
 
@@ -8215,8 +8398,8 @@ export default function PraeliatorWebsite() {
         key: "hero",
         kind: "video" as const,
         word: "Praeliator",
-        line: "Equipment for those who treat boxing as art.",
-        cta: "Discover",
+        line: copy.home.heroLine,
+        cta: copy.home.heroCta,
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.hero.video,
         poster: homeCinematicMedia.hero.poster,
@@ -8225,8 +8408,8 @@ export default function PraeliatorWebsite() {
         key: "vis",
         kind: "video" as const,
         word: "VIS",
-        line: "16 oz · Lace-up · Top-grain cowhide",
-        cta: "Enter VIS",
+        line: copy.home.visLine,
+        cta: copy.home.visCta,
         action: () => goTo("/praeliator-vis"),
         video: homeCinematicMedia.vis.video,
         poster: homeCinematicMedia.vis.poster,
@@ -8234,9 +8417,9 @@ export default function PraeliatorWebsite() {
       {
         key: "acquisition",
         kind: "video" as const,
-        word: "Acquisition",
-        line: "Handled directly.",
-        cta: "Private Inquiry",
+        word: copy.home.acquisitionWord,
+        line: copy.home.acquisitionLine,
+        cta: copy.home.acquisitionCta,
         href: whatsappGeneralLink,
         video: homeCinematicMedia.acquisition.video,
         poster: homeCinematicMedia.acquisition.poster,
@@ -8304,7 +8487,7 @@ export default function PraeliatorWebsite() {
                 className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
               >
                 <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                  Private Purchase Inquiry
+                  {copy.privateInquiry}
                 </a>
               </Button>
               <Button
@@ -8313,7 +8496,7 @@ export default function PraeliatorWebsite() {
                 onClick={() => goTo("/waitlist")}
                 className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
-                Join Waitlist
+                {waitlistCopy.joinWaitlist}
               </Button>
             </div>
 
@@ -8715,7 +8898,7 @@ export default function PraeliatorWebsite() {
                     className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
                   >
                     <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-                      Private Inquiry
+                      {copy.privateInquiry}
                     </a>
                   </Button>
                   <Button
@@ -8724,7 +8907,7 @@ export default function PraeliatorWebsite() {
                     onClick={() => goTo("/waitlist")}
                     className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    Join Waitlist
+                    {waitlistCopy.joinWaitlist}
                   </Button>
                 </div>
               </div>
@@ -9640,15 +9823,13 @@ const renderAcquisitionPage = () => (
           className="max-w-[56rem]"
         >
           <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
-            Private acquisition
+            {localizedRouteTitles["/acquisition"]}
           </p>
           <h1 className="mt-5 max-w-[12ch] text-[clamp(3.1rem,7.8vw,7.6rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
-            Begin directly on WhatsApp.
+            {acquisitionCopy.heroTitle}
           </h1>
           <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8 lg:max-w-3xl">
-            Acquisition should stay close to the house. A short private brief
-            prepares the message, then the conversation continues immediately
-            where it should.
+            {acquisitionCopy.heroDescription}
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -9657,7 +9838,7 @@ const renderAcquisitionPage = () => (
               className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                Open WhatsApp
+                {acquisitionCopy.openWhatsapp}
               </a>
             </Button>
             <Button
@@ -9666,7 +9847,7 @@ const renderAcquisitionPage = () => (
               onClick={() => goTo("/waitlist")}
               className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
             >
-              Join Waitlist
+              {acquisitionCopy.joinWaitlist}
             </Button>
           </div>
         </motion.div>
@@ -9679,7 +9860,7 @@ const renderAcquisitionPage = () => (
           <Reveal>
             <div className="grid gap-5">
               <HouseLetterCard
-                eyebrow="Direct route"
+                eyebrow={acquisitionCopy.openWhatsapp}
                 title="The strongest acquisition route is still a direct conversation."
                 body="There is no need for a long intake chamber here. State your title, name, and interest, then continue immediately on WhatsApp with the message already prepared."
                 signature="Praeliator / direct line"
@@ -9715,16 +9896,15 @@ const renderAcquisitionPage = () => (
 
           <Reveal delay={0.06}>
             <div className="rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.92),rgba(11,10,9,0.98))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
-                Private brief
-              </p>
-              <h2 className="mt-4 max-w-[12ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
-                Retain the brief, then continue.
-              </h2>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                The house keeps the details first. WhatsApp then opens with a
-                quieter reference instead of a full introduction.
-              </p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+                  {acquisitionCopy.briefEyebrow}
+                </p>
+                <h2 className="mt-4 max-w-[12ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
+                  {acquisitionCopy.briefTitle}
+                </h2>
+                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  {acquisitionCopy.briefDescription}
+                </p>
 
               <form
                 id="acquisition-whatsapp-brief"
@@ -9738,11 +9918,11 @@ const renderAcquisitionPage = () => (
                     value={acquisitionWhatsAppForm.title}
                     onChange={handleAcquisitionWhatsAppChange}
                     onBlur={() => handleAcquisitionWhatsAppBlur("title")}
-                    placeholder="Title"
+                    placeholder={acquisitionCopy.titlePlaceholder}
                     options={acquisitionTitleOptions}
                     searchable
-                    searchPlaceholder="Search title"
-                    fieldLabel="Honorific"
+                    searchPlaceholder={acquisitionCopy.titleSearch}
+                    fieldLabel={acquisitionCopy.titleLabel}
                     invalid={Boolean(getVisibleAcquisitionWhatsAppError("title"))}
                     success={getAcquisitionWhatsAppSuccess("title")}
                   />
@@ -9757,7 +9937,7 @@ const renderAcquisitionPage = () => (
                     onBlur={() => handleAcquisitionWhatsAppBlur("fullName")}
                     autoComplete="name"
                     autoCapitalize="words"
-                    placeholder="Full name"
+                    placeholder={acquisitionCopy.namePlaceholder}
                     invalid={Boolean(getVisibleAcquisitionWhatsAppError("fullName"))}
                     success={getAcquisitionWhatsAppSuccess("fullName")}
                   />
@@ -9770,16 +9950,15 @@ const renderAcquisitionPage = () => (
                     value={acquisitionWhatsAppForm.interest}
                     onChange={handleAcquisitionWhatsAppChange}
                     onBlur={() => handleAcquisitionWhatsAppBlur("interest")}
-                    placeholder="Interest"
-                    options={interestOptions}
+                    placeholder={acquisitionCopy.interestPlaceholder}
+                    options={localizedInterestOptions}
                     invalid={Boolean(getVisibleAcquisitionWhatsAppError("interest"))}
                     success={getAcquisitionWhatsAppSuccess("interest")}
                   />
                   <FieldError message={getVisibleAcquisitionWhatsAppError("interest")} />
                   {!getVisibleAcquisitionWhatsAppError("interest") ? (
                     <FieldNote>
-                      The title, name, and interest are retained privately
-                      before the direct line opens.
+                      {acquisitionCopy.briefSupport}
                     </FieldNote>
                   ) : null}
                 </div>
@@ -9791,8 +9970,8 @@ const renderAcquisitionPage = () => (
                     className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
                     {acquisitionWhatsAppState.loading
-                      ? "Retaining brief..."
-                      : "Retain Brief & Open WhatsApp"}
+                      ? acquisitionCopy.retainingBrief
+                      : acquisitionCopy.retainBrief}
                   </Button>
                 </div>
 
@@ -9807,11 +9986,11 @@ const renderAcquisitionPage = () => (
                     >
                       <div className="border-b border-white/[0.08] px-5 py-4">
                         <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                          Brief retained
+                          {acquisitionCopy.briefRetained}
                         </p>
                         <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
                           {acquisitionWhatsAppState.reference ||
-                            "Reference pending"}
+                            acquisitionCopy.referencePending}
                         </p>
                       </div>
                       <div className="space-y-4 px-5 py-5">
@@ -9819,8 +9998,7 @@ const renderAcquisitionPage = () => (
                           {acquisitionWhatsAppState.serviceMessage}
                         </p>
                         <div className="rounded-[1.25rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
-                          The direct message can now stay sparse. The fuller
-                          details are already under the house record.
+                          {acquisitionCopy.briefRetainedBody}
                         </div>
                       </div>
                     </motion.div>
@@ -9844,7 +10022,7 @@ const renderAcquisitionPage = () => (
                     }}
                     className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    Open WhatsApp Without Brief
+                    {acquisitionCopy.openWithoutBrief}
                   </Button>
                 </div>
               </form>
@@ -9859,18 +10037,18 @@ const renderAcquisitionPage = () => (
 const renderWaitlistPage = () => (
     <>
       <PageHeroBanner
-        eyebrow="Waitlist"
-        title="A quieter route into future access."
-        description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
-        note="Future releases · collector interest · private follow-up"
+        eyebrow={localizedRouteTitles["/waitlist"]}
+        title={waitlistCopy.heroTitle}
+        description={waitlistCopy.heroDescription}
+        note={waitlistCopy.heroNote}
         actions={[
           {
-            label: "Direct Inquiry",
+            label: waitlistCopy.directInquiry,
             href: whatsappGeneralLink,
             variant: "primary",
           },
           {
-            label: "Contact",
+            label: waitlistCopy.contact,
             onClick: () => goTo("/contact"),
             variant: "secondary",
           },
@@ -9883,12 +10061,12 @@ const renderWaitlistPage = () => (
             <Reveal>
               <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <SectionHeading
-                  eyebrow="Waitlist"
-                  title="A quieter route into future access."
-                  description="For future releases, collector interest, and private access."
+                  eyebrow={localizedRouteTitles["/waitlist"]}
+                  title={waitlistCopy.heroTitle}
+                  description={waitlistCopy.heroDescription}
                 />
                 <div className="mt-6 text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  Client reference returned after submission.
+                  {waitlistCopy.introTitle}
                 </div>
                 <div className="mt-6 divide-y divide-white/10 border-t border-white/10">
                   {serviceStandards.map((item) => (
@@ -9902,16 +10080,16 @@ const renderWaitlistPage = () => (
                 <div className="mt-8 grid gap-4">
                   {[
                     {
-                      title: "Review",
-                      text: "Every qualified inquiry is reviewed before contact continues.",
+                      title: waitlistCopy.review,
+                      text: waitlistCopy.reviewText,
                     },
                     {
-                      title: "Reference",
-                      text: "Your returned reference stays attached to the intake record.",
+                      title: waitlistCopy.reference,
+                      text: waitlistCopy.referenceText,
                     },
                     {
-                      title: "Continuation",
-                      text: "If timing matters, the route can continue directly on WhatsApp.",
+                      title: waitlistCopy.continuation,
+                      text: waitlistCopy.continuationText,
                     },
                   ].map((item) => (
                     <div
@@ -9943,7 +10121,7 @@ const renderWaitlistPage = () => (
                         })
                       }
                     >
-                      Prefer direct inquiry instead
+                      {waitlistCopy.directInquiry}
                     </a>
                   </Button>
                 </div>
@@ -9981,10 +10159,10 @@ const renderWaitlistPage = () => (
                           handleWaitlistSelectChange("title", event)
                         }
                         onBlur={() => handleWaitlistBlur("title")}
-                        placeholder="Title"
+                        placeholder={waitlistCopy.titlePlaceholder}
                         searchable
-                        searchPlaceholder="Search title"
-                        fieldLabel="Honorific"
+                        searchPlaceholder={waitlistCopy.titleSearch}
+                        fieldLabel={waitlistCopy.titleLabel}
                         options={titleOptions}
                         success={getFieldSuccess("title")}
                         describedBy={getFieldDescribedBy("title")}
@@ -9997,7 +10175,7 @@ const renderWaitlistPage = () => (
                         onChange={handleWaitlistChange}
                         onBlur={() => handleWaitlistBlur("fullName")}
                         autoComplete="name"
-                        placeholder="Full name *"
+                        placeholder={waitlistCopy.fullNamePlaceholder}
                         invalid={Boolean(getVisibleFieldError("fullName"))}
                         success={getFieldSuccess("fullName")}
                         describedBy={getFieldDescribedBy("fullName")}
@@ -10017,7 +10195,7 @@ const renderWaitlistPage = () => (
                       onBlur={() => handleWaitlistBlur("email")}
                       autoComplete="email"
                       autoCapitalize="none"
-                      placeholder="Email address *"
+                      placeholder={waitlistCopy.emailPlaceholder}
                       invalid={Boolean(getVisibleFieldError("email"))}
                       success={getFieldSuccess("email")}
                       describedBy={getFieldDescribedBy("email")}
@@ -10037,7 +10215,7 @@ const renderWaitlistPage = () => (
                         label: option.label,
                         code: option.code,
                       }))}
-                      placeholder="Country or dial code *"
+                      placeholder={waitlistCopy.countryPlaceholder}
                       exactMatchUpdates
                       fieldLabel="Country"
                       invalid={Boolean(getVisibleFieldError("country"))}
@@ -10059,7 +10237,7 @@ const renderWaitlistPage = () => (
                         autoComplete="tel-country-code"
                         inputMode="tel"
                         maxLength={5}
-                        placeholder="Dial code *"
+                        placeholder={waitlistCopy.dialCodePlaceholder}
                         invalid={Boolean(
                           getVisibleFieldError("phoneCountryCode"),
                         )}
@@ -10080,7 +10258,7 @@ const renderWaitlistPage = () => (
                         autoComplete="tel-national"
                         inputMode="tel"
                         maxLength={15}
-                        placeholder="Phone number *"
+                        placeholder={waitlistCopy.phonePlaceholder}
                         invalid={Boolean(getVisibleFieldError("whatsapp"))}
                         success={getFieldSuccess("whatsapp")}
                         describedBy={getFieldDescribedBy("whatsapp")}
@@ -10091,8 +10269,7 @@ const renderWaitlistPage = () => (
                       />
                       {!getVisibleFieldError("whatsapp") ? (
                         <FieldNote>
-                          Use the number where a private follow-up should
-                          continue.
+                          {waitlistCopy.phoneSupport}
                         </FieldNote>
                       ) : null}
                     </div>
@@ -10105,8 +10282,8 @@ const renderWaitlistPage = () => (
                         handleWaitlistSelectChange("interest", event)
                       }
                       onBlur={() => handleWaitlistBlur("interest")}
-                      placeholder="Interest *"
-                      options={interestOptions}
+                      placeholder={waitlistCopy.interestPlaceholder}
+                      options={localizedInterestOptions}
                       invalid={Boolean(getVisibleFieldError("interest"))}
                       success={getFieldSuccess("interest")}
                       describedBy={getFieldDescribedBy("interest")}
@@ -10124,8 +10301,8 @@ const renderWaitlistPage = () => (
                         handleWaitlistSelectChange("timeline", event)
                       }
                       onBlur={() => handleWaitlistBlur("timeline")}
-                      placeholder="Timeline *"
-                      options={timelineOptions}
+                      placeholder={waitlistCopy.timelinePlaceholder}
+                      options={localizedTimelineOptions}
                       invalid={Boolean(getVisibleFieldError("timeline"))}
                       success={getFieldSuccess("timeline")}
                       describedBy={getFieldDescribedBy("timeline")}
@@ -10143,8 +10320,8 @@ const renderWaitlistPage = () => (
                         handleWaitlistSelectChange("contactPreference", event)
                       }
                       onBlur={() => handleWaitlistBlur("contactPreference")}
-                      placeholder="Preferred contact method *"
-                      options={contactPreferenceOptions}
+                      placeholder={waitlistCopy.contactPlaceholder}
+                      options={localizedContactPreferenceOptions}
                       invalid={Boolean(
                         getVisibleFieldError("contactPreference"),
                       )}
@@ -10164,11 +10341,10 @@ const renderWaitlistPage = () => (
                       onBlur={() => handleWaitlistBlur("note")}
                       rows={6}
                       className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
-                      placeholder="Optional note"
+                      placeholder={waitlistCopy.notePlaceholder}
                     />
                     <FieldNote>
-                      Any detail that affects timing, use, or preferred contact
-                      can go here.
+                      {waitlistCopy.noteSupport}
                     </FieldNote>
                   </div>
                   <div className="pt-2">
@@ -10189,16 +10365,15 @@ const renderWaitlistPage = () => (
                         ) : null}
                         <span>
                           {waitlistState.loading
-                            ? "Submitting..."
+                            ? waitlistCopy.submitting
                             : getWaitlistCooldownSeconds() > 0
-                              ? `Wait ${getWaitlistCooldownSeconds()}s`
-                              : "Join Waitlist"}
+                              ? `${waitlistCopy.waitPrefix} ${getWaitlistCooldownSeconds()}s`
+                              : waitlistCopy.joinWaitlist}
                         </span>
                       </span>
                     </Button>
                     <FieldNote>
-                      Private review typically continues within one business
-                      day.
+                      {waitlistCopy.reviewTiming}
                     </FieldNote>
                   </div>
                   <AnimatePresence>
@@ -10213,11 +10388,11 @@ const renderWaitlistPage = () => (
                       >
                         <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
                           <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                            Inquiry received
+                            {waitlistCopy.inquiryReceived}
                           </p>
                           <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
                             {waitlistState.reference ||
-                              "Client reference pending"}
+                              waitlistCopy.referencePending}
                           </p>
                         </div>
                         <div className="space-y-4 px-5 py-5 sm:px-6">
@@ -10248,7 +10423,7 @@ const renderWaitlistPage = () => (
                                   )
                                 }
                               >
-                                Continue on WhatsApp
+                                {waitlistCopy.continueWhatsapp}
                               </a>
                             </Button>
                             <Button
@@ -10257,7 +10432,7 @@ const renderWaitlistPage = () => (
                               onClick={() => goTo("/")}
                               className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                             >
-                              Return Home
+                              {waitlistCopy.returnHome}
                             </Button>
                           </div>
                         </div>
@@ -10390,14 +10565,13 @@ const renderWaitlistPage = () => (
             className="max-w-[54rem]"
           >
             <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
-              Direct contact
+              {localizedRouteTitles["/contact"]}
             </p>
             <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
-              Direct contact, kept simple.
+              {contactCopy.heroTitle}
             </h1>
             <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
-              WhatsApp remains primary for private inquiry. Email and Instagram stay
-              available as quieter secondary paths.
+              {contactCopy.heroDescription}
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -10406,7 +10580,7 @@ const renderWaitlistPage = () => (
                 className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
               >
                 <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  Private Inquiry
+                  {contactCopy.primaryCta}
                 </a>
               </Button>
               <Button
@@ -10415,7 +10589,7 @@ const renderWaitlistPage = () => (
                 onClick={() => goTo("/waitlist")}
                 className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
               >
-                Join Waitlist
+                {contactCopy.secondaryCta}
               </Button>
             </div>
 
@@ -10436,14 +10610,13 @@ const renderWaitlistPage = () => (
             <Reveal>
               <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  Primary route
+                  {contactCopy.primaryCta}
                 </p>
                 <h2 className="mt-5 max-w-[9ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
-                  WhatsApp remains first.
+                  {contactCopy.primaryTitle}
                 </h2>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  For private purchase inquiries and faster continuation, WhatsApp stays
-                  primary. The route remains direct and the tone remains controlled.
+                  {contactCopy.primaryDescription}
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -10452,7 +10625,7 @@ const renderWaitlistPage = () => (
                     className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                   >
                     <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                      Open WhatsApp
+                      {contactCopy.openWhatsapp}
                     </a>
                   </Button>
                   <Button
@@ -10461,7 +10634,7 @@ const renderWaitlistPage = () => (
                     onClick={() => goTo("/waitlist")}
                     className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                   >
-                    Quieter Entry
+                    {contactCopy.quieterEntry}
                   </Button>
                 </div>
               </div>
@@ -10609,7 +10782,7 @@ const renderWaitlistPage = () => (
                     Boxing, treated like an art form.
                   </p>
                   <p className="mt-5 text-sm leading-7 text-white/72">
-                    Equipment for those who treat boxing as art.
+                    {copy.home.heroLine}
                   </p>
                 </div>
               }
@@ -10621,7 +10794,7 @@ const renderWaitlistPage = () => (
                   onClick={() => goTo("/praeliator-vis")}
                   className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
                 >
-                  Discover VIS
+                  {copy.home.visCta}
                 </Button>
                 <Button
                   asChild
@@ -10629,7 +10802,7 @@ const renderWaitlistPage = () => (
                   className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                    Private Inquiry
+                    {copy.privateInquiry}
                   </a>
                 </Button>
               </div>
@@ -10734,10 +10907,10 @@ const renderWaitlistPage = () => (
                 />
                 <div className="p-5">
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                    Acquisition
+                    {copy.home.acquisitionWord}
                   </p>
                   <h2 className="mt-3 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
-                    Handled directly.
+                    {copy.home.acquisitionLine}
                   </h2>
                   <p className="mt-4 text-sm leading-7 text-white/60">
                     Inquiry, review, allocation, delivery, and aftercare stay
@@ -10749,7 +10922,7 @@ const renderWaitlistPage = () => (
                       className="h-[3.4rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
                     >
                       <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                        Private Inquiry
+                        {copy.privateInquiry}
                       </a>
                     </Button>
                     <Button
@@ -10837,8 +11010,16 @@ const renderWaitlistPage = () => (
         description="VIS was resolved with the calm of a museum piece and the discipline of a serious training instrument."
         note="16 oz · lace-up only · top-grain cowhide · technical sparring"
         actions={[
-          { label: "Private Inquiry", href: whatsappVisLink, variant: "primary" },
-          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+          {
+            label: copy.privateInquiry,
+            href: whatsappVisLink,
+            variant: "primary",
+          },
+          {
+            label: waitlistCopy.joinWaitlist,
+            onClick: () => goTo("/waitlist"),
+            variant: "secondary",
+          },
         ]}
         media={{
           image: visImageSources.hero,
@@ -11052,7 +11233,7 @@ const renderWaitlistPage = () => (
             className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
           >
             <a href={whatsappVisLink} target="_blank" rel="noreferrer">
-              Private Inquiry
+              {copy.privateInquiry}
             </a>
           </Button>
           <Button
@@ -11061,7 +11242,7 @@ const renderWaitlistPage = () => (
             onClick={() => goTo("/waitlist")}
             className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
           >
-            Join Waitlist
+            {waitlistCopy.joinWaitlist}
           </Button>
         </div>
       </MobileSectionFrame>
@@ -11071,22 +11252,26 @@ const renderWaitlistPage = () => (
   const renderMobileAcquisitionPage = () => (
     <>
       <MobilePageHeroBanner
-        eyebrow="Private acquisition"
-        title="WhatsApp stays first. The brief stays private."
-        description="A short acquisition brief can be retained quietly before the direct line opens, so the conversation begins with house context instead of public self-introduction."
+        eyebrow={localizedRouteTitles["/acquisition"]}
+        title={acquisitionCopy.heroTitle}
+        description={acquisitionCopy.heroDescription}
         actions={[
           {
-            label: "Open WhatsApp",
+            label: acquisitionCopy.openWhatsapp,
             href: whatsappGeneralLink,
             variant: "primary",
           },
-          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+          {
+            label: acquisitionCopy.joinWaitlist,
+            onClick: () => goTo("/waitlist"),
+            variant: "secondary",
+          },
         ]}
         media={{
           image: homeCinematicMedia.acquisition.poster,
           alt: "Praeliator acquisition hero",
           video: homeCinematicMedia.acquisition.video,
-          badge: "Private acquisition",
+          badge: localizedRouteTitles["/acquisition"],
           overlayTitle: "The route should feel direct, not procedural.",
         }}
         stats={[
@@ -11134,14 +11319,13 @@ const renderWaitlistPage = () => (
         <Container>
           <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.92),rgba(11,10,9,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.28)]">
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
-              Private brief
+              {acquisitionCopy.briefEyebrow}
             </p>
             <h2 className="mt-4 max-w-[12ch] text-[2.7rem] font-semibold leading-[0.88] tracking-[-0.06em] text-[#f4efe7]">
-              Retain the brief, then continue.
+              {acquisitionCopy.briefTitle}
             </h2>
             <p className="mt-5 text-sm leading-7 text-white/60">
-              The house keeps the details first. WhatsApp then opens with a
-              quieter reference instead of a full introduction.
+              {acquisitionCopy.briefDescription}
             </p>
 
             <div className="mt-5 grid gap-3">
@@ -11176,11 +11360,11 @@ const renderWaitlistPage = () => (
                   value={acquisitionWhatsAppForm.title}
                   onChange={handleAcquisitionWhatsAppChange}
                   onBlur={() => handleAcquisitionWhatsAppBlur("title")}
-                  placeholder="Title"
+                  placeholder={acquisitionCopy.titlePlaceholder}
                   options={acquisitionTitleOptions}
                   searchable
-                  searchPlaceholder="Search title"
-                  fieldLabel="Honorific"
+                  searchPlaceholder={acquisitionCopy.titleSearch}
+                  fieldLabel={acquisitionCopy.titleLabel}
                   invalid={Boolean(
                     getVisibleAcquisitionWhatsAppError("title"),
                   )}
@@ -11199,7 +11383,7 @@ const renderWaitlistPage = () => (
                   onBlur={() => handleAcquisitionWhatsAppBlur("fullName")}
                   autoComplete="name"
                   autoCapitalize="words"
-                  placeholder="Full name"
+                  placeholder={acquisitionCopy.namePlaceholder}
                   invalid={Boolean(
                     getVisibleAcquisitionWhatsAppError("fullName"),
                   )}
@@ -11216,8 +11400,8 @@ const renderWaitlistPage = () => (
                   value={acquisitionWhatsAppForm.interest}
                   onChange={handleAcquisitionWhatsAppChange}
                   onBlur={() => handleAcquisitionWhatsAppBlur("interest")}
-                  placeholder="Interest"
-                  options={interestOptions}
+                  placeholder={acquisitionCopy.interestPlaceholder}
+                  options={localizedInterestOptions}
                   invalid={Boolean(
                     getVisibleAcquisitionWhatsAppError("interest"),
                   )}
@@ -11228,8 +11412,7 @@ const renderWaitlistPage = () => (
                 />
                 {!getVisibleAcquisitionWhatsAppError("interest") ? (
                   <FieldNote>
-                    Only the title, name, and interest are retained here before
-                    the direct line opens.
+                    {acquisitionCopy.briefSupport}
                   </FieldNote>
                 ) : null}
               </div>
@@ -11241,8 +11424,8 @@ const renderWaitlistPage = () => (
                   className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                 >
                   {acquisitionWhatsAppState.loading
-                    ? "Retaining brief..."
-                    : "Retain Brief & Open WhatsApp"}
+                    ? acquisitionCopy.retainingBrief
+                    : acquisitionCopy.retainBrief}
                 </Button>
               </div>
 
@@ -11257,11 +11440,11 @@ const renderWaitlistPage = () => (
                   >
                     <div className="border-b border-white/[0.08] px-5 py-4">
                       <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                        Brief retained
+                        {acquisitionCopy.briefRetained}
                       </p>
                       <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
                         {acquisitionWhatsAppState.reference ||
-                          "Reference pending"}
+                          acquisitionCopy.referencePending}
                       </p>
                     </div>
                     <div className="space-y-4 px-5 py-5">
@@ -11269,8 +11452,7 @@ const renderWaitlistPage = () => (
                         {acquisitionWhatsAppState.serviceMessage}
                       </p>
                       <div className="rounded-[1.2rem] border border-white/[0.08] bg-white/[0.018] p-4 text-sm leading-6 text-white/58">
-                        WhatsApp can now stay sparse. The fuller details are
-                        already retained under the house record.
+                        {acquisitionCopy.briefRetainedBody}
                       </div>
                     </div>
                   </motion.div>
@@ -11293,7 +11475,7 @@ const renderWaitlistPage = () => (
                 }}
                 className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
               >
-                Open WhatsApp Without Brief
+                {acquisitionCopy.openWithoutBrief}
               </Button>
             </form>
           </div>
@@ -11305,35 +11487,43 @@ const renderWaitlistPage = () => (
   const renderMobileWaitlistPage = () => (
     <>
       <MobilePageHeroBanner
-        eyebrow="Waitlist"
-        title="A quieter route into future access."
-        description="For future releases, collector interest, and private access. The waitlist exists for clients who want their interest recorded before direct continuation becomes necessary."
-        note="Future releases · collector interest · private follow-up"
+        eyebrow={localizedRouteTitles["/waitlist"]}
+        title={waitlistCopy.heroTitle}
+        description={waitlistCopy.heroDescription}
+        note={waitlistCopy.heroNote}
         actions={[
-          { label: "Direct Inquiry", href: whatsappGeneralLink, variant: "primary" },
-          { label: "Contact", onClick: () => goTo("/contact"), variant: "secondary" },
+          {
+            label: waitlistCopy.directInquiry,
+            href: whatsappGeneralLink,
+            variant: "primary",
+          },
+          {
+            label: waitlistCopy.contact,
+            onClick: () => goTo("/contact"),
+            variant: "secondary",
+          },
         ]}
         stats={pageHeroStats["/waitlist"]}
       />
 
       <MobileSectionFrame
-        eyebrow="Waitlist"
-        title="Client reference returned after submission."
-        description="Every qualified inquiry is reviewed before contact continues."
+        eyebrow={localizedRouteTitles["/waitlist"]}
+        title={waitlistCopy.introTitle}
+        description={waitlistCopy.introDescription}
       >
         <div className="grid gap-3">
           {[
             {
-              title: "Review",
-              text: "Every qualified inquiry is reviewed before contact continues.",
+              title: waitlistCopy.review,
+              text: waitlistCopy.reviewText,
             },
             {
-              title: "Reference",
-              text: "Your returned reference stays attached to the intake record.",
+              title: waitlistCopy.reference,
+              text: waitlistCopy.referenceText,
             },
             {
-              title: "Continuation",
-              text: "If timing matters, the route can continue directly on WhatsApp.",
+              title: waitlistCopy.continuation,
+              text: waitlistCopy.continuationText,
             },
           ].map((item) => (
             <div key={item.title} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
@@ -11368,11 +11558,11 @@ const renderWaitlistPage = () => (
                 value={waitlistForm.title}
                 onChange={(event) => handleWaitlistSelectChange("title", event)}
                 onBlur={() => handleWaitlistBlur("title")}
-                placeholder="Title"
+                placeholder={waitlistCopy.titlePlaceholder}
                 options={titleOptions}
                 searchable
-                searchPlaceholder="Search title"
-                fieldLabel="Honorific"
+                searchPlaceholder={waitlistCopy.titleSearch}
+                fieldLabel={waitlistCopy.titleLabel}
                 success={getFieldSuccess("title")}
                 describedBy={getFieldDescribedBy("title")}
               />
@@ -11384,7 +11574,7 @@ const renderWaitlistPage = () => (
                   onChange={handleWaitlistChange}
                   onBlur={() => handleWaitlistBlur("fullName")}
                   autoComplete="name"
-                  placeholder="Full name *"
+                  placeholder={waitlistCopy.fullNamePlaceholder}
                   invalid={Boolean(getVisibleFieldError("fullName"))}
                   success={getFieldSuccess("fullName")}
                   describedBy={getFieldDescribedBy("fullName")}
@@ -11401,7 +11591,7 @@ const renderWaitlistPage = () => (
                   onBlur={() => handleWaitlistBlur("email")}
                   autoComplete="email"
                   autoCapitalize="none"
-                  placeholder="Email address *"
+                  placeholder={waitlistCopy.emailPlaceholder}
                   invalid={Boolean(getVisibleFieldError("email"))}
                   success={getFieldSuccess("email")}
                   describedBy={getFieldDescribedBy("email")}
@@ -11419,7 +11609,7 @@ const renderWaitlistPage = () => (
                     label: option.label,
                     code: option.code,
                   }))}
-                  placeholder="Country or dial code *"
+                  placeholder={waitlistCopy.countryPlaceholder}
                   exactMatchUpdates
                   fieldLabel="Country"
                   invalid={Boolean(getVisibleFieldError("country"))}
@@ -11439,7 +11629,7 @@ const renderWaitlistPage = () => (
                     autoComplete="tel-country-code"
                     inputMode="tel"
                     maxLength={5}
-                    placeholder="Dial code *"
+                    placeholder={waitlistCopy.dialCodePlaceholder}
                     invalid={Boolean(getVisibleFieldError("phoneCountryCode"))}
                     success={getFieldSuccess("phoneCountryCode")}
                     describedBy={getFieldDescribedBy("phoneCountryCode")}
@@ -11458,7 +11648,7 @@ const renderWaitlistPage = () => (
                     autoComplete="tel-national"
                     inputMode="tel"
                     maxLength={15}
-                    placeholder="Phone number *"
+                    placeholder={waitlistCopy.phonePlaceholder}
                     invalid={Boolean(getVisibleFieldError("whatsapp"))}
                     success={getFieldSuccess("whatsapp")}
                     describedBy={getFieldDescribedBy("whatsapp")}
@@ -11466,7 +11656,7 @@ const renderWaitlistPage = () => (
                   <FieldError id="whatsapp-error" message={getVisibleFieldError("whatsapp")} />
                   {!getVisibleFieldError("whatsapp") ? (
                     <FieldNote>
-                      Use the number where a private follow-up should continue.
+                      {waitlistCopy.phoneSupport}
                     </FieldNote>
                   ) : null}
                 </div>
@@ -11478,8 +11668,8 @@ const renderWaitlistPage = () => (
                   value={waitlistForm.interest}
                   onChange={(event) => handleWaitlistSelectChange("interest", event)}
                   onBlur={() => handleWaitlistBlur("interest")}
-                  placeholder="Interest *"
-                  options={interestOptions}
+                  placeholder={waitlistCopy.interestPlaceholder}
+                  options={localizedInterestOptions}
                   invalid={Boolean(getVisibleFieldError("interest"))}
                   success={getFieldSuccess("interest")}
                   describedBy={getFieldDescribedBy("interest")}
@@ -11493,8 +11683,8 @@ const renderWaitlistPage = () => (
                   value={waitlistForm.timeline}
                   onChange={(event) => handleWaitlistSelectChange("timeline", event)}
                   onBlur={() => handleWaitlistBlur("timeline")}
-                  placeholder="Timeline *"
-                  options={timelineOptions}
+                  placeholder={waitlistCopy.timelinePlaceholder}
+                  options={localizedTimelineOptions}
                   invalid={Boolean(getVisibleFieldError("timeline"))}
                   success={getFieldSuccess("timeline")}
                   describedBy={getFieldDescribedBy("timeline")}
@@ -11510,8 +11700,8 @@ const renderWaitlistPage = () => (
                     handleWaitlistSelectChange("contactPreference", event)
                   }
                   onBlur={() => handleWaitlistBlur("contactPreference")}
-                  placeholder="Preferred contact method *"
-                  options={contactPreferenceOptions}
+                  placeholder={waitlistCopy.contactPlaceholder}
+                  options={localizedContactPreferenceOptions}
                   invalid={Boolean(getVisibleFieldError("contactPreference"))}
                   success={getFieldSuccess("contactPreference")}
                   describedBy={getFieldDescribedBy("contactPreference")}
@@ -11530,10 +11720,10 @@ const renderWaitlistPage = () => (
                   onBlur={() => handleWaitlistBlur("note")}
                   rows={6}
                   className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
-                  placeholder="Optional note"
+                  placeholder={waitlistCopy.notePlaceholder}
                 />
                 <FieldNote>
-                  Any detail that affects timing, use, or preferred contact can go here.
+                  {waitlistCopy.noteSupport}
                 </FieldNote>
               </div>
 
@@ -11549,15 +11739,15 @@ const renderWaitlistPage = () => (
                     ) : null}
                     <span>
                       {waitlistState.loading
-                        ? "Submitting..."
+                        ? waitlistCopy.submitting
                         : getWaitlistCooldownSeconds() > 0
-                          ? `Wait ${getWaitlistCooldownSeconds()}s`
-                          : "Join Waitlist"}
+                          ? `${waitlistCopy.waitPrefix} ${getWaitlistCooldownSeconds()}s`
+                          : waitlistCopy.joinWaitlist}
                     </span>
                   </span>
                 </Button>
                 <FieldNote>
-                  Private review typically continues within one business day.
+                  {waitlistCopy.reviewTiming}
                 </FieldNote>
               </div>
 
@@ -11573,10 +11763,10 @@ const renderWaitlistPage = () => (
                   >
                     <div className="border-b border-white/[0.08] px-5 py-4">
                       <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                        Inquiry received
+                        {waitlistCopy.inquiryReceived}
                       </p>
                       <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7]">
-                        {waitlistState.reference || "Client reference pending"}
+                        {waitlistState.reference || waitlistCopy.referencePending}
                       </p>
                     </div>
                     <div className="space-y-4 px-5 py-5">
@@ -11606,7 +11796,7 @@ const renderWaitlistPage = () => (
                               )
                             }
                           >
-                            Continue on WhatsApp
+                            {waitlistCopy.continueWhatsapp}
                           </a>
                         </Button>
                         <Button
@@ -11615,7 +11805,7 @@ const renderWaitlistPage = () => (
                           onClick={() => goTo("/")}
                           className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
                         >
-                          Return Home
+                          {waitlistCopy.returnHome}
                         </Button>
                       </div>
                     </div>
@@ -11638,27 +11828,27 @@ const renderWaitlistPage = () => (
   const renderMobileContactPage = () => (
     <>
       <MobilePageHeroBanner
-        eyebrow="Direct contact"
-        title="Direct contact, kept simple."
-        description="WhatsApp remains primary for private inquiry. Email and Instagram stay available as quieter secondary paths."
+        eyebrow={localizedRouteTitles["/contact"]}
+        title={contactCopy.heroTitle}
+        description={contactCopy.heroDescription}
         actions={[
-          { label: "Private Inquiry", href: whatsappGeneralLink, variant: "primary" },
-          { label: "Join Waitlist", onClick: () => goTo("/waitlist"), variant: "secondary" },
+          { label: contactCopy.primaryCta, href: whatsappGeneralLink, variant: "primary" },
+          { label: contactCopy.secondaryCta, onClick: () => goTo("/waitlist"), variant: "secondary" },
         ]}
         media={{
           image: visImageSources.packaging,
           alt: "Praeliator contact hero",
           video: homeCinematicMedia.ownership.video,
-          badge: "Direct contact",
+          badge: localizedRouteTitles["/contact"],
           overlayTitle: "One voice, across every channel.",
         }}
         stats={pageHeroStats["/contact"]}
       />
 
       <MobileSectionFrame
-        eyebrow="Primary route"
-        title="WhatsApp remains first."
-        description="For private purchase inquiries and faster continuation, WhatsApp stays primary."
+        eyebrow={contactCopy.primaryCta}
+        title={contactCopy.primaryTitle}
+        description={contactCopy.primaryDescription}
       >
         <div className="flex flex-col gap-3">
           <Button
@@ -11666,7 +11856,7 @@ const renderWaitlistPage = () => (
             className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
           >
             <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-              Open WhatsApp
+              {contactCopy.openWhatsapp}
             </a>
           </Button>
           <Button
@@ -11675,7 +11865,7 @@ const renderWaitlistPage = () => (
             onClick={() => goTo("/waitlist")}
             className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
           >
-            Quieter Entry
+            {contactCopy.quieterEntry}
           </Button>
         </div>
       </MobileSectionFrame>
@@ -11854,19 +12044,17 @@ const renderWaitlistPage = () => (
   };
   const renderSignInPage = () =>
     renderAuthShell({
-      eyebrow: "Access",
-      title: "Sign in to continue into the house.",
-      description:
-        "The Ownership Record is the private record layer where registered pairs, future eligibility, and service continuity are held under the house.",
-      asideTitle: "Account foundation",
-      asideText:
-        "This first release covers sign in, account creation, password reset, email confirmation, and the Ownership Record entry point.",
+      eyebrow: localizedRouteMicroLabels["/sign-in"],
+      title: authCopy.signInTitle,
+      description: authCopy.signInDescription,
+      asideTitle: authCopy.signInAsideTitle,
+      asideText: authCopy.signInAsideText,
       shellTone: "archive",
       shellNote: "Private access / ownership continuity / house memory",
       form: (
         <form className="grid gap-4" onSubmit={handleSignIn}>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.email}</span>
             <input
               id="sign-in-email"
               name="email"
@@ -11877,11 +12065,11 @@ const renderWaitlistPage = () => (
                 setSignInForm((current) => ({ ...current, email: event.target.value }))
               }
               className={archiveAuthInputClass}
-              placeholder="name@example.com"
+              placeholder={authCopy.emailPlaceholder}
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.password}</span>
             <PasswordField
               id="sign-in-password"
               name="password"
@@ -11891,7 +12079,7 @@ const renderWaitlistPage = () => (
                 setSignInForm((current) => ({ ...current, password: event.target.value }))
               }
               className={archiveAuthInputClass}
-              placeholder="Enter your password"
+              placeholder={authCopy.currentPasswordPlaceholder}
             />
           </label>
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
@@ -11900,7 +12088,7 @@ const renderWaitlistPage = () => (
               disabled={authLoading || !authInitialized}
               className={archiveAuthPrimaryButtonClass}
             >
-              {authLoading ? "Signing in..." : "Sign In"}
+              {authLoading ? authCopy.signInSubmitting : authCopy.signInSubmit}
             </Button>
             <Button
               type="button"
@@ -11908,7 +12096,7 @@ const renderWaitlistPage = () => (
               onClick={() => goTo("/forgot-password")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Forgot Password
+              {authCopy.forgotPassword}
             </Button>
             <Button
               type="button"
@@ -11916,17 +12104,17 @@ const renderWaitlistPage = () => (
               onClick={() => goTo("/magic-link")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Email One-Time Code
+              {authCopy.oneTimeCode}
             </Button>
           </div>
           <div className={archiveAuthInlineCopyClass}>
-            No account yet?
+            {authCopy.noAccountYet}
             <button
               type="button"
               onClick={() => goTo("/sign-up")}
               className={archiveAuthInlineLinkClass}
             >
-              Create one
+              {authCopy.createOne}
             </button>
           </div>
         </form>
@@ -11935,19 +12123,17 @@ const renderWaitlistPage = () => (
 
   const renderSignUpPage = () =>
     renderAuthShell({
-      eyebrow: "Access",
-      title: "Create your Ownership Record.",
-      description:
-        "This account becomes the private record layer for registered Praeliator pairs, future eligibility, and continued service under the house.",
-      asideTitle: "Email confirmation",
-      asideText:
-        "Account creation sends a six-digit confirmation code before the record is considered fully active under the house.",
+      eyebrow: localizedRouteMicroLabels["/sign-up"],
+      title: authCopy.signUpTitle,
+      description: authCopy.signUpDescription,
+      asideTitle: authCopy.signUpAsideTitle,
+      asideText: authCopy.signUpAsideText,
       shellTone: "archive",
       shellNote: "Private access / ownership continuity / house memory",
       form: (
         <form className="grid gap-4" onSubmit={handleSignUp}>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Full name</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.fullName}</span>
             <input
               id="sign-up-full-name"
               name="name"
@@ -11959,11 +12145,11 @@ const renderWaitlistPage = () => (
                 setSignUpForm((current) => ({ ...current, fullName: event.target.value }))
               }
               className={archiveAuthInputClass}
-              placeholder="Client name"
+              placeholder={authCopy.fullNamePlaceholder}
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.email}</span>
             <input
               id="sign-up-email"
               name="email"
@@ -11974,12 +12160,12 @@ const renderWaitlistPage = () => (
                 setSignUpForm((current) => ({ ...current, email: event.target.value }))
               }
               className={archiveAuthInputClass}
-              placeholder="name@example.com"
+              placeholder={authCopy.emailPlaceholder}
             />
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.password}</span>
               <PasswordField
                 id="sign-up-password"
                 name="new-password"
@@ -11989,11 +12175,11 @@ const renderWaitlistPage = () => (
                   setSignUpForm((current) => ({ ...current, password: event.target.value }))
                 }
                 className={archiveAuthInputClass}
-                placeholder="Minimum 8 characters"
+                placeholder={authCopy.minimumPasswordPlaceholder}
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.confirmPassword}</span>
               <PasswordField
                 id="sign-up-confirm-password"
                 name="confirm-password"
@@ -12003,7 +12189,7 @@ const renderWaitlistPage = () => (
                   setSignUpForm((current) => ({ ...current, confirmPassword: event.target.value }))
                 }
                 className={archiveAuthInputClass}
-                placeholder="Repeat password"
+                placeholder={authCopy.repeatPasswordPlaceholder}
               />
             </label>
           </div>
@@ -12013,7 +12199,7 @@ const renderWaitlistPage = () => (
               disabled={authLoading}
               className={archiveAuthPrimaryButtonClass}
             >
-              {authLoading ? "Creating account..." : "Create Account"}
+              {authLoading ? authCopy.signUpSubmitting : authCopy.signUpSubmit}
             </Button>
             <Button
               type="button"
@@ -12021,17 +12207,17 @@ const renderWaitlistPage = () => (
               onClick={() => goTo("/sign-in")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Return to Sign In
+              {authCopy.returnToSignIn}
             </Button>
           </div>
           <div className={archiveAuthInlineCopyClass}>
-            Already under the house?
+            {authCopy.alreadyUnderHouse}
             <button
               type="button"
               onClick={() => goTo("/magic-link")}
               className={archiveAuthInlineLinkClass}
             >
-Use a one-time code
+              {authCopy.useOneTimeCode}
             </button>
           </div>
         </form>
@@ -12040,19 +12226,17 @@ Use a one-time code
 
   const renderMagicLinkPage = () =>
     renderAuthShell({
-      eyebrow: "Access",
-      title: "Request a one-time sign-in code.",
-      description:
-        "This route is for existing accounts only. A six-digit code is sent to the inbox and entered here under a dedicated Praeliator verification page before access continues.",
-      asideTitle: "Passwordless access",
-      asideText:
-        "This route does not create new accounts. It is reserved for addresses that are already registered under the house.",
+      eyebrow: localizedRouteMicroLabels["/magic-link"],
+      title: authCopy.magicTitle,
+      description: authCopy.magicDescription,
+      asideTitle: authCopy.magicAsideTitle,
+      asideText: authCopy.magicAsideText,
       shellTone: "archive",
       shellNote: "One-time code / private access / restrained entry",
       form: (
         <form className="grid gap-4" onSubmit={handleMagicLink}>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.email}</span>
             <input
               id="one-time-code-email"
               name="email"
@@ -12061,7 +12245,7 @@ Use a one-time code
               value={magicLinkEmail}
               onChange={(event) => setMagicLinkEmail(event.target.value)}
               className={archiveAuthInputClass}
-              placeholder="name@example.com"
+              placeholder={authCopy.emailPlaceholder}
             />
           </label>
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
@@ -12070,7 +12254,7 @@ Use a one-time code
               disabled={authLoading}
               className={archiveAuthPrimaryButtonClass}
             >
-              {authLoading ? "Sending code..." : "Send One-Time Code"}
+              {authLoading ? authCopy.magicSubmitting : authCopy.magicSubmit}
             </Button>
             <Button
               type="button"
@@ -12078,7 +12262,7 @@ Use a one-time code
               onClick={() => goTo("/sign-in")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Return to Sign In
+              {authCopy.returnToSignIn}
             </Button>
           </div>
         </form>
@@ -12285,19 +12469,17 @@ Use a one-time code
 
   const renderForgotPasswordPage = () =>
     renderAuthShell({
-      eyebrow: "Access",
-      title: "Reset access quietly.",
-      description:
-        "Password recovery stays inside the same private record system. The reset link is delivered by email and returns you to the house to set a new password.",
-      asideTitle: "Reset flow",
-      asideText:
-        "The reset link should return to the dedicated reset route inside the site after email delivery.",
+      eyebrow: localizedRouteMicroLabels["/forgot-password"],
+      title: authCopy.forgotTitle,
+      description: authCopy.forgotDescription,
+      asideTitle: authCopy.forgotAsideTitle,
+      asideText: authCopy.forgotAsideText,
       shellTone: "archive",
       shellNote: "Recovery / account continuity / private access",
       form: (
         <form className="grid gap-4" onSubmit={handleForgotPassword}>
           <label className="grid gap-2">
-            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Email</span>
+            <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.email}</span>
             <input
               id="forgot-password-email"
               name="email"
@@ -12306,7 +12488,7 @@ Use a one-time code
               value={forgotPasswordEmail}
               onChange={(event) => setForgotPasswordEmail(event.target.value)}
               className={archiveAuthInputClass}
-              placeholder="name@example.com"
+              placeholder={authCopy.emailPlaceholder}
             />
           </label>
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
@@ -12315,7 +12497,7 @@ Use a one-time code
               disabled={authLoading}
               className={archiveAuthPrimaryButtonClass}
             >
-              {authLoading ? "Sending reset email..." : "Send Reset Email"}
+              {authLoading ? authCopy.forgotSubmitting : authCopy.forgotSubmit}
             </Button>
             <Button
               type="button"
@@ -12323,7 +12505,7 @@ Use a one-time code
               onClick={() => goTo("/sign-in")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Return to Sign In
+              {authCopy.returnToSignIn}
             </Button>
           </div>
         </form>
@@ -12332,11 +12514,10 @@ Use a one-time code
 
   const renderResetPasswordPage = () =>
     renderAuthShell({
-      eyebrow: "Access",
-      title: "Set the new account password.",
-      description:
-        "This route becomes available after the recovery link has been confirmed. Once updated, the Ownership Record remains under the same account.",
-      asideTitle: "Recovery session",
+      eyebrow: localizedRouteMicroLabels["/reset-password"],
+      title: authCopy.resetTitle,
+      description: authCopy.resetDescription,
+      asideTitle: authCopy.resetAsideTitle,
       asideText:
         authSession
           ? "The recovery session is active. Set the new password to continue."
@@ -12347,7 +12528,7 @@ Use a one-time code
         <form className="grid gap-4" onSubmit={handleResetPassword}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">New password</span>
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.newPassword}</span>
               <PasswordField
                 autoComplete="new-password"
                 value={resetPasswordForm.password}
@@ -12355,11 +12536,11 @@ Use a one-time code
                   setResetPasswordForm((current) => ({ ...current, password: event.target.value }))
                 }
                 className={archiveAuthInputClass}
-                placeholder="Minimum 8 characters"
+                placeholder={authCopy.minimumPasswordPlaceholder}
               />
             </label>
             <label className="grid gap-2">
-              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
+              <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">{authCopy.confirmPassword}</span>
               <PasswordField
                 autoComplete="new-password"
                 value={resetPasswordForm.confirmPassword}
@@ -12367,7 +12548,7 @@ Use a one-time code
                   setResetPasswordForm((current) => ({ ...current, confirmPassword: event.target.value }))
                 }
                 className={archiveAuthInputClass}
-                placeholder="Repeat password"
+                placeholder={authCopy.repeatPasswordPlaceholder}
               />
             </label>
           </div>
@@ -12377,7 +12558,7 @@ Use a one-time code
               disabled={authLoading || !authSession}
               className={archiveAuthPrimaryButtonClass}
             >
-              {authLoading ? "Updating password..." : "Update Password"}
+              {authLoading ? authCopy.resetSubmitting : authCopy.resetSubmit}
             </Button>
             <Button
               type="button"
@@ -12385,7 +12566,7 @@ Use a one-time code
               onClick={() => goTo("/sign-in")}
               className={archiveAuthSecondaryButtonClass}
             >
-              Return to Sign In
+              {authCopy.returnToSignIn}
             </Button>
           </div>
         </form>
@@ -12841,7 +13022,7 @@ Use a one-time code
                       onClick={() => goTo("/sign-in")}
                       className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
                     >
-                      Sign In
+                      {copy.signIn}
                     </Button>
                     <Button
                       type="button"
@@ -12849,7 +13030,7 @@ Use a one-time code
                       onClick={() => goTo("/sign-up")}
                       className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
                     >
-                      Create Account
+                      {ownershipCopy.createAccount}
                     </Button>
                   </div>
                 </div>
@@ -13000,7 +13181,7 @@ Use a one-time code
                       }
                       className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
                     >
-                      Export Ownership Certificate
+                      {ownershipCopy.exportCertificate}
                     </Button>
                     <Button
                       type="button"
@@ -13014,7 +13195,7 @@ Use a one-time code
                       disabled={!latestRetainedPair}
                       className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
                     >
-                      Review Latest Transfer
+                      {ownershipCopy.reviewTransfer}
                     </Button>
                     <Button
                       type="button"
@@ -13022,7 +13203,9 @@ Use a one-time code
                       className="rounded-full bg-[#201914] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
                       disabled={authLoading}
                     >
-                      {authLoading ? "Signing out..." : "Sign Out"}
+                      {authLoading
+                        ? ownershipCopy.signingOut
+                        : ownershipCopy.signOut}
                     </Button>
                   </div>
                 </div>
@@ -13053,7 +13236,7 @@ Use a one-time code
                   <div className="mt-7 grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2">
                       <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
-                        Serial number
+                        {ownershipCopy.serialNumber}
                       </span>
                       <input
                         type="text"
@@ -13074,7 +13257,7 @@ Use a one-time code
                     </label>
                     <label className="grid gap-2">
                       <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
-                        Claim code
+                        {ownershipCopy.claimCode}
                       </span>
                       <input
                         type="text"
@@ -13113,7 +13296,9 @@ Use a one-time code
                       disabled={authLoading || ownershipLoading}
                       className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_16px_40px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
                     >
-                      {authLoading ? "Registering pair..." : "Register Pair"}
+                      {authLoading
+                        ? "Registering pair..."
+                        : ownershipCopy.registerPair}
                     </Button>
                     <Button
                       type="button"
@@ -13525,7 +13710,7 @@ Use a one-time code
                     onClick={() => goTo("/sign-in")}
                     className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
                   >
-                    Sign In
+                    {copy.signIn}
                   </Button>
                   <Button
                     type="button"
@@ -13533,7 +13718,7 @@ Use a one-time code
                     onClick={() => goTo("/sign-up")}
                     className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7]"
                   >
-                    Create Account
+                      {ownershipCopy.createAccount}
                   </Button>
                 </div>
               </div>
@@ -13662,7 +13847,7 @@ Use a one-time code
                     }
                     className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410]"
                   >
-                    Export Ownership Certificate
+                    {ownershipCopy.exportCertificate}
                   </Button>
                   <Button
                     type="button"
@@ -13676,7 +13861,7 @@ Use a one-time code
                     disabled={!latestRetainedPair}
                     className="rounded-full border-[#cdbca7] bg-transparent px-7 py-6 text-sm text-[#3f3126] transition duration-500 hover:-translate-y-0.5 hover:border-[#b69b7d] hover:bg-[#f8f1e7] disabled:pointer-events-none disabled:opacity-50"
                   >
-                    Review Latest Transfer
+                    {ownershipCopy.reviewTransfer}
                   </Button>
                   <Button
                     type="button"
@@ -13684,7 +13869,9 @@ Use a one-time code
                     className="rounded-full bg-[#201914] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
                     disabled={authLoading}
                   >
-                    {authLoading ? "Signing out..." : "Sign Out"}
+                    {authLoading
+                      ? ownershipCopy.signingOut
+                      : ownershipCopy.signOut}
                   </Button>
                 </div>
               </div>
@@ -13715,7 +13902,7 @@ Use a one-time code
                 <form className="mt-6 grid gap-4" onSubmit={handleRegisterPair}>
                   <label className="grid gap-2">
                     <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
-                      Serial number
+                      {ownershipCopy.serialNumber}
                     </span>
                     <input
                       type="text"
@@ -13736,7 +13923,7 @@ Use a one-time code
                   </label>
                   <label className="grid gap-2">
                     <span className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
-                      Claim code
+                      {ownershipCopy.claimCode}
                     </span>
                     <input
                       type="text"
@@ -13774,7 +13961,9 @@ Use a one-time code
                       disabled={authLoading || ownershipLoading}
                       className="rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60"
                     >
-                      {authLoading ? "Attaching pair..." : "Register Pair"}
+                      {authLoading
+                        ? "Attaching pair..."
+                        : ownershipCopy.registerPair}
                     </Button>
                     <Button
                       type="button"
@@ -14060,8 +14249,13 @@ Use a one-time code
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
-                className="flex items-center gap-6"
+                className="flex items-center gap-4"
               >
+                <LanguageSwitcher
+                  locale={locale}
+                  onChange={setLocale}
+                  label={copy.languageLabel}
+                />
                 <button
                   type="button"
                   onClick={() => goTo(authPrimaryRoute)}
@@ -14075,7 +14269,7 @@ Use a one-time code
                   rel="noreferrer"
                   className="text-[11px] uppercase tracking-[0.34em] text-white/74 transition duration-500 hover:text-white"
                 >
-                  Private Inquiry
+                  {copy.privateInquiry}
                 </a>
               </motion.div>
             </Container>
@@ -14110,7 +14304,7 @@ Use a one-time code
                   <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
                     <div className="border-t border-white/[0.08] pt-6 sm:pt-8">
                       <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-10">
-                        {[{ label: authPrimaryLabel, path: authPrimaryRoute }, ...navItems].map((item, index) => (
+                        {headerMenuItems.map((item, index) => (
                           <motion.button
                             key={item.path}
                             type="button"
@@ -14130,17 +14324,7 @@ Use a one-time code
                                 {item.label}
                               </p>
                               <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/34 transition duration-500 group-hover:text-[#b9a18d]">
-                                {item.label === "VIS"
-                                  ? "Flagship"
-                                  : item.label === "Acquisition"
-                                    ? "Private route"
-                                    : item.label === "Waitlist"
-                                      ? "Future access"
-                                      : item.label === "Ownership Record"
-                                        ? "Private account"
-                                        : item.label === "Sign In"
-                                          ? "Account access"
-                                          : "Direct contact"}
+                                {item.meta}
                               </p>
                             </div>
                             <ChevronRight className="h-4 w-4 shrink-0 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
@@ -14167,6 +14351,10 @@ Use a one-time code
           goTo={goTo}
           authPrimaryRoute={authPrimaryRoute}
           authPrimaryLabel={authPrimaryLabel}
+          locale={locale}
+          onLocaleChange={setLocale}
+          languageLabel={copy.languageLabel}
+          menuItems={headerMenuItems}
         />
       )}
 
@@ -14196,6 +14384,9 @@ Use a one-time code
           whatsappGeneralLink={whatsappGeneralLink}
           instagramLink={instagramLink}
           emailLink={emailLink}
+          privateInquiryLabel={copy.privateInquiry}
+          waitlistLabel={waitlistCopy.joinWaitlist}
+          navLinks={localizedNavItems.map(({ label, path }) => ({ label, path }))}
         />
       ) : (
         <MobileClubFooter
@@ -14203,6 +14394,9 @@ Use a one-time code
           whatsappGeneralLink={whatsappGeneralLink}
           instagramLink={instagramLink}
           emailLink={emailLink}
+          privateInquiryLabel={copy.privateInquiry}
+          waitlistLabel={waitlistCopy.joinWaitlist}
+          navLinks={localizedNavItems.map(({ label, path }) => ({ label, path }))}
         />
       )}
     </div>
