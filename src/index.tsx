@@ -1974,7 +1974,7 @@ function OwnershipChamberSequence({
             <p className="text-[10px] uppercase tracking-[0.18em] text-[#9f7d58]">
               {marker.label}
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#5b4c40]">
+            <p className="mt-2 text-sm leading-6 text-[#433429]">
               {marker.value}
             </p>
           </div>
@@ -2004,7 +2004,7 @@ function OwnershipContinuityTimeline({
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">
               {step.title}
             </p>
-            <p className="mt-3 text-sm leading-7 text-[#5b4c40]">{step.text}</p>
+            <p className="mt-3 text-sm leading-7 text-[#433429]">{step.text}</p>
           </div>
         </div>
       ))}
@@ -2038,7 +2038,7 @@ function OwnershipServiceLedger({
                 {entry.date}
               </p>
             </div>
-            <p className="mt-2 text-sm leading-6 text-[#5b4c40]">
+            <p className="mt-2 text-sm leading-6 text-[#433429]">
               {entry.detail}
             </p>
           </div>
@@ -2129,7 +2129,7 @@ function OwnershipPairFolio({
             </div>
           </div>
 
-          <p className="mt-5 max-w-xl text-sm leading-7 text-[#5b4c40]">
+          <p className="mt-5 max-w-xl text-sm leading-7 text-[#433429]">
             Registered on {formatOwnershipDate(pair.registeredAt)}. Delivery was
             recorded on {formatOwnershipDate(pair.deliveryConfirmedAt)}. {pairAge.detail}
           </p>
@@ -2179,7 +2179,7 @@ function OwnershipPairFolio({
                 <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">
                   Legacy Refresh invitation
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                <p className="mt-3 text-sm leading-7 text-[#433429]">
                   {pair.legacyRefreshEligible
                     ? "This pair has crossed its recorded threshold. The next step is invitation and private review, never open booking."
                     : "The invitation remains sealed until the recorded maturity date is reached under the house rules."}
@@ -2196,7 +2196,7 @@ function OwnershipPairFolio({
                 <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">
                   Record note
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                <p className="mt-3 text-sm leading-7 text-[#433429]">
                   {recordState.detail}
                 </p>
               </div>
@@ -2204,7 +2204,7 @@ function OwnershipPairFolio({
                 <p className="text-[10px] uppercase tracking-[0.18em] text-[#8d755c]">
                   Edition note
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                <p className="mt-3 text-sm leading-7 text-[#433429]">
                   {editionTheme.subtitle}. The house keeps each line distinct so
                   repeated folios still feel singular in the archive.
                 </p>
@@ -2287,35 +2287,78 @@ function LegacyRefreshChamberDialog({
     setStage("invitation");
   }, [pair.id]);
 
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !submitting) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, submitting]);
+
   return (
     <motion.div
-      className="fixed inset-0 z-[160] flex items-end justify-center bg-[rgba(29,21,15,0.42)] px-3 pb-3 pt-12 backdrop-blur-[10px] sm:items-center sm:px-6 sm:py-6"
+      className="fixed inset-0 z-[180] bg-[radial-gradient(circle_at_top,rgba(214,186,149,0.2),transparent_28%),rgba(26,18,12,0.72)] backdrop-blur-[16px]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.26, ease: easeLuxury }}
-      onClick={() => {
-        if (submitting) return;
-        onClose();
-      }}
     >
       <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        initial={{ opacity: 0, y: 18, scale: 0.995 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 18, scale: 0.985 }}
+        exit={{ opacity: 0, y: 12, scale: 0.995 }}
         transition={{ duration: 0.34, ease: easeLuxury }}
-        className={`ownership-grain relative max-h-[calc(100svh-1.5rem)] w-full max-w-[74rem] overflow-hidden rounded-[2rem] border text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] sm:max-h-[calc(100svh-3rem)] sm:rounded-[2.2rem] ${editionTheme.surfaceClassName}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`legacy-refresh-title-${pair.id}`}
+        className={`ownership-grain relative h-[100svh] w-screen overflow-hidden rounded-none border-0 text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] ${editionTheme.surfaceClassName}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
-          className={`pointer-events-none absolute inset-y-0 left-0 w-[0.65rem] ${editionTheme.accentBarClassName}`}
+          className={`pointer-events-none absolute inset-y-0 left-0 w-[0.7rem] ${editionTheme.accentBarClassName}`}
         />
         <OwnershipWatermark
           className="right-[-2.5rem] top-[-2.5rem] h-44 w-44 sm:h-56 sm:w-56"
           opacityClassName="opacity-[0.055]"
         />
-        <div className="grid max-h-[calc(100svh-1.5rem)] gap-0 overflow-y-auto overscroll-contain sm:max-h-[calc(100svh-3rem)] lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="relative border-b border-[#d8c9b5] p-6 sm:p-8 lg:border-b-0 lg:border-r">
+        <div className="relative flex h-full min-h-0 flex-col">
+          <div className="relative z-10 border-b border-[#d9c7b0] bg-[rgba(250,244,236,0.9)] px-5 py-4 backdrop-blur-xl sm:px-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#8f6e4c]">
+                  Legacy Refresh chamber
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#3f3126]">
+                  Full review environment for {pair.serial}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={submitting}
+                className="inline-flex items-center justify-center rounded-full border border-[#ccb89d] bg-[#fff8ef] px-4 py-2 text-[10px] uppercase tracking-[0.24em] text-[#3f3126] transition duration-300 hover:border-[#b69b7d] hover:bg-[#f8eee1] disabled:pointer-events-none disabled:opacity-60"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          <div className="grid min-h-0 flex-1 gap-0 overflow-y-auto overscroll-contain lg:grid-cols-[0.92fr_1.08fr]">
+          <div className="relative border-b border-[#d8c9b5] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
             <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
               Legacy Refresh invitation
             </p>
@@ -2324,7 +2367,10 @@ function LegacyRefreshChamberDialog({
             >
               {editionTheme.title}
             </div>
-            <h3 className="ownership-display mt-4 text-[2.95rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]">
+            <h3
+              id={`legacy-refresh-title-${pair.id}`}
+              className="ownership-display mt-4 text-[2.95rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]"
+            >
               {pair.serial}
             </h3>
             <div
@@ -2332,7 +2378,7 @@ function LegacyRefreshChamberDialog({
             >
               {recordState.label}
             </div>
-            <p className="mt-5 max-w-md text-sm leading-7 text-[#55473b]">
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#433429]">
               A Legacy Refresh opening is an invitation to consideration, not an
               instant booking. The house reviews condition, age, timing, and
               continuity before intake is confirmed.
@@ -2366,7 +2412,7 @@ function LegacyRefreshChamberDialog({
             </div>
           </div>
 
-          <div className="relative p-6 sm:p-8">
+          <div className="relative p-6 sm:p-8 lg:p-10">
             <AnimatePresence mode="wait" initial={false}>
               {stage === "invitation" ? (
                 <motion.div
@@ -2377,7 +2423,7 @@ function LegacyRefreshChamberDialog({
                   transition={{ duration: 0.28, ease: easeLuxury }}
                   className="grid gap-5"
                 >
-                  <div className="rounded-[1.7rem] border border-[#dbcab5] bg-[linear-gradient(180deg,rgba(251,245,238,0.98),rgba(242,232,219,0.98))] p-6 text-center shadow-[0_18px_44px_rgba(77,53,30,0.08)]">
+                  <div className="rounded-[1.7rem] border border-[#dbcab5] bg-[linear-gradient(180deg,rgba(251,245,238,0.98),rgba(242,232,219,0.98))] p-6 text-center shadow-[0_18px_44px_rgba(77,53,30,0.08)] sm:p-8">
                     <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#d4c19f] bg-[radial-gradient(circle_at_top,rgba(255,252,245,0.95),rgba(240,229,214,0.96))] shadow-[0_14px_34px_rgba(77,53,30,0.08)]">
                       <img
                         src={brandAssetPaths.ownershipFaviconMark}
@@ -2393,7 +2439,7 @@ function LegacyRefreshChamberDialog({
                     <h4 className="ownership-display mt-4 text-[2.35rem] font-semibold leading-[0.86] tracking-[-0.05em] text-[#231b15]">
                       Legacy Refresh is now willing to hear this pair.
                     </h4>
-                    <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#5b4c40]">
+                    <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#433429]">
                       Proceed only if the pair is ready to be considered under the
                       house line. What follows is a request for review, not a
                       transaction.
@@ -2428,7 +2474,7 @@ function LegacyRefreshChamberDialog({
                         <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-[#7d6a59]">
                           {item.title}
                         </p>
-                        <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                        <p className="mt-3 text-sm leading-7 text-[#433429]">
                           {item.text}
                         </p>
                       </div>
@@ -2441,7 +2487,7 @@ function LegacyRefreshChamberDialog({
                       onClick={() => setStage("review")}
                       className={`rounded-full px-7 py-6 text-sm transition duration-500 hover:-translate-y-0.5 ${editionTheme.buttonClassName}`}
                     >
-                      Open the Invitation
+                      Continue into Private Review
                     </Button>
                     <Button
                       type="button"
@@ -2469,7 +2515,7 @@ function LegacyRefreshChamberDialog({
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">
                         Private review statement
                       </p>
-                      <p className="mt-3 max-w-xl text-sm leading-7 text-[#5b4c40]">
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-[#433429]">
                         Use the note only for meaningful context: current
                         condition, travel history, desired timing, or anything
                         the house should understand before review begins.
@@ -2478,7 +2524,7 @@ function LegacyRefreshChamberDialog({
                     <button
                       type="button"
                       onClick={() => setStage("invitation")}
-                      className="text-[11px] uppercase tracking-[0.22em] text-[#7d6a59] transition hover:text-[#231b15]"
+                      className="text-[11px] uppercase tracking-[0.22em] text-[#5f4a39] transition hover:text-[#231b15]"
                     >
                       Invitation
                     </button>
@@ -2488,7 +2534,7 @@ function LegacyRefreshChamberDialog({
                     <p className="text-[10px] uppercase tracking-[0.22em] text-[#9f7d58]">
                       What the house considers
                     </p>
-                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                    <p className="mt-3 text-sm leading-7 text-[#433429]">
                       The record, current condition, intended timing, and the
                       continuity of the pair under the house line.
                     </p>
@@ -2504,7 +2550,7 @@ function LegacyRefreshChamberDialog({
                       onChange={(event) =>
                         onNoteChange(event.target.value.slice(0, 500))
                       }
-                      className={`${formFieldBaseClass} min-h-[10rem] resize-none border-[#d0bea6] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      className={`${formFieldBaseClass} min-h-[12rem] resize-none border-[#c9b392] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#7d6753]/78 focus:border-[#9c7851]`}
                       placeholder="Condition, timing, or context for private review."
                       maxLength={500}
                     />
@@ -2516,7 +2562,7 @@ function LegacyRefreshChamberDialog({
                   </div>
 
                   <div className="rounded-[1.25rem] border border-[#d7c8b5] bg-[linear-gradient(180deg,rgba(248,240,228,0.96),rgba(241,230,216,0.98))] p-4">
-                    <p className="text-sm leading-7 text-[#5b4c40]">
+                    <p className="text-sm leading-7 text-[#433429]">
                       Submission enters private review under the same Ownership
                       Record. Approval, decline, and completion remain visible on
                       this pair's line.
@@ -2551,6 +2597,7 @@ function LegacyRefreshChamberDialog({
               )}
             </AnimatePresence>
           </div>
+        </div>
         </div>
       </motion.div>
     </motion.div>
@@ -2958,7 +3005,7 @@ function HouseLetterCard({
         <h3 className="ownership-display mt-4 max-w-[12ch] text-[2.4rem] font-semibold leading-[0.86] tracking-[-0.05em] text-[#231b15] sm:text-[2.9rem]">
           {title}
         </h3>
-        <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5b4c40] sm:text-base sm:leading-8">
+        <p className="mt-5 max-w-2xl text-sm leading-7 text-[#433429] sm:text-base sm:leading-8">
           {body}
         </p>
         <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[#7d6753]">
@@ -3997,6 +4044,7 @@ function MobileHeader({
   locale,
   onLocaleChange,
   languageLabel,
+  menuLabel,
   menuItems,
 }: {
   route: Route;
@@ -4013,6 +4061,7 @@ function MobileHeader({
   locale: SiteLocale;
   onLocaleChange: (locale: SiteLocale) => void;
   languageLabel: string;
+  menuLabel: string;
   menuItems: Array<{ label: string; path: Route; meta: string }>;
 }) {
   return (
@@ -4031,12 +4080,15 @@ function MobileHeader({
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileMenuOpen((current) => !current)}
-            className="inline-flex h-11 w-11 items-center justify-center bg-transparent text-white/82 transition duration-300 hover:text-white md:h-12 md:w-12"
+            className="group inline-flex min-h-[3.4rem] w-14 flex-col items-center justify-center gap-1 bg-transparent text-white/82 transition duration-300 hover:text-white md:min-h-[3.7rem] md:w-16"
           >
             <PraeliatorMenuWreathIcon
               open={mobileMenuOpen}
               className="h-[2.25rem] w-[2.25rem] md:h-[2.55rem] md:w-[2.55rem]"
             />
+            <span className="text-[8px] uppercase tracking-[0.28em] text-white/52 transition duration-300 group-hover:text-white/76 md:text-[9px]">
+              {menuLabel}
+            </span>
           </button>
 
           <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -12938,7 +12990,7 @@ const renderWaitlistPage = () => (
               <h1 className="ownership-display mt-4 max-w-[12ch] text-[3.25rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15] sm:text-[4rem]">
                 Preparing the private archive.
               </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#55473b]">
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-[#433429]">
                 The current client line is being restored now. Registered pairs,
                 delivery age, and Legacy Refresh continuity will appear here once
                 the session has been confirmed.
@@ -12979,7 +13031,7 @@ const renderWaitlistPage = () => (
                   <h1 className="ownership-display mt-5 max-w-[12ch] text-[3.35rem] font-semibold leading-[0.8] tracking-[-0.055em] text-[#231b15] sm:text-[4.4rem]">
                     This archive opens only under a verified client line.
                   </h1>
-                  <p className="mt-5 max-w-2xl text-sm leading-7 text-[#55473b]">
+                  <p className="mt-5 max-w-2xl text-sm leading-7 text-[#433429]">
                     Sign in or create an account to enter the Ownership Record.
                     Once authenticated, registration, delivery age, and Legacy
                     Refresh continuity all remain under the same private line.
@@ -12992,7 +13044,7 @@ const renderWaitlistPage = () => (
                   <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
                     Access routes
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                  <p className="mt-4 text-sm leading-7 text-[#433429]">
                     The private layer begins as a controlled threshold: identity
                     first, then ownership continuity, then service.
                   </p>
@@ -13123,7 +13175,7 @@ const renderWaitlistPage = () => (
                   <h1 className="ownership-display mt-5 max-w-[12ch] text-[3.6rem] font-semibold leading-[0.78] tracking-[-0.06em] text-[#231b15] sm:text-[4.85rem]">
                     A private certificate of custody, continuity, and service.
                   </h1>
-                  <p className="mt-5 max-w-3xl text-sm leading-7 text-[#55473b] sm:text-base sm:leading-8">
+                  <p className="mt-5 max-w-3xl text-sm leading-7 text-[#433429] sm:text-base sm:leading-8">
                     The Ownership Record is not an account center. It is the
                     authored register where pairs are retained under the house,
                     aged from recorded delivery, and advanced into Legacy Refresh
@@ -13162,10 +13214,10 @@ const renderWaitlistPage = () => (
                   <p className="text-[11px] uppercase tracking-[0.26em] text-[#9f7d58]">
                     Current posture
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                  <p className="mt-4 text-sm leading-7 text-[#433429]">
                     {ownershipInvitationLine}
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                  <p className="mt-4 text-sm leading-7 text-[#433429]">
                     {ownershipReviewLine}
                   </p>
 
@@ -13227,7 +13279,7 @@ const renderWaitlistPage = () => (
                     </div>
                   </div>
 
-                  <p className="mt-5 max-w-2xl text-sm leading-7 text-[#55473b]">
+                  <p className="mt-5 max-w-2xl text-sm leading-7 text-[#433429]">
                     Serial and claim code admit a real pair into custody. Once
                     entered, the object keeps its recorded delivery date, service
                     maturity, and future review under this same line.
@@ -13278,7 +13330,7 @@ const renderWaitlistPage = () => (
                     </label>
                   </div>
 
-                  <div className="mt-5 rounded-[1.35rem] border border-[#dbcab5] bg-[#f8f1e7] px-4 py-4 text-sm leading-7 text-[#5b4c40]">
+                  <div className="mt-5 rounded-[1.35rem] border border-[#dbcab5] bg-[#f8f1e7] px-4 py-4 text-sm leading-7 text-[#433429]">
                     A claim code is consumed once. The pair then continues under
                     custody, recorded age, and future service review rather than
                     anonymous product ownership.
@@ -13321,7 +13373,7 @@ const renderWaitlistPage = () => (
                   <h3 className="ownership-display mt-4 max-w-[12ch] text-[2.4rem] font-semibold leading-[0.84] tracking-[-0.05em] text-[#231b15] sm:text-[3rem]">
                     The record decides when the next invitation opens.
                   </h3>
-                  <p className="mt-5 text-sm leading-7 text-[#55473b]">
+                  <p className="mt-5 text-sm leading-7 text-[#433429]">
                     Legacy Refresh never opens because a form exists. It opens
                     because the retained pair has reached the date the house
                     recorded for it.
@@ -13332,7 +13384,7 @@ const renderWaitlistPage = () => (
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
                         Next invitation
                       </p>
-                      <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                      <p className="mt-3 text-sm leading-7 text-[#433429]">
                         {nextLegacyRefreshPair
                           ? `${nextLegacyRefreshPair.serial} opens on ${formatOwnershipDate(nextLegacyRefreshPair.legacyRefreshEligibleOn)}.`
                           : ownershipPairs.length
@@ -13344,7 +13396,7 @@ const renderWaitlistPage = () => (
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
                         Latest retention
                       </p>
-                      <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                      <p className="mt-3 text-sm leading-7 text-[#433429]">
                         {latestRetainedPair
                           ? `${latestRetainedPair.serial} entered the record on ${formatOwnershipDate(latestRetainedPair.registeredAt)}.`
                           : "No pair has yet been retained under this line."}
@@ -13368,7 +13420,7 @@ const renderWaitlistPage = () => (
                   <h2 className="ownership-display mt-4 max-w-[13ch] text-[3rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#f3e8d8] sm:text-[3.85rem]">
                     Every retained pair should feel singular in the archive.
                   </h2>
-                  <p className="mt-5 max-w-3xl text-sm leading-7 text-white/62">
+                  <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">
                     The folios below are object records: dated from delivery,
                     held under custody, and advanced into service only when the
                     pair has earned that progression under the house rules.
@@ -13406,7 +13458,7 @@ const renderWaitlistPage = () => (
                     <h3 className="ownership-display mt-4 max-w-[12ch] text-[2.5rem] font-semibold leading-[0.84] tracking-[-0.05em] text-[#231b15] sm:text-[3rem]">
                       No pair is under record yet.
                     </h3>
-                    <p className="mt-5 max-w-2xl text-sm leading-7 text-[#55473b]">
+                    <p className="mt-5 max-w-2xl text-sm leading-7 text-[#433429]">
                       Registration is still the first step. Once a real pair is
                       retained, the archive begins to show age, eligibility, and
                       future continuity.
@@ -13442,7 +13494,7 @@ const renderWaitlistPage = () => (
                     <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
                       Certificate chamber
                     </p>
-                    <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                    <p className="mt-4 text-sm leading-7 text-[#433429]">
                       Export a house-grade PDF certificate whenever the current
                       line needs an offline record of custody, delivery age, and
                       present service posture.
@@ -13488,7 +13540,7 @@ const renderWaitlistPage = () => (
                     <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
                       Transfer review
                     </p>
-                    <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                    <p className="mt-4 text-sm leading-7 text-[#433429]">
                       When custody is meant to continue under another client
                       line, the house reviews the transition before the record
                       is allowed to move.
@@ -13500,7 +13552,7 @@ const renderWaitlistPage = () => (
                           key={item}
                           className="rounded-[1.2rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4"
                         >
-                          <p className="text-sm leading-7 text-[#5b4c40]">
+                          <p className="text-sm leading-7 text-[#433429]">
                             {item}
                           </p>
                         </div>
@@ -13534,7 +13586,7 @@ const renderWaitlistPage = () => (
                       <p className="text-[11px] uppercase tracking-[0.24em] text-[#9f7d58]">
                         Current ledger
                       </p>
-                      <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                      <p className="mt-4 text-sm leading-7 text-[#433429]">
                         The latest retained pair remains visible as a living
                         sequence of registration, age, and service posture.
                       </p>
@@ -13558,7 +13610,7 @@ const renderWaitlistPage = () => (
               <h2 className="ownership-display mt-4 max-w-[12ch] text-[2.7rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#f3e8d8] sm:text-[3.4rem]">
                 The archive should speak back.
               </h2>
-              <p className="mt-5 max-w-3xl text-sm leading-7 text-white/62">
+              <p className="mt-5 max-w-3xl text-sm leading-7 text-white/78">
                 Ownership feels deeper when the record produces correspondence:
                 retention, invitation, review, and continuity framed as house
                 memory rather than as software state.
@@ -13661,7 +13713,7 @@ const renderWaitlistPage = () => (
               <h1 className="ownership-display mt-4 max-w-[10ch] text-[2.8rem] font-semibold leading-[0.82] tracking-[-0.055em] text-[#231b15]">
                 Preparing the private archive.
               </h1>
-              <p className="mt-5 text-sm leading-7 text-[#55473b]">
+              <p className="mt-5 text-sm leading-7 text-[#433429]">
                 The current client line is being restored now. Registered pairs,
                 delivery age, and Legacy Refresh continuity will appear here once
                 the session has been confirmed.
@@ -13694,7 +13746,7 @@ const renderWaitlistPage = () => (
                 <h1 className="ownership-display mt-4 max-w-[9ch] text-[2.85rem] font-semibold leading-[0.8] tracking-[-0.055em] text-[#231b15]">
                   This archive opens only under a verified client line.
                 </h1>
-                <p className="mt-5 text-sm leading-7 text-[#55473b]">
+                <p className="mt-5 text-sm leading-7 text-[#433429]">
                   Sign in or create an account to enter the Ownership Record.
                   Once authenticated, registration, delivery age, and Legacy
                   Refresh continuity all remain under the same private line.
@@ -13764,7 +13816,7 @@ const renderWaitlistPage = () => (
                   <h1 className="ownership-display mt-4 max-w-[10ch] text-[3rem] font-semibold leading-[0.8] tracking-[-0.06em] text-[#231b15]">
                     {ownershipClientName}
                   </h1>
-                  <p className="mt-3 break-all text-sm leading-7 text-[#5b4c40]">
+                  <p className="mt-3 break-all text-sm leading-7 text-[#433429]">
                     {authSession.user.email ?? "Current client"}
                   </p>
                 </div>
@@ -13773,7 +13825,7 @@ const renderWaitlistPage = () => (
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
                     Record of Ownership
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                  <p className="mt-4 text-sm leading-7 text-[#433429]">
                     A private certificate of custody, continuity, and service.
                     Registered pairs remain tied to recorded delivery age and
                     advance into Legacy Refresh only when the object itself has
@@ -13821,7 +13873,7 @@ const renderWaitlistPage = () => (
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
                       Current posture
                     </p>
-                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                    <p className="mt-3 text-sm leading-7 text-[#433429]">
                       {ownershipInvitationLine}
                     </p>
                   </div>
@@ -13829,7 +13881,7 @@ const renderWaitlistPage = () => (
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
                       Review posture
                     </p>
-                    <p className="mt-3 text-sm leading-7 text-[#5b4c40]">
+                    <p className="mt-3 text-sm leading-7 text-[#433429]">
                       {ownershipReviewLine}
                     </p>
                   </div>
@@ -13893,7 +13945,7 @@ const renderWaitlistPage = () => (
                 <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.5rem] font-semibold leading-[0.84] tracking-[-0.05em] text-[#231b15]">
                   Register a pair under the house.
                 </h2>
-                <p className="mt-4 text-sm leading-7 text-[#55473b]">
+                <p className="mt-4 text-sm leading-7 text-[#433429]">
                   Serial and claim code admit a real pair into custody. Once
                   entered, the object keeps its recorded delivery date, service
                   maturity, and future review under this same line.
@@ -13943,7 +13995,7 @@ const renderWaitlistPage = () => (
                     />
                   </label>
 
-                  <div className="rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4 text-sm leading-7 text-[#5b4c40]">
+                  <div className="rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4 text-sm leading-7 text-[#433429]">
                     The first claim is treated as an ownership act. Once the
                     pair is sealed under the record, future movement belongs to
                     release or review, not another open claim.
@@ -13984,7 +14036,7 @@ const renderWaitlistPage = () => (
                 <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
                   Continuity chamber
                 </p>
-                <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                <p className="mt-4 text-sm leading-7 text-[#433429]">
                   Registration, maturation, private review, and return should
                   read as one continuous house logic.
                 </p>
@@ -14005,7 +14057,7 @@ const renderWaitlistPage = () => (
               <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.6rem] font-semibold leading-[0.84] tracking-[-0.055em] text-[#f3e8d8]">
                 The archive should feel singular, even in sequence.
               </h2>
-              <p className="mt-4 text-sm leading-7 text-white/62">
+              <p className="mt-4 text-sm leading-7 text-white/78">
                 Each retained pair holds identity, age, and service posture in a
                 single authored folio.
               </p>
@@ -14049,7 +14101,7 @@ const renderWaitlistPage = () => (
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#9f7d58]">
                     Current ledger
                   </p>
-                  <p className="mt-4 text-sm leading-7 text-[#5b4c40]">
+                  <p className="mt-4 text-sm leading-7 text-[#433429]">
                     The latest retained pair remains visible as a living sequence
                     of registration, age, and service posture.
                   </p>
@@ -14066,7 +14118,7 @@ const renderWaitlistPage = () => (
                 <h2 className="ownership-display mt-4 max-w-[10ch] text-[2.45rem] font-semibold leading-[0.86] tracking-[-0.055em] text-[#f3e8d8]">
                   The archive should speak back.
                 </h2>
-                <p className="mt-4 text-sm leading-7 text-white/62">
+                <p className="mt-4 text-sm leading-7 text-white/78">
                   Ownership deepens when the record produces correspondence:
                   retention, invitation, review, and continuity framed as house
                   memory rather than software state.
@@ -14218,7 +14270,7 @@ const renderWaitlistPage = () => (
                 transition={{ duration: 0.8, ease: easeLuxury }}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 onClick={() => setMobileMenuOpen((current) => !current)}
-                className="group inline-flex h-12 w-12 items-center justify-center bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+                className="group inline-flex min-h-[3.7rem] w-16 flex-col items-center justify-center gap-1 bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
               >
                 <motion.span
                   animate={{
@@ -14233,6 +14285,9 @@ const renderWaitlistPage = () => (
                     className="h-[2.9rem] w-[2.9rem]"
                   />
                 </motion.span>
+                <span className="text-[8px] uppercase tracking-[0.3em] text-white/52 transition duration-300 group-hover:text-white/76">
+                  {copy.menuLabel}
+                </span>
                 <span className="sr-only">
                   {mobileMenuOpen ? "Close menu" : "Open menu"}
                 </span>
@@ -14354,6 +14409,7 @@ const renderWaitlistPage = () => (
           locale={locale}
           onLocaleChange={setLocale}
           languageLabel={copy.languageLabel}
+          menuLabel={copy.menuLabel}
           menuItems={headerMenuItems}
         />
       )}

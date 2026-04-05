@@ -33,6 +33,7 @@ export function getInitialSiteLocale(): SiteLocale {
 export const siteCopy = {
   en: {
     languageLabel: "Language",
+    menuLabel: "Menu",
     privateInquiry: "Private Inquiry",
     signIn: "Sign In",
     ownershipRecord: "Ownership Record",
@@ -270,6 +271,7 @@ export const siteCopy = {
   },
   es: {
     languageLabel: "Idioma",
+    menuLabel: "Menu",
     privateInquiry: "Consulta privada",
     signIn: "Iniciar sesión",
     ownershipRecord: "Registro de Propiedad",
@@ -504,6 +506,7 @@ export const siteCopy = {
   },
   ja: {
     languageLabel: "言語",
+    menuLabel: "Menu",
     privateInquiry: "プライベート問い合わせ",
     signIn: "サインイン",
     ownershipRecord: "所有記録",
@@ -717,6 +720,7 @@ export const siteCopy = {
   },
   fr: {
     languageLabel: "Langue",
+    menuLabel: "Menu",
     privateInquiry: "Demande privée",
     signIn: "Se connecter",
     ownershipRecord: "Registre de propriété",
