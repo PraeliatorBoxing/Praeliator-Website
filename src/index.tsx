@@ -2,6 +2,7 @@
 import "@fontsource/cormorant-garamond/latin-600.css";
 import "@fontsource/cormorant-garamond/latin-700.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
 import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
@@ -2312,7 +2313,9 @@ function LegacyRefreshChamberDialog({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose, submitting]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <motion.div
       className="fixed inset-0 z-[180] bg-[radial-gradient(circle_at_top,rgba(214,186,149,0.2),transparent_28%),rgba(26,18,12,0.72)] backdrop-blur-[16px]"
       initial={{ opacity: 0 }}
@@ -2603,7 +2606,8 @@ function LegacyRefreshChamberDialog({
         </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
@@ -2630,7 +2634,9 @@ function TransferReviewChamberDialog({
   const editionTheme = getOwnershipEditionTheme(pair.serial, 1);
   const pairAge = getPairAgeDescriptor(pair.deliveryConfirmedAt);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <motion.div
       className="fixed inset-0 z-[160] flex items-end justify-center bg-[rgba(29,21,15,0.42)] px-3 pb-3 pt-12 backdrop-blur-[10px] sm:items-center sm:px-6 sm:py-6"
       initial={{ opacity: 0 }}
@@ -2828,7 +2834,8 @@ function TransferReviewChamberDialog({
           </form>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
