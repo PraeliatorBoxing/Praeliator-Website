@@ -17,6 +17,8 @@ import { createClient, type Session } from "@supabase/supabase-js";
 import {
   Check,
   ChevronRight,
+  Eye,
+  EyeOff,
   Instagram,
   Mail,
   MessageCircle,
@@ -4256,6 +4258,56 @@ function InputField({
       className={`${formFieldBaseClass} ${getFormFieldStateClasses({ invalid, success })}`}
       placeholder={placeholder}
     />
+  );
+}
+function PasswordField({
+  id,
+  name,
+  value,
+  onChange,
+  autoComplete,
+  placeholder,
+  describedBy,
+  className,
+}: {
+  id?: string;
+  name?: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  autoComplete?: string;
+  placeholder?: string;
+  describedBy?: string;
+  className: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        name={name}
+        type={visible ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        aria-describedby={describedBy}
+        className={`${className} pr-16`}
+        placeholder={placeholder}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((current) => !current)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        aria-pressed={visible}
+        className="absolute inset-y-0 right-3 inline-flex items-center justify-center rounded-full px-3 text-[#6a5848] transition duration-300 hover:text-[#231b15] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b89268]/35"
+      >
+        {visible ? (
+          <EyeOff className="h-4 w-4" aria-hidden="true" />
+        ) : (
+          <Eye className="h-4 w-4" aria-hidden="true" />
+        )}
+      </button>
+    </div>
   );
 }
 function SelectField({
@@ -11830,10 +11882,9 @@ const renderWaitlistPage = () => (
           </label>
           <label className="grid gap-2">
             <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
-            <input
+            <PasswordField
               id="sign-in-password"
               name="password"
-              type="password"
               autoComplete="current-password"
               value={signInForm.password}
               onChange={(event) =>
@@ -11929,10 +11980,9 @@ const renderWaitlistPage = () => (
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Password</span>
-              <input
+              <PasswordField
                 id="sign-up-password"
                 name="new-password"
-                type="password"
                 autoComplete="new-password"
                 value={signUpForm.password}
                 onChange={(event) =>
@@ -11944,10 +11994,9 @@ const renderWaitlistPage = () => (
             </label>
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
-              <input
+              <PasswordField
                 id="sign-up-confirm-password"
                 name="confirm-password"
-                type="password"
                 autoComplete="new-password"
                 value={signUpForm.confirmPassword}
                 onChange={(event) =>
@@ -12299,8 +12348,7 @@ Use a one-time code
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">New password</span>
-              <input
-                type="password"
+              <PasswordField
                 autoComplete="new-password"
                 value={resetPasswordForm.password}
                 onChange={(event) =>
@@ -12312,8 +12360,7 @@ Use a one-time code
             </label>
             <label className="grid gap-2">
               <span className="text-[11px] uppercase tracking-[0.24em] text-[#b9a18d]">Confirm password</span>
-              <input
-                type="password"
+              <PasswordField
                 autoComplete="new-password"
                 value={resetPasswordForm.confirmPassword}
                 onChange={(event) =>
