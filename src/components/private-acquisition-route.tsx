@@ -138,6 +138,16 @@ type AddressSuggestion = {
 };
 
 type GeoapifyAutocompleteResponse = {
+  results?: Array<{
+    place_id?: string;
+    formatted?: string;
+    address_line1?: string;
+    address_line2?: string;
+    city?: string;
+    state?: string;
+    postcode?: string;
+    country?: string;
+  }>;
   features?: Array<{
     properties?: {
       place_id?: string;
@@ -299,10 +309,15 @@ function buildAddressLookupQuery(query: string, countryHint: string) {
 }
 
 function mapGeoapifySuggestion(
-  feature: GeoapifyAutocompleteResponse["features"][number],
+  feature:
+    | GeoapifyAutocompleteResponse["features"][number]
+    | GeoapifyAutocompleteResponse["results"][number],
   fallbackCountry: string,
 ): AddressSuggestion | null {
-  const properties = feature?.properties;
+  const properties =
+    "properties" in (feature || {}) && feature?.properties
+      ? feature.properties
+      : feature;
   if (!properties) return null;
 
   const addressLine1 = String(properties.address_line1 || "").trim();
@@ -747,7 +762,6 @@ export function PrivateAcquisitionRoute({
         );
         searchUrl.searchParams.set("limit", "5");
         searchUrl.searchParams.set("lang", locale);
-        searchUrl.searchParams.set("format", "json");
         searchUrl.searchParams.set("apiKey", geoapifyApiKey);
 
         const countryCode = normalizeCountryHintToIso2(addressCountryHint);
@@ -778,8 +792,14 @@ export function PrivateAcquisitionRoute({
           return;
         }
 
-        const nextSuggestions = Array.isArray(result.features)
+        const rawSuggestions = Array.isArray(result.features)
           ? result.features
+          : Array.isArray(result.results)
+            ? result.results
+            : [];
+
+        const nextSuggestions = rawSuggestions.length
+          ? rawSuggestions
               .map((feature) =>
                 mapGeoapifySuggestion(feature, addressCountryHint),
               )
