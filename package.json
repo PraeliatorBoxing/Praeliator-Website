@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "private-acquisition:create": "node scripts/private-acquisition-session.mjs create",
+    "private-acquisition:revoke": "node scripts/private-acquisition-session.mjs revoke"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",
@@ -14,6 +16,8 @@
     "@lottiefiles/dotlottie-react": "^0.18.7",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.0.1",
     "@supabase/supabase-js": "^2.101.1",
     "embla-carousel-fade": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
@@ -26,6 +30,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "split-type": "^0.3.4",
+    "stripe": "^22.0.0",
     "three": "^0.183.2"
   },
   "devDependencies": {

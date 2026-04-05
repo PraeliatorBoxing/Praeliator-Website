@@ -31,6 +31,7 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react";
+import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
 const visSpecifications = [
   { label: "Type", value: "Training boxing gloves" },
   { label: "Price", value: "$6,000 MXN" },
@@ -561,6 +562,7 @@ type Route =
   | "/"
   | "/praeliator-vis"
   | "/acquisition"
+  | "/private-acquisition"
   | "/waitlist"
   | "/contact"
   | "/sign-in"
@@ -642,6 +644,7 @@ const routeTitles: Record<Route, string> = {
   "/": "Home",
   "/praeliator-vis": "Praeliator VIS",
   "/acquisition": "Acquisition",
+  "/private-acquisition": "Private Acquisition",
   "/waitlist": "Waitlist",
   "/contact": "Contact",
   "/sign-in": "Sign In",
@@ -657,6 +660,7 @@ const routeMicroLabels: Record<Route, string> = {
   "/": "",
   "/praeliator-vis": "VIS",
   "/acquisition": "ACQUISITION",
+  "/private-acquisition": "PRIVATE",
   "/waitlist": "WAITLIST",
   "/contact": "CONTACT",
   "/sign-in": "ACCESS",
@@ -2877,6 +2881,7 @@ function normalizePath(pathname: string): Route {
     clean === "/" ||
     clean === "/praeliator-vis" ||
     clean === "/acquisition" ||
+    clean === "/private-acquisition" ||
     clean === "/waitlist" ||
     clean === "/contact" ||
     clean === "/sign-in" ||
@@ -7469,7 +7474,11 @@ export default function PraeliatorWebsite() {
   };
 
   const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
-  const routeUsesFooter = !authRoutes.has(route) && route !== "/ownership-record";
+  const hidesGlobalChrome = route === "/private-acquisition";
+  const routeUsesFooter =
+    !authRoutes.has(route) &&
+    route !== "/ownership-record" &&
+    route !== "/private-acquisition";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -14212,6 +14221,13 @@ const renderWaitlistPage = () => (
         return renderMobileVisPage();
       case "/acquisition":
         return renderMobileAcquisitionPage();
+      case "/private-acquisition":
+        return (
+          <PrivateAcquisitionRoute
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+          />
+        );
       case "/waitlist":
         return renderMobileWaitlistPage();
       case "/contact":
@@ -14243,6 +14259,13 @@ const renderWaitlistPage = () => (
         return renderVisPage();
       case "/acquisition":
         return renderAcquisitionPage();
+      case "/private-acquisition":
+        return (
+          <PrivateAcquisitionRoute
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+          />
+        );
       case "/waitlist":
         return renderWaitlistPage();
       case "/contact":
@@ -14272,7 +14295,7 @@ const renderWaitlistPage = () => (
       <BrowserFormStyles />
       <LuxuryCursor enabled={luxuryCursorEnabled} />
 
-      {isDesktopViewport ? (
+      {!hidesGlobalChrome && isDesktopViewport ? (
         <motion.header
           className={`fixed inset-x-0 top-0 z-50 ${headerLifted ? "pointer-events-none" : ""}`}
           animate={{
@@ -14423,7 +14446,7 @@ const renderWaitlistPage = () => (
             </AnimatePresence>
           </motion.div>
         </motion.header>
-      ) : (
+      ) : !hidesGlobalChrome ? (
         <MobileHeader
           route={route}
           pageMicroLabel={pageMicroLabel}
@@ -14442,11 +14465,13 @@ const renderWaitlistPage = () => (
           menuLabel={copy.menuLabel}
           menuItems={headerMenuItems}
         />
-      )}
+      ) : null}
 
       <main
         className={
-          route === "/"
+          route === "/private-acquisition"
+            ? "overflow-x-hidden bg-[#090806]"
+            : route === "/"
             ? "overflow-x-hidden bg-[#040404]"
             : "overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(120,91,68,0.1),transparent_24%),linear-gradient(180deg,#090909_0%,#070707_100%)]"
         }
