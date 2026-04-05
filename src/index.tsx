@@ -14260,7 +14260,7 @@ const renderWaitlistPage = () => (
               backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
             }}
             transition={{ duration: 0.55, ease: easeLuxury }}
-            className="overflow-hidden bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+            className="overflow-visible bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
           >
             <Container className="relative flex items-center justify-between py-5 sm:py-6">
               <motion.button
