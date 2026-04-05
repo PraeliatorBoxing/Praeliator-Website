@@ -4105,6 +4105,7 @@ function MobileHeader({
             onChange={onLocaleChange}
             label={languageLabel}
             compact
+            subtle
           />
         </Container>
 
@@ -4389,11 +4390,13 @@ function LanguageSwitcher({
   onChange,
   label,
   compact = false,
+  subtle = false,
 }: {
   locale: SiteLocale;
   onChange: (locale: SiteLocale) => void;
   label: string;
   compact?: boolean;
+  subtle?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -4418,10 +4421,16 @@ function LanguageSwitcher({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className={`inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] text-white/78 transition duration-300 hover:border-white/18 hover:bg-white/[0.08] hover:text-white ${
-          compact
-            ? "h-10 px-3 text-[11px] uppercase tracking-[0.24em]"
-            : "h-10 px-4 text-[10px] uppercase tracking-[0.26em]"
+        className={`inline-flex items-center transition duration-300 hover:text-white ${
+          subtle
+            ? compact
+              ? "h-8 gap-0 px-1 text-[10px] uppercase tracking-[0.28em] text-white/46"
+              : "h-8 gap-0 px-1 text-[10px] uppercase tracking-[0.32em] text-white/44"
+            : `rounded-full border border-white/12 bg-white/[0.04] text-white/78 hover:border-white/18 hover:bg-white/[0.08] ${
+                compact
+                  ? "h-10 gap-2 px-3 text-[11px] uppercase tracking-[0.24em]"
+                  : "h-10 gap-2 px-4 text-[10px] uppercase tracking-[0.26em]"
+              }`
         }`}
         aria-label={label}
         aria-expanded={open}
@@ -14306,11 +14315,6 @@ const renderWaitlistPage = () => (
                 transition={{ duration: 0.8, delay: 0.16, ease: easeLuxury }}
                 className="flex items-center gap-4"
               >
-                <LanguageSwitcher
-                  locale={locale}
-                  onChange={setLocale}
-                  label={copy.languageLabel}
-                />
                 <button
                   type="button"
                   onClick={() => goTo(authPrimaryRoute)}
@@ -14326,6 +14330,12 @@ const renderWaitlistPage = () => (
                 >
                   {copy.privateInquiry}
                 </a>
+                <LanguageSwitcher
+                  locale={locale}
+                  onChange={setLocale}
+                  label={copy.languageLabel}
+                  subtle
+                />
               </motion.div>
             </Container>
 

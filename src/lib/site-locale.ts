@@ -17,16 +17,6 @@ export function getInitialSiteLocale(): SiteLocale {
     return saved;
   }
 
-  const preferred = navigator.languages?.length
-    ? navigator.languages
-    : [navigator.language];
-
-  for (const language of preferred) {
-    if (language.startsWith("es")) return "es";
-    if (language.startsWith("ja")) return "ja";
-    if (language.startsWith("fr")) return "fr";
-  }
-
   return "en";
 }
 
