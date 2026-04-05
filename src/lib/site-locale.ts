@@ -261,7 +261,7 @@ export const siteCopy = {
   },
   es: {
     languageLabel: "Idioma",
-    menuLabel: "Menu",
+    menuLabel: "Menú",
     privateInquiry: "Consulta privada",
     signIn: "Iniciar sesión",
     ownershipRecord: "Registro de Propiedad",
@@ -496,7 +496,7 @@ export const siteCopy = {
   },
   ja: {
     languageLabel: "言語",
-    menuLabel: "Menu",
+    menuLabel: "メニュー",
     privateInquiry: "プライベート問い合わせ",
     signIn: "サインイン",
     ownershipRecord: "所有記録",
