@@ -100,8 +100,7 @@ type PaymentIntentResponse =
 type DeliveryFormState = {
   clientName: string;
   clientEmail: string;
-  clientPhoneCountryCode: string;
-  clientPhoneNumber: string;
+  clientPhone: string;
   shippingCountry: string;
   shippingAddressLine1: string;
   shippingAddressLine2: string;
@@ -123,9 +122,30 @@ type DeliveryResponse =
       success: false;
       state: string;
       error?: string;
-      fieldErrors?: Partial<
-        Record<keyof DeliveryFormState | "clientPhone", string>
-      >;
+      fieldErrors?: Partial<Record<keyof DeliveryFormState, string>>;
+    };
+
+type AddressSuggestion = {
+  id: string;
+  label: string;
+  secondaryText?: string | null;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city?: string | null;
+  region?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
+type AddressSearchResponse =
+  | {
+      success: true;
+      suggestions: AddressSuggestion[];
+    }
+  | {
+      success: false;
+      state: string;
+      error?: string;
     };
 
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -155,13 +175,10 @@ function formatDate(value?: string | null) {
 function createDeliveryFormState(
   session?: AcquisitionSessionSummary | null,
 ): DeliveryFormState {
-  const parsedPhone = splitPhoneNumber(session?.clientPhone || "");
-
   return {
     clientName: session?.clientName || "",
     clientEmail: session?.clientEmail || "",
-    clientPhoneCountryCode: parsedPhone.countryCode,
-    clientPhoneNumber: parsedPhone.number,
+    clientPhone: session?.clientPhone || "",
     shippingCountry: session?.shippingCountry || "",
     shippingAddressLine1: session?.shippingAddressLine1 || "",
     shippingAddressLine2: session?.shippingAddressLine2 || "",
@@ -188,13 +205,8 @@ function validateDeliveryFormState(form: DeliveryFormState) {
       "Enter a valid email address for delivery correspondence.";
   }
 
-  if (!/^\+\d{1,4}$/.test(form.clientPhoneCountryCode.trim())) {
-    errors.clientPhoneCountryCode = "Enter a valid country code.";
-  }
-
-  if (form.clientPhoneNumber.replace(/[^\d]/g, "").length < 6) {
-    errors.clientPhoneNumber =
-      "Enter a valid phone number for delivery contact.";
+  if (form.clientPhone.replace(/[^\d]/g, "").length < 6) {
+    errors.clientPhone = "Enter a valid phone number for delivery contact.";
   }
 
   if (!form.shippingCountry.trim()) {
@@ -233,27 +245,6 @@ function validateDeliveryFormState(form: DeliveryFormState) {
   return errors;
 }
 
-function splitPhoneNumber(value: string) {
-  const normalized = value.trim().replace(/\s+/g, " ");
-  const countryCodeMatch = normalized.match(/^\+\d{1,4}/);
-
-  if (!countryCodeMatch) {
-    return {
-      countryCode: "",
-      number: normalized,
-    };
-  }
-
-  return {
-    countryCode: countryCodeMatch[0],
-    number: normalized.slice(countryCodeMatch[0].length).trim(),
-  };
-}
-
-function joinPhoneNumber(countryCode: string, number: string) {
-  return `${countryCode.trim()} ${number.trim()}`.trim();
-}
-
 async function readJsonResponse<T>(response: Response) {
   const text = await response.text();
 
@@ -264,6 +255,10 @@ async function readJsonResponse<T>(response: Response) {
   } catch {
     return null;
   }
+}
+
+function normalizeAddressComparison(value: string) {
+  return value.toLowerCase().replace(/[\s,.-]+/g, " ").trim();
 }
 
 function PrivateRouteLanguageSwitcher({
@@ -549,6 +544,12 @@ export function PrivateAcquisitionRoute({
   const [deliverySubmitting, setDeliverySubmitting] = useState(false);
   const [deliveryError, setDeliveryError] = useState("");
   const [deliveryNotice, setDeliveryNotice] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<
+    AddressSuggestion[]
+  >([]);
+  const [addressSearchLoading, setAddressSearchLoading] = useState(false);
+  const [addressSearchError, setAddressSearchError] = useState("");
+  const [selectedAddressLabel, setSelectedAddressLabel] = useState("");
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [publishableKey, setPublishableKey] = useState("");
@@ -613,6 +614,9 @@ export function PrivateAcquisitionRoute({
     setDeliveryErrors({});
     setDeliveryError("");
     setDeliveryNotice("");
+    setAddressSuggestions([]);
+    setAddressSearchError("");
+    setSelectedAddressLabel(activeSession?.shippingAddressLine1 || "");
   }, [
     activeSession?.referenceCode,
     activeSession?.clientName,
@@ -627,6 +631,117 @@ export function PrivateAcquisitionRoute({
     activeSession?.shippingRecipientName,
     activeSession?.shippingDeliveryNotes,
     activeSession?.deliveryDetailsCompletedAt,
+  ]);
+
+  const addressCountryHint = useMemo(
+    () =>
+      (activeSession?.shippingCountry || deliveryForm.shippingCountry || "").trim(),
+    [activeSession?.shippingCountry, deliveryForm.shippingCountry],
+  );
+
+  useEffect(() => {
+    if (!token || !activeSession) {
+      setAddressSuggestions([]);
+      setAddressSearchLoading(false);
+      return;
+    }
+
+    const query = deliveryForm.shippingAddressLine1.trim();
+    if (query.length < 3 || query === selectedAddressLabel.trim()) {
+      setAddressSuggestions([]);
+      setAddressSearchLoading(false);
+      setAddressSearchError("");
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setAddressSearchLoading(true);
+      setAddressSearchError("");
+
+      try {
+        const response = await fetch(
+          `/api/private-acquisition-address-search?token=${encodeURIComponent(
+            token,
+          )}&q=${encodeURIComponent(query)}&countryHint=${encodeURIComponent(
+            addressCountryHint,
+          )}&locale=${encodeURIComponent(locale)}`,
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+          },
+        );
+
+        const result = await readJsonResponse<AddressSearchResponse>(response);
+        if (!result) {
+          setAddressSuggestions([]);
+          setAddressSearchError(
+            "Address suggestions could not be prepared just now.",
+          );
+          return;
+        }
+
+        if (!response.ok || !result.success) {
+          setAddressSuggestions([]);
+          setAddressSearchError(
+            result.error || "Address suggestions could not be prepared just now.",
+          );
+          return;
+        }
+
+        const nextSuggestions = result.suggestions;
+        const comparableQuery = normalizeAddressComparison(query);
+        const exactSuggestion =
+          nextSuggestions.length === 1
+            ? nextSuggestions[0]
+            : nextSuggestions.find((suggestion) => {
+                const lineValue = normalizeAddressComparison(
+                  suggestion.addressLine1,
+                );
+                const labelValue = normalizeAddressComparison(suggestion.label);
+
+                return (
+                  comparableQuery.length >= 8 &&
+                  (lineValue === comparableQuery ||
+                    labelValue === comparableQuery ||
+                    labelValue.startsWith(`${comparableQuery},`) ||
+                    labelValue.startsWith(`${comparableQuery} `))
+                );
+              });
+
+        if (exactSuggestion) {
+          handleSelectAddressSuggestion(exactSuggestion);
+          return;
+        }
+
+        setAddressSuggestions(nextSuggestions);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setAddressSuggestions([]);
+        setAddressSearchError(
+          error instanceof Error
+            ? error.message
+            : "Address suggestions could not be prepared just now.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setAddressSearchLoading(false);
+        }
+      }
+    }, 260);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    token,
+    activeSession,
+    deliveryForm.shippingAddressLine1,
+    addressCountryHint,
+    locale,
+    selectedAddressLabel,
   ]);
 
   const deliveryDetailsCompleted = Boolean(
@@ -704,8 +819,42 @@ export function PrivateAcquisitionRoute({
     if (deliveryError) setDeliveryError("");
     if (deliveryNotice) setDeliveryNotice("");
     if (paymentError) setPaymentError("");
+    if (addressSearchError) setAddressSearchError("");
     if (clientSecret) setClientSecret("");
     if (publishableKey) setPublishableKey("");
+
+    if (field === "shippingAddressLine1") {
+      setSelectedAddressLabel("");
+    }
+  };
+
+  const handleSelectAddressSuggestion = (suggestion: AddressSuggestion) => {
+    setDeliveryForm((current) => ({
+      ...current,
+      shippingAddressLine1: suggestion.addressLine1 || current.shippingAddressLine1,
+      shippingAddressLine2:
+        current.shippingAddressLine2 || suggestion.addressLine2 || "",
+      shippingCity: suggestion.city || current.shippingCity,
+      shippingRegion: suggestion.region || current.shippingRegion,
+      shippingPostalCode: suggestion.postalCode || current.shippingPostalCode,
+      shippingCountry:
+        activeSession?.shippingCountry ||
+        suggestion.country ||
+        current.shippingCountry,
+    }));
+    setSelectedAddressLabel(suggestion.addressLine1 || "");
+    setAddressSuggestions([]);
+    setAddressSearchError("");
+    setDeliveryErrors((current) => {
+      const next = { ...current };
+      delete next.shippingAddressLine1;
+      delete next.shippingAddressLine2;
+      delete next.shippingCity;
+      delete next.shippingRegion;
+      delete next.shippingPostalCode;
+      delete next.shippingCountry;
+      return next;
+    });
   };
 
   const handleSaveDeliveryDetails = async (
@@ -737,10 +886,7 @@ export function PrivateAcquisitionRoute({
           token,
           clientName: deliveryForm.clientName,
           clientEmail: deliveryForm.clientEmail,
-          clientPhone: joinPhoneNumber(
-            deliveryForm.clientPhoneCountryCode,
-            deliveryForm.clientPhoneNumber,
-          ),
+          clientPhone: deliveryForm.clientPhone,
           shippingCountry: deliveryForm.shippingCountry,
           shippingRegion: deliveryForm.shippingRegion,
           shippingCity: deliveryForm.shippingCity,
@@ -764,18 +910,7 @@ export function PrivateAcquisitionRoute({
       }
 
       if (!response.ok || !result.success) {
-        const nextFieldErrors = {
-          ...(result.fieldErrors || {}),
-        } as Partial<Record<keyof DeliveryFormState | "clientPhone", string>>;
-
-        if (nextFieldErrors.clientPhone) {
-          nextFieldErrors.clientPhoneNumber = nextFieldErrors.clientPhone;
-          delete nextFieldErrors.clientPhone;
-        }
-
-        setDeliveryErrors(
-          nextFieldErrors as Partial<Record<keyof DeliveryFormState, string>>,
-        );
+        setDeliveryErrors(result.fieldErrors || {});
         setDeliveryError(
           result.error ||
             "The destination record could not be retained under this issuance.",
@@ -1362,54 +1497,28 @@ export function PrivateAcquisitionRoute({
                             ) : null}
                           </label>
 
-                          <label className="grid gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                              Dial code
-                            </span>
-                            <input
-                              type="tel"
-                              name="clientPhoneCountryCode"
-                              value={deliveryForm.clientPhoneCountryCode}
-                              onChange={(event) =>
-                                handleDeliveryFieldChange(
-                                  "clientPhoneCountryCode",
-                                  event.target.value,
-                                )
-                              }
-                              className={chamberFieldClass}
-                              placeholder="+52"
-                              autoComplete="tel-country-code"
-                              inputMode="tel"
-                            />
-                            {deliveryErrors.clientPhoneCountryCode ? (
-                              <p className="text-sm leading-7 text-[#815c42]">
-                                {deliveryErrors.clientPhoneCountryCode}
-                              </p>
-                            ) : null}
-                          </label>
-
-                          <label className="grid gap-2">
+                          <label className="grid gap-2 sm:col-span-2">
                             <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                               Phone
                             </span>
                             <input
                               type="tel"
-                              name="clientPhoneNumber"
-                              value={deliveryForm.clientPhoneNumber}
+                              name="clientPhone"
+                              value={deliveryForm.clientPhone}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
-                                  "clientPhoneNumber",
+                                  "clientPhone",
                                   event.target.value,
                                 )
                               }
                               className={chamberFieldClass}
                               placeholder="Delivery contact number"
-                              autoComplete="tel-national"
+                              autoComplete="tel"
                               inputMode="tel"
                             />
-                            {deliveryErrors.clientPhoneNumber ? (
+                            {deliveryErrors.clientPhone ? (
                               <p className="text-sm leading-7 text-[#815c42]">
-                                {deliveryErrors.clientPhoneNumber}
+                                {deliveryErrors.clientPhone}
                               </p>
                             ) : null}
                           </label>
@@ -1431,6 +1540,7 @@ export function PrivateAcquisitionRoute({
                               className={chamberFieldClass}
                               placeholder="Destination country"
                               autoComplete="shipping country-name"
+                              readOnly={Boolean(activeSession?.shippingCountry)}
                             />
                             {deliveryErrors.shippingCountry ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1504,9 +1614,42 @@ export function PrivateAcquisitionRoute({
                                 )
                               }
                               className={chamberFieldClass}
-                              placeholder="Primary delivery line"
+                              placeholder="Begin entering the destination address"
                               autoComplete="shipping address-line1"
                             />
+                            {addressSuggestions.length ? (
+                              <div className="grid gap-2 rounded-[1.35rem] border border-[#d8c3aa] bg-white/95 p-2 shadow-[0_16px_36px_rgba(111,79,49,0.08)]">
+                                {addressSuggestions.map((suggestion) => (
+                                  <button
+                                    key={suggestion.id}
+                                    type="button"
+                                    onClick={() =>
+                                      handleSelectAddressSuggestion(suggestion)
+                                    }
+                                    className="rounded-[1rem] px-3 py-3 text-left transition duration-200 hover:bg-[#f6ede3]"
+                                  >
+                                    <p className="text-sm leading-6 text-[#241912]">
+                                      {suggestion.label}
+                                    </p>
+                                    {suggestion.secondaryText ? (
+                                      <p className="mt-1 text-xs leading-5 text-[#7b6553]">
+                                        {suggestion.secondaryText}
+                                      </p>
+                                    ) : null}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                            {addressSearchLoading ? (
+                              <p className="text-sm leading-7 text-[#6c5646]">
+                                Searching destination addresses...
+                              </p>
+                            ) : null}
+                            {addressSearchError ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {addressSearchError}
+                              </p>
+                            ) : null}
                             {deliveryErrors.shippingAddressLine1 ? (
                               <p className="text-sm leading-7 text-[#815c42]">
                                 {deliveryErrors.shippingAddressLine1}
