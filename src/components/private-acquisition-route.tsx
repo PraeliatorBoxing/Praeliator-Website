@@ -795,33 +795,17 @@ export function PrivateAcquisitionRoute({
                       </div>
 
                       <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
-                              Quantity
-                            </p>
-                            <p className="mt-2 text-lg text-[#241912]">
-                              {activeSession?.quantity}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
-                              Destination
-                            </p>
-                            <p className="mt-2 text-lg text-[#241912]">
-                              {[
-                                activeSession?.shippingRegion,
-                                activeSession?.shippingCountry,
-                              ]
-                                .filter(Boolean)
-                                .join(", ") || "Private review"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
-                              Subtotal
-                            </p>
-                            <p className="mt-2 text-lg text-[#241912]">
+                        <div className="divide-y divide-[#e7d8c7]">
+                          <div className="flex items-start justify-between gap-6 py-4 first:pt-0">
+                            <div>
+                              <p className="text-lg leading-8 text-[#241912]">
+                                {activeSession?.productName || "Praeliator VIS"}
+                              </p>
+                              <p className="text-sm leading-7 text-[#6c5646]">
+                                Quantity {activeSession?.quantity || 1}
+                              </p>
+                            </div>
+                            <p className="text-lg leading-8 text-[#241912]">
                               {activeSession
                                 ? formatMoney(
                                     activeSession.subtotalAmount,
@@ -830,11 +814,22 @@ export function PrivateAcquisitionRoute({
                                 : "Pending"}
                             </p>
                           </div>
-                          <div>
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
-                              Shipping
-                            </p>
-                            <p className="mt-2 text-lg text-[#241912]">
+
+                          <div className="flex items-start justify-between gap-6 py-4">
+                            <div>
+                              <p className="text-lg leading-8 text-[#241912]">
+                                Private allocation and fulfillment
+                              </p>
+                              <p className="text-sm leading-7 text-[#6c5646]">
+                                {[
+                                  activeSession?.shippingRegion,
+                                  activeSession?.shippingCountry,
+                                ]
+                                  .filter(Boolean)
+                                  .join(", ") || "Prepared under private review"}
+                              </p>
+                            </div>
+                            <p className="text-lg leading-8 text-[#241912]">
                               {activeSession
                                 ? formatMoney(
                                     activeSession.shippingAmount,
@@ -843,19 +838,22 @@ export function PrivateAcquisitionRoute({
                                 : "Pending"}
                             </p>
                           </div>
-                        </div>
-                        <div className="mt-5 border-t border-[#e7d8c7] pt-4">
-                          <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
-                            Total amount
-                          </p>
-                          <p className="mt-2 font-['Cormorant_Garamond'] text-[2.1rem] leading-none tracking-[-0.05em] text-[#241912]">
-                            {activeSession
-                              ? formatMoney(
-                                  activeSession.totalAmount,
-                                  activeSession.currency,
-                                )
-                              : "Pending"}
-                          </p>
+
+                          <div className="flex items-start justify-between gap-6 py-4 pb-0">
+                            <div>
+                              <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
+                                Total due today
+                              </p>
+                            </div>
+                            <p className="font-['Cormorant_Garamond'] text-[2.1rem] leading-none tracking-[-0.05em] text-[#241912]">
+                              {activeSession
+                                ? formatMoney(
+                                    activeSession.totalAmount,
+                                    activeSession.currency,
+                                  )
+                                : "Pending"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
