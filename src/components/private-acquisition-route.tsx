@@ -130,7 +130,6 @@ type AddressSuggestion = {
   label: string;
   secondaryText?: string | null;
   addressLine1: string;
-  addressLine2?: string | null;
   city?: string | null;
   region?: string | null;
   postalCode?: string | null;
@@ -339,7 +338,6 @@ function mapGeoapifySuggestion(
         .filter(Boolean)
         .join(", ") || null,
     addressLine1,
-    addressLine2: String(properties.address_line2 || "").trim() || null,
     city: String(properties.city || "").trim() || null,
     region: String(properties.state || "").trim() || null,
     postalCode: String(properties.postcode || "").trim() || null,
@@ -947,8 +945,6 @@ export function PrivateAcquisitionRoute({
     setDeliveryForm((current) => ({
       ...current,
       shippingAddressLine1: suggestion.addressLine1 || current.shippingAddressLine1,
-      shippingAddressLine2:
-        current.shippingAddressLine2 || suggestion.addressLine2 || "",
       shippingCity: suggestion.city || current.shippingCity,
       shippingRegion: suggestion.region || current.shippingRegion,
       shippingPostalCode: suggestion.postalCode || current.shippingPostalCode,
@@ -963,7 +959,6 @@ export function PrivateAcquisitionRoute({
     setDeliveryErrors((current) => {
       const next = { ...current };
       delete next.shippingAddressLine1;
-      delete next.shippingAddressLine2;
       delete next.shippingCity;
       delete next.shippingRegion;
       delete next.shippingPostalCode;
