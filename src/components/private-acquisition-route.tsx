@@ -137,22 +137,46 @@ type AddressSuggestion = {
   country?: string | null;
 };
 
-type AddressSearchResponse =
-  | {
-      success: true;
-      suggestions: AddressSuggestion[];
-    }
-  | {
-      success: false;
-      state: string;
-      error?: string;
+type GeoapifyAutocompleteResponse = {
+  features?: Array<{
+    properties?: {
+      place_id?: string;
+      formatted?: string;
+      address_line1?: string;
+      address_line2?: string;
+      city?: string;
+      state?: string;
+      postcode?: string;
+      country?: string;
     };
+  }>;
+};
 
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const chamberFieldClass =
   "min-h-[3.95rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
 const chamberTextareaClass =
   "min-h-[8.5rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 py-4 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
+const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY as
+  | string
+  | undefined;
+const countryHintToIso2: Record<string, string> = {
+  mexico: "mx",
+  "méxico": "mx",
+  "united states": "us",
+  usa: "us",
+  canada: "ca",
+  japan: "jp",
+  france: "fr",
+  spain: "es",
+  "united kingdom": "gb",
+  uk: "gb",
+  england: "gb",
+  germany: "de",
+  italy: "it",
+  "united arab emirates": "ae",
+  uae: "ae",
+};
 
 function formatMoney(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -259,6 +283,53 @@ async function readJsonResponse<T>(response: Response) {
 
 function normalizeAddressComparison(value: string) {
   return value.toLowerCase().replace(/[\s,.-]+/g, " ").trim();
+}
+
+function normalizeCountryHintToIso2(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return "";
+  if (/^[a-z]{2}$/i.test(normalized)) return normalized;
+  return countryHintToIso2[normalized] || "";
+}
+
+function buildAddressLookupQuery(query: string, countryHint: string) {
+  if (!countryHint) return query;
+  if (query.toLowerCase().includes(countryHint.toLowerCase())) return query;
+  return `${query}, ${countryHint}`;
+}
+
+function mapGeoapifySuggestion(
+  feature: GeoapifyAutocompleteResponse["features"][number],
+  fallbackCountry: string,
+): AddressSuggestion | null {
+  const properties = feature?.properties;
+  if (!properties) return null;
+
+  const addressLine1 = String(properties.address_line1 || "").trim();
+  if (!addressLine1) return null;
+
+  return {
+    id: String(
+      properties.place_id || properties.formatted || properties.address_line1,
+    ),
+    label: String(properties.formatted || properties.address_line1 || "").trim(),
+    secondaryText:
+      [
+        properties.address_line2,
+        properties.city,
+        properties.postcode,
+        properties.state,
+        properties.country || fallbackCountry,
+      ]
+        .filter(Boolean)
+        .join(", ") || null,
+    addressLine1,
+    addressLine2: String(properties.address_line2 || "").trim() || null,
+    city: String(properties.city || "").trim() || null,
+    region: String(properties.state || "").trim() || null,
+    postalCode: String(properties.postcode || "").trim() || null,
+    country: String(properties.country || fallbackCountry || "").trim() || null,
+  };
 }
 
 function PrivateRouteLanguageSwitcher({
@@ -640,7 +711,7 @@ export function PrivateAcquisitionRoute({
   );
 
   useEffect(() => {
-    if (!token || !activeSession) {
+    if (!activeSession) {
       setAddressSuggestions([]);
       setAddressSearchLoading(false);
       return;
@@ -654,26 +725,45 @@ export function PrivateAcquisitionRoute({
       return;
     }
 
+    if (!geoapifyApiKey) {
+      setAddressSuggestions([]);
+      setAddressSearchLoading(false);
+      setAddressSearchError("Address suggestions are unavailable right now.");
+      return;
+    }
+
     const controller = new AbortController();
     const timeoutId = window.setTimeout(async () => {
       setAddressSearchLoading(true);
       setAddressSearchError("");
 
       try {
-        const response = await fetch(
-          `/api/private-acquisition-address-search?token=${encodeURIComponent(
-            token,
-          )}&q=${encodeURIComponent(query)}&countryHint=${encodeURIComponent(
-            addressCountryHint,
-          )}&locale=${encodeURIComponent(locale)}`,
-          {
-            method: "GET",
-            headers: { Accept: "application/json" },
-            signal: controller.signal,
-          },
+        const searchUrl = new URL(
+          "https://api.geoapify.com/v1/geocode/autocomplete",
         );
+        searchUrl.searchParams.set(
+          "text",
+          buildAddressLookupQuery(query, addressCountryHint),
+        );
+        searchUrl.searchParams.set("limit", "5");
+        searchUrl.searchParams.set("lang", locale);
+        searchUrl.searchParams.set("format", "json");
+        searchUrl.searchParams.set("apiKey", geoapifyApiKey);
 
-        const result = await readJsonResponse<AddressSearchResponse>(response);
+        const countryCode = normalizeCountryHintToIso2(addressCountryHint);
+        if (countryCode) {
+          searchUrl.searchParams.set("filter", `countrycode:${countryCode}`);
+        }
+
+        const response = await fetch(searchUrl.toString(), {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+
+        const result = await readJsonResponse<GeoapifyAutocompleteResponse>(
+          response,
+        );
         if (!result) {
           setAddressSuggestions([]);
           setAddressSearchError(
@@ -682,15 +772,21 @@ export function PrivateAcquisitionRoute({
           return;
         }
 
-        if (!response.ok || !result.success) {
+        if (!response.ok) {
           setAddressSuggestions([]);
-          setAddressSearchError(
-            result.error || "Address suggestions could not be prepared just now.",
-          );
+          setAddressSearchError("Address suggestions could not be prepared just now.");
           return;
         }
 
-        const nextSuggestions = result.suggestions;
+        const nextSuggestions = Array.isArray(result.features)
+          ? result.features
+              .map((feature) =>
+                mapGeoapifySuggestion(feature, addressCountryHint),
+              )
+              .filter((suggestion): suggestion is AddressSuggestion =>
+                Boolean(suggestion?.addressLine1),
+              )
+          : [];
         const comparableQuery = normalizeAddressComparison(query);
         const exactSuggestion =
           nextSuggestions.length === 1
@@ -736,7 +832,6 @@ export function PrivateAcquisitionRoute({
       window.clearTimeout(timeoutId);
     };
   }, [
-    token,
     activeSession,
     deliveryForm.shippingAddressLine1,
     addressCountryHint,
@@ -1539,8 +1634,9 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Destination country"
-                              autoComplete="shipping country-name"
+                              autoComplete="off"
                               readOnly={Boolean(activeSession?.shippingCountry)}
+                              spellCheck={false}
                             />
                             {deliveryErrors.shippingCountry ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1565,7 +1661,8 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="State or region"
-                              autoComplete="shipping address-level1"
+                              autoComplete="off"
+                              spellCheck={false}
                             />
                             {deliveryErrors.shippingRegion ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1590,7 +1687,8 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Destination city"
-                              autoComplete="shipping address-level2"
+                              autoComplete="off"
+                              spellCheck={false}
                             />
                             {deliveryErrors.shippingCity ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1605,7 +1703,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
-                              name="shippingAddressLine1"
+                              name="deliveryAddressLookup"
                               value={deliveryForm.shippingAddressLine1}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1615,7 +1713,9 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Begin entering the destination address"
-                              autoComplete="shipping address-line1"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              spellCheck={false}
                             />
                             {addressSuggestions.length ? (
                               <div className="grid gap-2 rounded-[1.35rem] border border-[#d8c3aa] bg-white/95 p-2 shadow-[0_16px_36px_rgba(111,79,49,0.08)]">
@@ -1663,7 +1763,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
-                              name="shippingAddressLine2"
+                              name="deliveryAddressLine2"
                               value={deliveryForm.shippingAddressLine2}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1673,7 +1773,8 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Apartment, suite, or additional detail"
-                              autoComplete="shipping address-line2"
+                              autoComplete="off"
+                              spellCheck={false}
                             />
                           </label>
 
@@ -1683,7 +1784,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
-                              name="shippingPostalCode"
+                              name="deliveryPostalCode"
                               value={deliveryForm.shippingPostalCode}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1693,8 +1794,9 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Postal code"
-                              autoComplete="shipping postal-code"
+                              autoComplete="off"
                               inputMode="numeric"
+                              spellCheck={false}
                             />
                             {deliveryErrors.shippingPostalCode ? (
                               <p className="text-sm leading-7 text-[#815c42]">
