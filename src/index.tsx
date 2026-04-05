@@ -1063,6 +1063,9 @@ const formOptionRowClass =
 const archiveAuthInputClass =
   "browser-form-element min-h-[3.55rem] w-full rounded-[1.35rem] border border-[#d2c1ab] bg-[rgba(255,250,244,0.86)] px-5 text-[16px] text-[#231b15] shadow-[inset_0_1px_0_rgba(255,255,255,0.56)] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-[#8d755c]/68 focus:border-[#a27f59] focus:bg-[#fffaf4] sm:text-sm";
 const archiveAuthInputMutedClass = `${archiveAuthInputClass} opacity-80`;
+const ownershipLightInputClass =
+  "browser-form-element ownership-light-input min-h-[3.55rem] w-full rounded-[1.45rem] border border-[#cdb698] bg-[#fffaf4] px-5 text-[16px] text-[#241b15] caret-[#241b15] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition-[border-color,background-color,box-shadow,transform] duration-300 placeholder:text-[#9a846d] focus:border-[#9c7851] focus:bg-[#fffdf8] focus:text-[#201712] [color-scheme:light] sm:text-sm";
+const ownershipLightTextareaClass = `${ownershipLightInputClass} min-h-[12rem] resize-none py-4`;
 const archiveAuthPrimaryButtonClass =
   "rounded-full bg-[#231b15] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_16px_36px_rgba(45,31,20,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#1a1410] disabled:pointer-events-none disabled:opacity-60";
 const archiveAuthSecondaryButtonClass =
@@ -2550,7 +2553,7 @@ function LegacyRefreshChamberDialog({
                       onChange={(event) =>
                         onNoteChange(event.target.value.slice(0, 500))
                       }
-                      className={`${formFieldBaseClass} min-h-[12rem] resize-none border-[#c9b392] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#7d6753]/78 focus:border-[#9c7851]`}
+                      className={ownershipLightTextareaClass}
                       placeholder="Condition, timing, or context for private review."
                       maxLength={500}
                     />
@@ -2735,7 +2738,7 @@ function TransferReviewChamberDialog({
                   onChange={(event) =>
                     onDraftChange("nextCustodianName", event.target.value)
                   }
-                  className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      className={ownershipLightInputClass}
                   placeholder="Full name"
                   autoComplete="name"
                 />
@@ -2750,7 +2753,7 @@ function TransferReviewChamberDialog({
                   onChange={(event) =>
                     onDraftChange("nextCustodianEmail", event.target.value)
                   }
-                  className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      className={ownershipLightInputClass}
                   placeholder="name@example.com"
                   autoComplete="email"
                 />
@@ -2767,7 +2770,7 @@ function TransferReviewChamberDialog({
                 onChange={(event) =>
                   onDraftChange("intendedTiming", event.target.value)
                 }
-                className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                className={ownershipLightInputClass}
                 placeholder="Within 30 days / after review / future only"
               />
             </label>
@@ -2781,7 +2784,7 @@ function TransferReviewChamberDialog({
                 onChange={(event) =>
                   onDraftChange("note", event.target.value.slice(0, 500))
                 }
-                className={`${formFieldBaseClass} min-h-[10rem] resize-none border-[#d0bea6] bg-[#fffaf4] py-4 text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                className={`${ownershipLightTextareaClass} min-h-[10rem]`}
                 placeholder="Object condition, provenance, or any continuity detail the house should review."
                 maxLength={500}
               />
@@ -6488,6 +6491,16 @@ function BrowserFormStyles() {
         -webkit-box-shadow: 0 0 0 1000px #0c0b0a inset;
         border-color: rgba(255, 255, 255, 0.08);
         transition: background-color 999999s ease-out 0s;
+      }
+      .ownership-light-input:-webkit-autofill,
+      .ownership-light-input:-webkit-autofill:hover,
+      .ownership-light-input:-webkit-autofill:focus,
+      .ownership-light-input:-webkit-autofill:active {
+        -webkit-text-fill-color: #241b15;
+        caret-color: #241b15;
+        box-shadow: 0 0 0 1000px #fffaf4 inset;
+        -webkit-box-shadow: 0 0 0 1000px #fffaf4 inset;
+        border-color: #cdb698;
       }
       .browser-form-element::selection {
         background: rgba(239, 229, 215, 0.16);
@@ -13311,7 +13324,7 @@ const renderWaitlistPage = () => (
                               .toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                        className={ownershipLightInputClass}
                         placeholder="PR-VIS-000001"
                         autoCapitalize="characters"
                       />
@@ -13332,7 +13345,7 @@ const renderWaitlistPage = () => (
                               .toUpperCase(),
                           }))
                         }
-                        className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                        className={ownershipLightInputClass}
                         placeholder="A1B2C3D4"
                         autoCapitalize="characters"
                       />
@@ -13977,7 +13990,7 @@ const renderWaitlistPage = () => (
                             .toUpperCase(),
                         }))
                       }
-                      className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      className={ownershipLightInputClass}
                       placeholder="PR-VIS-000001"
                       autoCapitalize="characters"
                     />
@@ -13998,7 +14011,7 @@ const renderWaitlistPage = () => (
                             .toUpperCase(),
                         }))
                       }
-                      className={`${formFieldBaseClass} min-h-[3.55rem] border-[#d0bea6] bg-[#fffaf4] text-[#231b15] placeholder:text-[#8d755c]/50 focus:border-[#a98763]`}
+                      className={ownershipLightInputClass}
                       placeholder="A1B2C3D4"
                       autoCapitalize="characters"
                     />
