@@ -4080,7 +4080,7 @@ function MobileHeader({
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileMenuOpen((current) => !current)}
-            className="group inline-flex min-h-[3.4rem] w-14 flex-col items-center justify-center gap-1 bg-transparent text-white/82 transition duration-300 hover:text-white md:min-h-[3.7rem] md:w-16"
+            className="group inline-flex min-h-[3.4rem] w-14 flex-col items-center justify-center gap-[0.18rem] bg-transparent text-white/82 transition duration-300 hover:text-white md:min-h-[3.7rem] md:w-16"
           >
             <PraeliatorMenuWreathIcon
               open={mobileMenuOpen}
@@ -14279,7 +14279,7 @@ const renderWaitlistPage = () => (
                 transition={{ duration: 0.8, ease: easeLuxury }}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 onClick={() => setMobileMenuOpen((current) => !current)}
-                className="group inline-flex min-h-[3.7rem] w-16 flex-col items-center justify-center gap-1 bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
+                className="group inline-flex min-h-[3.7rem] w-16 flex-col items-center justify-center gap-[0.18rem] bg-transparent text-white/82 transition duration-500 hover:-translate-y-0.5 hover:text-white"
               >
                 <motion.span
                   animate={{
