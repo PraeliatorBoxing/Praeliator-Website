@@ -20,7 +20,6 @@ const REUSABLE_PAYMENT_STATUSES = new Set([
   "requires_payment_method",
   "requires_confirmation",
   "requires_action",
-  "processing",
 ]);
 
 export async function POST(request: Request) {
@@ -131,6 +130,18 @@ export async function POST(request: Request) {
           {
             "Set-Cookie": buildClearedGrantCookie(request),
           },
+        );
+      }
+
+      if (existingPaymentIntent.status === "processing") {
+        return jsonResponse(
+          {
+            success: false,
+            state: "payment_processing",
+            error:
+              "Payment is already processing for this issuance. Please wait for confirmation before trying again.",
+          },
+          409,
         );
       }
 

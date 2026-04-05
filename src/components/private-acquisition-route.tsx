@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 
 type AcquisitionSessionSummary = {
   referenceCode: string;
+  clientName?: string | null;
   productName: string;
   productSnapshot?: {
     specifications?: Array<{ label: string; value: string }>;
@@ -183,7 +184,7 @@ function PrivatePaymentForm({
             layout: "tabs",
             defaultValues: {
               billingDetails: {
-                name: session.referenceCode,
+                name: session.clientName || undefined,
               },
             },
           }}

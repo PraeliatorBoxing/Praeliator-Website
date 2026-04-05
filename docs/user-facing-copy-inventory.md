@@ -1,0 +1,3432 @@
+# User-Facing Copy Inventory
+
+Generated: 2026-04-05T01:45:53.819Z
+
+Scope:
+- `src/index.tsx`
+- `src/lib/site-locale.ts`
+- `src/components/object-dossier-carousel.tsx`
+- `src/lib/ownership-certificate-pdf.ts`
+
+Total extracted entries: 3404
+
+Notes:
+- This is a raw copy inventory extracted from the source files that render UI text or user-facing document text.
+- It includes visible page copy, selectable option labels, notices, prompts, PDF/export text, and some accessibility-adjacent strings.
+- It may still include a small amount of near-UI technical text if that text participates in the user experience.
+
+## src/index.tsx
+
+- L35 [String]: Type
+- L35 [String]: Training boxing gloves
+- L36 [String]: Price
+- L36 [String]: $6,000 MXN
+- L37 [String]: Weight
+- L37 [String]: 16 oz
+- L38 [String]: Closure
+- L38 [String]: Lace-up
+- L39 [String]: Use
+- L39 [String]: Training · Technical sparring
+- L40 [String]: Outer Material
+- L40 [String]: Top-grain cowhide leather
+- L41 [String]: Leather Thickness
+- L41 [String]: 0.9–1.0 mm
+- L42 [String]: Lining
+- L42 [String]: 4-way stretch lining
+- L43 [String]: Palm
+- L43 [String]: Ventilated palm panel · Integrated grip bar
+- L44 [String]: Thumb
+- L44 [String]: Attached thumb
+- L45 [String]: Wrist
+- L45 [String]: Extended lace-up cuff
+- L46 [String]: Assembly
+- L46 [String]: Hand-assembled in Pakistan
+- L49 [String]: Multi-foam
+- L50 [String]: EVA
+- L51 [String]: Natural latex
+- L52 [String]: Natural latex
+- L55 [String]: Rigid presentation box
+- L56 [String]: Silk dust bag
+- L57 [String]: Silk wrapping paper
+- L58 [String]: Authenticity card
+- L59 [String]: Care card
+- L62 [String]: Leather cleaning
+- L63 [String]: Leather conditioning
+- L64 [String]: Lace replacement
+- L68 [String]: Construction
+- L70 [String]: Top-grain cowhide, balanced structure, ventilated palm, extended lace-up cuff.
+- L73 [String]: Presentation
+- L75 [String]: Rigid box, silk dust bag, silk wrapping, authenticity card, care card.
+- L77 [String]: Ownership
+- L77 [String]: Allocation, delivery, aftercare.
+- L80 [String]: Inquiry
+- L80 [String]: Private review and client reference.
+- L81 [String]: Delivery
+- L81 [String]: Allocation, dispatch, confirmation.
+- L82 [String]: Aftercare
+- L82 [String]: Maintenance and continued service.
+- L85 [String]: Allocation
+- L85 [String]: Held under the client record.
+- L86 [String]: Authenticity
+- L86 [String]: Linked to the order record.
+- L87 [String]: Delivery
+- L87 [String]: Tracked through dispatch and receipt.
+- L88 [String]: Aftercare
+- L88 [String]: Retained under ownership history.
+- L91 [String]: Inquiry entered into the client record.
+- L92 [String]: Follow-up handled directly.
+- L166 [String]: closed
+- L166 [String]: hover
+- L166 [String]: open
+- L167 [String]: wordmark
+- L167 [String]: assembly
+- L167 [String]: monogram
+- L170 [String]: left-outer
+- L178 [String]: left-upper
+- L186 [String]: left-lower
+- L194 [String]: right-upper
+- L202 [String]: right-lower
+- L210 [String]: right-outer
+- L218 [String]: center
+- L227 [String]: Afghanistan
+- L228 [String]: Albania
+- L229 [String]: Algeria
+- L230 [String]: American Samoa
+- L231 [String]: Angola
+- L232 [String]: Anguilla
+- L233 [String]: Antigua and Barbuda
+- L234 [String]: Argentina
+- L235 [String]: Armenia
+- L236 [String]: Aruba
+- L237 [String]: Australia
+- L238 [String]: Austria
+- L239 [String]: Azerbaijan
+- L240 [String]: Bahrain
+- L241 [String]: Bangladesh
+- L242 [String]: Barbados
+- L243 [String]: Belarus
+- L244 [String]: Belgium
+- L245 [String]: Belize
+- L246 [String]: Benin
+- L247 [String]: Bermuda
+- L248 [String]: Bhutan
+- L249 [String]: Bosnia and Herzegovina
+- L250 [String]: Botswana
+- L251 [String]: Brazil
+- L252 [String]: British Indian Ocean Territory
+- L253 [String]: Bulgaria
+- L254 [String]: Burkina Faso
+- L255 [String]: Burundi
+- L256 [String]: Cambodia
+- L257 [String]: Cameroon
+- L258 [String]: Canada
+- L259 [String]: Cayman Islands
+- L260 [String]: Central African Republic
+- L261 [String]: Chad
+- L262 [String]: Chile
+- L263 [String]: China
+- L264 [String]: Christmas Island
+- L265 [String]: Cocos (Keeling) Islands
+- L266 [String]: Colombia
+- L267 [String]: Comoros
+- L268 [String]: Cook Islands
+- L269 [String]: Costa Rica
+- L270 [String]: Croatia
+- L271 [String]: Cuba
+- L272 [String]: Cyprus
+- L273 [String]: Denmark
+- L274 [String]: Djibouti
+- L275 [String]: Dominica
+- L276 [String]: Dominican Republic
+- L277 [String]: Ecuador
+- L278 [String]: Egypt
+- L279 [String]: El Salvador
+- L280 [String]: Equatorial Guinea
+- L281 [String]: Eritrea
+- L282 [String]: Estonia
+- L283 [String]: Ethiopia
+- L284 [String]: Faroe Islands
+- L285 [String]: Fiji
+- L286 [String]: Finland
+- L287 [String]: France
+- L288 [String]: French Guiana
+- L289 [String]: French Polynesia
+- L290 [String]: Gabon
+- L291 [String]: Georgia
+- L292 [String]: Germany
+- L293 [String]: Ghana
+- L294 [String]: Gibraltar
+- L295 [String]: Greece
+- L296 [String]: Greenland
+- L297 [String]: Grenada
+- L298 [String]: Guadeloupe
+- L299 [String]: Guam
+- L300 [String]: Guatemala
+- L301 [String]: Guernsey
+- L302 [String]: Guinea
+- L303 [String]: Guinea-Bissau
+- L304 [String]: Guyana
+- L305 [String]: Haiti
+- L306 [String]: Honduras
+- L307 [String]: Hong Kong
+- L308 [String]: Hungary
+- L309 [String]: Iceland
+- L310 [String]: India
+- L311 [String]: Indonesia
+- L312 [String]: Iraq
+- L313 [String]: Ireland
+- L314 [String]: Isle of Man
+- L315 [String]: Israel
+- L316 [String]: Italy
+- L317 [String]: Jamaica
+- L318 [String]: Japan
+- L319 [String]: Jersey
+- L320 [String]: Jordan
+- L321 [String]: Kazakhstan
+- L322 [String]: Kenya
+- L323 [String]: Kiribati
+- L324 [String]: Kuwait
+- L325 [String]: Kyrgyzstan
+- L326 [String]: Lao People's Democratic Republic
+- L327 [String]: Latvia
+- L328 [String]: Lebanon
+- L329 [String]: Lesotho
+- L330 [String]: Liberia
+- L331 [String]: Libya
+- L332 [String]: Liechtenstein
+- L333 [String]: Lithuania
+- L334 [String]: Luxembourg
+- L335 [String]: Madagascar
+- L336 [String]: Malawi
+- L337 [String]: Malaysia
+- L338 [String]: Maldives
+- L339 [String]: Mali
+- L340 [String]: Malta
+- L341 [String]: Marshall Islands
+- L342 [String]: Martinique
+- L343 [String]: Mauritania
+- L344 [String]: Mauritius
+- L345 [String]: Mayotte
+- L346 [String]: Mexico
+- L347 [String]: Monaco
+- L348 [String]: Mongolia
+- L349 [String]: Montserrat
+- L350 [String]: Morocco
+- L351 [String]: Mozambique
+- L352 [String]: Namibia
+- L353 [String]: Nauru
+- L354 [String]: Nepal
+- L355 [String]: Netherlands
+- L356 [String]: New Caledonia
+- L357 [String]: New Zealand
+- L358 [String]: Nicaragua
+- L359 [String]: Niger
+- L360 [String]: Nigeria
+- L361 [String]: Niue
+- L362 [String]: Norfolk Island
+- L363 [String]: Northern Mariana Islands
+- L364 [String]: Norway
+- L365 [String]: Oman
+- L366 [String]: Pakistan
+- L367 [String]: Palau
+- L368 [String]: Panama
+- L369 [String]: Papua New Guinea
+- L370 [String]: Paraguay
+- L371 [String]: Peru
+- L372 [String]: Philippines
+- L373 [String]: Poland
+- L374 [String]: Portugal
+- L375 [String]: Puerto Rico
+- L376 [String]: Qatar
+- L377 [String]: Romania
+- L378 [String]: Russian Federation
+- L379 [String]: Rwanda
+- L380 [String]: RÃ©union
+- L381 [String]: Saint Kitts and Nevis
+- L382 [String]: Saint Lucia
+- L383 [String]: Saint Pierre and Miquelon
+- L384 [String]: Saint Vincent and the Grenadines
+- L385 [String]: Samoa
+- L386 [String]: San Marino
+- L387 [String]: Saudi Arabia
+- L388 [String]: Senegal
+- L389 [String]: Serbia
+- L390 [String]: Seychelles
+- L391 [String]: Sierra Leone
+- L392 [String]: Singapore
+- L393 [String]: Slovakia
+- L394 [String]: Slovenia
+- L395 [String]: Solomon Islands
+- L396 [String]: Somalia
+- L397 [String]: South Africa
+- L398 [String]: South Georgia and the South Sandwich Islands
+- L399 [String]: South Sudan
+- L400 [String]: Spain
+- L401 [String]: Sri Lanka
+- L402 [String]: Sudan
+- L403 [String]: Suriname
+- L404 [String]: Svalbard and Jan Mayen
+- L405 [String]: Sweden
+- L406 [String]: Switzerland
+- L407 [String]: Syrian Arab Republic
+- L408 [String]: Tajikistan
+- L409 [String]: Thailand
+- L410 [String]: Togo
+- L411 [String]: Tokelau
+- L412 [String]: Tonga
+- L413 [String]: Trinidad and Tobago
+- L414 [String]: Tunisia
+- L415 [String]: Turkmenistan
+- L416 [String]: Tuvalu
+- L417 [String]: Uganda
+- L418 [String]: Ukraine
+- L419 [String]: United Arab Emirates
+- L420 [String]: United Kingdom
+- L421 [String]: United States
+- L422 [String]: Uruguay
+- L423 [String]: Uzbekistan
+- L424 [String]: Vanuatu
+- L425 [String]: Wallis and Futuna
+- L426 [String]: Western Sahara
+- L427 [String]: Yemen
+- L428 [String]: Zambia
+- L429 [String]: Zimbabwe
+- L440 [String]: Mexico
+- L452 [String]: Mexico
+- L453 [String]: Praeliator VIS
+- L473 [String]: Mr.
+- L473 [String]: Mr.
+- L474 [String]: Mrs.
+- L474 [String]: Mrs.
+- L475 [String]: Ms.
+- L475 [String]: Ms.
+- L476 [String]: Miss
+- L476 [String]: Miss
+- L477 [String]: Mx.
+- L477 [String]: Mx.
+- L478 [String]: Dr.
+- L478 [String]: Dr.
+- L479 [String]: Prof.
+- L479 [String]: Prof.
+- L480 [String]: Sir
+- L480 [String]: Sir
+- L481 [String]: Dame
+- L481 [String]: Dame
+- L482 [String]: Lord
+- L482 [String]: Lord
+- L483 [String]: Lady
+- L483 [String]: Lady
+- L484 [String]: Prince
+- L484 [String]: Prince
+- L485 [String]: Princess
+- L485 [String]: Princess
+- L486 [String]: Sheikh
+- L486 [String]: Sheikh
+- L487 [String]: Sheikha
+- L487 [String]: Sheikha
+- L488 [String]: H.E.
+- L488 [String]: H.E.
+- L489 [String]: H.E. Dr.
+- L489 [String]: H.E. Dr.
+- L490 [String]: H.E. Mr.
+- L490 [String]: H.E. Mr.
+- L491 [String]: H.E. Mrs.
+- L491 [String]: H.E. Mrs.
+- L492 [String]: H.H.
+- L492 [String]: H.H.
+- L493 [String]: H.H. Prince
+- L493 [String]: H.H. Prince
+- L494 [String]: H.H. Sheikh
+- L494 [String]: H.H. Sheikh
+- L495 [String]: H.H. Sheikha
+- L495 [String]: H.H. Sheikha
+- L496 [String]: H.R.H.
+- L496 [String]: H.R.H.
+- L497 [String]: H.R.H. Prince
+- L497 [String]: H.R.H. Prince
+- L498 [String]: H.R.H. Princess
+- L498 [String]: H.R.H. Princess
+- L499 [String]: Esq.
+- L499 [String]: Esq.
+- L500 [String]: Captain
+- L500 [String]: Captain
+- L501 [String]: Chief
+- L501 [String]: Chief
+- L502 [String]: Dato
+- L502 [String]: Dato
+- L503 [String]: Dato Sri
+- L503 [String]: Dato Sri
+- L504 [String]: Datin
+- L504 [String]: Datin
+- L505 [String]: Datin Sri
+- L505 [String]: Datin Sri
+- L506 [String]: Puan Sri
+- L506 [String]: Puan Sri
+- L507 [String]: Tan Sri
+- L507 [String]: Tan Sri
+- L508 [String]: Reverend
+- L508 [String]: Reverend
+- L509 [String]: Herr
+- L509 [String]: Herr
+- L510 [String]: Frau
+- L510 [String]: Frau
+- L511 [String]: Mdm.
+- L511 [String]: Mdm.
+- L512 [String]: Monsieur
+- L512 [String]: Monsieur
+- L513 [String]: Madame
+- L513 [String]: Madame
+- L514 [String]: SeÃ±or
+- L514 [String]: SeÃ±or
+- L515 [String]: SeÃ±ora
+- L515 [String]: SeÃ±ora
+- L516 [String]: SeÃ±orita
+- L516 [String]: SeÃ±orita
+- L517 [String]: å…ˆç”Ÿ
+- L517 [String]: å…ˆç”Ÿ
+- L518 [String]: å¥³å£«
+- L518 [String]: å¥³å£«
+- L521 [String]: Praeliator VIS
+- L521 [String]: Praeliator VIS
+- L522 [String]: Future releases
+- L522 [String]: Future releases
+- L523 [String]: Collector interest
+- L523 [String]: Collector interest
+- L524 [String]: General brand inquiry
+- L524 [String]: General brand inquiry
+- L527 [String]: Ready now
+- L527 [String]: Ready now
+- L528 [String]: Within 30 days
+- L528 [String]: Within 30 days
+- L529 [String]: Within 3 months
+- L529 [String]: Within 3 months
+- L530 [String]: Researching only
+- L530 [String]: Researching only
+- L533 [String]: Phone
+- L533 [String]: Phone
+- L534 [String]: Email
+- L534 [String]: Email
+- L535 [String]: Either
+- L535 [String]: Either
+- L539 [String]: Immediate private acquisition
+- L539 [String]: Immediate acquisition
+- L540 [String]: Collector placement consideration
+- L540 [String]: Collector placement
+- L541 [String]: Regional allocation inquiry
+- L541 [String]: Regional allocation
+- L542 [String]: Future house relationship
+- L542 [String]: Future relationship
+- L545 [String]: Personal rotation
+- L545 [String]: Personal rotation
+- L546 [String]: Collector archive
+- L546 [String]: Collector archive
+- L547 [String]: Gift with continuity
+- L547 [String]: Gift with continuity
+- L548 [String]: Private training use
+- L548 [String]: Private training use
+- L578 [String]: primary
+- L578 [String]: secondary
+- L580 [String]: success
+- L580 [String]: error
+- L580 [String]: info
+- L607 [String]: praeliator_pending_otp
+- L608 [String]: praeliator_oauth_return_to
+- L611 [String]: praeliator_waitlist_cooldown_until
+- L612 [String]: praeliator_waitlist_event
+- L613 [String]: companyWebsite
+- L615 [String]: fullName
+- L616 [String]: email
+- L617 [String]: phoneCountryCode
+- L618 [String]: whatsapp
+- L619 [String]: country
+- L620 [String]: interest
+- L621 [String]: timeline
+- L622 [String]: contactPreference
+- L625 [String]: fullName
+- L626 [String]: email
+- L627 [String]: phoneCountryCode
+- L628 [String]: whatsapp
+- L629 [String]: country
+- L630 [String]: interest
+- L631 [String]: timeline
+- L632 [String]: contactPreference
+- L633 [String]: collectorIntent
+- L634 [String]: purchasePurpose
+- L637 [String]: title
+- L638 [String]: fullName
+- L639 [String]: interest
+- L642 [String]: Home
+- L643 [String]: Praeliator VIS
+- L644 [String]: Acquisition
+- L645 [String]: Waitlist
+- L646 [String]: Contact
+- L647 [String]: Sign In
+- L648 [String]: Create Account
+- L649 [String]: One-Time Code
+- L650 [String]: Verify Email
+- L651 [String]: Forgot Password
+- L652 [String]: Reset Password
+- L653 [String]: Ownership Record
+- L654 [String]: OAuth Consent
+- L658 [String]: VIS
+- L659 [String]: ACQUISITION
+- L660 [String]: WAITLIST
+- L661 [String]: CONTACT
+- L662 [String]: ACCESS
+- L663 [String]: ACCESS
+- L664 [String]: ACCESS
+- L665 [String]: ACCESS
+- L666 [String]: ACCESS
+- L667 [String]: ACCESS
+- L668 [String]: OWNERSHIP
+- L669 [String]: ACCESS
+- L672 [String]: VIS
+- L673 [String]: Acquisition
+- L674 [String]: Waitlist
+- L675 [String]: Contact
+- L682 [String]: Format
+- L682 [String]: 16 oz lace-up
+- L683 [String]: Material
+- L683 [String]: Top-grain cowhide
+- L684 [String]: Use
+- L684 [String]: Training · Technical sparring
+- L685 [String]: Finish
+- L685 [String]: Soft satin
+- L688 [String]: Method
+- L688 [String]: Direct inquiry
+- L689 [String]: Review
+- L689 [String]: Qualified screening
+- L690 [String]: Record
+- L690 [String]: Client reference
+- L691 [String]: Continuation
+- L691 [String]: Delivery · aftercare
+- L694 [String]: Use
+- L694 [String]: Future access
+- L695 [String]: Return
+- L695 [String]: Client reference
+- L696 [String]: Review
+- L696 [String]: Private follow-up
+- L697 [String]: Route
+- L697 [String]: Waitlist · WhatsApp
+- L700 [String]: Primary
+- L700 [String]: WhatsApp
+- L701 [String]: Secondary
+- L701 [String]: Email
+- L702 [String]: Social
+- L702 [String]: Instagram
+- L703 [String]: Scope
+- L703 [String]: Private client communication
+- L709 [String]: Inquiry
+- L710 [String]: The route begins through WhatsApp, email, or the intake form. There is no conventional checkout layer between the client and the brand.
+- L714 [String]: Client record
+- L715 [String]: Each qualified inquiry becomes a persistent record with reference, route status, ownership context, and follow-up visibility.
+- L719 [String]: Review and allocation
+- L720 [String]: Interest, timing, destination, and availability are clarified before dispatch. Control stays with the brand, not the cart.
+- L724 [String]: Delivery and aftercare
+- L725 [String]: Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.
+- L730 [String]: No cart layer
+- L731 [String]: The brand does not disappear behind a marketplace flow. The route stays direct from the beginning.
+- L734 [String]: Recorded continuity
+- L735 [String]: Inquiry, allocation, dispatch, and future service stay attached to the same client record.
+- L738 [String]: Controlled release
+- L739 [String]: Access remains qualified and paced. Availability is handled with intention rather than open inventory noise.
+- L744 [String]: Immediate inquiry
+- L745 [String]: For clients ready to begin the acquisition route now through direct contact.
+- L746 [String]: Begin inquiry
+- L749 [String]: Quiet registration
+- L750 [String]: For clients who want future access, collector visibility, or a softer point of entry.
+- L751 [String]: Join waitlist
+- L756 [String]: Conventional commerce
+- L758 [String]: Open inventory, visible quantity, and generic checkout sequencing.
+- L759 [String]: The brand disappears behind platform language and shipping logic.
+- L760 [String]: The object arrives disconnected from ownership history.
+- L764 [String]: Praeliator acquisition
+- L766 [String]: Inquiry remains direct and the route stays inside the brand voice.
+- L767 [String]: Allocation, dispatch, and continuity remain qualified rather than public.
+- L768 [String]: Ownership begins before delivery and continues after purchase.
+- L773 [String]: No cart layer between the client and the brand.
+- L774 [String]: Qualified review before allocation continues.
+- L775 [String]: Dispatch, confirmation, and aftercare retained under one record.
+- L780 [String]: WhatsApp
+- L781 [String]: Primary route
+- L782 [String]: The fastest path for private inquiry, immediate clarification, and continued contact once the route begins.
+- L786 [String]: Email
+- L787 [String]: Secondary route
+- L788 [String]: A quieter path for slower communication when the inquiry does not need live back and forth.
+- L792 [String]: Instagram
+- L793 [String]: Light contact
+- L794 [String]: Useful for presence, softer first contact, and brand visibility, but not the primary acquisition route.
+- L799 [String]: No support-center tone
+- L800 [String]: The brand stays direct. Communication does not collapse into generic help-desk language.
+- L803 [String]: One voice
+- L804 [String]: Whether the route begins on WhatsApp, email, or Instagram, the tone remains calm, precise, and controlled.
+- L807 [String]: Visible hierarchy
+- L808 [String]: Not every channel carries the same weight. WhatsApp remains primary, while the others stay available with clear roles.
+- L812 [String]: WhatsApp remains the primary route for direct private inquiries.
+- L813 [String]: Email remains available when a slower and quieter exchange makes more sense.
+- L814 [String]: Instagram remains open for lighter contact, but does not replace the primary route.
+- L818 [String]: Generic support
+- L820 [String]: Contact feels like a service queue rather than part of the brand.
+- L821 [String]: Every channel is treated as equal, so hierarchy disappears.
+- L822 [String]: Tone becomes functional, loud, or impersonal.
+- L826 [String]: Praeliator contact
+- L828 [String]: The brand stays visible through the communication route itself.
+- L829 [String]: Each channel has a distinct role, but the tone remains singular.
+- L830 [String]: Contact feels direct, private, and continuous with the object.
+- L836 [String]: Immediate inquiry
+- L837 [String]: For clients ready to begin a direct conversation now through the primary route.
+- L838 [String]: Open WhatsApp
+- L841 [String]: Quiet registration
+- L842 [String]: For clients who want future access or a softer point of entry before direct continuation.
+- L843 [String]: Join waitlist
+- L848 [String]: Object authority
+- L849 [String]: VIS is treated less like product inventory and more like a resolved training object with a documented standard.
+- L852 [String]: Private acquisition
+- L853 [String]: Inquiry, review, allocation, and delivery stay under direct house control instead of open commerce logic.
+- L856 [String]: Recorded custody
+- L857 [String]: Registration, age, service maturity, and future review remain attached to one continuous ownership line.
+- L860 [String]: House memory
+- L861 [String]: Aftercare is treated as continuation and retention, not generic support once the object has been delivered.
+- L866 [String]: Letter I
+- L867 [String]: House letter
+- L869 [String]: Praeliator is not trying to look like sports equipment refined by fashion. It is trying to behave like a house that understands the object before it understands the sale.
+- L870 [String]: Praeliator / House note
+- L873 [String]: Letter II
+- L874 [String]: Collector note
+- L876 [String]: The point of the Ownership Record is not storage of data. It is proof that custody, maturity, and aftercare still belong to the same authored system after acquisition.
+- L877 [String]: Private correspondence
+- L882 [String]: Study
+- L883 [String]: VIS is resolved as a training object with the calm of an archival piece.
+- L886 [String]: Custody
+- L887 [String]: Authenticity, presentation, and future aftercare continue under one ownership language.
+- L890 [String]: Maturity
+- L891 [String]: Legacy Refresh belongs to age and continuity, not a generic service menu.
+- L895 [String]: The silhouette is engineered to read controlled before it reads aggressive.
+- L896 [String]: Materials were chosen to avoid synthetic shine and preserve quiet authority.
+- L897 [String]: Packaging and documentation extend the object system beyond the glove itself.
+- L898 [String]: Aftercare is treated as continuity, not a detached support feature.
+- L902 [String]: Silhouette register
+- L903 [String]: The line reads resolved before it reads forceful.
+- L904 [String]: VIS gains authority through silhouette control rather than exaggeration. The wrist transition, hand chamber, and cuff all belong to one restrained profile.
+- L906 [String]: Praeliator VIS silhouette study
+- L908 [String]: Profile
+- L908 [String]: Balanced volume with a disciplined taper into the wrist.
+- L909 [String]: Cuff
+- L909 [String]: An extended lace-up cuff that anchors the object visually.
+- L910 [String]: Read
+- L910 [String]: Controlled first, technical second, luxurious throughout.
+- L914 [String]: Material plate
+- L915 [String]: Surface depth matters more than shine.
+- L916 [String]: The leather was chosen to feel warm, quiet, and resolved under light. It avoids the synthetic gloss that makes premium sports equipment feel generic.
+- L918 [String]: Praeliator VIS leather macro
+- L920 [String]: Leather
+- L920 [String]: Top-grain cowhide chosen for depth rather than flash.
+- L921 [String]: Finish
+- L921 [String]: Soft satin with espresso warmth beneath the black.
+- L922 [String]: Tone
+- L922 [String]: Quiet authority instead of coated brightness.
+- L926 [String]: Construction plate
+- L927 [String]: Technical decisions stay inside the same visual language.
+- L928 [String]: Palm ventilation, grip bar, thumb attachment, and layered impact structure are treated as part of the object's discipline, not as noisy feature marketing.
+- L930 [String]: Praeliator VIS logo and construction detail
+- L932 [String]: Padding
+- L932 [String]: A layered stack that reads stable, not swollen.
+- L933 [String]: Palm
+- L933 [String]: Ventilation integrated without breaking the silhouette.
+- L934 [String]: Discipline
+- L934 [String]: Technical seriousness without visual clutter.
+- L938 [String]: Custody plate
+- L939 [String]: Presentation and aftercare extend the object system.
+- L940 [String]: Packaging, authenticity, ownership continuity, and future Legacy Refresh are not accessories to the glove. They are part of the full Praeliator object.
+- L942 [String]: Praeliator VIS packaging and ownership continuity
+- L944 [String]: Presentation
+- L944 [String]: Rigid box, silk dust bag, and authored documentation.
+- L945 [String]: Custody
+- L945 [String]: Ownership is retained rather than left behind after dispatch.
+- L946 [String]: Aftercare
+- L946 [String]: Legacy Refresh remains tied to maturity and continuity.
+- L952 [String]: Collector intent
+- L953 [String]: The route can account for collecting, rotation, long-term use, and future custody rather than forcing every client into one checkout pattern.
+- L956 [String]: Regional handling
+- L957 [String]: Timing, dispatch route, and destination are considered before allocation is confirmed.
+- L960 [String]: Continuity after delivery
+- L961 [String]: The acquisition route is designed to feed directly into ownership record and future service rather than ending at dispatch.
+- L965 [String]: Placement
+- L965 [String]: Qualified review before allocation
+- L966 [String]: Reference
+- L966 [String]: Client line retained after inquiry
+- L967 [String]: Dispatch
+- L967 [String]: Destination and timing clarified directly
+- L968 [String]: Aftercare
+- L968 [String]: Ownership remains active after delivery
+- L972 [String]: Release signals
+- L973 [String]: The waitlist is meant to keep future access orderly when a client is not yet entering direct acquisition.
+- L976 [String]: Collector memory
+- L977 [String]: Collector interest, timeline, and route preference are remembered as part of the intake line rather than discarded after form submission.
+- L980 [String]: House correspondence
+- L981 [String]: Follow-up should feel like private correspondence from the house, not automated campaign mail.
+- L986 [String]: Tone
+- L987 [String]: Every reply should sound exact, private, and restrained rather than like a support desk.
+- L990 [String]: Hierarchy
+- L991 [String]: WhatsApp remains first for active acquisition, while email and Instagram stay quieter secondary routes.
+- L994 [String]: Continuation
+- L995 [String]: The house should remain visible through the channel itself, not disappear behind generic service language.
+- L999 [String]: The house reviews continuity before a retained pair changes custody.
+- L1000 [String]: Transfer timing, next custodian, and object condition should be stated clearly.
+- L1001 [String]: The request begins as review, not automatic reassignment.
+- L1004 [String]: Registration entered
+- L1005 [String]: Delivery age retained
+- L1006 [String]: Legacy Refresh state held under record
+- L1010 [String]: Material discipline
+- L1011 [String]: The glove is built in top-grain cowhide with a restrained finish that reads deep black first and espresso second. It avoids the loud shine that makes luxury feel synthetic.
+- L1014 [String]: Engineered structure
+- L1015 [String]: The silhouette is meant to feel sculpted rather than swollen. Palm ventilation, an integrated grip bar, attached thumb, and the extended cuff all work inside the same visual system.
+- L1018 [String]: Object quality
+- L1019 [String]: Presentation was not treated like a separate afterthought. Packaging, ownership, and aftercare all continue the same tone as the glove itself.
+- L1024 [String]: Explore
+- L1026 [String]: VIS
+- L1027 [String]: Acquisition
+- L1028 [String]: Waitlist
+- L1029 [String]: Contact
+- L1033 [String]: Signals
+- L1035 [String]: Private acquisition
+- L1036 [String]: Controlled releases
+- L1037 [String]: Ownership continuity
+- L1038 [String]: Aftercare retention
+- L1044 [String]: blur(6px)
+- L1048 [String]: blur(0px)
+- L1054 [String]: blur(4px)
+- L1066 [Template]: ${…} opacity-80
+- L1095 [String]: change
+- L1095 [String]: blur
+- L1095 [String]: submit
+- L1095 [String]: change
+- L1097 [String]: fullName
+- L1098 [String]: change
+- L1101 [String]: email
+- L1102 [String]: change
+- L1105 [String]: phoneCountryCode
+- L1106 [String]: whatsapp
+- L1107 [String]: country
+- L1108 [String]: change
+- L1111 [String]: note
+- L1112 [String]: change
+- L1113 [String]: change
+- L1116 [String]: title
+- L1116 [String]: submit
+- L1117 [String]: fullName
+- L1117 [String]: submit
+- L1118 [String]: email
+- L1118 [String]: submit
+- L1120 [String]: phoneCountryCode
+- L1122 [String]: submit
+- L1124 [String]: whatsapp
+- L1124 [String]: submit
+- L1125 [String]: country
+- L1125 [String]: submit
+- L1126 [String]: interest
+- L1126 [String]: submit
+- L1127 [String]: timeline
+- L1127 [String]: submit
+- L1129 [String]: contactPreference
+- L1131 [String]: submit
+- L1133 [String]: note
+- L1133 [String]: submit
+- L1138 [String]: change
+- L1138 [String]: blur
+- L1138 [String]: submit
+- L1138 [String]: change
+- L1147 [String]: destinationRegion
+- L1148 [String]: change
+- L1152 [String]: change
+- L1159 [String]: title
+- L1159 [String]: submit
+- L1160 [String]: fullName
+- L1160 [String]: submit
+- L1161 [String]: email
+- L1161 [String]: submit
+- L1163 [String]: phoneCountryCode
+- L1165 [String]: submit
+- L1167 [String]: whatsapp
+- L1167 [String]: submit
+- L1168 [String]: country
+- L1168 [String]: submit
+- L1169 [String]: interest
+- L1169 [String]: submit
+- L1170 [String]: timeline
+- L1170 [String]: submit
+- L1172 [String]: contactPreference
+- L1174 [String]: submit
+- L1177 [String]: collectorIntent
+- L1179 [String]: submit
+- L1182 [String]: purchasePurpose
+- L1184 [String]: submit
+- L1187 [String]: destinationRegion
+- L1189 [String]: submit
+- L1191 [String]: note
+- L1191 [String]: submit
+- L1199 [String]: US and Canadian numbers should be 10 digits.
+- L1201 [String]: French numbers should be 9 digits.
+- L1202 [String]: Spanish numbers should be 9 digits.
+- L1206 [String]: UK numbers are usually 10 to 11 digits.
+- L1211 [String]: German numbers are usually 10 to 13 digits.
+- L1216 [String]: Mexican numbers should be 10 digits.
+- L1221 [String]: Brazilian numbers are usually 10 to 11 digits.
+- L1226 [String]: Australian numbers should be 9 digits.
+- L1231 [String]: Japanese mobile numbers are usually 10 digits.
+- L1233 [String]: Indian numbers should be 10 digits.
+- L1239 [String]: Enter a valid phone number.
+- L1251 [String]: Full name is required.
+- L1253 [String]: Enter a valid full name.
+- L1256 [String]: Email is required.
+- L1258 [String]: Enter a valid email address.
+- L1261 [String]: Country is required.
+- L1264 [String]: Dial code is required.
+- L1266 [String]: Enter a valid dial code.
+- L1269 [String]: Phone number is required.
+- L1276 [String]: Select an interest.
+- L1277 [String]: Select a timeline.
+- L1279 [String]: Select a preferred contact method.
+- L1301 [String]: Select the collector posture for this inquiry.
+- L1304 [String]: Select how the pair is meant to be placed.
+- L1314 [String]: fullName
+- L1316 [String]: submit
+- L1320 [String]: Select a title.
+- L1323 [String]: Full name is required.
+- L1325 [String]: Enter a valid full name.
+- L1328 [String]: Select an interest.
+- L1353 [String]: string
+- L1356 [String]: object
+- L1358 [String]: message
+- L1358 [String]: string
+- L1360 [String]: error
+- L1360 [String]: string
+- L1372 [String]: Pending
+- L1374 [String]: numeric
+- L1375 [String]: short
+- L1376 [String]: numeric
+- L1384 [String]: Age pending
+- L1385 [String]: The recorded delivery date has not been confirmed yet.
+- L1399 [Template]: ${…} year${…}${…}
+- L1399 [Template]: ${…} month${…}
+- L1400 [String]: Measured from the recorded delivery date retained under the house.
+- L1407 [Template]: ${…} month${…}
+- L1408 [String]: Measured from the recorded delivery date retained under the house.
+- L1413 [Template]: ${…} day${…}
+- L1414 [String]: Measured from the recorded delivery date retained under the house.
+- L1428 [String]: pending_review
+- L1429 [String]: Application received
+- L1430 [String]: under_review
+- L1431 [String]: Under private review
+- L1432 [String]: approved
+- L1433 [String]: Approved for intake
+- L1434 [String]: declined
+- L1435 [String]: Declined
+- L1436 [String]: completed
+- L1437 [String]: Completed
+- L1438 [String]: withdrawn
+- L1439 [String]: Withdrawn
+- L1441 [String]: No application
+- L1447 [String]: pending_review
+- L1449 [String]: under_review
+- L1451 [String]: approved
+- L1453 [String]: declined
+- L1455 [String]: completed
+- L1457 [String]: withdrawn
+- L1460 [String]: border-white/10 bg-white/[0.03] text-white/60
+- L1469 [Template]: Entered the house review on ${…}.
+- L1470 [String]: Entered the house review under this record.
+- L1472 [String]: review
+- L1478 [String]: Eligible now
+- L1479 [String]: Legacy Refresh is now available under the house rules for this pair.
+- L1481 [String]: open
+- L1486 [Template]: Eligible on ${…}
+- L1487 [String]: Legacy Refresh opens from the recorded delivery date, never the registration date.
+- L1489 [String]: sealed
+- L1494 [String]: Seal pending
+- L1511 [String]: Nocturne Ledger
+- L1512 [String]: Espresso spine / first-house register
+- L1527 [String]: Stone Archive
+- L1528 [String]: Warm parchment / pale-stone custody
+- L1543 [String]: Aureate Seal
+- L1544 [String]: Gold-warmed edge / ceremonial custody
+- L1559 [String]: Ivory Dossier
+- L1560 [String]: Quiet folio / retained with restraint
+- L1588 [String]: string
+- L1593 [String]: Private client
+- L1606 [String]: PRAE
+- L1608 [Template]: OR-${…}-${…}
+- L1636 [String]: The pair was admitted into the Ownership Record under the current client line.
+- L1641 [String]: Every maturity decision continues from the delivery date retained by the house.
+- L1676 [String]: House correspondence / retention
+- L1677 [Template]: ${…} has been retained under ${…}.
+- L1678 [Template]: The pair entered the record on ${…} and continues to mature from the delivery date held by the house. Current age posture: ${…}.
+- L1681 [String]: Praeliator / ownership register
+- L1684 [String]: House correspondence / threshold
+- L1685 [String]: The archive is ready for its first retained pair.
+- L1686 [String]: Once a real pair enters the Ownership Record, the house begins holding continuity, maturity, and future service against that object rather than leaving ownership in the browser.
+- L1687 [String]: Praeliator / ownership register
+- L1691 [String]: House correspondence / invitation
+- L1692 [Template]: ${…} opens toward Legacy Refresh on ${…}.
+- L1695 [String]: Legacy Refresh remains governed by maturity, not by the existence of a form. The next invitation appears only when the recorded delivery line has ripened enough under the house rules.
+- L1696 [String]: Praeliator / service chamber
+- L1699 [String]: House correspondence / review line
+- L1702 [Template]: ${…} pair${…} currently remain under private review.
+- L1705 [String]: No retained pair is under private review right now.
+- L1708 [String]: Applications already under review continue through the house without reopening the route as a generic service queue.
+- L1710 [String]: The next correspondence will emerge from retention, maturity, or a future service invitation.
+- L1711 [String]: Praeliator / continuity office
+- L1731 [String]: &amp;
+- L1732 [String]: &lt;
+- L1733 [String]: &gt;
+- L1734 [String]: &quot;
+- L1892 [String]: Private line retained
+- L1900 [String]: Awaiting first retained pair
+- L1904 [String]: Pending record
+- L1908 [String]: No retained pair under review
+- L1912 [String]: Age pending
+- L1916 [String]: Seal pending
+- L1920 [String]: Pending first retention
+- L1944 [String]: opacity-[0.07]
+- L1950 [Template]: pointer-events-none absolute ${…}
+- L1956 [Template]: h-full w-full object-contain mix-blend-multiply ${…}
+- L2028 [JSX]: Service ledger
+- L2071 [String]: declined
+- L2071 [String]: withdrawn
+- L2071 [String]: completed
+- L2078 [Template]: · Requested ${…}
+- L2080 [String]: The invitation may now proceed into private review.
+- L2081 [Template]: Chamber opens ${…}.
+- L2082 [Template]: House mark ${…}
+- L2096 [String]: opacity-[0.055]
+- L2100 [Template]: pointer-events-none absolute inset-x-[8%] top-0 h-px ${…}
+- L2136 [JSX]: Registered on
+- L2137 [JSX]: . Delivery was recorded on
+- L2143 [JSX]: Recorded delivery
+- L2151 [JSX]: Pair age
+- L2159 [JSX]: Claim seal
+- L2167 [JSX]: Eligible on
+- L2183 [JSX]: Legacy Refresh invitation
+- L2188 [String]: This pair has crossed its recorded threshold. The next step is invitation and private review, never open booking.
+- L2189 [String]: The invitation remains sealed until the recorded maturity date is reached under the house rules.
+- L2200 [JSX]: Record note
+- L2208 [JSX]: Edition note
+- L2212 [JSX]: . The house keeps each line distinct so repeated folios still feel singular in the archive.
+- L2221 [JSX]: Invitation state:
+- L2230 [JSX]: Open Legacy Refresh Invitation
+- L2240 [JSX]: Opens
+- L2246 [String]: outline
+- L2249 [JSX]: Export Certificate
+- L2254 [String]: outline
+- L2257 [JSX]: Review Transfer
+- L2285 [String]: invitation
+- L2285 [String]: review
+- L2285 [String]: invitation
+- L2291 [String]: invitation
+- L2297 [String]: hidden
+- L2298 [String]: hidden
+- L2307 [String]: Escape
+- L2312 [String]: keydown
+- L2313 [String]: keydown
+- L2316 [String]: undefined
+- L2333 [Template]: legacy-refresh-title-${…}
+- L2342 [String]: opacity-[0.055]
+- L2348 [JSX]: Legacy Refresh chamber
+- L2351 [JSX]: Full review environment for
+- L2360 [JSX]: Close
+- L2368 [JSX]: Legacy Refresh invitation
+- L2377 [Template]: legacy-refresh-title-${…}
+- L2387 [JSX]: A Legacy Refresh opening is an invitation to consideration, not an instant booking. The house reviews condition, age, timing, and continuity before intake is confirmed.
+- L2395 [JSX]: Pair age
+- L2403 [JSX]: Delivery recorded
+- L2411 [JSX]: Chamber opened
+- L2422 [String]: wait
+- L2423 [String]: invitation
+- L2425 [String]: invitation
+- L2442 [JSX]: Private opening
+- L2445 [JSX]: Legacy Refresh is now willing to hear this pair.
+- L2448 [JSX]: Proceed only if the pair is ready to be considered under the house line. What follows is a request for review, not a transaction.
+- L2459 [String]: Invitation
+- L2460 [String]: The pair has crossed its recorded threshold and the chamber may now open.
+- L2464 [String]: Private review
+- L2465 [String]: Condition, timing, and continuity are considered before intake is accepted.
+- L2469 [String]: House return
+- L2470 [String]: If approved, the work remains tied to the same Ownership Record throughout.
+- L2493 [String]: review
+- L2495 [JSX]: Continue into Private Review
+- L2500 [String]: outline
+- L2504 [JSX]: Return to Record
+- L2511 [String]: review
+- L2521 [JSX]: Private review statement
+- L2524 [JSX]: Use the note only for meaningful context: current condition, travel history, desired timing, or anything the house should understand before review begins.
+- L2532 [String]: invitation
+- L2534 [JSX]: Invitation
+- L2540 [JSX]: What the house considers
+- L2543 [JSX]: The record, current condition, intended timing, and the continuity of the pair under the house line.
+- L2550 [JSX]: Context for review
+- L2560 [String]: Condition, timing, or context for private review.
+- L2567 [JSX]: House review
+- L2571 [JSX]: Submission enters private review under the same Ownership Record. Approval, decline, and completion remain visible on this pair's line.
+- L2589 [String]: Entering private review...
+- L2590 [String]: Enter Private Review
+- L2594 [String]: outline
+- L2598 [JSX]: Close chamber
+- L2637 [String]: undefined
+- L2664 [String]: opacity-[0.05]
+- L2668 [JSX]: Transfer review chamber
+- L2673 [JSX]: Continuity review
+- L2679 [JSX]: A retained pair does not change custody automatically. The house reviews continuity, timing, and the identity of the next line before a transfer is acknowledged.
+- L2687 [JSX]: Pair age
+- L2695 [JSX]: Delivery recorded
+- L2710 [JSX]: Review
+- L2726 [JSX]: Private review letter
+- L2729 [JSX]: This submission enters a structured transfer-review brief into the private record so the continuity request remains authored, retained, and reviewable under the house.
+- L2738 [JSX]: Next custodian
+- L2745 [String]: nextCustodianName
+- L2748 [String]: Full name
+- L2753 [JSX]: Next custodian email
+- L2760 [String]: nextCustodianEmail
+- L2763 [String]: name@example.com
+- L2770 [JSX]: Intended timing
+- L2777 [String]: intendedTiming
+- L2780 [String]: Within 30 days / after review / future only
+- L2785 [JSX]: Continuity note
+- L2791 [String]: note
+- L2794 [String]: Object condition, provenance, or any continuity detail the house should review.
+- L2801 [JSX]: Prepared for house review
+- L2805 [JSX]: Submission creates a real house review record. The request is logged under a reference before continuation ever reaches direct correspondence.
+- L2822 [String]: Entering review...
+- L2822 [String]: Enter Transfer Review
+- L2826 [String]: outline
+- L2830 [JSX]: Return to Record
+- L2861 [String]: Praeliator VIS
+- L2928 [String]: mx-auto max-w-3xl text-center
+- L2928 [String]: max-w-3xl
+- L3009 [String]: opacity-[0.04]
+- L3030 [String]: .avif$1
+- L3042 [String]: medium
+- L3049 [String]: light
+- L3049 [String]: medium
+- L3049 [String]: heavy
+- L3058 [String]: undefined
+- L3059 [String]: (max-width: 767px) and (pointer: coarse)
+- L3062 [String]: change
+- L3063 [String]: change
+- L3074 [Template]: url(${…})
+- L3094 [String]: metadata
+- L3099 [Template]: absolute inset-0 ${…}
+- L3188 [String]: secondary
+- L3188 [String]: outline
+- L3191 [String]: secondary
+- L3205 [String]: secondary
+- L3205 [String]: outline
+- L3209 [String]: secondary
+- L3353 [JSX]: Private client club
+- L3356 [JSX]: Praeliator Club
+- L3359 [JSX]: A quieter continuation of the brand: controlled access, direct contact, and ownership carried with continuity.
+- L3378 [String]: outline
+- L3387 [String]: Private acquisition
+- L3388 [String]: Controlled release rhythm
+- L3389 [String]: Ownership continuity
+- L3409 [String]: links
+- L3411 [String]: Explore
+- L3437 [JSX]: Direct contact
+- L3440 [JSX]: WhatsApp remains primary. Email and Instagram stay available for slower paths.
+- L3514 [String]: heavy
+- L3559 [String]: secondary
+- L3559 [String]: outline
+- L3561 [String]: secondary
+- L3574 [String]: secondary
+- L3574 [String]: outline
+- L3577 [String]: secondary
+- L3659 [String]: Praeliator
+- L3662 [JSX]: Praeliator
+- L3669 [String]: VIS
+- L3670 [String]: Acquisition
+- L3671 [String]: Waitlist
+- L3672 [String]: Contact
+- L3687 [JSX]: Direct contact
+- L3690 [JSX]: WhatsApp remains primary. Email and Instagram stay available for quieter paths.
+- L3730 [String]: midnight
+- L3736 [String]: midnight
+- L3736 [String]: archive
+- L3742 [String]: archive
+- L3763 [String]: One-time code
+- L3794 [String]: text-white/34
+- L3796 [JSX]: Enter one digit at a time. Paste also works.
+- L3818 [String]: undefined
+- L3822 [String]: authorization_id
+- L3832 [String]: error
+- L3833 [String]: Authorization unavailable
+- L3834 [String]: The authorization request is missing its identifier. Return to the requesting application and begin again.
+- L3840 [String]: info
+- L3841 [String]: Sign in required
+- L3842 [String]: This authorization request can only be reviewed after you sign in under the house.
+- L3849 [String]: error
+- L3850 [String]: OAuth consent is not configured
+- L3851 [String]: Enable the OAuth server methods in Supabase before this consent route can continue.
+- L3862 [String]: error
+- L3863 [String]: Authorization unavailable
+- L3890 [String]: Connected application
+- L3898 [String]: approve
+- L3898 [String]: deny
+- L3904 [String]: approve
+- L3908 [String]: error
+- L3909 [String]: approve
+- L3909 [String]: Approval unavailable
+- L3909 [String]: Authorization could not be denied
+- L3914 [String]: undefined
+- L3931 [JSX]: OAuth
+- L3932 [JSX]: Review authorization request.
+- L3933 [JSX]: This route reviews what a connected application is requesting from your Praeliator identity before access is granted or denied.
+- L3938 [JSX]: Authorization path
+- L3939 [JSX]: Configured at
+- L3940 [JSX]: . Supabase redirects third-party apps here with an
+- L3940 [JSX]: authorization_id
+- L3940 [JSX]: so consent can be reviewed inside the house.
+- L3957 [JSX]: Private access required
+- L3958 [JSX]: Sign in before reviewing this authorization request. Once the session is active, return here and the consent details will load.
+- L3972 [String]: outline
+- L3984 [JSX]: The authorization request is being reviewed now.
+- L3990 [JSX]: Requesting application
+- L3998 [JSX]: Requested access
+- L4008 [JSX]: No scopes were provided by the requesting application.
+- L4017 [String]: approve
+- L4019 [JSX]: Approve Access
+- L4025 [String]: outline
+- L4026 [String]: deny
+- L4028 [JSX]: Deny Access
+- L4082 [String]: blur(18px)
+- L4082 [String]: blur(0px)
+- L4091 [String]: Close menu
+- L4091 [String]: Open menu
+- L4144 [String]: auto
+- L4201 [JSX]: Private client club
+- L4204 [JSX]: Praeliator Club
+- L4207 [JSX]: Controlled access, direct contact, and ownership carried with continuity.
+- L4223 [String]: outline
+- L4246 [JSX]: Signals
+- L4259 [JSX]: Direct contact
+- L4262 [JSX]: WhatsApp remains primary. Email and Instagram stay available where appropriate.
+- L4303 [String]: text
+- L4323 [String]: inputMode
+- L4374 [String]: text
+- L4374 [String]: password
+- L4379 [Template]: ${…} pr-16
+- L4385 [String]: Hide password
+- L4385 [String]: Show password
+- L4424 [String]: mousedown
+- L4426 [String]: mousedown
+- L4434 [Template]: inline-flex items-center transition duration-300 hover:text-white ${…}
+- L4439 [Template]: rounded-full border border-white/12 bg-white/[0.04] text-white/78 hover:border-white/18 hover:bg-white/[0.08] ${…}
+- L4470 [String]: bg-white/[0.08] text-white
+- L4471 [String]: text-white/72 hover:bg-white/[0.05] hover:text-white
+- L4494 [String]: Search
+- L4523 [Template]: ${…}-listbox
+- L4524 [Template]: ${…}-label
+- L4540 [Template]: ${…}-option-${…}
+- L4553 [String]: mousedown
+- L4554 [String]: mousedown
+- L4589 [String]: ArrowDown
+- L4598 [String]: ArrowUp
+- L4607 [String]: Home
+- L4612 [String]: End
+- L4617 [String]: Enter
+- L4627 [String]: Escape
+- L4636 [String]: Tab
+- L4647 [String]: listbox
+- L4662 [String]: text-white/30
+- L4668 [String]: text-white/24
+- L4674 [Template]: h-4 w-4 shrink-0 transition duration-300 ${…}
+- L4674 [String]: rotate-90 text-white/34
+- L4706 [String]: true
+- L4715 [JSX]: No matches found.
+- L4724 [Template]: ${…}-option-${…}
+- L4729 [String]: true
+- L4732 [String]: bg-white/[0.05]
+- L4732 [String]: hover:bg-white/[0.03]
+- L4735 [String]: text-white/72
+- L4776 [String]: inputMode
+- L4786 [Template]: ${…}-picker-listbox
+- L4787 [Template]: ${…}-picker-label
+- L4801 [Template]: ${…}-picker-option-${…}
+- L4810 [String]: mousedown
+- L4811 [String]: mousedown
+- L4825 [String]: tel
+- L4844 [String]: text-white/30
+- L4850 [Template]: pointer-events-none absolute right-5 z-10 h-4 w-4 -translate-y-1/2 transition duration-300 ${…}
+- L4850 [String]: top-[2.6rem] rotate-90 text-white/34
+- L4856 [String]: list
+- L4866 [String]: tel
+- L4890 [String]: ArrowDown
+- L4899 [String]: ArrowUp
+- L4908 [String]: Home
+- L4913 [String]: End
+- L4918 [String]: Enter
+- L4924 [String]: Escape
+- L4930 [String]: Tab
+- L4936 [Template]: ${…} pr-12 ${…}
+- L4953 [String]: true
+- L4968 [Template]: ${…}-picker-option-${…}
+- L4973 [String]: true
+- L4976 [String]: bg-white/[0.05]
+- L4976 [String]: hover:bg-white/[0.03]
+- L5032 [String]: undefined
+- L5033 [String]: (max-width: 767px) and (pointer: coarse)
+- L5036 [String]: change
+- L5037 [String]: change
+- L5078 [Template]: url(${…})
+- L5096 [String]: auto
+- L5118 [String]: Loading
+- L5134 [String]: blur(0px)
+- L5134 [String]: blur(12px)
+- L5209 [String]: vis
+- L5210 [String]: Discover VIS
+- L5211 [String]: The flagship training glove.
+- L5216 [String]: acquisition
+- L5217 [String]: Private Acquisition
+- L5218 [String]: Handled directly, with control.
+- L5223 [String]: waitlist
+- L5224 [String]: Join Waitlist
+- L5225 [String]: Future access, recorded properly.
+- L5239 [JSX]: House continuation
+- L5242 [JSX]: The house continues after the opening sequence.
+- L5245 [JSX]: The first three chambers stay cinematic and untouched. Beyond them, the site should begin to prove that Praeliator is a house with object authority, private acquisition, recorded custody, and memory.
+- L5291 [Template]: url(${…})
+- L5296 [JSX]: Continue
+- L5353 [String]: Praeliator
+- L5356 [JSX]: Praeliator
+- L5366 [JSX]: VIS
+- L5373 [JSX]: Acquisition
+- L5380 [JSX]: Waitlist
+- L5389 [JSX]: Contact
+- L5397 [JSX]: Private Inquiry
+- L5402 [JSX]: Presentation
+- L5405 [JSX]: Ownership
+- L5410 [JSX]: Hand-assembled
+- L5413 [JSX]: Top-grain leather
+- L5492 [String]: open
+- L5492 [String]: hover
+- L5492 [String]: closed
+- L5496 [Template]: relative isolate ${…}
+- L5534 [Template]: absolute left-1/2 top-1/2 block ${…}
+- L5538 [Template]: url(${…})
+- L5539 [Template]: url(${…})
+- L5540 [String]: no-repeat
+- L5541 [String]: no-repeat
+- L5542 [String]: contain
+- L5543 [String]: contain
+- L5544 [String]: center
+- L5545 [String]: center
+- L5546 [String]: center center
+- L5547 [String]: transform, opacity
+- L5581 [Template]: relative isolate ${…}
+- L5624 [String]: wordmark
+- L5625 [String]: assembly
+- L5626 [String]: monogram
+- L5630 [String]: 13.08rem
+- L5631 [String]: 0rem
+- L5633 [String]: 13.08rem
+- L5634 [String]: 0rem
+- L5637 [String]: 0rem
+- L5639 [String]: 0rem
+- L5640 [String]: -0.52rem
+- L5651 [String]: Praeliator home
+- L5656 [String]: Praeliator
+- L5663 [String]: Praeliator
+- L5680 [String]: Praeliator home
+- L5688 [String]: blur(10px)
+- L5688 [String]: blur(0.4px)
+- L5688 [String]: blur(0px)
+- L5701 [String]: 13.08rem
+- L5719 [String]: blur(10px)
+- L5719 [String]: blur(0px)
+- L5784 [String]: video
+- L5793 [String]: tail
+- L5807 [String]: tail
+- L5809 [String]: undefined
+- L5812 [String]: (max-width: 767px)
+- L5813 [String]: (pointer: coarse)
+- L5814 [String]: ontouchstart
+- L5819 [String]: resize
+- L5820 [String]: resize
+- L5842 [String]: hidden
+- L5843 [String]: hidden
+- L5852 [String]: auto
+- L5880 [String]: INPUT
+- L5880 [String]: TEXTAREA
+- L5880 [String]: SELECT
+- L5889 [String]: ArrowDown
+- L5889 [String]: PageDown
+- L5892 [String]: ArrowUp
+- L5892 [String]: PageUp
+- L5895 [String]: End
+- L5902 [String]: ArrowDown
+- L5903 [String]: ArrowUp
+- L5904 [String]: PageDown
+- L5905 [String]: PageUp
+- L5906 [String]: Home
+- L5907 [String]: End
+- L5915 [String]: ArrowDown
+- L5915 [String]: PageDown
+- L5918 [String]: ArrowUp
+- L5918 [String]: PageUp
+- L5921 [String]: Home
+- L5924 [String]: End
+- L5929 [String]: wheel
+- L5930 [String]: keydown
+- L5932 [String]: wheel
+- L5933 [String]: keydown
+- L5960 [String]: video
+- L5992 [Template]: -${…}svh
+- L5997 [String]: video
+- L6029 [String]: success
+- L6036 [String]: error
+- L6057 [Template]: mt-3 text-sm leading-7 ${…}
+- L6062 [String]: default
+- L6062 [String]: button
+- L6062 [String]: hidden
+- L6105 [String]: default
+- L6110 [String]: default
+- L6116 [String]: undefined
+- L6118 [String]: hidden
+- L6124 [String]: hidden
+- L6130 [String]: button
+- L6131 [String]: a[href]
+- L6132 [String]: [role='button']
+- L6133 [String]: summary
+- L6134 [String]: label[for]
+- L6135 [String]: [data-cursor='button']
+- L6138 [String]: input
+- L6139 [String]: textarea
+- L6140 [String]: select
+- L6141 [String]: [contenteditable='true']
+- L6142 [String]: [contenteditable='']
+- L6143 [String]: [contenteditable='plaintext-only']
+- L6171 [String]: default
+- L6172 [String]: hidden
+- L6173 [String]: [data-native-cursor='true']
+- L6173 [String]: default
+- L6174 [String]: button
+- L6175 [String]: default
+- L6180 [String]: [data-native-cursor='true']
+- L6198 [String]: mouse
+- L6207 [String]: button
+- L6223 [String]: hidden
+- L6227 [String]: mouse
+- L6232 [String]: button
+- L6244 [String]: hidden
+- L6248 [String]: mouse
+- L6255 [String]: button
+- L6264 [String]: mouse
+- L6272 [String]: button
+- L6287 [String]: visible
+- L6290 [String]: pointermove
+- L6291 [String]: pointerover
+- L6292 [String]: pointerdown
+- L6293 [String]: pointerup
+- L6294 [String]: resize
+- L6295 [String]: scroll
+- L6299 [String]: blur
+- L6300 [String]: visibilitychange
+- L6301 [String]: mouseleave
+- L6304 [String]: pointermove
+- L6305 [String]: pointerover
+- L6306 [String]: pointerdown
+- L6307 [String]: pointerup
+- L6308 [String]: resize
+- L6309 [String]: scroll
+- L6310 [String]: blur
+- L6311 [String]: visibilitychange
+- L6312 [String]: mouseleave
+- L6318 [String]: button
+- L6319 [String]: hidden
+- L6566 [String]: mobile
+- L6566 [String]: tablet
+- L6566 [String]: desktop
+- L6567 [String]: undefined
+- L6567 [String]: desktop
+- L6572 [String]: (pointer: coarse)
+- L6573 [String]: (hover: none)
+- L6576 [String]: MacIntel
+- L6578 [String]: mobile
+- L6579 [String]: desktop
+- L6580 [String]: tablet
+- L6585 [Template]: ${…}?text=${…}
+- L6587 [String]: Hello Praeliator, I would like to inquire about a private purchase.
+- L6590 [String]: Hello Praeliator, I would like to inquire about Praeliator VIS.
+- L6593 [String]: Hello Praeliator, I joined the waitlist and would like to follow up.
+- L6596 [String]: mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry
+- L6602 [String]: undefined
+- L6682 [String]: sign-up
+- L6682 [String]: one-time-code
+- L6682 [String]: phone
+- L6683 [String]: email
+- L6683 [String]: phone
+- L6688 [String]: sign-up
+- L6689 [String]: email
+- L6693 [String]: idle
+- L6693 [String]: pending
+- L6693 [String]: success
+- L6693 [String]: error
+- L6699 [String]: idle
+- L6700 [String]: Enter your verification code
+- L6701 [String]: Verification codes issued by the house are entered here before access continues.
+- L6722 [String]: mobile
+- L6722 [String]: tablet
+- L6722 [String]: desktop
+- L6724 [String]: desktop
+- L6725 [String]: tablet
+- L6726 [String]: mobile
+- L6730 [String]: undefined
+- L6743 [String]: praeliator:analytics
+- L6750 [String]: undefined
+- L6763 [String]: undefined
+- L6766 [String]: resize
+- L6767 [String]: orientationchange
+- L6769 [String]: resize
+- L6770 [String]: orientationchange
+- L6775 [String]: undefined
+- L6776 [String]: (pointer: fine)
+- L6781 [String]: praeliator-luxury-cursor
+- L6784 [String]: praeliator-luxury-cursor
+- L6789 [String]: function
+- L6790 [String]: change
+- L6792 [String]: change
+- L6793 [String]: praeliator-luxury-cursor
+- L6794 [String]: praeliator-luxury-cursor
+- L6801 [String]: praeliator-luxury-cursor
+- L6802 [String]: praeliator-luxury-cursor
+- L6810 [String]: hidden
+- L6811 [String]: hidden
+- L6829 [String]: waitlist_view
+- L6835 [String]: undefined
+- L6843 [String]: undefined
+- L6873 [String]: undefined
+- L6875 [String]: token_hash
+- L6876 [String]: type
+- L6877 [String]: code
+- L6898 [String]: pending
+- L6898 [String]: success
+- L6898 [String]: error
+- L6912 [String]: pending
+- L6913 [String]: Verifying access
+- L6914 [String]: The house is reviewing the link before access continues.
+- L6924 [String]: error
+- L6925 [String]: Authentication unavailable
+- L6927 [String]: Return to Sign In
+- L6932 [String]: error
+- L6933 [String]: Authentication could not be completed
+- L6941 [String]: success
+- L6942 [String]: Access confirmed
+- L6943 [String]: Your verification has been accepted. You may continue into the house.
+- L6944 [String]: Enter Ownership Record
+- L6949 [String]: success
+- L6950 [String]: Authentication complete
+- L6951 [String]: Your account session is now active.
+- L6958 [String]: magiclink
+- L6958 [String]: magiclink
+- L6958 [String]: recovery
+- L6958 [String]: recovery
+- L6958 [String]: email
+- L6967 [String]: error
+- L6968 [String]: magiclink
+- L6968 [String]: Access unavailable
+- L6968 [String]: Verification unavailable
+- L6970 [String]: Return to Sign In
+- L6974 [String]: recovery
+- L6975 [String]: error
+- L6976 [String]: Verification could not be completed
+- L6983 [String]: recovery
+- L6985 [String]: info
+- L6986 [String]: Reset link confirmed
+- L6987 [String]: You may now set a new password for your account.
+- L6997 [String]: success
+- L6998 [String]: magiclink
+- L6998 [String]: Access confirmed
+- L6998 [String]: Email confirmed
+- L7000 [String]: magiclink
+- L7001 [String]: Your verification has been accepted. You may continue into the house.
+- L7002 [String]: Your email has been verified under the house. You may now continue into Praeliator.
+- L7003 [String]: Enter Ownership Record
+- L7003 [String]: Continue to Sign In
+- L7010 [String]: success
+- L7011 [String]: magiclink
+- L7011 [String]: Access confirmed
+- L7011 [String]: Email confirmed
+- L7013 [String]: magiclink
+- L7014 [String]: Your verification has been accepted and the session is ready.
+- L7015 [String]: Your account is now verified and ready to sign in.
+- L7031 [String]: undefined
+- L7032 [String]: pending
+- L7038 [String]: sign-up
+- L7038 [String]: one-time-code
+- L7038 [String]: phone
+- L7039 [String]: email
+- L7039 [String]: phone
+- L7043 [String]: sign-up
+- L7043 [String]: one-time-code
+- L7043 [String]: phone
+- L7044 [String]: email
+- L7044 [String]: phone
+- L7060 [String]: success
+- L7063 [String]: idle
+- L7065 [String]: sign-up
+- L7066 [String]: Enter your confirmation code
+- L7067 [String]: phone
+- L7068 [String]: Enter your phone verification code
+- L7069 [String]: Enter your one-time sign-in code
+- L7071 [String]: sign-up
+- L7072 [Template]: We sent a six-digit confirmation code to ${…}. Enter it below to complete your Praeliator account setup.
+- L7073 [String]: phone
+- L7074 [Template]: We sent a six-digit verification code to ${…}. Enter it below to continue into the house.
+- L7075 [Template]: We sent a six-digit sign-in code to ${…}. Enter it below to continue into the house.
+- L7086 [String]: auto
+- L7088 [String]: popstate
+- L7089 [String]: popstate
+- L7101 [String]: pair_registry
+- L7102 [String]: id, model, serial, claim_code_last4, delivery_confirmed_at, current_owner_claimed_at
+- L7103 [String]: current_owner_claimed_at
+- L7107 [String]: error
+- L7108 [String]: Ownership Record unavailable
+- L7116 [String]: legacy_refresh_requests
+- L7117 [String]: id, pair_id, status, requested_at, note
+- L7118 [String]: requested_at
+- L7122 [String]: error
+- L7123 [String]: Legacy Refresh unavailable
+- L7241 [String]: undefined
+- L7247 [Template]: ${…} | Praeliator
+- L7259 [String]: undefined
+- L7260 [String]: (pointer: coarse)
+- L7261 [String]: ontouchstart
+- L7281 [String]: undefined
+- L7308 [String]: scroll
+- L7309 [String]: scroll
+- L7313 [String]: monogram
+- L7315 [String]: wordmark
+- L7317 [String]: assembly
+- L7318 [String]: monogram
+- L7320 [String]: wordmark
+- L7320 [String]: monogram
+- L7329 [String]: undefined
+- L7334 [String]: auto
+- L7334 [String]: smooth
+- L7340 [String]: undefined
+- L7342 [String]: auto
+- L7349 [String]: undefined
+- L7365 [String]: undefined
+- L7371 [String]: sign-up
+- L7372 [String]: email
+- L7379 [String]: sign-up
+- L7379 [String]: one-time-code
+- L7379 [String]: phone
+- L7380 [String]: email
+- L7380 [String]: phone
+- L7380 [String]: email
+- L7383 [String]: email
+- L7386 [String]: undefined
+- L7400 [String]: idle
+- L7402 [String]: sign-up
+- L7403 [String]: Enter your confirmation code
+- L7404 [String]: phone
+- L7405 [String]: Enter your phone verification code
+- L7406 [String]: Enter your one-time sign-in code
+- L7408 [String]: sign-up
+- L7409 [Template]: We sent a six-digit confirmation code to ${…}. Enter it below to complete your Praeliator account setup.
+- L7410 [String]: phone
+- L7411 [Template]: We sent a six-digit verification code to ${…}. Enter it below to continue into the house.
+- L7412 [Template]: We sent a six-digit sign-in code to ${…}. Enter it below to continue into the house.
+- L7422 [String]: email rate limit exceeded
+- L7424 [String]: error
+- L7425 [String]: Too many email requests
+- L7426 [String]: Supabase has temporarily blocked another authentication email because the project hit the current sending limit. Wait a bit before requesting another code or confirmation email.
+- L7429 [String]: sms
+- L7429 [String]: provider
+- L7429 [String]: not configured
+- L7431 [String]: error
+- L7433 [String]: Phone sign-in is enabled in the interface, but Supabase still needs an SMS provider in the dashboard before codes can be delivered.
+- L7436 [String]: unsupported provider
+- L7436 [String]: provider is not enabled
+- L7438 [String]: error
+- L7440 [String]: That sign-in provider is not enabled in Supabase yet. Finish the provider setup in the dashboard and try again.
+- L7444 [String]: security purposes
+- L7445 [String]: 60 seconds
+- L7446 [String]: rate limit
+- L7449 [String]: error
+- L7451 [String]: Another code was requested too recently. Wait a moment before trying again.
+- L7455 [String]: error
+- L7464 [String]: error
+- L7465 [String]: Authentication is not configured
+- L7466 [String]: Add your Supabase URL and anon key to enable account access.
+- L7487 [String]: error
+- L7488 [String]: Sign in unavailable
+- L7494 [String]: success
+- L7495 [String]: Signed in
+- L7496 [String]: Your Ownership Record is now available.
+- L7510 [String]: error
+- L7511 [String]: Full name required
+- L7512 [String]: Enter the client name to continue with account creation.
+- L7518 [String]: error
+- L7519 [String]: Email required
+- L7520 [String]: Enter an email address to create the account.
+- L7526 [String]: error
+- L7527 [String]: Password too short
+- L7528 [String]: Use a password with at least 8 characters.
+- L7534 [String]: error
+- L7535 [String]: Passwords do not match
+- L7536 [String]: The password confirmation must match before the account can be created.
+- L7553 [String]: Account could not be created
+- L7559 [String]: success
+- L7560 [String]: Account created
+- L7561 [String]: Your account is active and your Ownership Record is ready.
+- L7566 [String]: sign-up
+- L7568 [String]: info
+- L7569 [String]: Check your email
+- L7570 [String]: We sent a six-digit confirmation code to complete your Praeliator account setup.
+- L7583 [String]: error
+- L7584 [String]: Verification unavailable
+- L7585 [String]: Request a fresh code before continuing.
+- L7586 [String]: Return to Sign In
+- L7593 [String]: error
+- L7595 [String]: sign-up
+- L7596 [String]: Confirmation code required
+- L7597 [String]: phone
+- L7598 [String]: Phone code required
+- L7599 [String]: Sign-in code required
+- L7600 [String]: Enter the full six-digit code before continuing.
+- L7607 [String]: phone
+- L7611 [String]: sms
+- L7616 [String]: email
+- L7622 [String]: sign-up
+- L7623 [String]: Confirmation unavailable
+- L7624 [String]: phone
+- L7625 [String]: Phone verification unavailable
+- L7626 [String]: One-time code unavailable
+- L7629 [String]: error
+- L7638 [String]: success
+- L7640 [String]: sign-up
+- L7641 [String]: Email confirmed
+- L7642 [String]: phone
+- L7643 [String]: Phone confirmed
+- L7644 [String]: Access confirmed
+- L7646 [String]: sign-up
+- L7647 [String]: Your email is now verified under the house. You may continue into Praeliator.
+- L7648 [String]: phone
+- L7649 [String]: Your phone verification code has been accepted. You may continue into the house.
+- L7650 [String]: Your one-time sign-in code has been accepted. You may continue into the house.
+- L7651 [String]: Enter Ownership Record
+- L7651 [String]: Continue to Sign In
+- L7665 [String]: error
+- L7666 [String]: Email required
+- L7667 [String]: Enter the email address tied to the account to continue.
+- L7681 [String]: Reset email unavailable
+- L7685 [String]: success
+- L7686 [String]: Reset email sent
+- L7687 [String]: Check your inbox to continue resetting the account password.
+- L7700 [String]: error
+- L7701 [String]: Email required
+- L7702 [String]: Enter the account email to request a one-time sign-in code.
+- L7717 [String]: One-time code unavailable
+- L7720 [String]: one-time-code
+- L7722 [String]: success
+- L7723 [String]: Code sent
+- L7724 [String]: If this address already belongs to an account, a six-digit one-time code is now in the inbox.
+- L7738 [String]: error
+- L7739 [String]: Phone number required
+- L7740 [String]: Enter a full phone number in international format, including the + and country code.
+- L7751 [String]: Phone sign-in unavailable
+- L7754 [String]: phone
+- L7754 [String]: phone
+- L7756 [String]: success
+- L7757 [String]: Code sent
+- L7758 [String]: A six-digit verification code was sent to your phone number.
+- L7771 [String]: error
+- L7772 [String]: Recovery session unavailable
+- L7773 [String]: Open the reset link from your email again before setting a new password.
+- L7779 [String]: error
+- L7780 [String]: Password too short
+- L7781 [String]: Use a password with at least 8 characters.
+- L7787 [String]: error
+- L7788 [String]: Passwords do not match
+- L7789 [String]: The password confirmation must match before continuing.
+- L7801 [String]: error
+- L7802 [String]: Password could not be updated
+- L7808 [String]: success
+- L7809 [String]: Password updated
+- L7810 [String]: Your account password has been updated successfully.
+- L7825 [String]: info
+- L7826 [String]: Signed out
+- L7827 [String]: The current client session has been closed.
+- L7844 [String]: waitlist_started
+- L7858 [Template]: ${…}-error
+- L7863 [String]: string
+- L7896 [String]: change
+- L7898 [Template]: field:${…}
+- L7906 [String]: blur
+- L7911 [String]: waitlist_field_invalid
+- L7926 [Template]: select:${…}
+- L7933 [String]: field:country
+- L7937 [String]: country
+- L7937 [String]: change
+- L7940 [String]: phoneCountryCode
+- L7942 [String]: change
+- L7953 [String]: country
+- L7953 [String]: phoneCountryCode
+- L7958 [String]: country
+- L7960 [String]: blur
+- L7963 [String]: phoneCountryCode
+- L7965 [String]: blur
+- L7971 [String]: waitlist_field_invalid
+- L7972 [String]: country
+- L7972 [String]: phoneCountryCode
+- L7983 [String]: submit
+- L7989 [Template]: Please wait ${…}s before submitting again.
+- L7993 [String]: waitlist_submit_blocked
+- L7994 [String]: cooldown
+- L8003 [String]: Submission could not be completed.
+- L8007 [String]: waitlist_submit_blocked
+- L8007 [String]: honeypot
+- L8019 [String]: Please correct the highlighted fields.
+- L8023 [String]: waitlist_submit_invalid
+- L8035 [String]: waitlist_submit_attempt
+- L8063 [String]: undefined
+- L8064 [Template]: ${…}x${…}
+- L8067 [String]: undefined
+- L8073 [String]: POST
+- L8075 [String]: Content-Type
+- L8075 [String]: application/json
+- L8076 [String]: application/json
+- L8077 [String]: X-Praeliator-Intake
+- L8077 [String]: waitlist
+- L8084 [String]: Submission failed.
+- L8087 [String]: undefined
+- L8104 [String]: A private reply will follow after review. Qualified inquiries continue directly with reference in place.
+- L8112 [String]: waitlist_submit_success
+- L8113 [String]: pending
+- L8118 [String]: AbortError
+- L8119 [String]: Request timed out. Please try again or continue on WhatsApp.
+- L8122 [String]: Submission failed. Please try again or contact Praeliator directly by WhatsApp.
+- L8130 [String]: waitlist_submit_failure
+- L8138 [String]: change
+- L8170 [String]: Submission could not be completed.
+- L8186 [String]: Please correct the highlighted fields.
+- L8229 [String]: undefined
+- L8236 [String]: POST
+- L8238 [String]: Content-Type
+- L8238 [String]: application/json
+- L8239 [String]: application/json
+- L8240 [String]: X-Praeliator-Intake
+- L8240 [String]: acquisition
+- L8248 [String]: Submission failed.
+- L8258 [String]: A private placement response follows after review.
+- L8265 [String]: AbortError
+- L8266 [String]: Request timed out. Please try again or continue directly on WhatsApp.
+- L8269 [String]: Submission failed. Please continue directly with Praeliator.
+- L8305 [String]: string
+- L8314 [String]: fullName
+- L8315 [String]: fullName
+- L8315 [String]: change
+- L8344 [String]: fullName
+- L8346 [String]: fullName
+- L8348 [String]: blur
+- L8352 [String]: fullName
+- L8364 [String]: fullName
+- L8366 [String]: submit
+- L8378 [String]: Please correct the highlighted fields.
+- L8403 [String]: POST
+- L8405 [String]: Content-Type
+- L8405 [String]: application/json
+- L8406 [String]: application/json
+- L8407 [String]: X-Praeliator-Intake
+- L8407 [String]: acquisition-brief
+- L8421 [String]: The brief could not be retained.
+- L8427 [String]: The brief could not be retained.
+- L8439 [String]: The brief has been retained under the house record.
+- L8446 [String]: Hello Praeliator, I would like to begin a private acquisition inquiry.
+- L8447 [Template]: Reference: ${…}.
+- L8453 [String]: undefined
+- L8458 [String]: AbortError
+- L8459 [String]: The brief took too long to retain. You can still continue directly on WhatsApp.
+- L8462 [String]: The brief could not be retained. You can still continue directly on WhatsApp.
+- L8479 [String]: hero
+- L8480 [String]: video
+- L8481 [String]: Praeliator
+- L8489 [String]: vis
+- L8490 [String]: video
+- L8491 [String]: VIS
+- L8499 [String]: acquisition
+- L8500 [String]: video
+- L8508 [String]: tail
+- L8508 [String]: tail
+- L8527 [Template]: url(${…})
+- L8536 [String]: auto
+- L8548 [String]: blur(10px)
+- L8549 [String]: blur(0px)
+- L8553 [JSX]: Praeliator VIS
+- L8556 [JSX]: A training glove treated like an object study.
+- L8559 [JSX]: VIS was resolved with the calm of a museum piece and the discipline of a serious training instrument. Surface, silhouette, structure, and ownership remain inside one controlled language.
+- L8576 [String]: outline
+- L8585 [JSX]: 16 oz
+- L8586 [JSX]: Lace-up only
+- L8587 [JSX]: Top-grain cowhide
+- L8588 [JSX]: Technical sparring
+- L8598 [JSX]: Thesis
+- L8601 [JSX]: Luxury is not louder. It is more resolved.
+- L8604 [JSX]: VIS does not rely on excess to look expensive. The authority of the object comes from proportion, restraint, and the feeling that every visible choice was made on purpose.
+- L8618 [JSX]: Object study
+- L8621 [JSX]: The silhouette is controlled before it is decorated.
+- L8624 [JSX]: VIS was shaped to feel engineered, not inflated. The taper into the wrist, the authority of the cuff, the balance of the hand chamber, and the quiet restraint of the surface all belong to the same decision-making system.
+- L8633 [String]: Silhouette
+- L8634 [String]: A training profile that reads deliberate before it reads aggressive.
+- L8637 [String]: Wrist transition
+- L8638 [String]: The glove narrows with intention before widening again at the cuff.
+- L8641 [String]: Visual restraint
+- L8642 [String]: Debossed branding and disciplined contrast keep the object quiet.
+- L8662 [String]: Praeliator VIS silhouette study
+- L8665 [String]: light
+- L8668 [JSX]: Museum view
+- L8671 [JSX]: A controlled line for disciplined training.
+- L8687 [String]: Praeliator VIS leather macro
+- L8690 [String]: light
+- L8693 [JSX]: Material
+- L8696 [JSX]: Top-grain cowhide. Soft satin finish.
+- L8699 [JSX]: The leather was chosen to read deep black first and espresso second. It avoids the synthetic shine that makes luxury feel false.
+- L8711 [String]: Surface
+- L8712 [String]: Grain, seam, and edge remain visible enough to feel handmade, never noisy enough to feel busy.
+- L8715 [String]: Tone
+- L8716 [String]: VIS lives in a restrained black register with warmth underneath, not a flat synthetic black.
+- L8719 [String]: Branding
+- L8720 [String]: Debossed marks keep the glove inside the same visual language as the rest of Praeliator.
+- L8741 [JSX]: Construction logic
+- L8744 [JSX]: The glove had to feel technically serious without becoming visually loud.
+- L8747 [JSX]: VIS is not a museum object in the sense of fragility. It is a museum object in the sense of resolution. Padding, palm ventilation, thumb attachment, grip bar, and wrist control all belong to the same standard of discipline.
+- L8754 [JSX]: Impact structure
+- L8763 [JSX]: Layer
+- L8778 [JSX]: Object record
+- L8791 [String]: Praeliator VIS branding detail
+- L8793 [String]: light
+- L8796 [JSX]: Detail study
+- L8799 [JSX]: Debossed. Controlled. Quiet.
+- L8815 [JSX]: Continuity
+- L8818 [JSX]: Presentation, authenticity, and aftercare stay inside the same language.
+- L8821 [JSX]: VIS should not stop feeling controlled once the glove leaves the image. The rigid box, silk dust bag, authenticity record, ownership continuity, and service route all belong to the same standard.
+- L8829 [JSX]: Presentation
+- L8841 [JSX]: Ownership
+- L8853 [String]: Praeliator VIS presentation
+- L8856 [String]: light
+- L8859 [JSX]: Presentation and ownership
+- L8862 [JSX]: The object extends beyond the glove.
+- L8872 [JSX]: Aftercare
+- L8896 [String]: Object dossier
+- L8897 [String]: VIS should feel recorded before it feels merchandised.
+- L8898 [String]: The glove is strongest when the site treats it like an authored object: something with construction evidence, custody language, and future continuity already built into its presentation.
+- L8899 [String]: Praeliator / Object note
+- L8907 [JSX]: Dossier
+- L8915 [JSX]: House authority
+- L8940 [JSX]: Archive strip
+- L8943 [JSX]: A slower dossier for the parts that justify the object.
+- L8946 [JSX]: VIS is strongest when the page lingers on proportion, material, construction, and continuity long enough for the logic of the object to feel inevitable.
+- L8964 [JSX]: Entry
+- L8967 [JSX]: Acquisition continues directly.
+- L8970 [JSX]: VIS is presented first as an object and acquired second as a route. The final step should feel as disciplined as the glove itself.
+- L8987 [String]: outline
+- L9005 [Template]: Hello Praeliator, I would like to continue my private acquisition inquiry. Reference: ${…}.
+- L9015 [Template]: url(${…})
+- L9024 [String]: auto
+- L9036 [String]: blur(10px)
+- L9037 [String]: blur(0px)
+- L9041 [JSX]: Private acquisition
+- L9044 [JSX]: Handled directly. Continued properly.
+- L9047 [JSX]: Praeliator does not begin with open checkout. Inquiry, review, allocation, dispatch, and aftercare remain inside one controlled route so access feels continuous with the object itself.
+- L9058 [JSX]: Begin Inquiry
+- L9064 [String]: outline
+- L9067 [JSX]: Join Waitlist
+- L9073 [JSX]: Inquiry
+- L9075 [JSX]: Review
+- L9077 [JSX]: Allocation
+- L9079 [JSX]: Delivery
+- L9081 [JSX]: Aftercare
+- L9091 [JSX]: Acquisition principle
+- L9094 [JSX]: The route is part of the object.
+- L9097 [JSX]: Luxury does not end at the glove. The way access is handled, the way timing is clarified, and the way ownership continues after delivery all carry the same tone as the product itself.
+- L9107 [String]: Praeliator acquisition packaging
+- L9110 [String]: heavy
+- L9113 [JSX]: Controlled entry
+- L9116 [JSX]: Ownership begins before the glove arrives.
+- L9128 [JSX]: Praeliator stays visible from first contact onward. There is no cart layer where the brand disappears, no open inventory theatre, and no generic checkout language replacing the tone of the object.
+- L9151 [JSX]: Standard
+- L9174 [JSX]: The route
+- L9177 [JSX]: A direct procession, not a checkout flow.
+- L9180 [JSX]: The sequence is quiet by design. Inquiry stays qualified, timing stays clear, and continuation stays attached to the same record from the beginning.
+- L9193 [JSX]: Stage
+- L9220 [String]: House letter / placement
+- L9221 [String]: Placement should feel considered before it feels available.
+- L9222 [String]: Praeliator handles acquisition like placement into a private line, not as open product traffic. Timing, region, and collector intent are clarified early so continuation stays controlled from the first exchange.
+- L9223 [String]: Praeliator / acquisition desk
+- L9231 [JSX]: Placement signals
+- L9254 [JSX]: Concierge handling
+- L9271 [JSX]: Why not a cart
+- L9274 [JSX]: Open checkout would flatten the route.
+- L9277 [JSX]: The point is not artificial friction. The point is to protect tone, qualification, and continuity before and after purchase.
+- L9303 [String]: Praeliator acquisition detail
+- L9305 [String]: heavy
+- L9308 [JSX]: Refusal
+- L9311 [JSX]: The brand does not disappear behind commerce language.
+- L9327 [JSX]: Entry
+- L9330 [JSX]: Immediate inquiry or quieter entry.
+- L9333 [JSX]: Some clients want to begin contact immediately. Others want a softer point of entry into future releases. Both remain inside the same language and the same level of control.
+- L9344 [JSX]: Begin Inquiry
+- L9350 [String]: outline
+- L9353 [JSX]: Enter Waitlist
+- L9375 [JSX]: Ownership signals
+- L9395 [String]: Concierge intake / house placement
+- L9396 [String]: State the line clearly, and the house can handle the route properly.
+- L9397 [String]: The strongest acquisition routes are not rushed. They clarify collector posture, intended use, region, and timing early so placement feels considered before it feels available.
+- L9398 [String]: Praeliator / acquisition desk
+- L9402 [JSX]: Placement desk
+- L9409 [String]: Intent
+- L9411 [String]: Collector posture and intended use are clarified before allocation continues.
+- L9414 [String]: Region
+- L9416 [String]: Destination, delivery rhythm, and handling route are retained in the same record.
+- L9419 [String]: Continuation
+- L9421 [String]: The inquiry is authored to flow toward ownership and future aftercare rather than ending at dispatch.
+- L9434 [JSX]: Concierge dossier
+- L9437 [JSX]: Enter the route with more precision.
+- L9440 [JSX]: This intake does not replace direct contact. It prepares it. The house receives the acquisition line with better context, stronger continuity, and a reference already in place.
+- L9453 [String]: acquisitionCompanyWebsite
+- L9453 [JSX]: Leave this field empty
+- L9468 [JSX]: Full name
+- L9476 [String]: fullName
+- L9481 [String]: Client name
+- L9490 [JSX]: Email
+- L9498 [String]: email
+- L9503 [String]: name@example.com
+- L9515 [JSX]: Dial code
+- L9524 [String]: phoneCountryCode
+- L9540 [JSX]: Phone / WhatsApp
+- L9549 [String]: whatsapp
+- L9554 [String]: Phone number
+- L9566 [JSX]: Country
+- L9574 [String]: country
+- L9579 [String]: Country
+- L9588 [JSX]: Destination region
+- L9597 [String]: destinationRegion
+- L9602 [String]: City / region / destination if relevant
+- L9609 [JSX]: Interest
+- L9615 [String]: interest
+- L9621 [JSX]: Select interest
+- L9635 [JSX]: Timing
+- L9641 [String]: timeline
+- L9647 [JSX]: Select timing
+- L9664 [JSX]: Collector intent
+- L9671 [String]: collectorIntent
+- L9679 [JSX]: Select intent
+- L9693 [JSX]: Placement purpose
+- L9700 [String]: purchasePurpose
+- L9708 [JSX]: Select purpose
+- L9722 [JSX]: Preferred contact
+- L9729 [String]: contactPreference
+- L9737 [JSX]: Select route
+- L9753 [JSX]: House note
+- L9760 [String]: note
+- L9763 [String]: Condition of interest, destination considerations, collector context, or anything the house should understand before direct continuation.
+- L9767 [JSX]: Qualified inquiries receive a reference first. The direct conversation can then continue with context already held under the house.
+- L9780 [String]: Submitting dossier...
+- L9781 [String]: Submit Concierge Intake
+- L9785 [String]: outline
+- L9798 [JSX]: Clear
+- L9813 [JSX]: Placement reference
+- L9817 [String]: Reference pending
+- L9833 [JSX]: Continue on WhatsApp
+- L9839 [String]: outline
+- L9842 [JSX]: Ownership Record
+- L9873 [Template]: url(${…})
+- L9886 [String]: auto
+- L9901 [String]: blur(10px)
+- L9902 [String]: blur(0px)
+- L9927 [String]: outline
+- L9945 [String]: The strongest acquisition route is still a direct conversation.
+- L9946 [String]: There is no need for a long intake chamber here. State your title, name, and interest, then continue immediately on WhatsApp with the message already prepared.
+- L9947 [String]: Praeliator / direct line
+- L9951 [JSX]: What happens
+- L9956 [String]: Complete the short brief below.
+- L9957 [String]: Select Send Text.
+- L9958 [String]: WhatsApp opens with your details already written into the message.
+- L9959 [String]: Edit anything you want, then send directly.
+- L9965 [JSX]: Step
+- L10001 [String]: title
+- L10007 [String]: title
+- L10008 [String]: title
+- L10010 [String]: title
+- L10018 [String]: fullName
+- L10022 [String]: fullName
+- L10023 [String]: fullName
+- L10025 [String]: fullName
+- L10033 [String]: interest
+- L10036 [String]: interest
+- L10037 [String]: interest
+- L10039 [String]: interest
+- L10040 [String]: interest
+- L10098 [String]: outline
+- L10100 [String]: undefined
+- L10129 [String]: primary
+- L10134 [String]: secondary
+- L10192 [String]: outline
+- L10200 [String]: waitlist_direct_inquiry_click
+- L10201 [String]: sidebar
+- L10219 [JSX]: Leave this field empty
+- L10240 [String]: title
+- L10242 [String]: title
+- L10248 [String]: title
+- L10249 [String]: title
+- L10257 [String]: fullName
+- L10260 [String]: fullName
+- L10261 [String]: fullName
+- L10262 [String]: fullName
+- L10266 [String]: fullName
+- L10276 [String]: email
+- L10280 [String]: email
+- L10281 [String]: email
+- L10282 [String]: email
+- L10286 [String]: email
+- L10301 [String]: Country
+- L10302 [String]: country
+- L10303 [String]: country
+- L10304 [String]: country
+- L10308 [String]: country
+- L10317 [String]: phoneCountryCode
+- L10323 [String]: phoneCountryCode
+- L10325 [String]: phoneCountryCode
+- L10326 [String]: phoneCountryCode
+- L10330 [String]: phoneCountryCode
+- L10338 [String]: whatsapp
+- L10343 [String]: whatsapp
+- L10344 [String]: whatsapp
+- L10345 [String]: whatsapp
+- L10349 [String]: whatsapp
+- L10351 [String]: whatsapp
+- L10363 [String]: interest
+- L10365 [String]: interest
+- L10368 [String]: interest
+- L10369 [String]: interest
+- L10370 [String]: interest
+- L10374 [String]: interest
+- L10382 [String]: timeline
+- L10384 [String]: timeline
+- L10387 [String]: timeline
+- L10388 [String]: timeline
+- L10389 [String]: timeline
+- L10393 [String]: timeline
+- L10401 [String]: contactPreference
+- L10403 [String]: contactPreference
+- L10407 [String]: contactPreference
+- L10409 [String]: contactPreference
+- L10410 [String]: contactPreference
+- L10414 [String]: contactPreference
+- L10422 [String]: note
+- L10451 [Template]: ${…} ${…}s
+- L10468 [String]: polite
+- L10483 [JSX]: Private review usually follows within one business day. If timing matters, continue directly on WhatsApp and include your reference.
+- L10499 [String]: waitlist_success_whatsapp_click
+- L10502 [String]: pending
+- L10512 [String]: outline
+- L10526 [String]: polite
+- L10543 [String]: House letter / collector line
+- L10544 [String]: Interest can be retained before it needs to be answered.
+- L10545 [String]: The waitlist is not a promotional funnel. It is a quieter register for future access, collector posture, and timing before a more direct continuation becomes necessary.
+- L10546 [String]: Praeliator / collector register
+- L10554 [JSX]: Collector signals
+- L10577 [JSX]: Returned under reference
+- L10580 [JSX]: Once submitted, the inquiry is retained under a client reference rather than disappearing into a generic mailing list. That reference becomes the quiet line for future continuation.
+- L10588 [JSX]: Future release posture
+- L10591 [JSX]: The waitlist remains appropriate for future access, collector visibility, or quiet intent before immediate inquiry becomes necessary.
+- L10598 [JSX]: Direct continuation
+- L10601 [JSX]: When timing matters, the route may still continue directly on WhatsApp without losing the recorded reference.
+- L10622 [Template]: url(${…})
+- L10631 [String]: auto
+- L10643 [String]: blur(10px)
+- L10644 [String]: blur(0px)
+- L10669 [String]: outline
+- L10678 [JSX]: WhatsApp
+- L10680 [JSX]: Email
+- L10682 [JSX]: Instagram
+- L10714 [String]: outline
+- L10727 [JSX]: Secondary
+- L10732 [JSX]: Email
+- L10735 [JSX]: Slower and quieter, but still appropriate when immediate back and forth is not necessary.
+- L10742 [String]: outline
+- L10745 [JSX]: Write email
+- L10751 [JSX]: Secondary
+- L10756 [JSX]: Instagram
+- L10759 [JSX]: Available for lighter contact and brand presence, but not the main purchase route.
+- L10766 [String]: outline
+- L10769 [JSX]: Visit Instagram
+- L10777 [JSX]: Qualified inquiries continue directly. Slower channels remain available where appropriate.
+- L10791 [String]: House letter / response
+- L10792 [String]: Even direct contact should still feel like the house.
+- L10793 [String]: The route matters as much as the channel. Whether inquiry begins on WhatsApp, email, or Instagram, the response should remain calm, exact, and private rather than collapsing into customer-support language.
+- L10794 [String]: Praeliator / direct correspondence
+- L10802 [JSX]: Response standards
+- L10825 [JSX]: Channel posture
+- L10853 [String]: Praeliator hero
+- L10856 [String]: heavy
+- L10859 [JSX]: Praeliator
+- L10862 [JSX]: Boxing, treated like an art form.
+- L10882 [String]: outline
+- L10892 [String]: Format
+- L10892 [String]: 16 oz · lace-up
+- L10893 [String]: Material
+- L10893 [String]: Top-grain cowhide
+- L10894 [String]: Approach
+- L10894 [String]: Quiet luxury
+- L10895 [String]: Route
+- L10895 [String]: Direct acquisition
+- L10920 [String]: Praeliator VIS
+- L10923 [String]: medium
+- L10926 [JSX]: VIS
+- L10929 [JSX]: The flagship training glove.
+- L10932 [JSX]: A 16 oz lace-up training glove in top-grain cowhide, built for disciplined training and technical sparring.
+- L10941 [JSX]: Enter VIS
+- L10946 [String]: outline
+- L10949 [String]: Hello Praeliator, I would like to inquire about Praeliator VIS.
+- L10949 [JSX]: Inquire about VIS
+- L10962 [String]: Praeliator material
+- L10965 [String]: light
+- L10968 [JSX]: Material
+- L10971 [JSX]: Top-grain leather. Soft satin finish.
+- L10984 [String]: Praeliator acquisition
+- L10987 [String]: heavy
+- L10996 [JSX]: Inquiry, review, allocation, delivery, and aftercare stay inside one controlled route.
+- L11011 [String]: outline
+- L11014 [JSX]: View acquisition route
+- L11026 [String]: Explore
+- L11027 [String]: Continue deeper into the brand.
+- L11028 [String]: The same world, reorganized for phone without weakening the identity.
+- L11033 [String]: Discover VIS
+- L11034 [String]: The flagship training glove.
+- L11039 [String]: Private Acquisition
+- L11040 [String]: Handled directly, with control.
+- L11045 [String]: Join Waitlist
+- L11046 [String]: Future access, recorded properly.
+- L11059 [Template]: url(${…})
+- L11089 [String]: Praeliator VIS
+- L11090 [String]: A training glove treated like an object study.
+- L11091 [String]: VIS was resolved with the calm of a museum piece and the discipline of a serious training instrument.
+- L11092 [String]: 16 oz · lace-up only · top-grain cowhide · technical sparring
+- L11097 [String]: primary
+- L11102 [String]: secondary
+- L11107 [String]: Praeliator VIS hero
+- L11109 [String]: Praeliator VIS
+- L11110 [String]: Controlled, quiet, technically serious.
+- L11116 [String]: Thesis
+- L11117 [String]: Luxury is not louder. It is more resolved.
+- L11118 [String]: VIS does not rely on excess to look expensive. The authority of the object comes from proportion, restraint, and the feeling that every visible choice was made on purpose.
+- L11138 [String]: Praeliator VIS silhouette study
+- L11141 [String]: light
+- L11144 [JSX]: Object study
+- L11147 [JSX]: The silhouette is controlled before it is decorated.
+- L11160 [String]: Silhouette
+- L11161 [String]: A training profile that reads deliberate before it reads aggressive.
+- L11164 [String]: Wrist transition
+- L11165 [String]: The glove narrows with intention before widening again at the cuff.
+- L11168 [String]: Visual restraint
+- L11169 [String]: Debossed branding and disciplined contrast keep the object quiet.
+- L11187 [String]: Material
+- L11188 [String]: Top-grain cowhide. Soft satin finish.
+- L11189 [String]: The leather was chosen to read deep black first and espresso second. It avoids the synthetic shine that makes luxury feel false.
+- L11193 [String]: Praeliator VIS leather macro
+- L11196 [String]: light
+- L11201 [String]: Surface
+- L11202 [String]: Grain, seam, and edge remain visible enough to feel handmade, never noisy enough to feel busy.
+- L11205 [String]: Tone
+- L11206 [String]: VIS lives in a restrained black register with warmth underneath, not a flat synthetic black.
+- L11209 [String]: Branding
+- L11210 [String]: Debossed marks keep the glove inside the same visual language as the rest of Praeliator.
+- L11224 [String]: Construction logic
+- L11225 [String]: Technically serious without becoming visually loud.
+- L11226 [String]: Padding, palm ventilation, thumb attachment, grip bar, and wrist control all belong to the same standard of discipline.
+- L11229 [JSX]: Impact structure
+- L11238 [JSX]: Layer
+- L11249 [JSX]: Object record
+- L11259 [String]: Continuity
+- L11260 [String]: The object extends beyond the glove.
+- L11261 [String]: Presentation, authenticity, and aftercare stay inside the same language.
+- L11265 [String]: Praeliator VIS presentation
+- L11268 [String]: light
+- L11272 [JSX]: Presentation
+- L11284 [JSX]: Ownership
+- L11292 [JSX]: Aftercare
+- L11307 [String]: Entry
+- L11308 [String]: Acquisition continues directly.
+- L11309 [String]: VIS is presented first as an object and acquired second as a route.
+- L11322 [String]: outline
+- L11343 [String]: primary
+- L11348 [String]: secondary
+- L11353 [String]: Praeliator acquisition hero
+- L11356 [String]: The route should feel direct, not procedural.
+- L11359 [String]: Primary route
+- L11359 [String]: WhatsApp
+- L11360 [String]: Brief
+- L11360 [String]: Title · name · interest
+- L11361 [String]: Record
+- L11361 [String]: Privately retained
+- L11362 [String]: Tone
+- L11362 [String]: Quiet handoff
+- L11367 [String]: Acquisition route
+- L11368 [String]: Short, direct, and properly retained.
+- L11369 [String]: This page should not feel like a lead form. It exists only to let the house retain context before the direct conversation continues.
+- L11374 [String]: Private first
+- L11375 [String]: The house can retain the brief before WhatsApp opens, so the client does not need to introduce themselves in the message thread.
+- L11378 [String]: Direct second
+- L11379 [String]: WhatsApp remains the real acquisition route. The brief exists only to support that handoff, never to replace it.
+- L11382 [String]: Quiet tone
+- L11383 [String]: Only a minimal title, name, and interest are requested. Nothing here should feel like a normal intake funnel.
+- L11414 [String]: The house retains the brief privately.
+- L11415 [String]: WhatsApp then opens with a quieter reference.
+- L11416 [String]: The direct conversation stays primary from there.
+- L11422 [JSX]: Step
+- L11443 [String]: title
+- L11450 [String]: title
+- L11452 [String]: title
+- L11455 [String]: title
+- L11464 [String]: fullName
+- L11469 [String]: fullName
+- L11471 [String]: fullName
+- L11474 [String]: fullName
+- L11483 [String]: interest
+- L11487 [String]: interest
+- L11489 [String]: interest
+- L11492 [String]: interest
+- L11494 [String]: interest
+- L11551 [String]: outline
+- L11553 [String]: undefined
+- L11579 [String]: primary
+- L11584 [String]: secondary
+- L11625 [JSX]: Leave this field empty
+- L11640 [String]: title
+- L11641 [String]: title
+- L11647 [String]: title
+- L11648 [String]: title
+- L11656 [String]: fullName
+- L11659 [String]: fullName
+- L11660 [String]: fullName
+- L11661 [String]: fullName
+- L11663 [String]: fullName
+- L11672 [String]: email
+- L11676 [String]: email
+- L11677 [String]: email
+- L11678 [String]: email
+- L11680 [String]: email
+- L11695 [String]: Country
+- L11696 [String]: country
+- L11697 [String]: country
+- L11698 [String]: country
+- L11700 [String]: country
+- L11709 [String]: phoneCountryCode
+- L11714 [String]: phoneCountryCode
+- L11715 [String]: phoneCountryCode
+- L11716 [String]: phoneCountryCode
+- L11720 [String]: phoneCountryCode
+- L11728 [String]: whatsapp
+- L11733 [String]: whatsapp
+- L11734 [String]: whatsapp
+- L11735 [String]: whatsapp
+- L11737 [String]: whatsapp
+- L11738 [String]: whatsapp
+- L11750 [String]: interest
+- L11751 [String]: interest
+- L11754 [String]: interest
+- L11755 [String]: interest
+- L11756 [String]: interest
+- L11758 [String]: interest
+- L11765 [String]: timeline
+- L11766 [String]: timeline
+- L11769 [String]: timeline
+- L11770 [String]: timeline
+- L11771 [String]: timeline
+- L11773 [String]: timeline
+- L11781 [String]: contactPreference
+- L11783 [String]: contactPreference
+- L11786 [String]: contactPreference
+- L11787 [String]: contactPreference
+- L11788 [String]: contactPreference
+- L11792 [String]: contactPreference
+- L11801 [String]: note
+- L11825 [Template]: ${…} ${…}s
+- L11843 [String]: polite
+- L11857 [JSX]: Private review usually follows within one business day. If timing matters, continue directly on WhatsApp and include your reference.
+- L11873 [String]: waitlist_success_whatsapp_click
+- L11875 [String]: pending
+- L11885 [String]: outline
+- L11898 [String]: polite
+- L11916 [String]: primary
+- L11917 [String]: secondary
+- L11921 [String]: Praeliator contact hero
+- L11924 [String]: One voice, across every channel.
+- L11945 [String]: outline
+- L11955 [String]: Channels
+- L11956 [String]: Secondary paths stay available.
+- L11957 [String]: Email stays useful for slower exchanges. Instagram stays useful for presence and softer first contact.
+- L11985 [String]: Direct links
+- L11986 [String]: Choose the route that fits the timing.
+- L11987 [String]: Qualified inquiries continue directly. Slower channels remain available where appropriate.
+- L11994 [JSX]: WhatsApp
+- L12000 [String]: outline
+- L12003 [JSX]: Email
+- L12007 [String]: outline
+- L12010 [JSX]: Instagram
+- L12026 [String]: midnight
+- L12035 [String]: midnight
+- L12035 [String]: archive
+- L12038 [String]: archive
+- L12047 [String]: border-white/10 bg-white/[0.025]
+- L12051 [String]: text-white/60
+- L12052 [String]: text-white/42
+- L12059 [Template]: absolute inset-0 ${…}
+- L12069 [String]: opacity-[0.055]
+- L12094 [Template]: mt-3 text-sm leading-7 ${…}
+- L12107 [String]: opacity-[0.045]
+- L12133 [String]: archive
+- L12134 [String]: Private access / ownership continuity / house memory
+- L12176 [String]: outline
+- L12184 [String]: outline
+- L12212 [String]: archive
+- L12213 [String]: Private access / ownership continuity / house memory
+- L12287 [String]: outline
+- L12315 [String]: archive
+- L12316 [String]: One-time code / private access / restrained entry
+- L12342 [String]: outline
+- L12355 [String]: Access
+- L12356 [String]: Request a phone verification code.
+- L12358 [String]: Phone access sends a six-digit SMS code to the number you enter here. This route can be used for sign-in or first access, depending on how phone auth is configured in Supabase.
+- L12359 [String]: Phone verification
+- L12361 [String]: Use full international formatting, including the + and country code. Supabase must have a supported SMS provider configured before this route can deliver codes.
+- L12365 [JSX]: Phone
+- L12384 [String]: Sending code...
+- L12384 [String]: Send Phone Code
+- L12388 [String]: outline
+- L12391 [JSX]: Return to Sign In
+- L12401 [String]: Verification
+- L12402 [String]: pending
+- L12402 [String]: Verifying under the house.
+- L12405 [String]: phone
+- L12406 [String]: Phone verification
+- L12407 [String]: one-time-code
+- L12408 [String]: One-time code
+- L12409 [String]: Private confirmation
+- L12412 [String]: sign-up
+- L12413 [String]: Enter the six-digit confirmation code sent to your email to complete account creation under the house.
+- L12414 [String]: Enter the six-digit sign-in code sent to your email to continue into Praeliator without a password.
+- L12415 [String]: Email confirmations and secure account recovery continue through this dedicated Praeliator route.
+- L12416 [String]: archive
+- L12417 [String]: Verification / controlled entry / private identity
+- L12418 [String]: pending
+- L12424 [String]: error
+- L12425 [String]: error
+- L12426 [String]: success
+- L12427 [String]: success
+- L12428 [String]: info
+- L12434 [String]: success
+- L12437 [String]: phone
+- L12437 [String]: Phone
+- L12437 [String]: Email
+- L12439 [String]: phone
+- L12439 [String]: tel
+- L12439 [String]: email
+- L12446 [JSX]: Six-digit code
+- L12456 [String]: archive
+- L12465 [String]: Verifying...
+- L12465 [String]: Verify Code
+- L12469 [String]: outline
+- L12475 [JSX]: Return to Sign In
+- L12493 [String]: outline
+- L12496 [JSX]: Return to Sign In
+- L12505 [String]: pending
+- L12508 [JSX]: The link is being reviewed now.
+- L12513 [String]: error
+- L12513 [String]: error
+- L12513 [String]: success
+- L12513 [String]: success
+- L12513 [String]: info
+- L12532 [String]: outline
+- L12535 [JSX]: Return to Sign In
+- L12558 [String]: archive
+- L12559 [String]: Recovery / account continuity / private access
+- L12585 [String]: outline
+- L12604 [String]: The recovery session is active. Set the new password to continue.
+- L12605 [String]: Open the reset email again if the recovery session is no longer active.
+- L12606 [String]: archive
+- L12607 [String]: Recovery / account continuity / private access
+- L12646 [String]: outline
+- L12666 [String]: Enter a valid serial number.
+- L12671 [String]: Enter the claim code from the authenticity card.
+- L12679 [String]: claim_pair
+- L12686 [String]: already registered under this account
+- L12687 [String]: That serial is already registered under this account.
+- L12688 [String]: already attached to another ownership record
+- L12689 [String]: This pair is already attached to another Ownership Record.
+- L12690 [String]: claim code
+- L12690 [String]: not recognized
+- L12691 [String]: The claim code was not recognized for that serial.
+- L12692 [String]: not found
+- L12693 [String]: That serial was not found in the house record.
+- L12703 [String]: success
+- L12704 [String]: Pair registered
+- L12705 [Template]: Serial ${…} has been attached to this Ownership Record.
+- L12721 [String]: apply_legacy_refresh
+- L12728 [String]: not yet eligible
+- L12729 [String]: Legacy Refresh is still sealed for this pair. The ritual opens only after the recorded eligibility date.
+- L12730 [String]: already has an active legacy refresh request
+- L12731 [String]: A Legacy Refresh request is already active for this pair.
+- L12732 [String]: not attached to this ownership record
+- L12733 [String]: This pair is not attached to the current Ownership Record.
+- L12744 [String]: success
+- L12745 [String]: Legacy Refresh requested
+- L12746 [String]: The application has entered private review under the house record.
+- L12765 [String]: undefined
+- L12771 [String]: Awaiting retained pair
+- L12773 [String]: The certificate will fill with maturity details once the first pair enters record.
+- L12778 [String]: Record ready
+- L12780 [String]: The house reference is active and waiting for its first retained pair.
+- L12813 [String]: success
+- L12814 [String]: Certificate prepared
+- L12816 [Template]: A true PDF certificate for ${…} has been prepared under the house record.
+- L12817 [String]: A true PDF certificate for the current Ownership Record has been prepared.
+- L12821 [String]: error
+- L12822 [String]: Certificate unavailable
+- L12826 [String]: The certificate could not be prepared right now.
+- L12837 [String]: undefined
+- L12852 [String]: State the intended next custodian before review can begin.
+- L12857 [String]: State the intended transfer timing for the house review.
+- L12862 [String]: Enter a valid next-custodian email address or leave it blank.
+- L12871 [String]: POST
+- L12873 [String]: Content-Type
+- L12873 [String]: application/json
+- L12874 [String]: application/json
+- L12875 [String]: X-Praeliator-Intake
+- L12875 [String]: transfer-review
+- L12894 [String]: Transfer review failed.
+- L12900 [String]: success
+- L12901 [String]: Transfer review entered
+- L12903 [Template]: ${…} has entered private review under reference ${…}.
+- L12904 [Template]: The transfer review for ${…} has entered private record.
+- L12910 [String]: Transfer review could not be entered right now.
+- L12926 [String]: declined
+- L12926 [String]: withdrawn
+- L12926 [String]: completed
+- L12931 [String]: completed
+- L12943 [String]: Threshold
+- L12944 [String]: Identity confirmed under the house record.
+- L12947 [String]: Registration
+- L12948 [String]: Serial and claim code admit the pair into custody.
+- L12951 [String]: Continuity
+- L12952 [String]: Age, review, and return remain attached to one line.
+- L12958 [String]: Registration
+- L12959 [String]: The pair enters by serial and claim code, not by a disposable browser state.
+- L12963 [String]: Maturation
+- L12964 [String]: Legacy Refresh follows recorded delivery age, preserving the authority of the house timeline.
+- L12968 [String]: Private review
+- L12969 [String]: A request is received, considered, and retained under the same record rather than handled as generic support.
+- L12973 [String]: Return under record
+- L12974 [String]: The pair returns to the same ownership line it came from, keeping continuity visible and intact.
+- L12982 [String]: OR-PRAE-0001
+- L12991 [Template]: ${…} retained pair${…} may now proceed into Legacy Refresh.
+- L12993 [Template]: ${…} reaches eligibility on ${…}.
+- L12995 [String]: Every retained pair has already crossed its Legacy Refresh threshold.
+- L12996 [String]: The house is waiting for its first retained pair.
+- L12998 [Template]: ${…} pair${…} currently remain under private review.
+- L12999 [String]: No pair is under private review at this moment.
+- L13014 [String]: opacity-[0.05]
+- L13016 [JSX]: Ownership Record
+- L13019 [JSX]: Preparing the private archive.
+- L13022 [JSX]: The current client line is being restored now. Registered pairs, delivery age, and Legacy Refresh continuity will appear here once the session has been confirmed.
+- L13046 [String]: opacity-[0.05]
+- L13050 [JSX]: Ownership Record / Access chamber
+- L13051 [JSX]: Private client line required
+- L13052 [JSX]: House memory begins after verification
+- L13057 [JSX]: Threshold chamber
+- L13060 [JSX]: This archive opens only under a verified client line.
+- L13063 [JSX]: Sign in or create an account to enter the Ownership Record. Once authenticated, registration, delivery age, and Legacy Refresh continuity all remain under the same private line.
+- L13073 [JSX]: Access routes
+- L13076 [JSX]: The private layer begins as a controlled threshold: identity first, then ownership continuity, then service.
+- L13082 [JSX]: Authentication
+- L13085 [JSX]: Email sign-in, account creation, verification, password reset, and one-time access codes remain under the house.
+- L13091 [JSX]: Ownership continuity
+- L13094 [JSX]: Pair registration, maturity, and future service all sit behind this access line.
+- L13110 [String]: outline
+- L13140 [String]: opacity-[0.05]
+- L13145 [JSX]: Ownership Record / House archive
+- L13147 [JSX]: Issued
+- L13158 [JSX]: Client line
+- L13165 [String]: Current client
+- L13170 [JSX]: House reference
+- L13178 [JSX]: Line issued
+- L13188 [JSX]: Latest retention
+- L13194 [String]: Awaiting first retained pair
+- L13201 [JSX]: Record of Ownership
+- L13204 [JSX]: A private certificate of custody, continuity, and service.
+- L13207 [JSX]: The Ownership Record is not an account center. It is the authored register where pairs are retained under the house, aged from recorded delivery, and advanced into Legacy Refresh only when the object itself has matured.
+- L13216 [JSX]: Retained pairs
+- L13224 [JSX]: Eligible now
+- L13232 [JSX]: Completed refreshes
+- L13243 [JSX]: Current posture
+- L13269 [String]: outline
+- L13302 [JSX]: Registration chamber
+- L13305 [JSX]: Registration is the first ceremonial act.
+- L13311 [JSX]: Serial and claim code admit a real pair into custody. Once entered, the object keeps its recorded delivery date, service maturity, and future review under this same line.
+- L13335 [String]: PR-VIS-000001
+- L13356 [String]: A1B2C3D4
+- L13362 [JSX]: A claim code is consumed once. The pair then continues under custody, recorded age, and future service review rather than anonymous product ownership.
+- L13381 [String]: Registering pair...
+- L13386 [String]: outline
+- L13392 [JSX]: Clear
+- L13399 [JSX]: House cadence
+- L13402 [JSX]: The record decides when the next invitation opens.
+- L13405 [JSX]: Legacy Refresh never opens because a form exists. It opens because the retained pair has reached the date the house recorded for it.
+- L13413 [JSX]: Next invitation
+- L13418 [Template]: ${…} opens on ${…}.
+- L13420 [String]: Every retained pair has already crossed its Legacy Refresh threshold.
+- L13421 [String]: The first invitation appears only after the first retained pair is recorded.
+- L13425 [JSX]: Latest retention
+- L13430 [Template]: ${…} entered the record on ${…}.
+- L13431 [String]: No pair has yet been retained under this line.
+- L13446 [JSX]: Ownership chamber
+- L13449 [JSX]: Every retained pair should feel singular in the archive.
+- L13452 [JSX]: The folios below are object records: dated from delivery, held under custody, and advanced into service only when the pair has earned that progression under the house rules.
+- L13484 [JSX]: Ownership chamber
+- L13487 [JSX]: No pair is under record yet.
+- L13490 [JSX]: Registration is still the first step. Once a real pair is retained, the archive begins to show age, eligibility, and future continuity.
+- L13503 [String]: opacity-[0.045]
+- L13506 [JSX]: Continuity chamber
+- L13520 [String]: opacity-[0.04]
+- L13523 [JSX]: Certificate chamber
+- L13526 [JSX]: Export a house-grade PDF certificate whenever the current line needs an offline record of custody, delivery age, and present service posture.
+- L13534 [JSX]: House reference
+- L13542 [JSX]: Current certificate pair
+- L13548 [String]: The first certificate will appear after the first retained pair.
+- L13560 [JSX]: Export Current Certificate
+- L13569 [JSX]: Transfer review
+- L13572 [JSX]: When custody is meant to continue under another client line, the house reviews the transition before the record is allowed to move.
+- L13594 [String]: outline
+- L13605 [Template]: Open Review For ${…}
+- L13606 [String]: Awaiting first retained pair
+- L13615 [JSX]: Current ledger
+- L13618 [JSX]: The latest retained pair remains visible as a living sequence of registration, age, and service posture.
+- L13636 [JSX]: House correspondence
+- L13639 [JSX]: The archive should speak back.
+- L13642 [JSX]: Ownership feels deeper when the record produces correspondence: retention, invitation, review, and continuity framed as house memory rather than as software state.
+- L13705 [String]: OR-PRAE-0001
+- L13714 [Template]: ${…} retained pair${…} may now proceed into Legacy Refresh.
+- L13716 [Template]: ${…} reaches eligibility on ${…}.
+- L13718 [String]: Every retained pair has already crossed its Legacy Refresh threshold.
+- L13719 [String]: The house is waiting for its first retained pair.
+- L13721 [Template]: ${…} pair${…} currently remain under private review.
+- L13722 [String]: No pair is under private review at this moment.
+- L13737 [String]: opacity-[0.05]
+- L13739 [JSX]: Ownership Record
+- L13742 [JSX]: Preparing the private archive.
+- L13745 [JSX]: The current client line is being restored now. Registered pairs, delivery age, and Legacy Refresh continuity will appear here once the session has been confirmed.
+- L13769 [String]: opacity-[0.05]
+- L13772 [JSX]: Threshold chamber
+- L13775 [JSX]: This archive opens only under a verified client line.
+- L13778 [JSX]: Sign in or create an account to enter the Ownership Record. Once authenticated, registration, delivery age, and Legacy Refresh continuity all remain under the same private line.
+- L13798 [String]: outline
+- L13827 [String]: opacity-[0.05]
+- L13831 [JSX]: Ownership Record / House archive
+- L13833 [JSX]: Issued
+- L13842 [JSX]: Client line
+- L13849 [String]: Current client
+- L13854 [JSX]: Record of Ownership
+- L13857 [JSX]: A private certificate of custody, continuity, and service. Registered pairs remain tied to recorded delivery age and advance into Legacy Refresh only when the object itself has matured.
+- L13867 [JSX]: Retained pairs
+- L13875 [JSX]: Eligible now
+- L13883 [JSX]: Active review
+- L13891 [JSX]: Completed refreshes
+- L13902 [JSX]: Current posture
+- L13910 [JSX]: Review posture
+- L13935 [String]: outline
+- L13969 [String]: opacity-[0.04]
+- L13971 [JSX]: Registration chamber
+- L13974 [JSX]: Register a pair under the house.
+- L13977 [JSX]: Serial and claim code admit a real pair into custody. Once entered, the object keeps its recorded delivery date, service maturity, and future review under this same line.
+- L14001 [String]: PR-VIS-000001
+- L14022 [String]: A1B2C3D4
+- L14027 [JSX]: The first claim is treated as an ownership act. Once the pair is sealed under the record, future movement belongs to release or review, not another open claim.
+- L14046 [String]: Attaching pair...
+- L14051 [String]: outline
+- L14057 [JSX]: Clear
+- L14065 [JSX]: Continuity chamber
+- L14068 [JSX]: Registration, maturation, private review, and return should read as one continuous house logic.
+- L14083 [JSX]: Retained pairs
+- L14086 [JSX]: The archive should feel singular, even in sequence.
+- L14089 [JSX]: Each retained pair holds identity, age, and service posture in a single authored folio.
+- L14117 [JSX]: No pair is under the record yet. The first act is registration; the service chamber appears only after a real pair is attached.
+- L14130 [JSX]: Current ledger
+- L14133 [JSX]: The latest retained pair remains visible as a living sequence of registration, age, and service posture.
+- L14144 [JSX]: House correspondence
+- L14147 [JSX]: The archive should speak back.
+- L14150 [JSX]: Ownership deepens when the record produces correspondence: retention, invitation, review, and continuity framed as house memory rather than software state.
+- L14277 [Template]: fixed inset-x-0 top-0 z-50 ${…}
+- L14277 [String]: pointer-events-none
+- L14289 [String]: blur(18px)
+- L14289 [String]: blur(0px)
+- L14300 [String]: Close menu
+- L14300 [String]: Open menu
+- L14321 [String]: Close menu
+- L14321 [String]: Open menu
+- L14384 [String]: auto
+- L14454 [String]: wait
+- L14458 [String]: initial
+- L14459 [String]: animate
+- L14460 [String]: exit
+
+## src/lib/site-locale.ts
+
+- L1 [String]: en
+- L1 [String]: es
+- L1 [String]: ja
+- L1 [String]: fr
+- L3 [String]: praeliator_site_locale
+- L6 [String]: en
+- L6 [String]: English
+- L6 [String]: EN
+- L7 [String]: es
+- L7 [String]: Español
+- L7 [String]: ES
+- L8 [String]: ja
+- L8 [String]: 日本語
+- L8 [String]: JA
+- L9 [String]: fr
+- L9 [String]: Français
+- L9 [String]: FR
+- L13 [String]: undefined
+- L13 [String]: en
+- L16 [String]: en
+- L16 [String]: es
+- L16 [String]: ja
+- L16 [String]: fr
+- L20 [String]: en
+- L25 [String]: Language
+- L26 [String]: Menu
+- L27 [String]: Private Inquiry
+- L28 [String]: Sign In
+- L29 [String]: Ownership Record
+- L31 [String]: VIS
+- L32 [String]: Acquisition
+- L33 [String]: Waitlist
+- L34 [String]: Contact
+- L37 [String]: Account access
+- L38 [String]: Private account
+- L39 [String]: Flagship
+- L40 [String]: Private route
+- L41 [String]: Future access
+- L42 [String]: Direct contact
+- L45 [String]: Home
+- L46 [String]: Praeliator VIS
+- L47 [String]: Acquisition
+- L48 [String]: Waitlist
+- L49 [String]: Contact
+- L50 [String]: Sign In
+- L51 [String]: Create Account
+- L52 [String]: One-Time Code
+- L53 [String]: Verify Email
+- L54 [String]: Forgot Password
+- L55 [String]: Reset Password
+- L56 [String]: Ownership Record
+- L57 [String]: OAuth Consent
+- L61 [String]: VIS
+- L62 [String]: ACQUISITION
+- L63 [String]: WAITLIST
+- L64 [String]: CONTACT
+- L65 [String]: ACCESS
+- L66 [String]: ACCESS
+- L67 [String]: ACCESS
+- L68 [String]: ACCESS
+- L69 [String]: ACCESS
+- L70 [String]: ACCESS
+- L71 [String]: OWNERSHIP
+- L72 [String]: ACCESS
+- L75 [String]: Equipment for those who treat boxing as art.
+- L76 [String]: Discover
+- L77 [String]: 16 oz · Lace-up · Top-grain cowhide
+- L78 [String]: Enter VIS
+- L79 [String]: Acquisition
+- L80 [String]: Handled directly.
+- L81 [String]: Private Inquiry
+- L84 [String]: Email
+- L85 [String]: name@example.com
+- L86 [String]: Password
+- L87 [String]: Enter your password
+- L88 [String]: Minimum 8 characters
+- L89 [String]: Confirm password
+- L90 [String]: Repeat password
+- L91 [String]: Sign in to continue into the house.
+- L93 [String]: The Ownership Record is the private record layer where registered pairs, future eligibility, and service continuity are held under the house.
+- L94 [String]: Account foundation
+- L96 [String]: This first release covers sign in, account creation, password reset, email confirmation, and the Ownership Record entry point.
+- L97 [String]: Sign In
+- L98 [String]: Signing in...
+- L99 [String]: Forgot Password
+- L100 [String]: Email One-Time Code
+- L101 [String]: No account yet?
+- L102 [String]: Create one
+- L103 [String]: Create your Ownership Record.
+- L105 [String]: This account becomes the private record layer for registered Praeliator pairs, future eligibility, and continued service under the house.
+- L106 [String]: Email confirmation
+- L108 [String]: Account creation sends a six-digit confirmation code before the record is considered fully active under the house.
+- L109 [String]: Full name
+- L110 [String]: Client name
+- L111 [String]: Create Account
+- L112 [String]: Creating account...
+- L113 [String]: Return to Sign In
+- L114 [String]: Already under the house?
+- L115 [String]: Use a one-time code
+- L116 [String]: Request a one-time sign-in code.
+- L118 [String]: This route is for existing accounts only. A six-digit code is sent to the inbox and entered here under a dedicated Praeliator verification page before access continues.
+- L119 [String]: Passwordless access
+- L121 [String]: This route does not create new accounts. It is reserved for addresses that are already registered under the house.
+- L122 [String]: Send One-Time Code
+- L123 [String]: Sending code...
+- L124 [String]: Reset access quietly.
+- L126 [String]: Password recovery stays inside the same private record system.
+- L127 [String]: Reset flow
+- L129 [String]: The reset link should return to the dedicated reset route inside the site after email delivery.
+- L130 [String]: Send Reset Email
+- L131 [String]: Sending reset email...
+- L132 [String]: Set the new account password.
+- L134 [String]: Once updated, the Ownership Record remains under the same account.
+- L135 [String]: Recovery session
+- L136 [String]: New password
+- L137 [String]: Update Password
+- L138 [String]: Updating password...
+- L141 [String]: Begin directly on WhatsApp.
+- L143 [String]: A short private brief prepares the message, then the conversation continues immediately where it should.
+- L144 [String]: Open WhatsApp
+- L145 [String]: Join Waitlist
+- L146 [String]: Private brief
+- L147 [String]: Retain the brief, then continue.
+- L149 [String]: The house keeps the details first. WhatsApp then opens with a quieter reference instead of a full introduction.
+- L150 [String]: Title
+- L151 [String]: Search title
+- L152 [String]: Honorific
+- L153 [String]: Full name
+- L154 [String]: Interest
+- L156 [String]: The title, name, and interest are retained privately before the direct line opens.
+- L157 [String]: Retain Brief & Open WhatsApp
+- L158 [String]: Retaining brief...
+- L159 [String]: Brief retained
+- L160 [String]: Reference pending
+- L162 [String]: The direct message can now stay sparse. The fuller details are already under the house record.
+- L163 [String]: Open WhatsApp Without Brief
+- L166 [String]: A quieter route into future access.
+- L168 [String]: For future releases, collector interest, and private access.
+- L169 [String]: Future releases · collector interest · private follow-up
+- L170 [String]: Direct Inquiry
+- L171 [String]: Contact
+- L172 [String]: Client reference returned after submission.
+- L174 [String]: Every qualified inquiry is reviewed before contact continues.
+- L175 [String]: Review
+- L177 [String]: Every qualified inquiry is reviewed before contact continues.
+- L178 [String]: Reference
+- L180 [String]: Your returned reference stays attached to the intake record.
+- L181 [String]: Continuation
+- L183 [String]: If timing matters, the route can continue directly on WhatsApp.
+- L184 [String]: Title
+- L185 [String]: Search title
+- L186 [String]: Honorific
+- L187 [String]: Full name *
+- L188 [String]: Email address *
+- L189 [String]: Country or dial code *
+- L190 [String]: Dial code *
+- L191 [String]: Phone number *
+- L192 [String]: Interest *
+- L193 [String]: Timeline *
+- L194 [String]: Preferred contact method *
+- L195 [String]: Optional note
+- L197 [String]: Use the number where a private follow-up should continue.
+- L199 [String]: Any detail that affects timing, use, or preferred contact can go here.
+- L200 [String]: Join Waitlist
+- L201 [String]: Submitting...
+- L202 [String]: Wait
+- L204 [String]: Private review typically continues within one business day.
+- L205 [String]: Inquiry received
+- L206 [String]: Client reference pending
+- L207 [String]: Continue on WhatsApp
+- L208 [String]: Return Home
+- L211 [String]: Direct contact, kept simple.
+- L213 [String]: WhatsApp remains primary for private inquiry.
+- L214 [String]: Private Inquiry
+- L215 [String]: Join Waitlist
+- L216 [String]: WhatsApp remains first.
+- L218 [String]: For private purchase inquiries and faster continuation, WhatsApp stays primary.
+- L219 [String]: Open WhatsApp
+- L220 [String]: Quieter Entry
+- L223 [String]: Sign Out
+- L224 [String]: Signing out...
+- L225 [String]: Export Ownership Certificate
+- L226 [String]: Review Latest Transfer
+- L227 [String]: Create Account
+- L228 [String]: Register Pair
+- L229 [String]: Serial number
+- L230 [String]: Claim code
+- L233 [String]: Application received
+- L234 [String]: Under private review
+- L235 [String]: Approved for intake
+- L236 [String]: Declined
+- L237 [String]: Completed
+- L238 [String]: Withdrawn
+- L239 [String]: No application
+- L240 [String]: Opens
+- L244 [String]: Praeliator VIS
+- L244 [String]: Praeliator VIS
+- L245 [String]: Future releases
+- L245 [String]: Future releases
+- L246 [String]: Collector interest
+- L246 [String]: Collector interest
+- L247 [String]: General brand inquiry
+- L247 [String]: General brand inquiry
+- L250 [String]: Ready now
+- L250 [String]: Ready now
+- L251 [String]: Within 30 days
+- L251 [String]: Within 30 days
+- L252 [String]: Within 3 months
+- L252 [String]: Within 3 months
+- L253 [String]: Researching only
+- L253 [String]: Researching only
+- L256 [String]: Phone
+- L257 [String]: Email
+- L258 [String]: Either
+- L263 [String]: Idioma
+- L264 [String]: Menú
+- L265 [String]: Consulta privada
+- L266 [String]: Iniciar sesión
+- L267 [String]: Registro de Propiedad
+- L269 [String]: VIS
+- L270 [String]: Adquisición
+- L271 [String]: Lista de espera
+- L272 [String]: Contacto
+- L275 [String]: Acceso a cuenta
+- L276 [String]: Cuenta privada
+- L277 [String]: Insignia
+- L278 [String]: Ruta privada
+- L279 [String]: Acceso futuro
+- L280 [String]: Contacto directo
+- L283 [String]: Inicio
+- L284 [String]: Praeliator VIS
+- L285 [String]: Adquisición
+- L286 [String]: Lista de espera
+- L287 [String]: Contacto
+- L288 [String]: Iniciar sesión
+- L289 [String]: Crear cuenta
+- L290 [String]: Código único
+- L291 [String]: Verificar correo
+- L292 [String]: Restablecer acceso
+- L293 [String]: Nueva contraseña
+- L294 [String]: Registro de Propiedad
+- L295 [String]: Consentimiento OAuth
+- L299 [String]: VIS
+- L300 [String]: ADQUISICIÓN
+- L301 [String]: LISTA
+- L302 [String]: CONTACTO
+- L303 [String]: ACCESO
+- L304 [String]: ACCESO
+- L305 [String]: ACCESO
+- L306 [String]: ACCESO
+- L307 [String]: ACCESO
+- L308 [String]: ACCESO
+- L309 [String]: PROPIEDAD
+- L310 [String]: ACCESO
+- L313 [String]: Equipo para quienes entienden el boxeo como arte.
+- L314 [String]: Descubrir
+- L315 [String]: 16 oz · Cordones · Piel top-grain
+- L316 [String]: Entrar a VIS
+- L317 [String]: Adquisición
+- L318 [String]: Gestionada directamente.
+- L319 [String]: Consulta privada
+- L322 [String]: Correo
+- L323 [String]: nombre@ejemplo.com
+- L324 [String]: Contraseña
+- L325 [String]: Introduce tu contraseña
+- L326 [String]: Mínimo 8 caracteres
+- L327 [String]: Confirmar contraseña
+- L328 [String]: Repite la contraseña
+- L329 [String]: Inicia sesión para continuar dentro de la casa.
+- L331 [String]: El Registro de Propiedad es la capa privada donde se conservan los pares registrados y la continuidad del servicio bajo la casa.
+- L332 [String]: Base de la cuenta
+- L334 [String]: Esta primera versión cubre inicio de sesión, creación de cuenta y la entrada al Registro de Propiedad.
+- L335 [String]: Iniciar sesión
+- L336 [String]: Entrando...
+- L337 [String]: Olvidé mi contraseña
+- L338 [String]: Código único por correo
+- L339 [String]: ¿Aún no tienes cuenta?
+- L340 [String]: Crear una
+- L341 [String]: Crea tu Registro de Propiedad.
+- L343 [String]: Esta cuenta se convierte en la capa privada para pares Praeliator registrados y servicio continuo bajo la casa.
+- L344 [String]: Confirmación por correo
+- L346 [String]: La creación de cuenta envía un código de confirmación de seis dígitos.
+- L347 [String]: Nombre completo
+- L348 [String]: Nombre del cliente
+- L349 [String]: Crear cuenta
+- L350 [String]: Creando cuenta...
+- L351 [String]: Volver a iniciar sesión
+- L352 [String]: ¿Ya estás bajo la casa?
+- L353 [String]: Usa un código único
+- L354 [String]: Solicita un código único de acceso.
+- L356 [String]: Se envía un código de seis dígitos al correo y se introduce aquí antes de continuar.
+- L357 [String]: Acceso sin contraseña
+- L358 [String]: Esta ruta es solo para cuentas existentes.
+- L359 [String]: Enviar código único
+- L360 [String]: Enviando código...
+- L361 [String]: Restablece el acceso con discreción.
+- L363 [String]: La recuperación de contraseña permanece dentro del mismo sistema privado.
+- L364 [String]: Ruta de restablecimiento
+- L366 [String]: El enlace debe devolverte a la ruta dedicada de restablecimiento dentro del sitio.
+- L367 [String]: Enviar correo de restablecimiento
+- L368 [String]: Enviando correo...
+- L369 [String]: Define la nueva contraseña de la cuenta.
+- L371 [String]: Una vez actualizada, el Registro de Propiedad permanece bajo la misma cuenta.
+- L372 [String]: Sesión de recuperación
+- L373 [String]: Nueva contraseña
+- L374 [String]: Actualizar contraseña
+- L375 [String]: Actualizando contraseña...
+- L378 [String]: Empieza directamente en WhatsApp.
+- L380 [String]: Un breve registro privado prepara el mensaje y la conversación continúa de inmediato.
+- L381 [String]: Abrir WhatsApp
+- L382 [String]: Lista de espera
+- L383 [String]: Registro privado
+- L384 [String]: Conserva el registro y luego continúa.
+- L386 [String]: La casa conserva primero los datos. Después WhatsApp se abre con una referencia más discreta.
+- L387 [String]: Tratamiento
+- L388 [String]: Buscar tratamiento
+- L389 [String]: Tratamiento
+- L390 [String]: Nombre completo
+- L391 [String]: Interés
+- L393 [String]: Tratamiento, nombre e interés se conservan en privado antes de abrir la línea directa.
+- L394 [String]: Conservar registro y abrir WhatsApp
+- L395 [String]: Conservando registro...
+- L396 [String]: Registro conservado
+- L397 [String]: Referencia pendiente
+- L399 [String]: El mensaje directo ahora puede permanecer sobrio. Los detalles completos ya están retenidos.
+- L400 [String]: Abrir WhatsApp sin registro
+- L403 [String]: Una vía más silenciosa hacia el acceso futuro.
+- L405 [String]: Para lanzamientos futuros, interés de coleccionista y acceso privado.
+- L406 [String]: Lanzamientos futuros · interés de coleccionista · seguimiento privado
+- L407 [String]: Consulta directa
+- L408 [String]: Contacto
+- L409 [String]: La referencia del cliente vuelve tras el envío.
+- L411 [String]: Cada consulta calificada se revisa antes de que continúe el contacto.
+- L412 [String]: Revisión
+- L414 [String]: Cada consulta calificada se revisa antes de que continúe el contacto.
+- L415 [String]: Referencia
+- L416 [String]: La referencia devuelta queda unida al registro de entrada.
+- L417 [String]: Continuidad
+- L419 [String]: Si el momento importa, la ruta puede continuar directamente por WhatsApp.
+- L420 [String]: Tratamiento
+- L421 [String]: Buscar tratamiento
+- L422 [String]: Tratamiento
+- L423 [String]: Nombre completo *
+- L424 [String]: Correo electrónico *
+- L425 [String]: País o lada *
+- L426 [String]: Lada *
+- L427 [String]: Número de teléfono *
+- L428 [String]: Interés *
+- L429 [String]: Plazo *
+- L430 [String]: Método de contacto preferido *
+- L431 [String]: Nota opcional
+- L432 [String]: Usa el número donde deba continuar el seguimiento privado.
+- L434 [String]: Cualquier detalle que afecte timing, uso o contacto preferido puede ir aquí.
+- L435 [String]: Unirme a la lista
+- L436 [String]: Enviando...
+- L437 [String]: Espera
+- L439 [String]: La revisión privada suele continuar dentro de un día hábil.
+- L440 [String]: Consulta recibida
+- L441 [String]: Referencia del cliente pendiente
+- L442 [String]: Continuar en WhatsApp
+- L443 [String]: Volver al inicio
+- L446 [String]: Contacto directo, mantenido con simplicidad.
+- L448 [String]: WhatsApp sigue siendo primario para la consulta privada.
+- L449 [String]: Consulta privada
+- L450 [String]: Lista de espera
+- L451 [String]: WhatsApp permanece primero.
+- L453 [String]: Para consultas privadas de compra y continuidad más rápida, WhatsApp sigue siendo la vía principal.
+- L454 [String]: Abrir WhatsApp
+- L455 [String]: Entrada más discreta
+- L458 [String]: Cerrar sesión
+- L459 [String]: Cerrando sesión...
+- L460 [String]: Exportar certificado de propiedad
+- L461 [String]: Revisar última transferencia
+- L462 [String]: Crear cuenta
+- L463 [String]: Registrar par
+- L464 [String]: Número de serie
+- L465 [String]: Código de registro
+- L468 [String]: Solicitud recibida
+- L469 [String]: Bajo revisión privada
+- L470 [String]: Aprobado para ingreso
+- L471 [String]: Declinado
+- L472 [String]: Completado
+- L473 [String]: Retirado
+- L474 [String]: Sin solicitud
+- L475 [String]: Abre
+- L479 [String]: Praeliator VIS
+- L479 [String]: Praeliator VIS
+- L480 [String]: Future releases
+- L480 [String]: Lanzamientos futuros
+- L481 [String]: Collector interest
+- L481 [String]: Interés de coleccionista
+- L482 [String]: General brand inquiry
+- L482 [String]: Consulta general de marca
+- L485 [String]: Ready now
+- L485 [String]: Listo ahora
+- L486 [String]: Within 30 days
+- L486 [String]: Dentro de 30 días
+- L487 [String]: Within 3 months
+- L487 [String]: Dentro de 3 meses
+- L488 [String]: Researching only
+- L488 [String]: Solo investigación
+- L491 [String]: Teléfono
+- L492 [String]: Correo
+- L493 [String]: Cualquiera
+- L498 [String]: 言語
+- L499 [String]: メニュー
+- L500 [String]: プライベート問い合わせ
+- L501 [String]: サインイン
+- L502 [String]: 所有記録
+- L503 [String]: VIS
+- L503 [String]: 取得
+- L503 [String]: 待機
+- L503 [String]: 連絡
+- L505 [String]: アカウントアクセス
+- L506 [String]: 私的記録
+- L507 [String]: フラッグシップ
+- L508 [String]: 私的ルート
+- L509 [String]: 将来のアクセス
+- L510 [String]: 直接連絡
+- L513 [String]: ホーム
+- L514 [String]: Praeliator VIS
+- L515 [String]: 取得
+- L516 [String]: ウェイトリスト
+- L517 [String]: 連絡先
+- L518 [String]: サインイン
+- L519 [String]: アカウント作成
+- L520 [String]: ワンタイムコード
+- L521 [String]: メール確認
+- L522 [String]: 再設定
+- L523 [String]: 新しいパスワード
+- L524 [String]: 所有記録
+- L525 [String]: OAuth同意
+- L529 [String]: VIS
+- L530 [String]: 取得
+- L531 [String]: 待機
+- L532 [String]: 連絡
+- L533 [String]: アクセス
+- L534 [String]: アクセス
+- L535 [String]: アクセス
+- L536 [String]: アクセス
+- L537 [String]: アクセス
+- L538 [String]: アクセス
+- L539 [String]: 所有
+- L540 [String]: アクセス
+- L543 [String]: ボクシングを芸術として扱う人のための装備。
+- L544 [String]: 見る
+- L545 [String]: 16 oz · レースアップ · トップグレインカウハイド
+- L546 [String]: VISへ
+- L547 [String]: 取得
+- L548 [String]: 直接扱われる。
+- L549 [String]: プライベート問い合わせ
+- L552 [String]: メール
+- L553 [String]: name@example.com
+- L554 [String]: パスワード
+- L555 [String]: パスワードを入力
+- L556 [String]: 8文字以上
+- L557 [String]: 確認
+- L558 [String]: もう一度入力
+- L559 [String]: 家の内側へ進むためにサインインしてください。
+- L561 [String]: 所有記録は、登録済みのペアとサービス継続が保持される私的な記録層です。
+- L562 [String]: アカウント基盤
+- L564 [String]: この初期版ではサインイン、アカウント作成、再設定、所有記録への入口を扱います。
+- L565 [String]: サインイン
+- L566 [String]: サインイン中...
+- L567 [String]: パスワード再設定
+- L568 [String]: メールのワンタイムコード
+- L569 [String]: まだアカウントがありませんか？
+- L570 [String]: 作成する
+- L571 [String]: あなたの所有記録を作成してください。
+- L573 [String]: このアカウントは、登録済みPraeliatorペアと継続的なサービスのための私的記録層になります。
+- L574 [String]: メール確認
+- L575 [String]: アカウント作成後、6桁の確認コードが送られます。
+- L576 [String]: 氏名
+- L577 [String]: クライアント名
+- L578 [String]: アカウント作成
+- L579 [String]: 作成中...
+- L580 [String]: サインインへ戻る
+- L581 [String]: すでに家の下にありますか？
+- L582 [String]: ワンタイムコードを使う
+- L583 [String]: ワンタイムサインインコードをリクエスト。
+- L585 [String]: 6桁のコードが受信箱へ送られ、ここで入力して先へ進みます。
+- L586 [String]: パスワード不要のアクセス
+- L587 [String]: これは既存アカウント専用のルートです。
+- L588 [String]: コードを送信
+- L589 [String]: 送信中...
+- L590 [String]: 静かにアクセスを回復する。
+- L591 [String]: 回復リンクはメールで届き、新しいパスワード設定へ戻ります。
+- L592 [String]: 再設定フロー
+- L593 [String]: リンクはサイト内の再設定ルートへ戻る必要があります。
+- L594 [String]: 再設定メールを送信
+- L595 [String]: 送信中...
+- L596 [String]: 新しいアカウントパスワードを設定。
+- L597 [String]: 更新後も所有記録は同じアカウントに残ります。
+- L598 [String]: 回復セッション
+- L599 [String]: 新しいパスワード
+- L600 [String]: パスワードを更新
+- L601 [String]: 更新中...
+- L604 [String]: WhatsAppから直接始める。
+- L605 [String]: 短い私的ブリーフがメッセージを整え、その後会話は直ちに続きます。
+- L606 [String]: WhatsAppを開く
+- L607 [String]: ウェイトリストへ
+- L608 [String]: 私的ブリーフ
+- L609 [String]: ブリーフを保持してから続ける。
+- L610 [String]: まず家が情報を保持し、その後WhatsAppはより静かな参照番号で開きます。
+- L611 [String]: 敬称
+- L612 [String]: 敬称を検索
+- L613 [String]: 敬称
+- L614 [String]: 氏名
+- L615 [String]: 関心
+- L616 [String]: 敬称、名前、関心は直接ラインが開く前に私的に保持されます。
+- L617 [String]: ブリーフを保持してWhatsAppへ
+- L618 [String]: 保持中...
+- L619 [String]: ブリーフを保持しました
+- L620 [String]: 参照番号待機中
+- L621 [String]: 直接メッセージは簡潔なままで構いません。詳細はすでに保持されています。
+- L622 [String]: ブリーフなしでWhatsAppを開く
+- L625 [String]: 将来のアクセスへ向けた、より静かなルート。
+- L626 [String]: 将来のリリース、コレクターとしての関心、そして私的アクセスのために。
+- L627 [String]: 将来のリリース · コレクターの関心 · 私的フォローアップ
+- L628 [String]: 直接問い合わせ
+- L629 [String]: 連絡先
+- L630 [String]: 送信後、顧客参照が返されます。
+- L631 [String]: 適格な問い合わせは、連絡が続く前にすべて確認されます。
+- L632 [String]: 審査
+- L633 [String]: 適格な問い合わせは、連絡が続く前にすべて確認されます。
+- L634 [String]: 参照
+- L635 [String]: 返された参照番号は受付記録に結び付いたまま残ります。
+- L636 [String]: 継続
+- L637 [String]: 時機が重要なら、ルートはWhatsAppへ直接続けられます。
+- L638 [String]: 敬称
+- L639 [String]: 敬称を検索
+- L640 [String]: 敬称
+- L641 [String]: 氏名 *
+- L642 [String]: メールアドレス *
+- L643 [String]: 国または国番号 *
+- L644 [String]: 国番号 *
+- L645 [String]: 電話番号 *
+- L646 [String]: 関心 *
+- L647 [String]: 希望時期 *
+- L648 [String]: 希望連絡方法 *
+- L649 [String]: 任意メモ
+- L650 [String]: 私的なフォローアップを続ける電話番号を使用してください。
+- L651 [String]: 時期、用途、または希望する連絡方法に関わる補足はここへ。
+- L652 [String]: ウェイトリストに参加
+- L653 [String]: 送信中...
+- L654 [String]: 待機
+- L655 [String]: 私的審査は通常1営業日以内に続きます。
+- L656 [String]: 問い合わせを受け付けました
+- L657 [String]: 顧客参照は保留中です
+- L658 [String]: WhatsAppで続ける
+- L659 [String]: ホームへ戻る
+- L662 [String]: 直接連絡を、簡潔に保つ。
+- L663 [String]: プライベートな問い合わせにはWhatsAppが主経路です。
+- L664 [String]: プライベート問い合わせ
+- L665 [String]: ウェイトリストへ
+- L666 [String]: WhatsAppが第一であり続ける。
+- L667 [String]: 私的な購入問い合わせとより速い継続のために、WhatsAppが主経路です。
+- L668 [String]: WhatsAppを開く
+- L669 [String]: より静かな入口
+- L672 [String]: サインアウト
+- L673 [String]: サインアウト中...
+- L674 [String]: 所有証明書を書き出す
+- L675 [String]: 最新の譲渡を確認
+- L676 [String]: アカウント作成
+- L677 [String]: ペアを登録
+- L678 [String]: シリアル番号
+- L679 [String]: 登録コード
+- L682 [String]: 申請受領
+- L683 [String]: 私的審査中
+- L684 [String]: 受入承認
+- L685 [String]: 却下
+- L686 [String]: 完了
+- L687 [String]: 取り下げ
+- L688 [String]: 申請なし
+- L689 [String]: 開始
+- L693 [String]: Praeliator VIS
+- L693 [String]: Praeliator VIS
+- L694 [String]: Future releases
+- L694 [String]: 将来のリリース
+- L695 [String]: Collector interest
+- L695 [String]: コレクターの関心
+- L696 [String]: General brand inquiry
+- L696 [String]: 一般的なブランド問い合わせ
+- L699 [String]: Ready now
+- L699 [String]: すぐに
+- L700 [String]: Within 30 days
+- L700 [String]: 30日以内
+- L701 [String]: Within 3 months
+- L701 [String]: 3か月以内
+- L702 [String]: Researching only
+- L702 [String]: 検討段階
+- L705 [String]: 電話
+- L706 [String]: メール
+- L707 [String]: どちらでも
+- L712 [String]: Langue
+- L713 [String]: Menu
+- L714 [String]: Demande privée
+- L715 [String]: Se connecter
+- L716 [String]: Registre de propriété
+- L718 [String]: VIS
+- L719 [String]: Acquisition
+- L720 [String]: Liste d'attente
+- L721 [String]: Contact
+- L724 [String]: Accès au compte
+- L725 [String]: Compte privé
+- L726 [String]: Pièce maîtresse
+- L727 [String]: Voie privée
+- L728 [String]: Accès futur
+- L729 [String]: Contact direct
+- L732 [String]: Accueil
+- L733 [String]: Praeliator VIS
+- L734 [String]: Acquisition
+- L735 [String]: Liste d'attente
+- L736 [String]: Contact
+- L737 [String]: Se connecter
+- L738 [String]: Créer un compte
+- L739 [String]: Code unique
+- L740 [String]: Vérifier l'email
+- L741 [String]: Réinitialiser l'accès
+- L742 [String]: Nouveau mot de passe
+- L743 [String]: Registre de propriété
+- L744 [String]: Consentement OAuth
+- L748 [String]: VIS
+- L749 [String]: ACQUISITION
+- L750 [String]: ATTENTE
+- L751 [String]: CONTACT
+- L752 [String]: ACCÈS
+- L753 [String]: ACCÈS
+- L754 [String]: ACCÈS
+- L755 [String]: ACCÈS
+- L756 [String]: ACCÈS
+- L757 [String]: ACCÈS
+- L758 [String]: PROPRIÉTÉ
+- L759 [String]: ACCÈS
+- L762 [String]: Équipement pour ceux qui traitent la boxe comme un art.
+- L763 [String]: Découvrir
+- L764 [String]: 16 oz · Lacets · Cuir pleine fleur
+- L765 [String]: Entrer dans VIS
+- L766 [String]: Acquisition
+- L767 [String]: Traitée directement.
+- L768 [String]: Demande privée
+- L771 [String]: Email
+- L772 [String]: nom@exemple.com
+- L773 [String]: Mot de passe
+- L774 [String]: Saisissez votre mot de passe
+- L775 [String]: 8 caractères minimum
+- L776 [String]: Confirmer
+- L777 [String]: Répétez le mot de passe
+- L778 [String]: Connectez-vous pour entrer plus profondément dans la maison.
+- L779 [String]: Le Registre de propriété est la couche privée où les paires enregistrées sont retenues sous la maison.
+- L780 [String]: Fondation du compte
+- L781 [String]: Cette première version couvre la connexion, la création de compte et l'entrée du Registre de propriété.
+- L782 [String]: Se connecter
+- L783 [String]: Connexion...
+- L784 [String]: Mot de passe oublié
+- L785 [String]: Code unique par email
+- L786 [String]: Pas encore de compte ?
+- L787 [String]: En créer un
+- L788 [String]: Créez votre Registre de propriété.
+- L789 [String]: Ce compte devient la couche privée pour les paires Praeliator enregistrées.
+- L790 [String]: Confirmation par email
+- L791 [String]: La création du compte envoie un code de confirmation à six chiffres.
+- L792 [String]: Nom complet
+- L793 [String]: Nom du client
+- L794 [String]: Créer un compte
+- L795 [String]: Création du compte...
+- L796 [String]: Retour à la connexion
+- L797 [String]: Déjà sous la maison ?
+- L798 [String]: Utiliser un code unique
+- L799 [String]: Demandez un code de connexion unique.
+- L800 [String]: Un code à six chiffres est envoyé à la boîte de réception puis saisi ici.
+- L801 [String]: Accès sans mot de passe
+- L802 [String]: Cette voie est réservée aux comptes existants.
+- L803 [String]: Envoyer le code unique
+- L804 [String]: Envoi du code...
+- L805 [String]: Rétablir l'accès discrètement.
+- L806 [String]: Le lien est envoyé par email et vous ramène dans la maison.
+- L807 [String]: Flux de réinitialisation
+- L808 [String]: Le lien doit revenir vers la route dédiée du site.
+- L809 [String]: Envoyer l'email de réinitialisation
+- L810 [String]: Envoi de l'email...
+- L811 [String]: Définir le nouveau mot de passe du compte.
+- L812 [String]: Une fois mis à jour, le Registre de propriété reste sous le même compte.
+- L813 [String]: Session de récupération
+- L814 [String]: Nouveau mot de passe
+- L815 [String]: Mettre à jour le mot de passe
+- L816 [String]: Mise à jour...
+- L819 [String]: Commencer directement sur WhatsApp.
+- L820 [String]: Un bref dossier privé prépare le message, puis la conversation se poursuit immédiatement.
+- L821 [String]: Ouvrir WhatsApp
+- L822 [String]: Liste d'attente
+- L823 [String]: Dossier privé
+- L824 [String]: Retenir le dossier, puis poursuivre.
+- L825 [String]: La maison conserve d'abord les détails. WhatsApp s'ouvre ensuite avec une référence plus discrète.
+- L826 [String]: Titre
+- L827 [String]: Rechercher un titre
+- L828 [String]: Titre
+- L829 [String]: Nom complet
+- L830 [String]: Intérêt
+- L831 [String]: Le titre, le nom et l'intérêt sont retenus en privé avant l'ouverture de la ligne directe.
+- L832 [String]: Retenir le dossier et ouvrir WhatsApp
+- L833 [String]: Rétention du dossier...
+- L834 [String]: Dossier retenu
+- L835 [String]: Référence en attente
+- L836 [String]: Le message direct peut désormais rester sobre. Les détails complets sont déjà retenus.
+- L837 [String]: Ouvrir WhatsApp sans dossier
+- L840 [String]: Une voie plus discrète vers l'accès futur.
+- L841 [String]: Pour les futures sorties, l'intérêt de collectionneur et l'accès privé.
+- L842 [String]: Futures sorties · intérêt de collectionneur · suivi privé
+- L843 [String]: Demande directe
+- L844 [String]: Contact
+- L845 [String]: Une référence client revient après l'envoi.
+- L846 [String]: Chaque demande qualifiée est examinée avant que le contact ne se poursuive.
+- L847 [String]: Examen
+- L848 [String]: Chaque demande qualifiée est examinée avant que le contact ne se poursuive.
+- L849 [String]: Référence
+- L850 [String]: La référence renvoyée reste attachée au dossier d'entrée.
+- L851 [String]: Continuité
+- L852 [String]: Si le moment compte, la voie peut continuer directement sur WhatsApp.
+- L853 [String]: Titre
+- L854 [String]: Rechercher un titre
+- L855 [String]: Titre
+- L856 [String]: Nom complet *
+- L857 [String]: Adresse email *
+- L858 [String]: Pays ou indicatif *
+- L859 [String]: Indicatif *
+- L860 [String]: Numéro de téléphone *
+- L861 [String]: Intérêt *
+- L862 [String]: Échéance *
+- L863 [String]: Méthode de contact préférée *
+- L864 [String]: Note facultative
+- L865 [String]: Utilisez le numéro où le suivi privé doit se poursuivre.
+- L866 [String]: Tout détail affectant le timing, l'usage ou la préférence de contact peut être noté ici.
+- L867 [String]: Rejoindre la liste
+- L868 [String]: Envoi...
+- L869 [String]: Attendre
+- L870 [String]: L'examen privé se poursuit généralement sous un jour ouvré.
+- L871 [String]: Demande reçue
+- L872 [String]: Référence client en attente
+- L873 [String]: Continuer sur WhatsApp
+- L874 [String]: Retour à l'accueil
+- L877 [String]: Le contact direct, gardé simple.
+- L878 [String]: WhatsApp reste la voie principale pour la demande privée.
+- L879 [String]: Demande privée
+- L880 [String]: Liste d'attente
+- L881 [String]: WhatsApp reste premier.
+- L882 [String]: Pour les demandes privées d'achat et une continuité plus rapide, WhatsApp demeure principal.
+- L883 [String]: Ouvrir WhatsApp
+- L884 [String]: Entrée plus discrète
+- L887 [String]: Se déconnecter
+- L888 [String]: Déconnexion...
+- L889 [String]: Exporter le certificat de propriété
+- L890 [String]: Examiner le dernier transfert
+- L891 [String]: Créer un compte
+- L892 [String]: Enregistrer la paire
+- L893 [String]: Numéro de série
+- L894 [String]: Code de revendication
+- L897 [String]: Demande reçue
+- L898 [String]: Sous examen privé
+- L899 [String]: Approuvé pour réception
+- L900 [String]: Refusé
+- L901 [String]: Terminé
+- L902 [String]: Retiré
+- L903 [String]: Aucune demande
+- L904 [String]: Ouvre
+- L908 [String]: Praeliator VIS
+- L908 [String]: Praeliator VIS
+- L909 [String]: Future releases
+- L909 [String]: Futures sorties
+- L910 [String]: Collector interest
+- L910 [String]: Intérêt de collectionneur
+- L911 [String]: General brand inquiry
+- L911 [String]: Demande générale de marque
+- L914 [String]: Ready now
+- L914 [String]: Prêt maintenant
+- L915 [String]: Within 30 days
+- L915 [String]: Sous 30 jours
+- L916 [String]: Within 3 months
+- L916 [String]: Sous 3 mois
+- L917 [String]: Researching only
+- L917 [String]: Recherche seulement
+- L920 [String]: Téléphone
+- L921 [String]: Email
+- L922 [String]: Les deux
+
+## src/components/object-dossier-carousel.tsx
+
+- L30 [String]: select
+- L31 [String]: reInit
+- L34 [String]: select
+- L35 [String]: reInit
+- L43 [JSX]: Archive carousel
+- L46 [JSX]: A quieter object-study strip for the parts of VIS that matter most.
+- L56 [JSX]: Prev
+- L63 [JSX]: Next
+- L77 [Template]: url(${…})
+- L95 [JSX]: Plate
+- L135 [String]: border-white/10 bg-white/[0.02] text-white/50 hover:border-white/18 hover:text-white/80
+
+## src/lib/ownership-certificate-pdf.ts
+
+- L117 [String]: #8d755c
+- L129 [String]: #231b15
+- L150 [String]: Praeliator Ownership Record
+- L151 [String]: Praeliator
+- L152 [String]: Ownership certificate
+- L153 [String]: Praeliator
+- L154 [String]: Praeliator
+- L171 [String]: #f4ebe0
+- L178 [String]: #8a633e
+- L185 [String]: #d8ba8a
+- L192 [String]: #d3c0a7
+- L194 [String]: #faf4ec
+- L215 [String]: PRAELIATOR / OWNERSHIP RECORD
+- L220 [String]: #8d755c
+- L225 [String]: A private certificate of custody, continuity, and service.
+- L232 [String]: #231b15
+- L237 [String]: Issued under the house record as an authored summary of current custody posture, delivery age, and service eligibility.
+- L244 [String]: #55473b
+- L257 [String]: #d8c9b5
+- L262 [String]: Client line
+- L272 [String]: House reference
+- L282 [String]: Client email
+- L283 [String]: Private line retained
+- L292 [String]: Issued
+- L307 [String]: #d8c9b5
+- L309 [String]: #f6eee4
+- L312 [String]: RETAINED PAIR
+- L317 [String]: #8d755c
+- L326 [String]: #231b15
+- L333 [String]: #55473b
+- L338 [String]: Registered on
+- L348 [String]: Delivery retained
+- L358 [String]: Claim code
+- L368 [String]: Eligible on
+- L379 [String]: No retained pair is currently attached to this certificate. The house reference remains active and will populate once the first pair is entered into record.
+- L386 [String]: #55473b
+- L391 [String]: MATURITY AND SERVICE
+- L396 [String]: #8d755c
+- L407 [String]: #231b15
+- L418 [String]: #231b15
+- L426 [String]: #d8c9b5
+- L430 [String]: Praeliator treats ownership as continuity rather than a completed transaction. This certificate reflects the current house record at the moment of issue.
+- L437 [String]: #6d5b4b
+- L439 [String]: PRAELIATOR / HOUSE MEMORY
+- L444 [String]: #8d755c
+- L453 [Template]: praeliator-ownership-record-${…}.pdf
+- L454 [Template]: praeliator-ownership-record-${…}.pdf

@@ -5,7 +5,7 @@ import Stripe from "stripe";
 export const PRIVATE_ACQUISITION_COOKIE_NAME =
   "praeliator_private_acquisition_grant";
 
-const ACCESS_GRANT_TTL_MS = 1000 * 60 * 90;
+const ACCESS_GRANT_TTL_MS = 1000 * 60 * 30;
 const FAILED_ATTEMPT_LIMIT = 5;
 const LOCKOUT_WINDOW_MS = 1000 * 60 * 15;
 const STRIPE_API_VERSION = "2026-02-25.clover";
