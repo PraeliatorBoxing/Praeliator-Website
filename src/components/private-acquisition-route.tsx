@@ -8,6 +8,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { Button } from "./ui/button";
+import { type SiteLocale, siteLocaleOptions } from "../lib/site-locale";
 
 type AcquisitionSessionSummary = {
   referenceCode: string;
@@ -99,7 +100,8 @@ type PaymentIntentResponse =
 type DeliveryFormState = {
   clientName: string;
   clientEmail: string;
-  clientPhone: string;
+  clientPhoneCountryCode: string;
+  clientPhoneNumber: string;
   shippingCountry: string;
   shippingAddressLine1: string;
   shippingAddressLine2: string;
@@ -121,7 +123,9 @@ type DeliveryResponse =
       success: false;
       state: string;
       error?: string;
-      fieldErrors?: Partial<Record<keyof DeliveryFormState, string>>;
+      fieldErrors?: Partial<
+        Record<keyof DeliveryFormState | "clientPhone", string>
+      >;
     };
 
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -151,10 +155,13 @@ function formatDate(value?: string | null) {
 function createDeliveryFormState(
   session?: AcquisitionSessionSummary | null,
 ): DeliveryFormState {
+  const parsedPhone = splitPhoneNumber(session?.clientPhone || "");
+
   return {
     clientName: session?.clientName || "",
     clientEmail: session?.clientEmail || "",
-    clientPhone: session?.clientPhone || "",
+    clientPhoneCountryCode: parsedPhone.countryCode,
+    clientPhoneNumber: parsedPhone.number,
     shippingCountry: session?.shippingCountry || "",
     shippingAddressLine1: session?.shippingAddressLine1 || "",
     shippingAddressLine2: session?.shippingAddressLine2 || "",
@@ -181,8 +188,13 @@ function validateDeliveryFormState(form: DeliveryFormState) {
       "Enter a valid email address for delivery correspondence.";
   }
 
-  if (form.clientPhone.replace(/[^\d]/g, "").length < 6) {
-    errors.clientPhone = "Enter a valid phone number for delivery contact.";
+  if (!/^\+\d{1,4}$/.test(form.clientPhoneCountryCode.trim())) {
+    errors.clientPhoneCountryCode = "Enter a valid country code.";
+  }
+
+  if (form.clientPhoneNumber.replace(/[^\d]/g, "").length < 6) {
+    errors.clientPhoneNumber =
+      "Enter a valid phone number for delivery contact.";
   }
 
   if (!form.shippingCountry.trim()) {
@@ -219,6 +231,114 @@ function validateDeliveryFormState(form: DeliveryFormState) {
   }
 
   return errors;
+}
+
+function splitPhoneNumber(value: string) {
+  const normalized = value.trim().replace(/\s+/g, " ");
+  const countryCodeMatch = normalized.match(/^\+\d{1,4}/);
+
+  if (!countryCodeMatch) {
+    return {
+      countryCode: "",
+      number: normalized,
+    };
+  }
+
+  return {
+    countryCode: countryCodeMatch[0],
+    number: normalized.slice(countryCodeMatch[0].length).trim(),
+  };
+}
+
+function joinPhoneNumber(countryCode: string, number: string) {
+  return `${countryCode.trim()} ${number.trim()}`.trim();
+}
+
+async function readJsonResponse<T>(response: Response) {
+  const text = await response.text();
+
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
+function PrivateRouteLanguageSwitcher({
+  locale,
+  onChange,
+  label,
+}: {
+  locale: SiteLocale;
+  onChange: (locale: SiteLocale) => void;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const currentOption =
+    siteLocaleOptions.find((option) => option.value === locale) ??
+    siteLocaleOptions[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 text-[10px] uppercase tracking-[0.26em] text-white/72 transition duration-300 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+        aria-label={label}
+        aria-expanded={open}
+      >
+        <span>{currentOption.shortLabel}</span>
+      </button>
+
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2, ease: easeLuxury }}
+            className="absolute right-0 top-[calc(100%+0.6rem)] z-30 min-w-[11rem] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#0b0a09]/96 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.34)] backdrop-blur-xl"
+          >
+            {siteLocaleOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-left text-sm transition duration-200 ${
+                  option.value === locale
+                    ? "bg-white/[0.08] text-white"
+                    : "text-white/72 hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                <span>{option.label}</span>
+                <span className="text-[10px] uppercase tracking-[0.22em] text-white/34">
+                  {option.shortLabel}
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function getSessionToken() {
@@ -404,9 +524,15 @@ function PaymentChamber({
 export function PrivateAcquisitionRoute({
   wordmarkSrc,
   onReturnHome,
+  locale,
+  onLocaleChange,
+  languageLabel,
 }: {
   wordmarkSrc: string;
   onReturnHome: () => void;
+  locale: SiteLocale;
+  onLocaleChange: (locale: SiteLocale) => void;
+  languageLabel: string;
 }) {
   const token = useMemo(() => getSessionToken(), []);
   const [stateResponse, setStateResponse] = useState<StateResponse | null>(null);
@@ -450,7 +576,12 @@ export function PrivateAcquisitionRoute({
         },
       );
 
-      const result = (await response.json()) as StateResponse;
+      const result = await readJsonResponse<StateResponse>(response);
+
+      if (!result) {
+        throw new Error("The private acquisition page could not be loaded.");
+      }
+
       setStateResponse(result);
     } catch (error) {
       setStateResponse({
@@ -522,7 +653,14 @@ export function PrivateAcquisitionRoute({
         }),
       });
 
-      const result = (await response.json()) as AccessResponse;
+      const result = await readJsonResponse<AccessResponse>(response);
+
+      if (!result) {
+        setAccessError(
+          "The reference could not be verified just now. Please try again.",
+        );
+        return;
+      }
 
       if (!response.ok || !result.success) {
         setAccessError(
@@ -597,14 +735,47 @@ export function PrivateAcquisitionRoute({
         },
         body: JSON.stringify({
           token,
-          ...deliveryForm,
+          clientName: deliveryForm.clientName,
+          clientEmail: deliveryForm.clientEmail,
+          clientPhone: joinPhoneNumber(
+            deliveryForm.clientPhoneCountryCode,
+            deliveryForm.clientPhoneNumber,
+          ),
+          shippingCountry: deliveryForm.shippingCountry,
+          shippingRegion: deliveryForm.shippingRegion,
+          shippingCity: deliveryForm.shippingCity,
+          shippingPostalCode: deliveryForm.shippingPostalCode,
+          shippingAddressLine1: deliveryForm.shippingAddressLine1,
+          shippingAddressLine2: deliveryForm.shippingAddressLine2,
+          shippingRecipientName: deliveryForm.shippingRecipientName,
+          shippingDeliveryNotes: deliveryForm.shippingDeliveryNotes,
+          confirmDetails: deliveryForm.confirmDetails,
         }),
       });
 
-      const result = (await response.json()) as DeliveryResponse;
+      const result = await readJsonResponse<DeliveryResponse>(response);
+
+      if (!result) {
+        setDeliveryError(
+          "The destination record could not be confirmed just now. Please try again.",
+        );
+        setDeliveryNotice("");
+        return;
+      }
 
       if (!response.ok || !result.success) {
-        setDeliveryErrors(result.fieldErrors || {});
+        const nextFieldErrors = {
+          ...(result.fieldErrors || {}),
+        } as Partial<Record<keyof DeliveryFormState | "clientPhone", string>>;
+
+        if (nextFieldErrors.clientPhone) {
+          nextFieldErrors.clientPhoneNumber = nextFieldErrors.clientPhone;
+          delete nextFieldErrors.clientPhone;
+        }
+
+        setDeliveryErrors(
+          nextFieldErrors as Partial<Record<keyof DeliveryFormState, string>>,
+        );
         setDeliveryError(
           result.error ||
             "The destination record could not be retained under this issuance.",
@@ -666,7 +837,14 @@ export function PrivateAcquisitionRoute({
         body: JSON.stringify({ token }),
       });
 
-      const result = (await response.json()) as PaymentIntentResponse;
+      const result = await readJsonResponse<PaymentIntentResponse>(response);
+
+      if (!result) {
+        setPaymentError(
+          "The private payment chamber could not be prepared just now.",
+        );
+        return;
+      }
 
       if (!response.ok || !result.success) {
         setPaymentError(
@@ -754,9 +932,16 @@ export function PrivateAcquisitionRoute({
               draggable={false}
             />
           </button>
-          <p className="text-[10px] uppercase tracking-[0.34em] text-white/42 sm:text-[11px]">
-            Private issuance
-          </p>
+          <div className="flex items-center gap-3 sm:gap-5">
+            <PrivateRouteLanguageSwitcher
+              locale={locale}
+              onChange={onLocaleChange}
+              label={languageLabel}
+            />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-white/42 sm:text-[11px]">
+              Private issuance
+            </p>
+          </div>
         </header>
 
         <div className="mt-8 grid flex-1 gap-6 lg:mt-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
@@ -1109,6 +1294,7 @@ export function PrivateAcquisitionRoute({
                       <form
                         className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6"
                         onSubmit={handleSaveDeliveryDetails}
+                        autoComplete="on"
                       >
                         <div>
                           <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
@@ -1131,6 +1317,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="clientName"
                               value={deliveryForm.clientName}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1155,6 +1342,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="email"
+                              name="clientEmail"
                               value={deliveryForm.clientEmail}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1165,6 +1353,7 @@ export function PrivateAcquisitionRoute({
                               className={chamberFieldClass}
                               placeholder="Delivery correspondence"
                               autoComplete="email"
+                              inputMode="email"
                             />
                             {deliveryErrors.clientEmail ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1175,24 +1364,52 @@ export function PrivateAcquisitionRoute({
 
                           <label className="grid gap-2">
                             <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              Dial code
+                            </span>
+                            <input
+                              type="tel"
+                              name="clientPhoneCountryCode"
+                              value={deliveryForm.clientPhoneCountryCode}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "clientPhoneCountryCode",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="+52"
+                              autoComplete="tel-country-code"
+                              inputMode="tel"
+                            />
+                            {deliveryErrors.clientPhoneCountryCode ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.clientPhoneCountryCode}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                               Phone
                             </span>
                             <input
                               type="tel"
-                              value={deliveryForm.clientPhone}
+                              name="clientPhoneNumber"
+                              value={deliveryForm.clientPhoneNumber}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
-                                  "clientPhone",
+                                  "clientPhoneNumber",
                                   event.target.value,
                                 )
                               }
                               className={chamberFieldClass}
                               placeholder="Delivery contact number"
-                              autoComplete="tel"
+                              autoComplete="tel-national"
+                              inputMode="tel"
                             />
-                            {deliveryErrors.clientPhone ? (
+                            {deliveryErrors.clientPhoneNumber ? (
                               <p className="text-sm leading-7 text-[#815c42]">
-                                {deliveryErrors.clientPhone}
+                                {deliveryErrors.clientPhoneNumber}
                               </p>
                             ) : null}
                           </label>
@@ -1203,6 +1420,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingCountry"
                               value={deliveryForm.shippingCountry}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1212,7 +1430,7 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Destination country"
-                              autoComplete="country-name"
+                              autoComplete="shipping country-name"
                             />
                             {deliveryErrors.shippingCountry ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1227,6 +1445,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingRegion"
                               value={deliveryForm.shippingRegion}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1236,11 +1455,36 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="State or region"
-                              autoComplete="address-level1"
+                              autoComplete="shipping address-level1"
                             />
                             {deliveryErrors.shippingRegion ? (
                               <p className="text-sm leading-7 text-[#815c42]">
                                 {deliveryErrors.shippingRegion}
+                              </p>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                              City
+                            </span>
+                            <input
+                              type="text"
+                              name="shippingCity"
+                              value={deliveryForm.shippingCity}
+                              onChange={(event) =>
+                                handleDeliveryFieldChange(
+                                  "shippingCity",
+                                  event.target.value,
+                                )
+                              }
+                              className={chamberFieldClass}
+                              placeholder="Destination city"
+                              autoComplete="shipping address-level2"
+                            />
+                            {deliveryErrors.shippingCity ? (
+                              <p className="text-sm leading-7 text-[#815c42]">
+                                {deliveryErrors.shippingCity}
                               </p>
                             ) : null}
                           </label>
@@ -1251,6 +1495,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingAddressLine1"
                               value={deliveryForm.shippingAddressLine1}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1260,7 +1505,7 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Primary delivery line"
-                              autoComplete="address-line1"
+                              autoComplete="shipping address-line1"
                             />
                             {deliveryErrors.shippingAddressLine1 ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1275,6 +1520,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingAddressLine2"
                               value={deliveryForm.shippingAddressLine2}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1284,32 +1530,8 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Apartment, suite, or additional detail"
-                              autoComplete="address-line2"
+                              autoComplete="shipping address-line2"
                             />
-                          </label>
-
-                          <label className="grid gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                              City
-                            </span>
-                            <input
-                              type="text"
-                              value={deliveryForm.shippingCity}
-                              onChange={(event) =>
-                                handleDeliveryFieldChange(
-                                  "shippingCity",
-                                  event.target.value,
-                                )
-                              }
-                              className={chamberFieldClass}
-                              placeholder="Destination city"
-                              autoComplete="address-level2"
-                            />
-                            {deliveryErrors.shippingCity ? (
-                              <p className="text-sm leading-7 text-[#815c42]">
-                                {deliveryErrors.shippingCity}
-                              </p>
-                            ) : null}
                           </label>
 
                           <label className="grid gap-2">
@@ -1318,6 +1540,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingPostalCode"
                               value={deliveryForm.shippingPostalCode}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1327,7 +1550,8 @@ export function PrivateAcquisitionRoute({
                               }
                               className={chamberFieldClass}
                               placeholder="Postal code"
-                              autoComplete="postal-code"
+                              autoComplete="shipping postal-code"
+                              inputMode="numeric"
                             />
                             {deliveryErrors.shippingPostalCode ? (
                               <p className="text-sm leading-7 text-[#815c42]">
@@ -1342,6 +1566,7 @@ export function PrivateAcquisitionRoute({
                             </span>
                             <input
                               type="text"
+                              name="shippingRecipientName"
                               value={deliveryForm.shippingRecipientName}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1365,6 +1590,7 @@ export function PrivateAcquisitionRoute({
                               Delivery notes
                             </span>
                             <textarea
+                              name="shippingDeliveryNotes"
                               value={deliveryForm.shippingDeliveryNotes}
                               onChange={(event) =>
                                 handleDeliveryFieldChange(
@@ -1375,6 +1601,7 @@ export function PrivateAcquisitionRoute({
                               className={chamberTextareaClass}
                               placeholder="Any detail the house should retain for delivery."
                               maxLength={500}
+                              autoComplete="off"
                             />
                           </label>
                         </div>

@@ -135,7 +135,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const updatedSession = await saveDeliveryDetails(session.id, body);
+    const updatedSession = await saveDeliveryDetails(session, body);
 
     return jsonResponse({
       success: true,
@@ -143,10 +143,14 @@ export async function POST(request: Request) {
       session: serializeAcquisitionSession(updatedSession),
     });
   } catch (error) {
-    const message =
+    const rawMessage =
       error instanceof Error
         ? error.message
         : "The destination record could not be retained.";
+
+    const message = /json|unexpected token|doctype|<html/i.test(rawMessage)
+      ? "The destination record could not be confirmed just now. Please try again."
+      : rawMessage;
 
     return jsonResponse(
       { success: false, state: "error", error: message },

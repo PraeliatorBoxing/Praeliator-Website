@@ -14226,6 +14226,9 @@ const renderWaitlistPage = () => (
           <PrivateAcquisitionRoute
             wordmarkSrc={brandAssetPaths.headerWordmark}
             onReturnHome={() => goTo("/")}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
           />
         );
       case "/waitlist":
@@ -14264,6 +14267,9 @@ const renderWaitlistPage = () => (
           <PrivateAcquisitionRoute
             wordmarkSrc={brandAssetPaths.headerWordmark}
             onReturnHome={() => goTo("/")}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
           />
         );
       case "/waitlist":

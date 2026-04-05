@@ -11,6 +11,7 @@ const LOCKOUT_WINDOW_MS = 1000 * 60 * 15;
 const STRIPE_API_VERSION = "2026-02-25.clover";
 const REFERENCE_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const DELIVERY_NOTES_LIMIT = 500;
+const DELIVERY_DETAILS_SNAPSHOT_KEY = "deliveryDetails";
 
 const DELIVERY_REQUIRED_FIELD_KEYS = [
   "client_name",
@@ -100,6 +101,123 @@ export function normalizeCurrency(value) {
 
 function normalizeInlineText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function getOrderSnapshotObject(session) {
+  return session?.order_snapshot && typeof session.order_snapshot === "object"
+    ? session.order_snapshot
+    : {};
+}
+
+function getDeliveryDetailsSnapshot(session) {
+  const orderSnapshot = getOrderSnapshotObject(session);
+  const deliveryDetails = orderSnapshot[DELIVERY_DETAILS_SNAPSHOT_KEY];
+  return deliveryDetails && typeof deliveryDetails === "object"
+    ? deliveryDetails
+    : {};
+}
+
+function resolveDeliveryFieldValue(sessionValue, snapshotValue) {
+  const normalizedSessionValue = normalizeInlineText(sessionValue);
+  if (normalizedSessionValue) return normalizedSessionValue;
+
+  const normalizedSnapshotValue = normalizeInlineText(snapshotValue);
+  return normalizedSnapshotValue || null;
+}
+
+function getResolvedDeliveryDetails(session) {
+  const snapshot = getDeliveryDetailsSnapshot(session);
+  const deliveryDetailsCompletedAt =
+    toIsoString(session?.delivery_details_completed_at) ||
+    toIsoString(snapshot.completedAt);
+
+  return {
+    clientName: resolveDeliveryFieldValue(session?.client_name, snapshot.clientName),
+    clientEmail: resolveDeliveryFieldValue(
+      session?.client_email,
+      snapshot.clientEmail,
+    ),
+    clientPhone: resolveDeliveryFieldValue(
+      session?.client_phone,
+      snapshot.clientPhone,
+    ),
+    shippingCountry: resolveDeliveryFieldValue(
+      session?.shipping_country,
+      snapshot.shippingCountry,
+    ),
+    shippingRegion: resolveDeliveryFieldValue(
+      session?.shipping_region,
+      snapshot.shippingRegion,
+    ),
+    shippingCity: resolveDeliveryFieldValue(session?.shipping_city, snapshot.shippingCity),
+    shippingPostalCode: resolveDeliveryFieldValue(
+      session?.shipping_postal_code,
+      snapshot.shippingPostalCode,
+    ),
+    shippingAddressLine1: resolveDeliveryFieldValue(
+      session?.shipping_address_line1,
+      snapshot.shippingAddressLine1,
+    ),
+    shippingAddressLine2: resolveDeliveryFieldValue(
+      session?.shipping_address_line2,
+      snapshot.shippingAddressLine2,
+    ),
+    shippingRecipientName: resolveDeliveryFieldValue(
+      session?.shipping_recipient_name,
+      snapshot.shippingRecipientName,
+    ),
+    shippingDeliveryNotes: resolveDeliveryFieldValue(
+      session?.shipping_delivery_notes,
+      snapshot.shippingDeliveryNotes,
+    ),
+    deliveryDetailsCompletedAt,
+  };
+}
+
+function buildDeliveryDetailsSnapshot(normalized, completedAt) {
+  return {
+    clientName: normalized.clientName,
+    clientEmail: normalized.clientEmail,
+    clientPhone: normalized.clientPhone,
+    shippingCountry: normalized.shippingCountry,
+    shippingRegion: normalized.shippingRegion,
+    shippingCity: normalized.shippingCity,
+    shippingPostalCode: normalized.shippingPostalCode,
+    shippingAddressLine1: normalized.shippingAddressLine1,
+    shippingAddressLine2: normalized.shippingAddressLine2,
+    shippingRecipientName: normalized.shippingRecipientName,
+    shippingDeliveryNotes: normalized.shippingDeliveryNotes,
+    completedAt,
+  };
+}
+
+function buildNextOrderSnapshot(session, normalized, completedAt) {
+  const currentOrderSnapshot = getOrderSnapshotObject(session);
+
+  return {
+    ...currentOrderSnapshot,
+    [DELIVERY_DETAILS_SNAPSHOT_KEY]: buildDeliveryDetailsSnapshot(
+      normalized,
+      completedAt,
+    ),
+  };
+}
+
+function isMissingDeliveryColumnError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    error?.code === "42703" ||
+    [
+      "shipping_city",
+      "shipping_postal_code",
+      "shipping_address_line1",
+      "shipping_address_line2",
+      "shipping_recipient_name",
+      "shipping_delivery_notes",
+      "delivery_details_completed_at",
+    ].some((fieldName) => message.includes(fieldName))
+  );
 }
 
 export function generateAcquisitionToken() {
@@ -480,12 +598,14 @@ export function serializeAcquisitionSession(session) {
       ? session.order_snapshot
       : {};
 
+  const resolvedDeliveryDetails = getResolvedDeliveryDetails(session);
+
   return {
     id: session.id,
     referenceCode: session.reference_code,
-    clientName: session.client_name,
-    clientEmail: session.client_email,
-    clientPhone: session.client_phone,
+    clientName: resolvedDeliveryDetails.clientName,
+    clientEmail: resolvedDeliveryDetails.clientEmail,
+    clientPhone: resolvedDeliveryDetails.clientPhone,
     productName: session.product_name,
     productSnapshot,
     orderSnapshot,
@@ -494,27 +614,40 @@ export function serializeAcquisitionSession(session) {
     subtotalAmount: session.subtotal_amount,
     shippingAmount: session.shipping_amount,
     totalAmount: session.total_amount,
-    shippingCountry: session.shipping_country,
-    shippingRegion: session.shipping_region,
-    shippingCity: session.shipping_city,
-    shippingPostalCode: session.shipping_postal_code,
-    shippingAddressLine1: session.shipping_address_line1,
-    shippingAddressLine2: session.shipping_address_line2,
-    shippingRecipientName: session.shipping_recipient_name,
-    shippingDeliveryNotes: session.shipping_delivery_notes,
+    shippingCountry: resolvedDeliveryDetails.shippingCountry,
+    shippingRegion: resolvedDeliveryDetails.shippingRegion,
+    shippingCity: resolvedDeliveryDetails.shippingCity,
+    shippingPostalCode: resolvedDeliveryDetails.shippingPostalCode,
+    shippingAddressLine1: resolvedDeliveryDetails.shippingAddressLine1,
+    shippingAddressLine2: resolvedDeliveryDetails.shippingAddressLine2,
+    shippingRecipientName: resolvedDeliveryDetails.shippingRecipientName,
+    shippingDeliveryNotes: resolvedDeliveryDetails.shippingDeliveryNotes,
     expiresAt: session.expires_at,
     status: session.status,
     paidAt: session.paid_at,
     validatedAt: session.validated_at,
-    deliveryDetailsCompletedAt: session.delivery_details_completed_at,
+    deliveryDetailsCompletedAt:
+      resolvedDeliveryDetails.deliveryDetailsCompletedAt,
   };
 }
 
 export function hasCompletedDeliveryDetails(session) {
-  if (!session?.delivery_details_completed_at) return false;
+  const resolvedDeliveryDetails = getResolvedDeliveryDetails(session);
+  if (!resolvedDeliveryDetails.deliveryDetailsCompletedAt) return false;
+
+  const deliveryFieldMap = {
+    client_name: resolvedDeliveryDetails.clientName,
+    client_email: resolvedDeliveryDetails.clientEmail,
+    client_phone: resolvedDeliveryDetails.clientPhone,
+    shipping_country: resolvedDeliveryDetails.shippingCountry,
+    shipping_region: resolvedDeliveryDetails.shippingRegion,
+    shipping_city: resolvedDeliveryDetails.shippingCity,
+    shipping_postal_code: resolvedDeliveryDetails.shippingPostalCode,
+    shipping_address_line1: resolvedDeliveryDetails.shippingAddressLine1,
+  };
 
   return DELIVERY_REQUIRED_FIELD_KEYS.every((key) =>
-    Boolean(normalizeInlineText(session[key])),
+    Boolean(normalizeInlineText(deliveryFieldMap[key])),
   );
 }
 
@@ -599,10 +732,11 @@ export function validateDeliveryDetailsInput(input) {
   };
 }
 
-export async function saveDeliveryDetails(sessionId, input) {
+export async function saveDeliveryDetails(session, input) {
   const supabase = createSupabaseAdmin();
   const timestamp = nowIso();
   const { normalized } = validateDeliveryDetailsInput(input);
+  const nextOrderSnapshot = buildNextOrderSnapshot(session, normalized, timestamp);
 
   const { data, error } = await supabase
     .from("private_acquisition_sessions")
@@ -619,15 +753,39 @@ export async function saveDeliveryDetails(sessionId, input) {
       shipping_recipient_name: normalized.shippingRecipientName,
       shipping_delivery_notes: normalized.shippingDeliveryNotes,
       delivery_details_completed_at: timestamp,
+      order_snapshot: nextOrderSnapshot,
       updated_at: timestamp,
     })
-    .eq("id", sessionId)
+    .eq("id", session.id)
     .select("*")
     .single();
 
-  if (error) throw error;
+  if (!error) {
+    return data;
+  }
 
-  return data;
+  if (!isMissingDeliveryColumnError(error)) {
+    throw error;
+  }
+
+  const fallbackUpdate = await supabase
+    .from("private_acquisition_sessions")
+    .update({
+      client_name: normalized.clientName,
+      client_email: normalized.clientEmail,
+      client_phone: normalized.clientPhone,
+      shipping_country: normalized.shippingCountry,
+      shipping_region: normalized.shippingRegion,
+      order_snapshot: nextOrderSnapshot,
+      updated_at: timestamp,
+    })
+    .eq("id", session.id)
+    .select("*")
+    .single();
+
+  if (fallbackUpdate.error) throw fallbackUpdate.error;
+
+  return fallbackUpdate.data;
 }
 
 export async function recordFailedAccessAttempt(session) {
