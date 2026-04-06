@@ -612,13 +612,7 @@ const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
-const HOUSE_SOUND_STORAGE_KEY = "praeliator_house_sound_enabled";
-
 function getInitialHouseSoundEnabled() {
-  if (typeof window === "undefined") return true;
-  const saved = window.localStorage.getItem(HOUSE_SOUND_STORAGE_KEY);
-  if (saved === "0") return false;
-  if (saved === "1") return true;
   return true;
 }
 
@@ -6855,14 +6849,6 @@ export default function PraeliatorWebsite() {
     startHouseSound,
     stopHouseSound,
   ]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(
-      HOUSE_SOUND_STORAGE_KEY,
-      houseSoundEnabled ? "1" : "0",
-    );
-  }, [houseSoundEnabled]);
 
   useEffect(() => {
     if (!houseSoundSupported || !houseSoundEnabled || houseSoundPrimed) return;

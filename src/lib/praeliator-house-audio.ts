@@ -2,7 +2,7 @@ const TEMPO_BPM = 74;
 const EIGHTH_NOTE_SECONDS = 60 / TEMPO_BPM / 2;
 const SCHEDULE_AHEAD_SECONDS = 0.28;
 const SCHEDULER_INTERVAL_MS = 110;
-const MASTER_VOLUME = 0.3;
+const MASTER_VOLUME = 0.42;
 
 const CHORD_BARS = [
   {
@@ -72,10 +72,10 @@ export class PraeliatorHouseAudio {
     master.gain.value = 0;
 
     const toneBus = context.createGain();
-    toneBus.gain.value = 1.35;
+    toneBus.gain.value = 1.7;
 
     const percussionBus = context.createGain();
-    percussionBus.gain.value = 1.06;
+    percussionBus.gain.value = 1.2;
 
     const masterFilter = context.createBiquadFilter();
     masterFilter.type = "lowpass";
@@ -85,12 +85,20 @@ export class PraeliatorHouseAudio {
     const presenceFilter = context.createBiquadFilter();
     presenceFilter.type = "highshelf";
     presenceFilter.frequency.value = 2200;
-    presenceFilter.gain.value = 3.8;
+    presenceFilter.gain.value = 4.6;
+
+    const compressor = context.createDynamicsCompressor();
+    compressor.threshold.value = -24;
+    compressor.knee.value = 24;
+    compressor.ratio.value = 3.5;
+    compressor.attack.value = 0.008;
+    compressor.release.value = 0.22;
 
     toneBus.connect(masterFilter);
     percussionBus.connect(masterFilter);
     masterFilter.connect(presenceFilter);
-    presenceFilter.connect(master);
+    presenceFilter.connect(compressor);
+    compressor.connect(master);
     master.connect(context.destination);
 
     this.context = context;
@@ -132,7 +140,7 @@ export class PraeliatorHouseAudio {
 
     const chordGain = this.context.createGain();
     chordGain.gain.setValueAtTime(0.0001, time);
-    chordGain.gain.linearRampToValueAtTime(0.034 * intensity, time + 0.04);
+    chordGain.gain.linearRampToValueAtTime(0.048 * intensity, time + 0.04);
     chordGain.gain.exponentialRampToValueAtTime(0.0001, time + 2.2);
 
     const filter = this.context.createBiquadFilter();
@@ -153,7 +161,7 @@ export class PraeliatorHouseAudio {
       osc.detune.setValueAtTime(detune, time);
 
       const voiceGain = this.context!.createGain();
-      voiceGain.gain.value = 0.62;
+      voiceGain.gain.value = 0.72;
 
       osc.connect(voiceGain);
       voiceGain.connect(chordGain);
@@ -175,7 +183,7 @@ export class PraeliatorHouseAudio {
 
     const gain = this.context.createGain();
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(0.04 * intensity, time + 0.02);
+    gain.gain.linearRampToValueAtTime(0.058 * intensity, time + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.9);
 
     const filter = this.context.createBiquadFilter();
@@ -213,7 +221,7 @@ export class PraeliatorHouseAudio {
     const gain = this.context.createGain();
     const accent = beatInBar === 0 || beatInBar === 4 ? 1 : 0.56;
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(0.014 * accent, time + 0.012);
+    gain.gain.linearRampToValueAtTime(0.02 * accent, time + 0.012);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.12);
 
     source.connect(bandPass);
