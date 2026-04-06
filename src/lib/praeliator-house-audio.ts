@@ -41,6 +41,7 @@ const QUARTER_OFFSETS = ["0:0:0", "0:1:0", "0:2:0", "0:3:0"] as const;
 const RIDE_PATTERN = ["0:0:0", "0:1:2", "0:2:0", "0:3:2"] as const;
 const HAT_OFFSETS = ["0:1:0", "0:3:0"] as const;
 const FILL_OFFSETS = ["0:2:2", "0:3:0", "0:3:2"] as const;
+const SHAKER_OFFSETS = ["0:0:2", "0:1:2", "0:2:2", "0:3:2"] as const;
 
 const COMP_PATTERNS = [
   [
@@ -221,6 +222,58 @@ function getPhraseSection(barCounter: number) {
   return PHRASE_SECTIONS[Math.floor((barCounter % JAZZ_FORM.length) / 4) % PHRASE_SECTIONS.length];
 }
 
+function getArrangementStage(barCounter: number) {
+  if (barCounter < 4) {
+    return {
+      ride: false,
+      hat: false,
+      shaker: false,
+      pad: false,
+      fill: false,
+      compScale: 0.92,
+      bassScale: 0.94,
+    };
+  }
+
+  if (barCounter < 8) {
+    return {
+      ride: true,
+      hat: true,
+      shaker: false,
+      pad: false,
+      fill: false,
+      compScale: 0.98,
+      bassScale: 1,
+    };
+  }
+
+  if (barCounter < 16) {
+    return {
+      ride: true,
+      hat: true,
+      shaker: false,
+      pad: true,
+      fill: true,
+      compScale: 1,
+      bassScale: 1.02,
+    };
+  }
+
+  return {
+    ride: true,
+    hat: true,
+    shaker: true,
+    pad: true,
+    fill: true,
+    compScale: 1.04,
+    bassScale: 1.04,
+  };
+}
+
+function liftChord(notes: readonly string[], semitones: number) {
+  return notes.map((note) => Tone.Frequency(note).transpose(semitones).toNote());
+}
+
 export class PraeliatorHouseAudio {
   private started = false;
   private initialized = false;
@@ -233,6 +286,8 @@ export class PraeliatorHouseAudio {
   private brushSynth: Tone.NoiseSynth | null = null;
   private rideSynth: Tone.MetalSynth | null = null;
   private hatSynth: Tone.MetalSynth | null = null;
+  private shakerSynth: Tone.NoiseSynth | null = null;
+  private airPad: Tone.PolySynth | null = null;
   private nodes: Array<{ dispose(): void }> = [];
   private eventIds: number[] = [];
 
@@ -261,6 +316,10 @@ export class PraeliatorHouseAudio {
     percussionRoom.wet.value = 0.04;
     const rideHP = new Tone.Filter(2500, "highpass");
     const hatHP = new Tone.Filter(3200, "highpass");
+    const shakerHP = new Tone.Filter(4200, "highpass");
+    const padFilter = new Tone.Filter(1800, "lowpass");
+    const padRoom = new Tone.JCReverb(0.28);
+    padRoom.wet.value = 0.35;
 
     const compPiano = new Tone.Sampler({
       urls: PIANO_SAMPLE_URLS,
@@ -322,12 +381,36 @@ export class PraeliatorHouseAudio {
     });
     hatSynth.volume.value = -28;
 
+    const shakerSynth = new Tone.NoiseSynth({
+      noise: { type: "white" },
+      envelope: {
+        attack: 0.001,
+        decay: 0.04,
+        sustain: 0,
+        release: 0.01,
+      },
+    });
+    shakerSynth.volume.value = -30;
+
+    const airPad = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle6" },
+      envelope: {
+        attack: 0.35,
+        decay: 0.2,
+        sustain: 0.45,
+        release: 1.8,
+      },
+    });
+    airPad.volume.value = -24;
+
     compPiano.chain(toneEQ, masterFilter, room, compressor, master);
     bassPiano.chain(bassFilter, bassEQ, compressor, master);
     accentPiano.chain(toneEQ, masterFilter, accentDelay, room, compressor, master);
     brushSynth.chain(percussionHP, percussionRoom, compressor, master);
     rideSynth.chain(rideHP, percussionRoom, compressor, master);
     hatSynth.chain(hatHP, percussionRoom, compressor, master);
+    shakerSynth.chain(shakerHP, percussionRoom, compressor, master);
+    airPad.chain(padFilter, padRoom, compressor, master);
 
     this.master = master;
     this.compPiano = compPiano;
@@ -336,6 +419,8 @@ export class PraeliatorHouseAudio {
     this.brushSynth = brushSynth;
     this.rideSynth = rideSynth;
     this.hatSynth = hatSynth;
+    this.shakerSynth = shakerSynth;
+    this.airPad = airPad;
     this.nodes = [
       master,
       compressor,
@@ -349,12 +434,17 @@ export class PraeliatorHouseAudio {
       percussionRoom,
       rideHP,
       hatHP,
+      shakerHP,
+      padFilter,
+      padRoom,
       compPiano,
       bassPiano,
       accentPiano,
       brushSynth,
       rideSynth,
       hatSynth,
+      shakerSynth,
+      airPad,
     ];
     this.initialized = true;
   }
@@ -403,6 +493,37 @@ export class PraeliatorHouseAudio {
         phraseSection.hatVelocity,
       );
     });
+  }
+
+  private scheduleShakerBar(time: number) {
+    if (!this.shakerSynth) return;
+
+    SHAKER_OFFSETS.forEach((offset, index) => {
+      this.shakerSynth!.triggerAttackRelease(
+        "64n",
+        humanize(time + offsetToSeconds(offset), TIGHT_HUMANIZE_SECONDS),
+        0.12 + (index % 2 === 0 ? 0.02 : 0),
+      );
+    });
+  }
+
+  private schedulePadBar(time: number, barIndex: number) {
+    if (!this.airPad) return;
+    if (barIndex % 2 !== 0) return;
+
+    const bar = JAZZ_FORM[barIndex];
+    const nextBar = JAZZ_FORM[(barIndex + 1) % JAZZ_FORM.length];
+    const padNotes = [
+      ...liftChord(bar.chord.slice(1), 12),
+      Tone.Frequency(nextBar.chord[nextBar.chord.length - 1]).transpose(12).toNote(),
+    ];
+
+    this.airPad.triggerAttackRelease(
+      padNotes,
+      "2m",
+      humanize(time, TIGHT_HUMANIZE_SECONDS),
+      0.16,
+    );
   }
 
   private scheduleCompBar(
@@ -475,12 +596,31 @@ export class PraeliatorHouseAudio {
   private scheduleBar = (time: number) => {
     const barIndex = this.barCounter % JAZZ_FORM.length;
     const phraseSection = getPhraseSection(this.barCounter);
+    const arrangementStage = getArrangementStage(this.barCounter);
     this.scheduleBrushBar(time, phraseSection);
-    this.scheduleRideBar(time, phraseSection);
-    this.scheduleHatBar(time, phraseSection);
-    this.scheduleCompBar(time, barIndex, phraseSection);
-    this.scheduleBassBar(time, barIndex, phraseSection);
-    this.scheduleFillBar(time, barIndex, phraseSection);
+    if (arrangementStage.ride) {
+      this.scheduleRideBar(time, phraseSection);
+    }
+    if (arrangementStage.hat) {
+      this.scheduleHatBar(time, phraseSection);
+    }
+    if (arrangementStage.shaker) {
+      this.scheduleShakerBar(time);
+    }
+    if (arrangementStage.pad) {
+      this.schedulePadBar(time, barIndex);
+    }
+    this.scheduleCompBar(time, barIndex, {
+      ...phraseSection,
+      compVelocityScale: phraseSection.compVelocityScale * arrangementStage.compScale,
+    });
+    this.scheduleBassBar(time, barIndex, {
+      ...phraseSection,
+      bassVelocityScale: phraseSection.bassVelocityScale * arrangementStage.bassScale,
+    });
+    if (arrangementStage.fill) {
+      this.scheduleFillBar(time, barIndex, phraseSection);
+    }
     this.barCounter += 1;
   };
 
@@ -532,6 +672,8 @@ export class PraeliatorHouseAudio {
     this.brushSynth = null;
     this.rideSynth = null;
     this.hatSynth = null;
+    this.shakerSynth = null;
+    this.airPad = null;
     this.initialized = false;
   }
 
