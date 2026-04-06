@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
 import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
+import { PraeliatorHouseAudio } from "./lib/praeliator-house-audio";
 import {
   getInitialSiteLocale,
   getSiteCopy,
@@ -611,6 +612,24 @@ const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
+const HOUSE_SOUND_STORAGE_KEY = "praeliator_house_sound_enabled";
+
+function getInitialHouseSoundEnabled() {
+  if (typeof window === "undefined") return true;
+  const saved = window.localStorage.getItem(HOUSE_SOUND_STORAGE_KEY);
+  if (saved === "0") return false;
+  if (saved === "1") return true;
+  return true;
+}
+
+function browserSupportsHouseSound() {
+  if (typeof window === "undefined") return false;
+  return Boolean(
+    window.AudioContext ||
+      (window as Window & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext,
+  );
+}
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
 const waitlistRequiredFields: WaitlistFieldName[] = [
@@ -4488,6 +4507,43 @@ function LanguageSwitcher({
     </div>
   );
 }
+function HouseSoundControl({
+  enabled,
+  onToggle,
+  label,
+  toggleLabel,
+  hidden = false,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+  label: string;
+  toggleLabel: string;
+  hidden?: boolean;
+}) {
+  return (
+    <motion.button
+      type="button"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: hidden ? 0 : 1, y: hidden ? 6 : 0 }}
+      transition={{ duration: 0.45, ease: easeLuxury }}
+      onClick={onToggle}
+      aria-label={toggleLabel}
+      aria-pressed={enabled}
+      className="fixed bottom-[max(0.95rem,calc(env(safe-area-inset-bottom)+0.4rem))] left-[max(0.95rem,calc(env(safe-area-inset-left)+0.4rem))] z-[72] inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a0908]/68 px-3.5 py-2 text-[9px] uppercase tracking-[0.3em] text-white/58 shadow-[0_18px_48px_rgba(0,0,0,0.32)] backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-white/16 hover:text-white/78 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/18 focus-visible:ring-offset-0"
+      style={{ pointerEvents: hidden ? "none" : "auto" }}
+    >
+      <span
+        aria-hidden="true"
+        className={`h-1.5 w-1.5 rounded-full border transition duration-300 ${
+          enabled
+            ? "border-[#c9a97d] bg-[#c9a97d] shadow-[0_0_12px_rgba(201,169,125,0.42)]"
+            : "border-white/28 bg-transparent"
+        }`}
+      />
+      <span>{label}</span>
+    </motion.button>
+  );
+}
 function SelectField({
   name,
   value,
@@ -6608,6 +6664,12 @@ export default function PraeliatorWebsite() {
     return normalizePath(window.location.pathname);
   });
   const [locale, setLocale] = useState<SiteLocale>(() => getInitialSiteLocale());
+  const [houseSoundEnabled, setHouseSoundEnabled] = useState(() =>
+    getInitialHouseSoundEnabled(),
+  );
+  const [houseSoundSupported] = useState(() => browserSupportsHouseSound());
+  const [houseSoundPrimed, setHouseSoundPrimed] = useState(false);
+  const houseAudioRef = useRef<PraeliatorHouseAudio | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [homeSectionIndex, setHomeSectionIndex] = useState(0);
@@ -6750,6 +6812,120 @@ export default function PraeliatorWebsite() {
     },
     [route],
   );
+  const ensureHouseAudio = React.useCallback(() => {
+    if (!houseAudioRef.current) {
+      houseAudioRef.current = new PraeliatorHouseAudio();
+    }
+    return houseAudioRef.current;
+  }, []);
+  const startHouseSound = React.useCallback(async () => {
+    if (!houseSoundSupported) return;
+    if (typeof document !== "undefined" && document.hidden) return;
+    try {
+      await ensureHouseAudio().start();
+      setHouseSoundPrimed(true);
+    } catch {
+      // Quiet failure keeps the page calm if audio is unavailable.
+    }
+  }, [ensureHouseAudio, houseSoundSupported]);
+  const stopHouseSound = React.useCallback(async () => {
+    try {
+      await houseAudioRef.current?.stop();
+    } catch {
+      // Ignore quiet stop failures to avoid noisy console behavior.
+    }
+  }, []);
+  const handleHouseSoundToggle = React.useCallback(() => {
+    if (!houseSoundSupported) return;
+    if (houseSoundEnabled) {
+      setHouseSoundEnabled(false);
+      void stopHouseSound();
+      return;
+    }
+    setHouseSoundEnabled(true);
+    setHouseSoundPrimed(true);
+    void startHouseSound();
+  }, [houseSoundEnabled, houseSoundSupported, startHouseSound, stopHouseSound]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      HOUSE_SOUND_STORAGE_KEY,
+      houseSoundEnabled ? "1" : "0",
+    );
+  }, [houseSoundEnabled]);
+
+  useEffect(() => {
+    if (!houseSoundSupported || !houseSoundEnabled || houseSoundPrimed) return;
+    if (typeof window === "undefined") return;
+
+    const armHouseSound = () => {
+      setHouseSoundPrimed(true);
+      void startHouseSound();
+    };
+
+    window.addEventListener("pointerdown", armHouseSound, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", armHouseSound, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", armHouseSound);
+      window.removeEventListener("keydown", armHouseSound);
+    };
+  }, [houseSoundEnabled, houseSoundPrimed, houseSoundSupported, startHouseSound]);
+
+  useEffect(() => {
+    if (!houseSoundSupported) return;
+    if (!houseSoundEnabled) {
+      void stopHouseSound();
+      return;
+    }
+    if (houseSoundPrimed) {
+      void startHouseSound();
+    }
+  }, [
+    houseSoundEnabled,
+    houseSoundPrimed,
+    houseSoundSupported,
+    startHouseSound,
+    stopHouseSound,
+  ]);
+
+  useEffect(() => {
+    if (!houseSoundSupported || typeof document === "undefined") return;
+
+    const syncHouseSoundVisibility = () => {
+      if (document.hidden) {
+        void stopHouseSound();
+        return;
+      }
+      if (houseSoundEnabled && houseSoundPrimed) {
+        void startHouseSound();
+      }
+    };
+
+    document.addEventListener("visibilitychange", syncHouseSoundVisibility);
+    return () =>
+      document.removeEventListener(
+        "visibilitychange",
+        syncHouseSoundVisibility,
+      );
+  }, [
+    houseSoundEnabled,
+    houseSoundPrimed,
+    houseSoundSupported,
+    startHouseSound,
+    stopHouseSound,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      void houseAudioRef.current?.destroy();
+    };
+  }, []);
+
   useEffect(() => {
     const storedCooldown =
       typeof window !== "undefined"
@@ -14494,6 +14670,20 @@ const renderWaitlistPage = () => (
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {houseSoundSupported ? (
+        <HouseSoundControl
+          enabled={houseSoundEnabled}
+          onToggle={handleHouseSoundToggle}
+          label={copy.soundLabel}
+          toggleLabel={
+            houseSoundEnabled
+              ? copy.soundMuteAction
+              : copy.soundUnmuteAction
+          }
+          hidden={mobileMenuOpen}
+        />
+      ) : null}
 
       {route === "/" || !routeUsesFooter ? null : usesDesktopSurfaceLayout ? (
         <ClubFooter
