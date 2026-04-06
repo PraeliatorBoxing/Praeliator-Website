@@ -2,7 +2,7 @@ const TEMPO_BPM = 74;
 const EIGHTH_NOTE_SECONDS = 60 / TEMPO_BPM / 2;
 const SCHEDULE_AHEAD_SECONDS = 0.28;
 const SCHEDULER_INTERVAL_MS = 110;
-const MASTER_VOLUME = 0.11;
+const MASTER_VOLUME = 0.16;
 
 const CHORD_BARS = [
   {
@@ -234,8 +234,9 @@ export class PraeliatorHouseAudio {
     this.active = true;
 
     if (this.schedulerId === null) {
-      this.nextStepTime = context.currentTime + 0.08;
+      this.nextStepTime = context.currentTime + 0.02;
       this.stepIndex = 0;
+      this.scheduleLoop();
       this.schedulerId = window.setInterval(
         () => this.scheduleLoop(),
         SCHEDULER_INTERVAL_MS,
@@ -247,7 +248,7 @@ export class PraeliatorHouseAudio {
       this.master.gain.setValueAtTime(this.master.gain.value, context.currentTime);
       this.master.gain.linearRampToValueAtTime(
         MASTER_VOLUME,
-        context.currentTime + 0.8,
+        context.currentTime + 0.28,
       );
     }
   }
