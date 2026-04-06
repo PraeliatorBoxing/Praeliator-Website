@@ -1,9 +1,20 @@
 import * as Tone from "tone";
 
 const TEMPO_BPM = 108;
-const MASTER_GAIN = 0.34;
+const MASTER_GAIN = 0.24;
 const SWING_AMOUNT = 0.18;
 const HUMANIZE_SECONDS = 0.008;
+const PIANO_BASE_URL = "https://tonejs.github.io/audio/salamander/";
+const PIANO_SAMPLE_URLS = {
+  C2: "C2.mp3",
+  "D#2": "Ds2.mp3",
+  "F#2": "Fs2.mp3",
+  A2: "A2.mp3",
+  C4: "C4.mp3",
+  "D#4": "Ds4.mp3",
+  "F#4": "Fs4.mp3",
+  A4: "A4.mp3",
+} as const;
 
 const BAR_EIGHTH_OFFSETS = [
   "0:0:0",
@@ -87,9 +98,9 @@ export class PraeliatorHouseAudio {
   private barCounter = 0;
 
   private master: Tone.Gain | null = null;
-  private compSynth: Tone.PolySynth | null = null;
-  private bassSynth: Tone.MonoSynth | null = null;
-  private accentSynth: Tone.FMSynth | null = null;
+  private compPiano: Tone.Sampler | null = null;
+  private bassPiano: Tone.Sampler | null = null;
+  private accentPiano: Tone.Sampler | null = null;
   private brushSynth: Tone.NoiseSynth | null = null;
   private nodes: Array<{ dispose(): void }> = [];
   private eventIds: number[] = [];
@@ -106,64 +117,38 @@ export class PraeliatorHouseAudio {
     const master = new Tone.Gain(0).toDestination();
     const compressor = new Tone.Compressor(-20, 2.6);
     const masterFilter = new Tone.Filter(3400, "lowpass");
-    const toneEQ = new Tone.EQ3({ low: 1.2, mid: 0.2, high: 0.6 });
-    const chorus = new Tone.Chorus(1.8, 1.2, 0.08).start();
-    const room = new Tone.JCReverb(0.22);
+    const toneEQ = new Tone.EQ3({ low: 0.6, mid: 0.15, high: 0.35 });
+    const chorus = new Tone.Chorus(1.2, 0.9, 0.04).start();
+    const room = new Tone.JCReverb(0.16);
     const slap = new Tone.FeedbackDelay("8n", 0.08);
-    slap.wet.value = 0.05;
+    slap.wet.value = 0.025;
+    const bassFilter = new Tone.Filter(520, "lowpass");
+    const bassEQ = new Tone.EQ3({ low: 1.8, mid: -0.4, high: -8 });
 
     const percussionHP = new Tone.Filter(1600, "highpass");
     const percussionRoom = new Tone.JCReverb(0.12);
     percussionRoom.wet.value = 0.06;
 
-    const compSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "triangle4" },
-      envelope: {
-        attack: 0.02,
-        decay: 0.22,
-        sustain: 0.32,
-        release: 1.25,
-      },
+    const compPiano = new Tone.Sampler({
+      urls: PIANO_SAMPLE_URLS,
+      baseUrl: PIANO_BASE_URL,
+      release: 1.05,
     });
-    compSynth.volume.value = -8;
+    compPiano.volume.value = -8.5;
 
-    const bassSynth = new Tone.MonoSynth({
-      oscillator: { type: "fattriangle", count: 2, spread: 12 },
-      envelope: {
-        attack: 0.01,
-        decay: 0.22,
-        sustain: 0.2,
-        release: 0.65,
-      },
-      filterEnvelope: {
-        attack: 0.01,
-        decay: 0.18,
-        sustain: 0.2,
-        release: 0.55,
-        baseFrequency: 65,
-        octaves: 2.1,
-      },
-      filter: {
-        type: "lowpass",
-        rolloff: -24,
-        Q: 1,
-      },
+    const bassPiano = new Tone.Sampler({
+      urls: PIANO_SAMPLE_URLS,
+      baseUrl: PIANO_BASE_URL,
+      release: 0.82,
     });
-    bassSynth.volume.value = -6;
+    bassPiano.volume.value = -8;
 
-    const accentSynth = new Tone.FMSynth({
-      harmonicity: 1.5,
-      modulationIndex: 2.2,
-      oscillator: { type: "sine" },
-      modulation: { type: "triangle" },
-      envelope: {
-        attack: 0.012,
-        decay: 0.16,
-        sustain: 0.04,
-        release: 0.42,
-      },
+    const accentPiano = new Tone.Sampler({
+      urls: PIANO_SAMPLE_URLS,
+      baseUrl: PIANO_BASE_URL,
+      release: 0.72,
     });
-    accentSynth.volume.value = -18;
+    accentPiano.volume.value = -16;
 
     const brushSynth = new Tone.NoiseSynth({
       noise: { type: "pink" },
@@ -176,15 +161,15 @@ export class PraeliatorHouseAudio {
     });
     brushSynth.volume.value = -16;
 
-    compSynth.chain(chorus, toneEQ, masterFilter, slap, room, compressor, master);
-    bassSynth.chain(masterFilter, compressor, master);
-    accentSynth.chain(chorus, toneEQ, masterFilter, room, compressor, master);
+    compPiano.chain(chorus, toneEQ, masterFilter, slap, room, compressor, master);
+    bassPiano.chain(bassFilter, bassEQ, compressor, master);
+    accentPiano.chain(chorus, toneEQ, masterFilter, room, compressor, master);
     brushSynth.chain(percussionHP, percussionRoom, compressor, master);
 
     this.master = master;
-    this.compSynth = compSynth;
-    this.bassSynth = bassSynth;
-    this.accentSynth = accentSynth;
+    this.compPiano = compPiano;
+    this.bassPiano = bassPiano;
+    this.accentPiano = accentPiano;
     this.brushSynth = brushSynth;
     this.nodes = [
       master,
@@ -194,11 +179,13 @@ export class PraeliatorHouseAudio {
       chorus,
       room,
       slap,
+      bassFilter,
+      bassEQ,
       percussionHP,
       percussionRoom,
-      compSynth,
-      bassSynth,
-      accentSynth,
+      compPiano,
+      bassPiano,
+      accentPiano,
       brushSynth,
     ];
     this.initialized = true;
@@ -222,7 +209,7 @@ export class PraeliatorHouseAudio {
   }
 
   private scheduleCompBar(time: number, barIndex: number) {
-    if (!this.compSynth) return;
+    if (!this.compPiano) return;
 
     const bar = JAZZ_BARS[barIndex];
     const pattern = COMP_PATTERNS[barIndex % COMP_PATTERNS.length];
@@ -233,27 +220,27 @@ export class PraeliatorHouseAudio {
         hitIndex % 2 === 0
           ? bar.chord
           : ([...bar.chord.slice(1), bar.chord[0]] as string[]);
-      this.compSynth!.triggerAttackRelease(
+      this.compPiano!.triggerAttackRelease(
         invertedChord,
         hit.duration,
         hitTime,
-        hit.velocity + randomBetween(-0.03, 0.03),
+        hit.velocity + randomBetween(-0.02, 0.02),
       );
     });
   }
 
   private scheduleBassBar(time: number, barIndex: number) {
-    if (!this.bassSynth) return;
+    if (!this.bassPiano) return;
 
     const bar = JAZZ_BARS[barIndex];
     bar.bass.forEach((note, stepIndex) => {
       const hitTime = humanize(time + offsetToSeconds(QUARTER_OFFSETS[stepIndex]));
       const duration = stepIndex === 3 ? "8n" : "4n";
       const velocity = stepIndex === 0 ? 0.76 : 0.56 + randomBetween(-0.05, 0.06);
-      this.bassSynth!.triggerAttackRelease(note, duration, hitTime, velocity);
+      this.bassPiano!.triggerAttackRelease(note, duration, hitTime, velocity);
     });
 
-    this.bassSynth.triggerAttackRelease(
+    this.bassPiano.triggerAttackRelease(
       bar.pickup,
       "8n",
       humanize(time + offsetToSeconds("0:3:2")),
@@ -262,21 +249,21 @@ export class PraeliatorHouseAudio {
   }
 
   private scheduleAccentBar(time: number, barIndex: number) {
-    if (!this.accentSynth) return;
+    if (!this.accentPiano) return;
     if (this.barCounter % 4 !== 3) return;
 
     const bar = JAZZ_BARS[barIndex];
     const firstNote = bar.accents[0];
     const secondNote = bar.accents[1] ?? bar.accents[0];
 
-    this.accentSynth.triggerAttackRelease(
+    this.accentPiano.triggerAttackRelease(
       firstNote,
       "8n",
       humanize(time + offsetToSeconds("0:2:2")),
       0.14,
     );
 
-    this.accentSynth.triggerAttackRelease(
+    this.accentPiano.triggerAttackRelease(
       secondNote,
       "8n",
       humanize(time + offsetToSeconds("0:3:2")),
@@ -302,6 +289,7 @@ export class PraeliatorHouseAudio {
   async start() {
     this.ensureGraph();
     await Tone.start();
+    await Tone.loaded();
 
     if (this.started) {
       this.master?.gain.rampTo(MASTER_GAIN, 0.25);
@@ -334,9 +322,9 @@ export class PraeliatorHouseAudio {
     this.nodes.forEach((node) => node.dispose());
     this.nodes = [];
     this.master = null;
-    this.compSynth = null;
-    this.bassSynth = null;
-    this.accentSynth = null;
+    this.compPiano = null;
+    this.bassPiano = null;
+    this.accentPiano = null;
     this.brushSynth = null;
     this.initialized = false;
   }
