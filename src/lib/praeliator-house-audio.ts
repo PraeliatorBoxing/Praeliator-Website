@@ -1,376 +1,325 @@
-const TEMPO_BPM = 72;
-const EIGHTH_NOTE_SECONDS = 60 / TEMPO_BPM / 2;
-const SCHEDULE_AHEAD_SECONDS = 0.32;
-const SCHEDULER_INTERVAL_MS = 110;
-const MASTER_VOLUME = 0.46;
-const SWING_SECONDS = 0.034;
-const HUMANIZE_SECONDS = 0.013;
+import * as Tone from "tone";
 
-const CHORD_BARS = [
-  { bass: 38, chord: [50, 53, 57, 60] },
-  { bass: 43, chord: [55, 59, 62, 65] },
-  { bass: 36, chord: [48, 52, 55, 59] },
-  { bass: 45, chord: [55, 58, 60, 64] },
-];
+const TEMPO_BPM = 96;
+const MASTER_GAIN = 0.72;
+const SWING_AMOUNT = 0.22;
+const HUMANIZE_SECONDS = 0.015;
 
-function midiToFrequency(note: number) {
-  return 440 * 2 ** ((note - 69) / 12);
-}
+const BAR_EIGHTH_OFFSETS = [
+  "0:0:0",
+  "0:0:2",
+  "0:1:0",
+  "0:1:2",
+  "0:2:0",
+  "0:2:2",
+  "0:3:0",
+  "0:3:2",
+] as const;
+
+const COMP_PATTERNS = [
+  [
+    { offset: "0:0:2", duration: "8n.", velocity: 0.58 },
+    { offset: "0:2:2", duration: "8n", velocity: 0.52 },
+    { offset: "0:3:2", duration: "16n", velocity: 0.44 },
+  ],
+  [
+    { offset: "0:1:0", duration: "8n", velocity: 0.46 },
+    { offset: "0:2:2", duration: "8n.", velocity: 0.56 },
+  ],
+  [
+    { offset: "0:0:2", duration: "16n", velocity: 0.44 },
+    { offset: "0:1:2", duration: "8n", velocity: 0.52 },
+    { offset: "0:3:0", duration: "8n", velocity: 0.48 },
+  ],
+  [
+    { offset: "0:1:2", duration: "8n.", velocity: 0.56 },
+    { offset: "0:3:0", duration: "8n", velocity: 0.5 },
+  ],
+] as const;
+
+const JAZZ_BARS = [
+  {
+    chord: ["F3", "C4", "E4", "A4"],
+    bass: ["D2", "F2", "A2", "C3", "D3", "C3", "A2", "F2"],
+    accents: ["A4", "C5", "E5"],
+  },
+  {
+    chord: ["F3", "B3", "E4", "A4"],
+    bass: ["G2", "B2", "D3", "F3", "G3", "F3", "D3", "B2"],
+    accents: ["A4", "B4", "D5"],
+  },
+  {
+    chord: ["E3", "B3", "D4", "G4"],
+    bass: ["C2", "E2", "G2", "B2", "C3", "B2", "G2", "E2"],
+    accents: ["G4", "B4", "D5"],
+  },
+  {
+    chord: ["G3", "C#4", "F4", "B4"],
+    bass: ["A2", "C#3", "E3", "G3", "A3", "G3", "E3", "C#3"],
+    accents: ["B4", "C#5", "E5"],
+  },
+] as const;
 
 function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
 
-function createNoiseBuffer(context: AudioContext) {
-  const buffer = context.createBuffer(1, context.sampleRate * 1.5, context.sampleRate);
-  const channel = buffer.getChannelData(0);
-
-  for (let index = 0; index < channel.length; index += 1) {
-    channel[index] = (Math.random() * 2 - 1) * 0.7;
-  }
-
-  return buffer;
+function humanize(time: number) {
+  return time + randomBetween(-HUMANIZE_SECONDS, HUMANIZE_SECONDS);
 }
 
-function createImpulseBuffer(context: AudioContext) {
-  const length = context.sampleRate * 2.4;
-  const buffer = context.createBuffer(2, length, context.sampleRate);
-
-  for (let channelIndex = 0; channelIndex < buffer.numberOfChannels; channelIndex += 1) {
-    const channel = buffer.getChannelData(channelIndex);
-    for (let index = 0; index < length; index += 1) {
-      const decay = (1 - index / length) ** 2.4;
-      channel[index] = (Math.random() * 2 - 1) * decay * 0.36;
-    }
-  }
-
-  return buffer;
-}
-
-function getAudioContextConstructor() {
-  if (typeof window === "undefined") return null;
-  return (
-    window.AudioContext ||
-    (window as Window & { webkitAudioContext?: typeof AudioContext })
-      .webkitAudioContext ||
-    null
-  );
+function offsetToSeconds(offset: string) {
+  return Tone.Time(offset).toSeconds();
 }
 
 export class PraeliatorHouseAudio {
-  private context: AudioContext | null = null;
-  private master: GainNode | null = null;
-  private toneBus: GainNode | null = null;
-  private percussionBus: GainNode | null = null;
-  private noiseBuffer: AudioBuffer | null = null;
-  private impulseBuffer: AudioBuffer | null = null;
-  private schedulerId: number | null = null;
-  private nextStepTime = 0;
-  private stepIndex = 0;
-  private active = false;
+  private started = false;
+  private initialized = false;
+  private barCounter = 0;
 
-  private ensureContext() {
-    if (this.context) return this.context;
+  private master: Tone.Gain | null = null;
+  private compSynth: Tone.PolySynth | null = null;
+  private bassSynth: Tone.MonoSynth | null = null;
+  private accentSynth: Tone.Synth | null = null;
+  private brushSynth: Tone.NoiseSynth | null = null;
+  private nodes: Array<{ dispose(): void }> = [];
+  private eventIds: number[] = [];
 
-    const AudioContextConstructor = getAudioContextConstructor();
-    if (!AudioContextConstructor) {
-      throw new Error("Web Audio is not available in this browser.");
-    }
+  private ensureGraph() {
+    if (this.initialized) return;
 
-    const context = new AudioContextConstructor();
-    const master = context.createGain();
-    master.gain.value = 0;
+    Tone.getContext().lookAhead = 0.08;
+    Tone.Transport.bpm.value = TEMPO_BPM;
+    Tone.Transport.swing = SWING_AMOUNT;
+    Tone.Transport.swingSubdivision = "8n";
+    Tone.Transport.timeSignature = 4;
 
-    const toneBus = context.createGain();
-    toneBus.gain.value = 1.36;
+    const master = new Tone.Gain(0).toDestination();
+    const compressor = new Tone.Compressor(-20, 2.6);
+    const masterFilter = new Tone.Filter(3400, "lowpass");
+    const toneEQ = new Tone.EQ3({ low: 1.5, mid: 0.4, high: 1.8 });
+    const chorus = new Tone.Chorus(2.8, 1.6, 0.18).start();
+    const room = new Tone.JCReverb(0.34);
+    const slap = new Tone.FeedbackDelay("8n", 0.12);
+    slap.wet.value = 0.1;
 
-    const percussionBus = context.createGain();
-    percussionBus.gain.value = 0.72;
+    const percussionHP = new Tone.Filter(1600, "highpass");
+    const percussionRoom = new Tone.JCReverb(0.16);
+    percussionRoom.wet.value = 0.1;
 
-    const roomSend = context.createGain();
-    roomSend.gain.value = 0.34;
+    const compSynth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle4" },
+      envelope: {
+        attack: 0.02,
+        decay: 0.22,
+        sustain: 0.32,
+        release: 1.8,
+      },
+    });
+    compSynth.volume.value = -5;
 
-    const roomConvolver = context.createConvolver();
-    roomConvolver.buffer = createImpulseBuffer(context);
+    const bassSynth = new Tone.MonoSynth({
+      oscillator: { type: "fattriangle", count: 2, spread: 12 },
+      envelope: {
+        attack: 0.01,
+        decay: 0.22,
+        sustain: 0.2,
+        release: 0.65,
+      },
+      filterEnvelope: {
+        attack: 0.01,
+        decay: 0.18,
+        sustain: 0.2,
+        release: 0.55,
+        baseFrequency: 65,
+        octaves: 2.1,
+      },
+      filter: {
+        type: "lowpass",
+        rolloff: -24,
+        Q: 1,
+      },
+    });
+    bassSynth.volume.value = -3;
 
-    const roomReturn = context.createGain();
-    roomReturn.gain.value = 0.42;
+    const accentSynth = new Tone.Synth({
+      oscillator: { type: "sine2" },
+      envelope: {
+        attack: 0.012,
+        decay: 0.12,
+        sustain: 0.08,
+        release: 0.55,
+      },
+    });
+    accentSynth.volume.value = -10;
 
-    const slapDelay = context.createDelay(0.5);
-    slapDelay.delayTime.value = 0.18;
+    const brushSynth = new Tone.NoiseSynth({
+      noise: { type: "pink" },
+      envelope: {
+        attack: 0.001,
+        decay: 0.09,
+        sustain: 0,
+        release: 0.02,
+      },
+    });
+    brushSynth.volume.value = -12;
 
-    const slapFeedback = context.createGain();
-    slapFeedback.gain.value = 0.12;
+    compSynth.chain(chorus, toneEQ, masterFilter, slap, room, compressor, master);
+    bassSynth.chain(masterFilter, compressor, master);
+    accentSynth.chain(chorus, toneEQ, masterFilter, room, compressor, master);
+    brushSynth.chain(percussionHP, percussionRoom, compressor, master);
 
-    const slapTone = context.createBiquadFilter();
-    slapTone.type = "lowpass";
-    slapTone.frequency.value = 2600;
-
-    const masterFilter = context.createBiquadFilter();
-    masterFilter.type = "lowpass";
-    masterFilter.frequency.value = 3600;
-    masterFilter.Q.value = 0.22;
-
-    const presenceFilter = context.createBiquadFilter();
-    presenceFilter.type = "highshelf";
-    presenceFilter.frequency.value = 2100;
-    presenceFilter.gain.value = 3.2;
-
-    const compressor = context.createDynamicsCompressor();
-    compressor.threshold.value = -22;
-    compressor.knee.value = 22;
-    compressor.ratio.value = 2.8;
-    compressor.attack.value = 0.01;
-    compressor.release.value = 0.24;
-
-    toneBus.connect(masterFilter);
-    percussionBus.connect(masterFilter);
-
-    toneBus.connect(roomSend);
-    percussionBus.connect(roomSend);
-    roomSend.connect(roomConvolver);
-    roomConvolver.connect(roomReturn);
-    roomReturn.connect(masterFilter);
-
-    toneBus.connect(slapDelay);
-    slapDelay.connect(slapFeedback);
-    slapFeedback.connect(slapTone);
-    slapTone.connect(slapDelay);
-    slapDelay.connect(masterFilter);
-
-    masterFilter.connect(presenceFilter);
-    presenceFilter.connect(compressor);
-    compressor.connect(master);
-    master.connect(context.destination);
-
-    this.context = context;
     this.master = master;
-    this.toneBus = toneBus;
-    this.percussionBus = percussionBus;
-    this.noiseBuffer = createNoiseBuffer(context);
-    this.impulseBuffer = roomConvolver.buffer;
-
-    return context;
+    this.compSynth = compSynth;
+    this.bassSynth = bassSynth;
+    this.accentSynth = accentSynth;
+    this.brushSynth = brushSynth;
+    this.nodes = [
+      master,
+      compressor,
+      masterFilter,
+      toneEQ,
+      chorus,
+      room,
+      slap,
+      percussionHP,
+      percussionRoom,
+      compSynth,
+      bassSynth,
+      accentSynth,
+      brushSynth,
+    ];
+    this.initialized = true;
   }
 
-  private getStepTime(baseTime: number, beatInBar: number) {
-    const swung = beatInBar % 2 === 1 ? SWING_SECONDS : 0;
-    const humanized = randomBetween(-HUMANIZE_SECONDS, HUMANIZE_SECONDS);
-    return baseTime + swung + humanized;
-  }
+  private scheduleBrushBar(time: number) {
+    if (!this.brushSynth) return;
 
-  private scheduleLoop() {
-    if (!this.context || !this.toneBus || !this.percussionBus) return;
+    BAR_EIGHTH_OFFSETS.forEach((offset, index) => {
+      if (index % 2 === 1 && Math.random() < 0.2) return;
 
-    while (this.nextStepTime < this.context.currentTime + SCHEDULE_AHEAD_SECONDS) {
-      const barIndex = Math.floor(this.stepIndex / 8) % CHORD_BARS.length;
-      const beatInBar = this.stepIndex % 8;
-      const bar = CHORD_BARS[barIndex];
-      const stepTime = this.getStepTime(this.nextStepTime, beatInBar);
-
-      this.scheduleBrush(stepTime, beatInBar);
-
-      if (beatInBar === 0) {
-        this.scheduleChord(bar.chord, stepTime, 1);
-        this.scheduleBass(bar.bass, stepTime, 0.92);
-      } else if (beatInBar === 4) {
-        this.scheduleChord(bar.chord, stepTime, 0.68);
-        this.scheduleBass(bar.bass + 5, stepTime, 0.66);
-      } else if (beatInBar === 2 || beatInBar === 6) {
-        this.scheduleBass(bar.bass, stepTime, 0.34);
-      }
-
-      this.nextStepTime += EIGHTH_NOTE_SECONDS;
-      this.stepIndex = (this.stepIndex + 1) % (CHORD_BARS.length * 8);
-    }
-  }
-
-  private scheduleChord(notes: number[], time: number, intensity: number) {
-    if (!this.context || !this.toneBus) return;
-
-    const chordGain = this.context.createGain();
-    const chordPeak = 0.034 * intensity;
-    chordGain.gain.setValueAtTime(0.0001, time);
-    chordGain.gain.linearRampToValueAtTime(chordPeak, time + 0.11);
-    chordGain.gain.exponentialRampToValueAtTime(0.0001, time + 3.2);
-
-    const filter = this.context.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(1850, time);
-    filter.frequency.linearRampToValueAtTime(1180, time + 2.4);
-    filter.Q.value = 0.16;
-
-    const wobble = this.context.createOscillator();
-    wobble.type = "sine";
-    wobble.frequency.value = randomBetween(0.18, 0.34);
-
-    const wobbleDepth = this.context.createGain();
-    wobbleDepth.gain.value = randomBetween(2.4, 5.2);
-
-    wobble.connect(wobbleDepth);
-    chordGain.connect(filter);
-    filter.connect(this.toneBus);
-    wobble.start(time);
-    wobble.stop(time + 3.3);
-
-    notes.forEach((note, index) => {
-      const voiceTime = time + index * randomBetween(0.012, 0.034);
-      const primary = this.context!.createOscillator();
-      primary.type = index % 2 === 0 ? "triangle" : "sawtooth";
-      primary.frequency.setValueAtTime(midiToFrequency(note), voiceTime);
-      primary.detune.setValueAtTime(randomBetween(-6, 6), voiceTime);
-
-      const companion = this.context!.createOscillator();
-      companion.type = "sine";
-      companion.frequency.setValueAtTime(
-        midiToFrequency(note + (index === 0 ? -12 : 0)),
-        voiceTime,
-      );
-      companion.detune.setValueAtTime(randomBetween(-4, 4), voiceTime);
-
-      const voiceGain = this.context!.createGain();
-      voiceGain.gain.value = 0.38 + index * 0.02;
-
-      wobbleDepth.connect(primary.detune);
-      wobbleDepth.connect(companion.detune);
-
-      primary.connect(voiceGain);
-      companion.connect(voiceGain);
-      voiceGain.connect(chordGain);
-      primary.start(voiceTime);
-      companion.start(voiceTime);
-      primary.stop(time + 3.2);
-      companion.stop(time + 3.15);
+      const hitTime = humanize(time + offsetToSeconds(offset));
+      const accent = index === 2 || index === 6 ? 1.1 : index % 2 === 0 ? 0.58 : 0.36;
+      this.brushSynth!.triggerAttackRelease("32n", hitTime, accent);
     });
   }
 
-  private scheduleBass(note: number, time: number, intensity: number) {
-    if (!this.context || !this.toneBus) return;
+  private scheduleCompBar(time: number, barIndex: number) {
+    if (!this.compSynth) return;
 
-    const osc = this.context.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(midiToFrequency(note), time);
-    osc.frequency.exponentialRampToValueAtTime(
-      midiToFrequency(note) * randomBetween(0.992, 0.998),
-      time + 0.2,
-    );
+    const bar = JAZZ_BARS[barIndex];
+    const pattern = COMP_PATTERNS[barIndex % COMP_PATTERNS.length];
 
-    const sub = this.context.createOscillator();
-    sub.type = "sine";
-    sub.frequency.setValueAtTime(midiToFrequency(note - 12), time);
-
-    const gain = this.context.createGain();
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(0.044 * intensity, time + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + 1.35);
-
-    const filter = this.context.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 620;
-    filter.Q.value = 0.32;
-
-    osc.connect(gain);
-    sub.connect(gain);
-    gain.connect(filter);
-    filter.connect(this.toneBus);
-
-    osc.start(time);
-    sub.start(time);
-    osc.stop(time + 1.4);
-    sub.stop(time + 1.4);
+    pattern.forEach((hit, hitIndex) => {
+      const hitTime = humanize(time + offsetToSeconds(hit.offset));
+      const invertedChord =
+        hitIndex % 2 === 0
+          ? bar.chord
+          : ([...bar.chord.slice(1), bar.chord[0]] as string[]);
+      this.compSynth!.triggerAttackRelease(
+        invertedChord,
+        hit.duration,
+        hitTime,
+        hit.velocity + randomBetween(-0.05, 0.06),
+      );
+    });
   }
 
-  private scheduleBrush(time: number, beatInBar: number) {
-    if (!this.context || !this.percussionBus || !this.noiseBuffer) return;
-    if (beatInBar % 2 === 1 && Math.random() < 0.26) return;
+  private scheduleBassBar(time: number, barIndex: number) {
+    if (!this.bassSynth) return;
 
-    const source = this.context.createBufferSource();
-    source.buffer = this.noiseBuffer;
+    const bar = JAZZ_BARS[barIndex];
+    bar.bass.forEach((note, stepIndex) => {
+      const hitTime = humanize(time + offsetToSeconds(BAR_EIGHTH_OFFSETS[stepIndex]));
+      const duration = stepIndex % 2 === 0 ? "8n" : "8n.";
+      const velocity = stepIndex === 0 ? 0.86 : 0.54 + randomBetween(-0.08, 0.1);
+      this.bassSynth!.triggerAttackRelease(note, duration, hitTime, velocity);
+    });
+  }
 
-    const bandPass = this.context.createBiquadFilter();
-    bandPass.type = "bandpass";
-    bandPass.frequency.value = beatInBar % 2 === 0 ? 2500 : 1900;
-    bandPass.Q.value = 0.26;
+  private scheduleAccentBar(time: number, barIndex: number) {
+    if (!this.accentSynth) return;
+    if (Math.random() < 0.28) return;
 
-    const highPass = this.context.createBiquadFilter();
-    highPass.type = "highpass";
-    highPass.frequency.value = 980;
-    highPass.Q.value = 0.18;
+    const bar = JAZZ_BARS[barIndex];
+    const firstNote = bar.accents[Math.floor(randomBetween(0, bar.accents.length))];
+    const secondNote = bar.accents[Math.floor(randomBetween(0, bar.accents.length))];
 
-    const gain = this.context.createGain();
-    const accent =
-      beatInBar === 0 || beatInBar === 4 ? randomBetween(0.78, 1) : randomBetween(0.22, 0.52);
-    const decay = beatInBar % 2 === 0 ? 0.22 : 0.12;
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(0.012 * accent, time + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + decay);
+    this.accentSynth.triggerAttackRelease(
+      firstNote,
+      "16n",
+      humanize(time + offsetToSeconds("0:1:2")),
+      0.22 + randomBetween(-0.04, 0.05),
+    );
 
-    source.connect(bandPass);
-    bandPass.connect(highPass);
-    highPass.connect(gain);
-    gain.connect(this.percussionBus);
+    if (Math.random() > 0.42) {
+      this.accentSynth.triggerAttackRelease(
+        secondNote,
+        "16n",
+        humanize(time + offsetToSeconds("0:3:2")),
+        0.18 + randomBetween(-0.03, 0.04),
+      );
+    }
+  }
 
-    source.start(time);
-    source.stop(time + Math.max(0.18, decay + 0.06));
+  private scheduleBar = (time: number) => {
+    const barIndex = this.barCounter % JAZZ_BARS.length;
+    this.scheduleBrushBar(time);
+    this.scheduleCompBar(time, barIndex);
+    this.scheduleBassBar(time, barIndex);
+    this.scheduleAccentBar(time, barIndex);
+    this.barCounter += 1;
+  };
+
+  private clearTransport() {
+    this.eventIds.forEach((id) => Tone.Transport.clear(id));
+    this.eventIds = [];
+    Tone.Transport.cancel(0);
   }
 
   async start() {
-    const context = this.ensureContext();
-    if (context.state === "suspended") {
-      await context.resume();
+    this.ensureGraph();
+    await Tone.start();
+
+    if (this.started) {
+      this.master?.gain.rampTo(MASTER_GAIN, 0.25);
+      if (Tone.Transport.state !== "started") {
+        Tone.Transport.start("+0.02");
+      }
+      return;
     }
 
-    this.active = true;
+    this.started = true;
+    this.barCounter = 0;
+    this.clearTransport();
+    this.master?.gain.cancelScheduledValues(Tone.now());
+    this.master?.gain.rampTo(MASTER_GAIN, 0.32);
 
-    if (this.schedulerId === null) {
-      this.nextStepTime = context.currentTime + 0.02;
-      this.stepIndex = 0;
-      this.scheduleLoop();
-      this.schedulerId = window.setInterval(
-        () => this.scheduleLoop(),
-        SCHEDULER_INTERVAL_MS,
-      );
-    }
-
-    if (this.master) {
-      this.master.gain.cancelScheduledValues(context.currentTime);
-      this.master.gain.setValueAtTime(this.master.gain.value, context.currentTime);
-      this.master.gain.linearRampToValueAtTime(
-        MASTER_VOLUME,
-        context.currentTime + 0.34,
-      );
-    }
+    this.eventIds.push(Tone.Transport.scheduleRepeat(this.scheduleBar, "1m", 0));
+    Tone.Transport.start("+0.03");
   }
 
   async stop() {
-    if (!this.context || !this.master) return;
-
-    this.active = false;
-    const now = this.context.currentTime;
-    this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
-
-    if (this.schedulerId !== null) {
-      window.clearInterval(this.schedulerId);
-      this.schedulerId = null;
-    }
+    if (!this.initialized) return;
+    this.started = false;
+    this.master?.gain.rampTo(0.0001, 0.28);
+    Tone.Transport.stop("+0.02");
+    this.clearTransport();
   }
 
   async destroy() {
     await this.stop();
-    if (this.context && this.context.state !== "closed") {
-      await this.context.close();
-    }
-    this.context = null;
+    this.nodes.forEach((node) => node.dispose());
+    this.nodes = [];
     this.master = null;
-    this.toneBus = null;
-    this.percussionBus = null;
-    this.noiseBuffer = null;
-    this.impulseBuffer = null;
+    this.compSynth = null;
+    this.bassSynth = null;
+    this.accentSynth = null;
+    this.brushSynth = null;
+    this.initialized = false;
   }
 
   get isActive() {
-    return this.active;
+    return this.started;
   }
 }
