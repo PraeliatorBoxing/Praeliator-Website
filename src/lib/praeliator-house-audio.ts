@@ -1,7 +1,7 @@
 import * as Tone from "tone";
 
 const TEMPO_BPM = 108;
-const MASTER_GAIN = 0.24;
+const MASTER_GAIN = 0.27;
 const SWING_AMOUNT = 0.18;
 const HUMANIZE_SECONDS = 0.008;
 const PIANO_BASE_URL = "https://tonejs.github.io/audio/salamander/";
@@ -28,6 +28,7 @@ const BAR_EIGHTH_OFFSETS = [
 ] as const;
 
 const QUARTER_OFFSETS = ["0:0:0", "0:1:0", "0:2:0", "0:3:0"] as const;
+const RIDE_OFFSETS = ["0:0:0", "0:1:2", "0:2:0", "0:3:2"] as const;
 
 const COMP_PATTERNS = [
   [
@@ -53,28 +54,36 @@ const PHRASE_SECTIONS = [
   {
     compPatternOffset: 0,
     brushDensity: 1,
+    rideDensity: 0.64,
     allowAccent: false,
+    allowLead: false,
     bassVelocityScale: 0.94,
     compVelocityScale: 0.9,
   },
   {
     compPatternOffset: 1,
     brushDensity: 0.84,
+    rideDensity: 0.82,
     allowAccent: true,
+    allowLead: false,
     bassVelocityScale: 1,
     compVelocityScale: 1,
   },
   {
     compPatternOffset: 2,
     brushDensity: 0.68,
+    rideDensity: 0.58,
     allowAccent: false,
+    allowLead: true,
     bassVelocityScale: 0.88,
     compVelocityScale: 0.82,
   },
   {
     compPatternOffset: 3,
     brushDensity: 1.08,
+    rideDensity: 0.96,
     allowAccent: true,
+    allowLead: true,
     bassVelocityScale: 1.04,
     compVelocityScale: 1.06,
   },
@@ -109,6 +118,45 @@ const JAZZ_BARS = [
     pickup: "C#3",
     accents: ["Bb4", "C#5"],
   },
+  {
+    name: "Fmaj9",
+    chord: ["A3", "C4", "E4", "G4"],
+    bass: ["F2", "A2", "C3", "D3"],
+    pickup: "E3",
+    accents: ["G4", "A4"],
+  },
+  {
+    name: "Bb13",
+    chord: ["Ab3", "D4", "G4", "C5"],
+    bass: ["Bb2", "D3", "F3", "G3"],
+    pickup: "A2",
+    accents: ["C5", "D5"],
+  },
+  {
+    name: "Em7b5",
+    chord: ["G3", "Bb3", "D4", "F4"],
+    bass: ["E2", "G2", "Bb2", "C3"],
+    pickup: "C#3",
+    accents: ["F4", "G4"],
+  },
+  {
+    name: "A7b9",
+    chord: ["G3", "C#4", "E4", "Bb4"],
+    bass: ["A2", "C#3", "E3", "G3"],
+    pickup: "C#3",
+    accents: ["Bb4", "E5"],
+  },
+] as const;
+
+const LEAD_MOTIFS = [
+  ["A4", "C5", "E5"],
+  ["B4", "A4", "G4"],
+  ["G4", "B4", "D5"],
+  ["C#5", "Bb4", "A4"],
+  ["A4", "G4", "E4"],
+  ["D5", "C5", "A4"],
+  ["F4", "G4", "Bb4"],
+  ["E5", "C#5", "A4"],
 ] as const;
 
 function randomBetween(min: number, max: number) {
@@ -137,6 +185,8 @@ export class PraeliatorHouseAudio {
   private bassPiano: Tone.Sampler | null = null;
   private accentPiano: Tone.Sampler | null = null;
   private brushSynth: Tone.NoiseSynth | null = null;
+  private rideSynth: Tone.MetalSynth | null = null;
+  private leadVibes: Tone.FMSynth | null = null;
   private nodes: Array<{ dispose(): void }> = [];
   private eventIds: number[] = [];
 
@@ -163,6 +213,9 @@ export class PraeliatorHouseAudio {
     const percussionHP = new Tone.Filter(1600, "highpass");
     const percussionRoom = new Tone.JCReverb(0.12);
     percussionRoom.wet.value = 0.06;
+    const rideHP = new Tone.Filter(2400, "highpass");
+    const leadRoom = new Tone.JCReverb(0.18);
+    leadRoom.wet.value = 0.1;
 
     const compPiano = new Tone.Sampler({
       urls: PIANO_SAMPLE_URLS,
@@ -196,16 +249,54 @@ export class PraeliatorHouseAudio {
     });
     brushSynth.volume.value = -16;
 
+    const rideSynth = new Tone.MetalSynth({
+      frequency: 420,
+      envelope: {
+        attack: 0.001,
+        decay: 0.11,
+        release: 0.02,
+      },
+      harmonicity: 4.2,
+      modulationIndex: 18,
+      resonance: 2400,
+      octaves: 1.6,
+    });
+    rideSynth.volume.value = -28;
+
+    const leadVibes = new Tone.FMSynth({
+      harmonicity: 2.2,
+      modulationIndex: 4.5,
+      oscillator: { type: "sine" },
+      modulation: { type: "triangle" },
+      envelope: {
+        attack: 0.01,
+        decay: 0.22,
+        sustain: 0.1,
+        release: 0.45,
+      },
+      modulationEnvelope: {
+        attack: 0.02,
+        decay: 0.14,
+        sustain: 0.08,
+        release: 0.36,
+      },
+    });
+    leadVibes.volume.value = -22;
+
     compPiano.chain(chorus, toneEQ, masterFilter, slap, room, compressor, master);
     bassPiano.chain(bassFilter, bassEQ, compressor, master);
     accentPiano.chain(chorus, toneEQ, masterFilter, room, compressor, master);
     brushSynth.chain(percussionHP, percussionRoom, compressor, master);
+    rideSynth.chain(rideHP, percussionRoom, compressor, master);
+    leadVibes.chain(chorus, toneEQ, masterFilter, leadRoom, compressor, master);
 
     this.master = master;
     this.compPiano = compPiano;
     this.bassPiano = bassPiano;
     this.accentPiano = accentPiano;
     this.brushSynth = brushSynth;
+    this.rideSynth = rideSynth;
+    this.leadVibes = leadVibes;
     this.nodes = [
       master,
       compressor,
@@ -218,10 +309,14 @@ export class PraeliatorHouseAudio {
       bassEQ,
       percussionHP,
       percussionRoom,
+      rideHP,
+      leadRoom,
       compPiano,
       bassPiano,
       accentPiano,
       brushSynth,
+      rideSynth,
+      leadVibes,
     ];
     this.initialized = true;
   }
@@ -248,6 +343,21 @@ export class PraeliatorHouseAudio {
         hitTime,
         accent * phraseSection.brushDensity,
       );
+    });
+  }
+
+  private scheduleRideBar(
+    time: number,
+    phraseSection: (typeof PHRASE_SECTIONS)[number],
+  ) {
+    if (!this.rideSynth) return;
+
+    RIDE_OFFSETS.forEach((offset, index) => {
+      const hitTime = humanize(time + offsetToSeconds(offset));
+      const velocity =
+        (index % 2 === 0 ? 0.24 : 0.18) * phraseSection.rideDensity +
+        randomBetween(-0.02, 0.02);
+      this.rideSynth!.triggerAttackRelease("32n", hitTime, velocity);
     });
   }
 
@@ -336,13 +446,36 @@ export class PraeliatorHouseAudio {
     );
   }
 
+  private scheduleLeadBar(
+    time: number,
+    barIndex: number,
+    phraseSection: (typeof PHRASE_SECTIONS)[number],
+  ) {
+    if (!this.leadVibes || !phraseSection.allowLead) return;
+    if (this.barCounter % 2 !== 1) return;
+
+    const motif = LEAD_MOTIFS[barIndex % LEAD_MOTIFS.length];
+    const offsets = ["0:1:2", "0:2:2", "0:3:2"] as const;
+
+    motif.forEach((note, index) => {
+      this.leadVibes!.triggerAttackRelease(
+        note,
+        index === motif.length - 1 ? "8n." : "8n",
+        humanize(time + offsetToSeconds(offsets[index])),
+        0.12 + index * 0.015,
+      );
+    });
+  }
+
   private scheduleBar = (time: number) => {
     const barIndex = this.barCounter % JAZZ_BARS.length;
     const phraseSection = getPhraseSection(this.barCounter);
     this.scheduleBrushBar(time, phraseSection);
+    this.scheduleRideBar(time, phraseSection);
     this.scheduleCompBar(time, barIndex, phraseSection);
     this.scheduleBassBar(time, barIndex, phraseSection);
     this.scheduleAccentBar(time, barIndex, phraseSection);
+    this.scheduleLeadBar(time, barIndex, phraseSection);
     this.barCounter += 1;
   };
 
@@ -392,6 +525,8 @@ export class PraeliatorHouseAudio {
     this.bassPiano = null;
     this.accentPiano = null;
     this.brushSynth = null;
+    this.rideSynth = null;
+    this.leadVibes = null;
     this.initialized = false;
   }
 
