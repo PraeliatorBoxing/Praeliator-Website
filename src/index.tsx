@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
 import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
-import { PraeliatorHouseAudio } from "./lib/praeliator-house-audio";
 import {
   getInitialSiteLocale,
   getSiteCopy,
@@ -612,15 +611,6 @@ const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
-
-function browserSupportsHouseSound() {
-  if (typeof window === "undefined") return false;
-  return Boolean(
-    window.AudioContext ||
-      (window as Window & { webkitAudioContext?: typeof AudioContext })
-        .webkitAudioContext,
-  );
-}
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
 const waitlistRequiredFields: WaitlistFieldName[] = [
@@ -6618,9 +6608,6 @@ export default function PraeliatorWebsite() {
     return normalizePath(window.location.pathname);
   });
   const [locale, setLocale] = useState<SiteLocale>(() => getInitialSiteLocale());
-  const [houseSoundSupported] = useState(() => browserSupportsHouseSound());
-  const [houseSoundPrimed, setHouseSoundPrimed] = useState(false);
-  const houseAudioRef = useRef<PraeliatorHouseAudio | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
   const [homeSectionIndex, setHomeSectionIndex] = useState(0);
@@ -6763,105 +6750,6 @@ export default function PraeliatorWebsite() {
     },
     [route],
   );
-  const ensureHouseAudio = React.useCallback(() => {
-    if (!houseAudioRef.current) {
-      houseAudioRef.current = new PraeliatorHouseAudio();
-    }
-    return houseAudioRef.current;
-  }, []);
-  const startHouseSound = React.useCallback(async () => {
-    if (!houseSoundSupported) return;
-    if (typeof document !== "undefined" && document.hidden) return;
-    try {
-      await ensureHouseAudio().start();
-      setHouseSoundPrimed(true);
-      return true;
-    } catch {
-      // Quiet failure keeps the page calm if audio is unavailable.
-      return false;
-    }
-  }, [ensureHouseAudio, houseSoundSupported]);
-  const stopHouseSound = React.useCallback(async () => {
-    try {
-      await houseAudioRef.current?.stop();
-    } catch {
-      // Ignore quiet stop failures to avoid noisy console behavior.
-    }
-  }, []);
-  useEffect(() => {
-    if (!houseSoundSupported || houseSoundPrimed) return;
-    void startHouseSound();
-  }, [houseSoundPrimed, houseSoundSupported, startHouseSound]);
-
-  useEffect(() => {
-    if (!houseSoundSupported || houseSoundPrimed) return;
-    if (typeof window === "undefined") return;
-
-    const armHouseSound = () => {
-      void startHouseSound();
-    };
-
-    window.addEventListener("scroll", armHouseSound, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("wheel", armHouseSound, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("touchstart", armHouseSound, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("pointerdown", armHouseSound, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("keydown", armHouseSound, { once: true });
-
-    return () => {
-      window.removeEventListener("scroll", armHouseSound);
-      window.removeEventListener("wheel", armHouseSound);
-      window.removeEventListener("touchstart", armHouseSound);
-      window.removeEventListener("pointerdown", armHouseSound);
-      window.removeEventListener("keydown", armHouseSound);
-    };
-  }, [houseSoundPrimed, houseSoundSupported, startHouseSound]);
-
-  useEffect(() => {
-    if (!houseSoundSupported) return;
-    if (houseSoundPrimed) {
-      void startHouseSound();
-    }
-  }, [houseSoundPrimed, houseSoundSupported, startHouseSound]);
-
-  useEffect(() => {
-    if (!houseSoundSupported || typeof document === "undefined") return;
-
-    const syncHouseSoundVisibility = () => {
-      if (document.hidden) {
-        void stopHouseSound();
-        return;
-      }
-      if (houseSoundPrimed) {
-        void startHouseSound();
-      }
-    };
-
-    document.addEventListener("visibilitychange", syncHouseSoundVisibility);
-    return () =>
-      document.removeEventListener(
-        "visibilitychange",
-        syncHouseSoundVisibility,
-      );
-  }, [houseSoundPrimed, houseSoundSupported, startHouseSound, stopHouseSound]);
-
-  useEffect(() => {
-    return () => {
-      void houseAudioRef.current?.destroy();
-    };
-  }, []);
-
   useEffect(() => {
     const storedCooldown =
       typeof window !== "undefined"
