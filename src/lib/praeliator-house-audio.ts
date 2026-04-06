@@ -49,6 +49,37 @@ const COMP_PATTERNS = [
   ],
 ] as const;
 
+const PHRASE_SECTIONS = [
+  {
+    compPatternOffset: 0,
+    brushDensity: 1,
+    allowAccent: false,
+    bassVelocityScale: 0.94,
+    compVelocityScale: 0.9,
+  },
+  {
+    compPatternOffset: 1,
+    brushDensity: 0.84,
+    allowAccent: true,
+    bassVelocityScale: 1,
+    compVelocityScale: 1,
+  },
+  {
+    compPatternOffset: 2,
+    brushDensity: 0.68,
+    allowAccent: false,
+    bassVelocityScale: 0.88,
+    compVelocityScale: 0.82,
+  },
+  {
+    compPatternOffset: 3,
+    brushDensity: 1.08,
+    allowAccent: true,
+    bassVelocityScale: 1.04,
+    compVelocityScale: 1.06,
+  },
+] as const;
+
 const JAZZ_BARS = [
   {
     name: "Dm9",
@@ -90,6 +121,10 @@ function humanize(time: number) {
 
 function offsetToSeconds(offset: string) {
   return Tone.Time(offset).toSeconds();
+}
+
+function getPhraseSection(barCounter: number) {
+  return PHRASE_SECTIONS[Math.floor(barCounter / 4) % PHRASE_SECTIONS.length];
 }
 
 export class PraeliatorHouseAudio {
@@ -191,11 +226,15 @@ export class PraeliatorHouseAudio {
     this.initialized = true;
   }
 
-  private scheduleBrushBar(time: number) {
+  private scheduleBrushBar(time: number, phraseSection: (typeof PHRASE_SECTIONS)[number]) {
     if (!this.brushSynth) return;
 
     BAR_EIGHTH_OFFSETS.forEach((offset, index) => {
-      if (index % 2 === 1 && Math.random() < 0.2) return;
+      const skipChance =
+        index % 2 === 1
+          ? Math.max(0.08, 0.34 - phraseSection.brushDensity * 0.22)
+          : Math.max(0.02, 0.12 - phraseSection.brushDensity * 0.08);
+      if (Math.random() < skipChance) return;
 
       const hitTime = humanize(time + offsetToSeconds(offset));
       const accent =
@@ -204,39 +243,60 @@ export class PraeliatorHouseAudio {
           : index === 2 || index === 6
             ? 0.76
             : 0.28;
-      this.brushSynth!.triggerAttackRelease("64n", hitTime, accent);
-    });
-  }
-
-  private scheduleCompBar(time: number, barIndex: number) {
-    if (!this.compPiano) return;
-
-    const bar = JAZZ_BARS[barIndex];
-    const pattern = COMP_PATTERNS[barIndex % COMP_PATTERNS.length];
-
-    pattern.forEach((hit, hitIndex) => {
-      const hitTime = humanize(time + offsetToSeconds(hit.offset));
-      const invertedChord =
-        hitIndex % 2 === 0
-          ? bar.chord
-          : ([...bar.chord.slice(1), bar.chord[0]] as string[]);
-      this.compPiano!.triggerAttackRelease(
-        invertedChord,
-        hit.duration,
+      this.brushSynth!.triggerAttackRelease(
+        "64n",
         hitTime,
-        hit.velocity + randomBetween(-0.02, 0.02),
+        accent * phraseSection.brushDensity,
       );
     });
   }
 
-  private scheduleBassBar(time: number, barIndex: number) {
+  private scheduleCompBar(
+    time: number,
+    barIndex: number,
+    phraseSection: (typeof PHRASE_SECTIONS)[number],
+  ) {
+    if (!this.compPiano) return;
+
+    const bar = JAZZ_BARS[barIndex];
+    const pattern =
+      COMP_PATTERNS[
+        (barIndex + phraseSection.compPatternOffset + (this.barCounter % 2 === 0 ? 0 : 1)) %
+          COMP_PATTERNS.length
+      ];
+
+    pattern.forEach((hit, hitIndex) => {
+      const hitTime = humanize(time + offsetToSeconds(hit.offset));
+      const voicings = [
+        bar.chord,
+        [...bar.chord.slice(1), bar.chord[0]] as string[],
+        [...bar.chord.slice(2), ...bar.chord.slice(0, 2)] as string[],
+      ];
+      const invertedChord =
+        voicings[(hitIndex + this.barCounter + phraseSection.compPatternOffset) % voicings.length];
+      this.compPiano!.triggerAttackRelease(
+        invertedChord,
+        hit.duration,
+        hitTime,
+        hit.velocity * phraseSection.compVelocityScale + randomBetween(-0.02, 0.02),
+      );
+    });
+  }
+
+  private scheduleBassBar(
+    time: number,
+    barIndex: number,
+    phraseSection: (typeof PHRASE_SECTIONS)[number],
+  ) {
     if (!this.bassPiano) return;
 
     const bar = JAZZ_BARS[barIndex];
     bar.bass.forEach((note, stepIndex) => {
       const hitTime = humanize(time + offsetToSeconds(QUARTER_OFFSETS[stepIndex]));
       const duration = stepIndex === 3 ? "8n" : "4n";
-      const velocity = stepIndex === 0 ? 0.76 : 0.56 + randomBetween(-0.05, 0.06);
+      const velocity =
+        (stepIndex === 0 ? 0.76 : 0.56 + randomBetween(-0.05, 0.06)) *
+        phraseSection.bassVelocityScale;
       this.bassPiano!.triggerAttackRelease(note, duration, hitTime, velocity);
     });
 
@@ -244,12 +304,17 @@ export class PraeliatorHouseAudio {
       bar.pickup,
       "8n",
       humanize(time + offsetToSeconds("0:3:2")),
-      0.42,
+      0.42 * phraseSection.bassVelocityScale,
     );
   }
 
-  private scheduleAccentBar(time: number, barIndex: number) {
+  private scheduleAccentBar(
+    time: number,
+    barIndex: number,
+    phraseSection: (typeof PHRASE_SECTIONS)[number],
+  ) {
     if (!this.accentPiano) return;
+    if (!phraseSection.allowAccent) return;
     if (this.barCounter % 4 !== 3) return;
 
     const bar = JAZZ_BARS[barIndex];
@@ -273,10 +338,11 @@ export class PraeliatorHouseAudio {
 
   private scheduleBar = (time: number) => {
     const barIndex = this.barCounter % JAZZ_BARS.length;
-    this.scheduleBrushBar(time);
-    this.scheduleCompBar(time, barIndex);
-    this.scheduleBassBar(time, barIndex);
-    this.scheduleAccentBar(time, barIndex);
+    const phraseSection = getPhraseSection(this.barCounter);
+    this.scheduleBrushBar(time, phraseSection);
+    this.scheduleCompBar(time, barIndex, phraseSection);
+    this.scheduleBassBar(time, barIndex, phraseSection);
+    this.scheduleAccentBar(time, barIndex, phraseSection);
     this.barCounter += 1;
   };
 
