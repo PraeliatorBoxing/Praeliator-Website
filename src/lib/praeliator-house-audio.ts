@@ -42,6 +42,8 @@ const RIDE_PATTERN = ["0:0:0", "0:1:2", "0:2:0", "0:3:2"] as const;
 const HAT_OFFSETS = ["0:1:0", "0:3:0"] as const;
 const FILL_OFFSETS = ["0:2:2", "0:3:0", "0:3:2"] as const;
 const SHAKER_OFFSETS = ["0:0:2", "0:1:2", "0:2:2", "0:3:2"] as const;
+const KICK_OFFSETS = ["0:0:0", "0:2:0"] as const;
+const SNARE_OFFSETS = ["0:1:0", "0:3:0"] as const;
 
 const COMP_PATTERNS = [
   [
@@ -225,6 +227,8 @@ function getPhraseSection(barCounter: number) {
 function getArrangementStage(barCounter: number) {
   if (barCounter < 4) {
     return {
+      kick: true,
+      snare: false,
       ride: false,
       hat: false,
       shaker: false,
@@ -237,6 +241,8 @@ function getArrangementStage(barCounter: number) {
 
   if (barCounter < 8) {
     return {
+      kick: true,
+      snare: true,
       ride: true,
       hat: true,
       shaker: false,
@@ -249,9 +255,11 @@ function getArrangementStage(barCounter: number) {
 
   if (barCounter < 16) {
     return {
+      kick: true,
+      snare: true,
       ride: true,
       hat: true,
-      shaker: false,
+      shaker: true,
       pad: true,
       fill: true,
       compScale: 1,
@@ -260,6 +268,8 @@ function getArrangementStage(barCounter: number) {
   }
 
   return {
+    kick: true,
+    snare: true,
     ride: true,
     hat: true,
     shaker: true,
@@ -284,6 +294,8 @@ export class PraeliatorHouseAudio {
   private bassPiano: Tone.Sampler | null = null;
   private accentPiano: Tone.Sampler | null = null;
   private brushSynth: Tone.NoiseSynth | null = null;
+  private kickSynth: Tone.MembraneSynth | null = null;
+  private snareSynth: Tone.NoiseSynth | null = null;
   private rideSynth: Tone.MetalSynth | null = null;
   private hatSynth: Tone.MetalSynth | null = null;
   private shakerSynth: Tone.NoiseSynth | null = null;
@@ -314,6 +326,8 @@ export class PraeliatorHouseAudio {
     const percussionHP = new Tone.Filter(1900, "highpass");
     const percussionRoom = new Tone.JCReverb(0.1);
     percussionRoom.wet.value = 0.04;
+    const kickLP = new Tone.Filter(180, "lowpass");
+    const snareHP = new Tone.Filter(1200, "highpass");
     const rideHP = new Tone.Filter(2500, "highpass");
     const hatHP = new Tone.Filter(3200, "highpass");
     const shakerHP = new Tone.Filter(4200, "highpass");
@@ -351,7 +365,31 @@ export class PraeliatorHouseAudio {
         release: 0.018,
       },
     });
-    brushSynth.volume.value = -17;
+    brushSynth.volume.value = -14.5;
+
+    const kickSynth = new Tone.MembraneSynth({
+      pitchDecay: 0.03,
+      octaves: 4,
+      oscillator: { type: "sine" },
+      envelope: {
+        attack: 0.001,
+        decay: 0.22,
+        sustain: 0,
+        release: 0.08,
+      },
+    });
+    kickSynth.volume.value = -18;
+
+    const snareSynth = new Tone.NoiseSynth({
+      noise: { type: "pink" },
+      envelope: {
+        attack: 0.001,
+        decay: 0.08,
+        sustain: 0,
+        release: 0.02,
+      },
+    });
+    snareSynth.volume.value = -18.5;
 
     const rideSynth = new Tone.MetalSynth({
       frequency: 320,
@@ -365,7 +403,7 @@ export class PraeliatorHouseAudio {
       resonance: 1800,
       octaves: 1.2,
     });
-    rideSynth.volume.value = -30;
+    rideSynth.volume.value = -24.5;
 
     const hatSynth = new Tone.MetalSynth({
       frequency: 200,
@@ -379,7 +417,7 @@ export class PraeliatorHouseAudio {
       resonance: 1400,
       octaves: 1,
     });
-    hatSynth.volume.value = -28;
+    hatSynth.volume.value = -23.5;
 
     const shakerSynth = new Tone.NoiseSynth({
       noise: { type: "white" },
@@ -390,7 +428,7 @@ export class PraeliatorHouseAudio {
         release: 0.01,
       },
     });
-    shakerSynth.volume.value = -30;
+    shakerSynth.volume.value = -22.5;
 
     const airPad = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: "triangle6" },
@@ -407,6 +445,8 @@ export class PraeliatorHouseAudio {
     bassPiano.chain(bassFilter, bassEQ, compressor, master);
     accentPiano.chain(toneEQ, masterFilter, accentDelay, room, compressor, master);
     brushSynth.chain(percussionHP, percussionRoom, compressor, master);
+    kickSynth.chain(kickLP, compressor, master);
+    snareSynth.chain(snareHP, percussionRoom, compressor, master);
     rideSynth.chain(rideHP, percussionRoom, compressor, master);
     hatSynth.chain(hatHP, percussionRoom, compressor, master);
     shakerSynth.chain(shakerHP, percussionRoom, compressor, master);
@@ -417,6 +457,8 @@ export class PraeliatorHouseAudio {
     this.bassPiano = bassPiano;
     this.accentPiano = accentPiano;
     this.brushSynth = brushSynth;
+    this.kickSynth = kickSynth;
+    this.snareSynth = snareSynth;
     this.rideSynth = rideSynth;
     this.hatSynth = hatSynth;
     this.shakerSynth = shakerSynth;
@@ -432,6 +474,8 @@ export class PraeliatorHouseAudio {
       bassEQ,
       percussionHP,
       percussionRoom,
+      kickLP,
+      snareHP,
       rideHP,
       hatHP,
       shakerHP,
@@ -441,6 +485,8 @@ export class PraeliatorHouseAudio {
       bassPiano,
       accentPiano,
       brushSynth,
+      kickSynth,
+      snareSynth,
       rideSynth,
       hatSynth,
       shakerSynth,
@@ -466,6 +512,31 @@ export class PraeliatorHouseAudio {
         "64n",
         humanize(time + offsetToSeconds(offset)),
         velocity * phraseSection.brushDensity,
+      );
+    });
+  }
+
+  private scheduleKickBar(time: number) {
+    if (!this.kickSynth) return;
+
+    KICK_OFFSETS.forEach((offset, index) => {
+      this.kickSynth!.triggerAttackRelease(
+        index === 0 ? "C1" : "G0",
+        "8n",
+        humanize(time + offsetToSeconds(offset), TIGHT_HUMANIZE_SECONDS),
+        index === 0 ? 0.52 : 0.36,
+      );
+    });
+  }
+
+  private scheduleSnareBar(time: number) {
+    if (!this.snareSynth) return;
+
+    SNARE_OFFSETS.forEach((offset, index) => {
+      this.snareSynth!.triggerAttackRelease(
+        "32n",
+        humanize(time + offsetToSeconds(offset), TIGHT_HUMANIZE_SECONDS),
+        index === 0 ? 0.22 : 0.26,
       );
     });
   }
@@ -598,6 +669,12 @@ export class PraeliatorHouseAudio {
     const phraseSection = getPhraseSection(this.barCounter);
     const arrangementStage = getArrangementStage(this.barCounter);
     this.scheduleBrushBar(time, phraseSection);
+    if (arrangementStage.kick) {
+      this.scheduleKickBar(time);
+    }
+    if (arrangementStage.snare) {
+      this.scheduleSnareBar(time);
+    }
     if (arrangementStage.ride) {
       this.scheduleRideBar(time, phraseSection);
     }
@@ -670,6 +747,8 @@ export class PraeliatorHouseAudio {
     this.bassPiano = null;
     this.accentPiano = null;
     this.brushSynth = null;
+    this.kickSynth = null;
+    this.snareSynth = null;
     this.rideSynth = null;
     this.hatSynth = null;
     this.shakerSynth = null;
