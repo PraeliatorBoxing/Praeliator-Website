@@ -12810,9 +12810,19 @@ const renderWaitlistPage = () => (
                 otpVerification.flow === "one-time-code") ? (
                 <div className="rounded-[1.35rem] border border-[#d8c9b5] bg-[#fbf6ef]/72 px-4 py-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm leading-6 text-[#5f4f42]">
-                      If the code has not arrived, another may be issued after one minute.
-                    </p>
+                    <div className="grid gap-2">
+                      <p className="text-sm leading-6 text-[#5f4f42]">
+                        If the code has not arrived, another may be issued after one minute.
+                      </p>
+                      {verifyResendState.isCoolingDown ? (
+                        <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-[#8b735b]">
+                          <span>Available again in</span>
+                          <span className="inline-flex rounded-full border border-[#cfb99b] bg-[#f7efe4] px-3 py-1 text-[#5f4f42]">
+                            {formatAuthResendCountdown(verifyResendState.secondsRemaining)}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
                     <button
                       type="button"
                       onClick={() => {
@@ -12824,7 +12834,7 @@ const renderWaitlistPage = () => (
                       {authLoading
                         ? "Sending..."
                         : verifyResendState.isCoolingDown
-                          ? `Resend in ${formatAuthResendCountdown(verifyResendState.secondsRemaining)}`
+                          ? "Resend sealed"
                           : "Resend code"}
                     </button>
                   </div>
@@ -12947,9 +12957,19 @@ const renderWaitlistPage = () => (
           authResendState.identity === forgotPasswordEmail.trim().toLowerCase() ? (
             <div className="rounded-[1.35rem] border border-[#d8c9b5] bg-[#fbf6ef]/72 px-4 py-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm leading-6 text-[#5f4f42]">
-                  The recovery route can be issued again after one minute.
-                </p>
+                <div className="grid gap-2">
+                  <p className="text-sm leading-6 text-[#5f4f42]">
+                    The recovery route can be issued again after one minute.
+                  </p>
+                  {forgotPasswordResendState.isCoolingDown ? (
+                    <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-[#8b735b]">
+                      <span>Available again in</span>
+                      <span className="inline-flex rounded-full border border-[#cfb99b] bg-[#f7efe4] px-3 py-1 text-[#5f4f42]">
+                        {formatAuthResendCountdown(forgotPasswordResendState.secondsRemaining)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -12961,7 +12981,7 @@ const renderWaitlistPage = () => (
                   {authLoading
                     ? "Sending..."
                     : forgotPasswordResendState.isCoolingDown
-                      ? `Resend in ${formatAuthResendCountdown(forgotPasswordResendState.secondsRemaining)}`
+                      ? "Resend sealed"
                       : "Resend reset email"}
                 </button>
               </div>
