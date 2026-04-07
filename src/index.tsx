@@ -607,12 +607,15 @@ type OwnershipTransferReviewDraft = {
   note: string;
 };
 const PENDING_OTP_SESSION_KEY = "praeliator_pending_otp";
+const AUTH_RESEND_SESSION_KEY = "praeliator_auth_resend";
 const OAUTH_CONSENT_RETURN_KEY = "praeliator_oauth_return_to";
 const WAITLIST_COOLDOWN_MS = 45_000;
 const WAITLIST_REQUEST_TIMEOUT_MS = 12_000;
 const WAITLIST_COOLDOWN_KEY = "praeliator_waitlist_cooldown_until";
+const AUTH_RESEND_COOLDOWN_MS = 60_000;
 const WAITLIST_ANALYTICS_EVENT = "praeliator_waitlist_event";
 const WAITLIST_HONEYPOT_FIELD = "companyWebsite";
+type AuthResendFlow = "sign-up" | "one-time-code" | "forgot-password";
 const waitlistRequiredFields: WaitlistFieldName[] = [
   "fullName",
   "email",
@@ -6727,6 +6730,16 @@ export default function PraeliatorWebsite() {
     title: "Enter your verification code",
     body: "Verification codes issued by the house are entered here before access continues.",
   });
+  const [authResendState, setAuthResendState] = useState<{
+    flow: AuthResendFlow | null;
+    identity: string;
+    availableAt: number;
+  }>({
+    flow: null,
+    identity: "",
+    availableAt: 0,
+  });
+  const [authResendNow, setAuthResendNow] = useState(() => Date.now());
   const [ownershipPairs, setOwnershipPairs] = useState<RegisteredOwnershipPair[]>([]);
   const [pairRegistrationForm, setPairRegistrationForm] = useState({
     serial: "",
@@ -6874,6 +6887,73 @@ export default function PraeliatorWebsite() {
     }, 1000);
     return () => window.clearInterval(timer);
   }, [waitlistCooldownUntil]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = window.sessionStorage.getItem(AUTH_RESEND_SESSION_KEY);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as {
+        flow?: AuthResendFlow;
+        identity?: string;
+        availableAt?: number;
+      };
+      if (
+        !parsed.identity ||
+        (parsed.flow !== "sign-up" &&
+          parsed.flow !== "one-time-code" &&
+          parsed.flow !== "forgot-password") ||
+        typeof parsed.availableAt !== "number" ||
+        parsed.availableAt <= Date.now()
+      ) {
+        window.sessionStorage.removeItem(AUTH_RESEND_SESSION_KEY);
+        return;
+      }
+      setAuthResendState({
+        flow: parsed.flow,
+        identity: parsed.identity,
+        availableAt: parsed.availableAt,
+      });
+      setAuthResendNow(Date.now());
+    } catch {
+      window.sessionStorage.removeItem(AUTH_RESEND_SESSION_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!authResendState.flow || !authResendState.identity || !authResendState.availableAt) {
+      window.sessionStorage.removeItem(AUTH_RESEND_SESSION_KEY);
+      return;
+    }
+    if (authResendState.availableAt <= Date.now()) {
+      setAuthResendState({
+        flow: null,
+        identity: "",
+        availableAt: 0,
+      });
+      window.sessionStorage.removeItem(AUTH_RESEND_SESSION_KEY);
+      return;
+    }
+    window.sessionStorage.setItem(
+      AUTH_RESEND_SESSION_KEY,
+      JSON.stringify(authResendState),
+    );
+    setAuthResendNow(Date.now());
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+      setAuthResendNow(now);
+      if (authResendState.availableAt <= now) {
+        setAuthResendState({
+          flow: null,
+          identity: "",
+          availableAt: 0,
+        });
+        window.sessionStorage.removeItem(AUTH_RESEND_SESSION_KEY);
+      }
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [authResendState]);
   useEffect(() => {
     if (!supabase) return;
     let mounted = true;
@@ -7377,6 +7457,56 @@ export default function PraeliatorWebsite() {
     return new URL(nextRoute, window.location.origin).toString();
   };
 
+  const normalizeAuthResendIdentity = (
+    identity: string,
+    channel: "email" | "phone" = "email",
+  ) =>
+    channel === "phone"
+      ? normalizeAuthPhone(identity)
+      : identity.trim().toLowerCase();
+
+  const startAuthResendCooldown = (
+    flow: AuthResendFlow,
+    identity: string,
+    channel: "email" | "phone" = "email",
+  ) => {
+    const normalizedIdentity = normalizeAuthResendIdentity(identity, channel);
+    setAuthResendNow(Date.now());
+    setAuthResendState({
+      flow,
+      identity: normalizedIdentity,
+      availableAt: Date.now() + AUTH_RESEND_COOLDOWN_MS,
+    });
+  };
+
+  const getAuthResendState = (
+    flow: AuthResendFlow,
+    identity: string,
+    channel: "email" | "phone" = "email",
+  ) => {
+    const normalizedIdentity = normalizeAuthResendIdentity(identity, channel);
+    const isMatch =
+      authResendState.flow === flow &&
+      authResendState.identity === normalizedIdentity &&
+      authResendState.availableAt > authResendNow;
+    const secondsRemaining = isMatch
+      ? Math.max(
+          0,
+          Math.ceil((authResendState.availableAt - authResendNow) / 1000),
+        )
+      : 0;
+    return {
+      isCoolingDown: isMatch,
+      secondsRemaining,
+    };
+  };
+
+  const formatAuthResendCountdown = (secondsRemaining: number) => {
+    const minutes = Math.floor(secondsRemaining / 60);
+    const seconds = secondsRemaining % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  };
+
   const normalizeAuthPhone = (value: string) => {
     const cleaned = value.trim().replace(/[^\d+]/g, "");
     if (!cleaned) return "";
@@ -7415,6 +7545,9 @@ export default function PraeliatorWebsite() {
         PENDING_OTP_SESSION_KEY,
         JSON.stringify({ identity: normalizedIdentity, flow, channel }),
       );
+    }
+    if (flow === "sign-up" || flow === "one-time-code") {
+      startAuthResendCooldown(flow, normalizedIdentity, channel);
     }
     setOtpVerification({
       identity: normalizedIdentity,
@@ -7712,6 +7845,10 @@ export default function PraeliatorWebsite() {
         setAuthNotice(getFriendlyAuthNotice(error.message, "Reset email unavailable"));
         return;
       }
+      startAuthResendCooldown(
+        "forgot-password",
+        forgotPasswordEmail.trim().toLowerCase(),
+      );
       setAuthNotice({
         tone: "success",
         title: "Reset email sent",
@@ -7753,6 +7890,110 @@ export default function PraeliatorWebsite() {
         tone: "success",
         title: "Code sent",
         body: "If this address already belongs to an account, a six-digit one-time code is now in the inbox.",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResendVerificationCode = async () => {
+    const client = requireSupabase();
+    if (!client || !otpVerification.identity) return;
+    if (otpVerification.channel !== "email") return;
+    const resendState =
+      otpVerification.flow === "sign-up" || otpVerification.flow === "one-time-code"
+        ? getAuthResendState(otpVerification.flow, otpVerification.identity)
+        : { isCoolingDown: false };
+    if (resendState.isCoolingDown) return;
+
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      let error: { message: string } | null = null;
+      if (otpVerification.flow === "sign-up") {
+        const result = await client.auth.resend({
+          type: "signup",
+          email: otpVerification.identity,
+        });
+        error = result.error;
+      } else if (otpVerification.flow === "one-time-code") {
+        const result = await client.auth.signInWithOtp({
+          email: otpVerification.identity,
+          options: {
+            shouldCreateUser: false,
+          },
+        });
+        error = result.error;
+      } else {
+        return;
+      }
+
+      if (error) {
+        const notice = getFriendlyAuthNotice(
+          error.message,
+          otpVerification.flow === "sign-up"
+            ? "Confirmation unavailable"
+            : "One-time code unavailable",
+        );
+        setAuthNotice(notice);
+        return;
+      }
+
+      startAuthResendCooldown(otpVerification.flow, otpVerification.identity);
+      setVerifyEmailState({
+        status: "idle",
+        title:
+          otpVerification.flow === "sign-up"
+            ? "Enter your confirmation code"
+            : "Enter your one-time sign-in code",
+        body:
+          otpVerification.flow === "sign-up"
+            ? `A fresh six-digit confirmation code has been issued to ${otpVerification.identity}. Enter it below to complete your Praeliator account setup.`
+            : `A fresh six-digit sign-in code has been issued to ${otpVerification.identity}. Enter it below to continue into the house.`,
+      });
+      setAuthNotice({
+        tone: "success",
+        title:
+          otpVerification.flow === "sign-up"
+            ? "Confirmation code reissued"
+            : "One-time code reissued",
+        body: "Another code has been issued. You may request a further resend after one minute.",
+      });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResendForgotPassword = async () => {
+    const client = requireSupabase();
+    if (!client) return;
+    const normalizedEmail = forgotPasswordEmail.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setAuthNotice({
+        tone: "error",
+        title: "Email required",
+        body: "Enter the account email before requesting another reset message.",
+      });
+      return;
+    }
+    const resendState = getAuthResendState("forgot-password", normalizedEmail);
+    if (resendState.isCoolingDown) return;
+
+    setAuthLoading(true);
+    setAuthNotice(null);
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: createAuthRedirectUrl("/reset-password"),
+      });
+      if (error) {
+        setAuthNotice(getFriendlyAuthNotice(error.message, "Reset email unavailable"));
+        return;
+      }
+      startAuthResendCooldown("forgot-password", normalizedEmail);
+      setAuthNotice({
+        tone: "success",
+        title: "Reset email sent again",
+        body: "A fresh recovery message has been issued. Another resend becomes available after one minute.",
       });
     } finally {
       setAuthLoading(false);
@@ -7867,6 +8108,16 @@ export default function PraeliatorWebsite() {
     waitlistCooldownUntil > Date.now()
       ? Math.ceil((waitlistCooldownUntil - Date.now()) / 1000)
       : 0;
+  const verifyResendState =
+    otpVerification.channel === "email" &&
+    (otpVerification.flow === "sign-up" ||
+      otpVerification.flow === "one-time-code")
+      ? getAuthResendState(otpVerification.flow, otpVerification.identity)
+      : { isCoolingDown: false, secondsRemaining: 0 };
+  const forgotPasswordResendState = getAuthResendState(
+    "forgot-password",
+    forgotPasswordEmail,
+  );
   const markWaitlistStarted = (source: string) => {
     if (waitlistStarted) return;
     const startedAt = Date.now();
@@ -12554,6 +12805,31 @@ const renderWaitlistPage = () => (
                   Return to Sign In
                 </Button>
               </div>
+              {otpVerification.channel === "email" &&
+              (otpVerification.flow === "sign-up" ||
+                otpVerification.flow === "one-time-code") ? (
+                <div className="rounded-[1.35rem] border border-[#d8c9b5] bg-[#fbf6ef]/72 px-4 py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm leading-6 text-[#5f4f42]">
+                      If the code has not arrived, another may be issued after one minute.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleResendVerificationCode();
+                      }}
+                      disabled={authLoading || verifyResendState.isCoolingDown}
+                      className="inline-flex items-center justify-center rounded-full border border-[#bfa486] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#5f4f42] transition duration-300 hover:border-[#9e7d5a] hover:text-[#2f241d] disabled:cursor-not-allowed disabled:border-[#d7c7b4] disabled:text-[#a3917f]"
+                    >
+                      {authLoading
+                        ? "Sending..."
+                        : verifyResendState.isCoolingDown
+                          ? `Resend in ${formatAuthResendCountdown(verifyResendState.secondsRemaining)}`
+                          : "Resend code"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </form>
           ) : (
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap">
@@ -12667,6 +12943,30 @@ const renderWaitlistPage = () => (
               {authCopy.returnToSignIn}
             </Button>
           </div>
+          {authResendState.flow === "forgot-password" &&
+          authResendState.identity === forgotPasswordEmail.trim().toLowerCase() ? (
+            <div className="rounded-[1.35rem] border border-[#d8c9b5] bg-[#fbf6ef]/72 px-4 py-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-6 text-[#5f4f42]">
+                  The recovery route can be issued again after one minute.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleResendForgotPassword();
+                  }}
+                  disabled={authLoading || forgotPasswordResendState.isCoolingDown}
+                  className="inline-flex items-center justify-center rounded-full border border-[#bfa486] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#5f4f42] transition duration-300 hover:border-[#9e7d5a] hover:text-[#2f241d] disabled:cursor-not-allowed disabled:border-[#d7c7b4] disabled:text-[#a3917f]"
+                >
+                  {authLoading
+                    ? "Sending..."
+                    : forgotPasswordResendState.isCoolingDown
+                      ? `Resend in ${formatAuthResendCountdown(forgotPasswordResendState.secondsRemaining)}`
+                      : "Resend reset email"}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </form>
       ),
     });
