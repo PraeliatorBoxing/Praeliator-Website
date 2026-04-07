@@ -6597,8 +6597,30 @@ export default function PraeliatorWebsite() {
   const whatsappWaitlistFollowUpLink = createWhatsAppLink(
     "Hello Praeliator, I joined the waitlist and would like to follow up.",
   );
-  const emailLink =
-    "mailto:praeliatorboxing@gmail.com?subject=Praeliator%20Inquiry";
+  const houseEmailLink = "mailto:house@praeliator.com?subject=Praeliator%20Inquiry";
+  const careEmailLink = "mailto:care@praeliator.com?subject=Praeliator%20Care";
+  const studioEmailLink = "mailto:studio@praeliator.com?subject=Praeliator%20Studio";
+  const emailLink = houseEmailLink;
+  const contactEmailDirectory = [
+    {
+      label: "House",
+      address: "house@praeliator.com",
+      href: houseEmailLink,
+      note: "Primary private correspondence and slower direct inquiry.",
+    },
+    {
+      label: "Care",
+      address: "care@praeliator.com",
+      href: careEmailLink,
+      note: "Aftercare, service continuity, and ownership-related follow-up.",
+    },
+    {
+      label: "Studio",
+      address: "studio@praeliator.com",
+      href: studioEmailLink,
+      note: "Editorial, creative, and studio-facing correspondence.",
+    },
+  ] as const;
   const instagramLink = "https://instagram.com/praeliatorboxing";
   const waitlistEndpoint = "/api/private-client-intake";
   const acquisitionIntakeEndpoint = "/api/private-acquisition-intake";
@@ -10758,6 +10780,38 @@ const renderWaitlistPage = () => (
 
                 <div className="py-6 sm:py-7">
                   <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    House mailboxes
+                  </p>
+                  <div className="mt-4 grid gap-3">
+                    {contactEmailDirectory.map((entry) => (
+                      <a
+                        key={entry.address}
+                        href={entry.href}
+                        className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 transition duration-500 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.05]"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                              {entry.label}
+                            </p>
+                            <p className="mt-3 text-base text-[#f4efe7]">
+                              {entry.address}
+                            </p>
+                            <p className="mt-2 max-w-md text-sm leading-7 text-white/56">
+                              {entry.note}
+                            </p>
+                          </div>
+                          <span className="text-[11px] uppercase tracking-[0.22em] text-white/32">
+                            Write
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="py-6 sm:py-7">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                     Secondary
                   </p>
                   <div className="mt-4 flex items-start justify-between gap-6">
@@ -12020,6 +12074,21 @@ const renderWaitlistPage = () => (
               Instagram
             </a>
           </Button>
+        </div>
+        <div className="mt-4 grid gap-3">
+          {contactEmailDirectory.map((entry) => (
+            <a
+              key={entry.address}
+              href={entry.href}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4 transition duration-500 hover:border-white/18 hover:bg-white/[0.05]"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {entry.label}
+              </p>
+              <p className="mt-3 text-sm text-[#f4efe7]">{entry.address}</p>
+              <p className="mt-2 text-sm leading-7 text-white/56">{entry.note}</p>
+            </a>
+          ))}
         </div>
       </MobileSectionFrame>
     </>
