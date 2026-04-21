@@ -437,8 +437,9 @@ function getSpecifications(
   }
 
   return [
-    { label: "Format", value: "Private house issuance" },
+    { label: "Object line", value: "Private house issuance" },
     { label: "Quantity", value: String(session?.quantity || 1) },
+    { label: "Continuity", value: "Destination, payment, and confirmation retained together" },
   ];
 }
 
@@ -509,7 +510,7 @@ function PrivatePaymentForm({
       ) : (
         <p className="text-sm leading-7 text-[#6c5646]">
           Payment remains inside the Praeliator surface. Once confirmed, this
-          issuance closes and cannot be used again.
+          issuance is sealed into the allocation record and cannot be used again.
         </p>
       )}
 
@@ -519,7 +520,7 @@ function PrivatePaymentForm({
           disabled={!stripe || !elements || submitting}
           className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
         >
-          {submitting ? "Confirming payment..." : "Confirm Private Acquisition"}
+          {submitting ? "Confirming allocation..." : "Confirm Private Allocation"}
         </Button>
         <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b6b4f]">
           Reference {session.referenceCode}
@@ -1131,8 +1132,8 @@ export function PrivateAcquisitionRoute({
       ? "Private access unavailable."
       : stateResponse.state === "access_required"
         ? "Private Acquisition Access"
-        : stateResponse.state === "unlocked"
-          ? "Private Acquisition"
+      : stateResponse.state === "unlocked"
+          ? "Private Allocation"
           : stateResponse.state === "paid"
             ? "Acquisition confirmed."
             : stateResponse.state === "revoked"
@@ -1149,7 +1150,7 @@ export function PrivateAcquisitionRoute({
       : stateResponse.state === "access_required"
         ? "This page has been issued following direct correspondence. Enter the reference code to continue into the private acquisition chamber."
         : stateResponse.state === "unlocked"
-          ? "Your acquisition has been prepared privately. Review the retained summary below, then continue into on-site payment within the validity window."
+          ? "Your allocation has been prepared privately. Review the object line, retain the destination record, then continue into on-site confirmation within the validity window."
           : stateResponse.state === "paid"
             ? "This issuance has already been completed and is now retained under the house record."
             : stateResponse.state === "revoked"
@@ -1199,7 +1200,7 @@ export function PrivateAcquisitionRoute({
             <div className="flex h-full w-full flex-col justify-between rounded-[2.25rem] border border-[#35271d] bg-[linear-gradient(180deg,rgba(251,244,236,0.98),rgba(245,235,224,0.98))] p-6 text-[#241912] shadow-[0_38px_120px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.3em] text-[#9a7a5b]">
-                  Private acquisition
+                  Private issuance
                 </p>
                 <h1 className="mt-5 max-w-[12ch] font-['Cormorant_Garamond'] text-[3.2rem] font-semibold leading-[0.92] tracking-[-0.06em] sm:text-[4rem] lg:text-[5rem]">
                   {title}
@@ -1214,7 +1215,7 @@ export function PrivateAcquisitionRoute({
                   House note
                 </p>
                 <p className="mt-3 text-base leading-8 text-[#5f4b3c]">
-                  Hidden access alone is not sufficient. The private link and the issued reference must agree before the allocation is revealed.
+                  Hidden access alone is not sufficient. The private link and the issued reference must agree before the object line, destination record, and payment chamber are revealed.
                 </p>
               </div>
             </div>
@@ -1373,7 +1374,7 @@ export function PrivateAcquisitionRoute({
                     <div className="mt-8 grid gap-3 sm:grid-cols-2">
                       <div className="rounded-[1.6rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                          Product
+                          Object
                         </p>
                         <p className="mt-3 text-lg text-[#241912]">
                           {stateResponse.session.productName}
@@ -1451,7 +1452,7 @@ export function PrivateAcquisitionRoute({
 
                       <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                          Product
+                          Object record
                         </p>
                         <p className="mt-3 text-xl text-[#241912]">
                           {activeSession?.productName}
@@ -1474,6 +1475,9 @@ export function PrivateAcquisitionRoute({
                       </div>
 
                       <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
+                        <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                          Allocation ledger
+                        </p>
                         <div className="divide-y divide-[#e7d8c7]">
                           <div className="flex items-start justify-between gap-6 py-4 first:pt-0">
                             <div>
@@ -1924,15 +1928,15 @@ export function PrivateAcquisitionRoute({
                     <div className="flex flex-col rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                          Payment chamber
+                          Confirmation chamber
                         </p>
                         <p className="mt-4 font-['Cormorant_Garamond'] text-[2.4rem] leading-[0.94] tracking-[-0.06em] text-[#241912]">
-                          Confirm the prepared acquisition within the site.
+                          Confirm the prepared allocation within the site.
                         </p>
                         <p className="mt-5 text-base leading-8 text-[#5f4b3c]">
                           The destination record must be complete before payment
-                          opens. Once confirmed, completion closes the issuance
-                          automatically.
+                          opens. Once confirmed, the issuance is sealed under
+                          the allocation record.
                         </p>
                       </div>
 
@@ -1950,7 +1954,7 @@ export function PrivateAcquisitionRoute({
                             <p className="text-sm leading-8 text-[#5f4b3c]">
                               {deliveryDetailsCompleted
                                 ? "The destination record is complete. Payment can now be prepared inside this page without sending you to an external link."
-                                : "The acquisition can proceed once the destination record is complete and retained under this issuance."}
+                                : "The allocation can proceed once the destination record is complete and retained under this issuance."}
                             </p>
                             {paymentError ? (
                               <p className="mt-4 text-sm leading-7 text-[#815c42]">

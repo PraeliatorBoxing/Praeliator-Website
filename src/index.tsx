@@ -1,4 +1,4 @@
-﻿/// <reference types="vite/client" />
+/// <reference types="vite/client" />
 import "@fontsource/cormorant-garamond/latin-600.css";
 import "@fontsource/cormorant-garamond/latin-700.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -33,18 +33,18 @@ import {
 } from "lucide-react";
 import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
 const visSpecifications = [
-  { label: "Type", value: "Training boxing gloves" },
-  { label: "Price", value: "$6,000 MXN" },
-  { label: "Weight", value: "16 oz" },
-  { label: "Closure", value: "Lace-up" },
-  { label: "Use", value: "Training · Technical sparring" },
-  { label: "Outer Material", value: "Top-grain cowhide leather" },
-  { label: "Leather Thickness", value: "0.9–1.0 mm" },
+  { label: "Object class", value: "Recorded training pair" },
+  { label: "Allocation amount", value: "$6,000 MXN" },
+  { label: "Issued format", value: "16 oz lace-up" },
+  { label: "Closure doctrine", value: "Lace-up only" },
+  { label: "Intended use", value: "Training · technical sparring" },
+  { label: "Outer material", value: "Top-grain cowhide leather" },
+  { label: "Leather thickness", value: "0.9-1.0 mm" },
   { label: "Lining", value: "4-way stretch lining" },
   { label: "Palm", value: "Ventilated palm panel · Integrated grip bar" },
   { label: "Thumb", value: "Attached thumb" },
-  { label: "Wrist", value: "Extended lace-up cuff" },
-  { label: "Assembly", value: "Hand-assembled in Pakistan" },
+  { label: "Wrist architecture", value: "Extended lace-up cuff" },
+  { label: "Assembly record", value: "Hand-assembled in Pakistan" },
 ];
 const visPaddingLayers = [
   "Multi-foam",
@@ -66,31 +66,31 @@ const visService = [
 ];
 const constructionEvidence = [
   {
-    label: "Construction",
+    label: "Construction evidence",
     value:
       "Top-grain cowhide, balanced structure, ventilated palm, extended lace-up cuff.",
   },
   {
-    label: "Presentation",
+    label: "Presentation evidence",
     value:
       "Rigid box, silk dust bag, silk wrapping, authenticity card, care card.",
   },
-  { label: "Ownership", value: "Allocation, delivery, aftercare." },
+  { label: "Custody evidence", value: "Allocation, delivery, aftercare, and future service retained under one line." },
 ];
 const trustArchitecture = [
-  { title: "Inquiry", text: "Private review and client reference." },
-  { title: "Delivery", text: "Allocation, dispatch, confirmation." },
-  { title: "Aftercare", text: "Maintenance and continued service." },
+  { title: "Correspondence", text: "Private review begins before allocation is prepared." },
+  { title: "Placement", text: "Dispatch, destination, and confirmation stay under house control." },
+  { title: "Conservation", text: "Aftercare remains attached to the same object record." },
 ];
 const ownershipSignals = [
-  { label: "Allocation", value: "Held under the client record." },
-  { label: "Authenticity", value: "Linked to the order record." },
-  { label: "Delivery", value: "Tracked through dispatch and receipt." },
-  { label: "Aftercare", value: "Retained under ownership history." },
+  { label: "Placement", value: "Held under the client record." },
+  { label: "Authenticity", value: "Linked to the object line." },
+  { label: "Provenance", value: "Tracked through dispatch and receipt." },
+  { label: "Conservation", value: "Retained under ownership history." },
 ];
 const serviceStandards = [
-  "Inquiry entered into the client record.",
-  "Follow-up handled directly.",
+  "Interest enters a retained client reference rather than a disposable funnel.",
+  "Follow-up stays direct, private, and connected to future custody.",
 ];
 const visImageSources = {
   hero: "/images/vis-hero.jpg",
@@ -686,125 +686,125 @@ const pageHeroStats: Record<
   Array<{ label: string; value: string }>
 > = {
   "/praeliator-vis": [
-    { label: "Format", value: "16 oz lace-up" },
-    { label: "Material", value: "Top-grain cowhide" },
-    { label: "Use", value: "Training · Technical sparring" },
-    { label: "Finish", value: "Soft satin" },
+    { label: "Object", value: "Recorded training pair" },
+    { label: "Material evidence", value: "Top-grain cowhide" },
+    { label: "Use doctrine", value: "Technical sparring" },
+    { label: "Record", value: "Serial · card · custody" },
   ],
   "/acquisition": [
-    { label: "Method", value: "Direct inquiry" },
-    { label: "Review", value: "Qualified screening" },
-    { label: "Record", value: "Client reference" },
-    { label: "Continuation", value: "Delivery · aftercare" },
+    { label: "Method", value: "Private placement" },
+    { label: "Review", value: "Qualified correspondence" },
+    { label: "Record", value: "Issued reference" },
+    { label: "Continuity", value: "Custody · conservation" },
   ],
   "/waitlist": [
-    { label: "Use", value: "Future access" },
+    { label: "Register", value: "Future allocation" },
     { label: "Return", value: "Client reference" },
-    { label: "Review", value: "Private follow-up" },
-    { label: "Route", value: "Waitlist · WhatsApp" },
+    { label: "Review", value: "House follow-up" },
+    { label: "Route", value: "Quiet correspondence" },
   ],
   "/contact": [
-    { label: "Primary", value: "WhatsApp" },
-    { label: "Secondary", value: "Email" },
-    { label: "Social", value: "Instagram" },
-    { label: "Scope", value: "Private client communication" },
+    { label: "Primary line", value: "WhatsApp" },
+    { label: "House mail", value: "Email" },
+    { label: "Public signal", value: "Instagram" },
+    { label: "Scope", value: "Private correspondence" },
   ],
 };
 const acquisitionSteps = [
   {
     step: "01",
-    title: "Inquiry",
-    text: "The route begins through WhatsApp, email, or the intake form. There is no conventional checkout layer between the client and the brand.",
+    title: "Correspondence",
+    text: "The route begins through direct house communication. There is no public purchase surface between the client and the object.",
   },
   {
     step: "02",
-    title: "Client record",
-    text: "Each qualified inquiry becomes a persistent record with reference, route status, ownership context, and follow-up visibility.",
+    title: "Object line",
+    text: "Each qualified inquiry becomes a retained reference with route status, allocation context, and future custody visibility.",
   },
   {
     step: "03",
-    title: "Review and allocation",
-    text: "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the brand, not the cart.",
+    title: "Placement review",
+    text: "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the house, not a cart.",
   },
   {
     step: "04",
-    title: "Delivery and aftercare",
-    text: "Dispatch, confirmation, maintenance, and future service continue under the same record after purchase.",
+    title: "Custody and conservation",
+    text: "Dispatch, confirmation, maintenance, and future service continue under the same object record after acquisition.",
   },
 ];
 const acquisitionPrinciples = [
   {
-    title: "No cart layer",
-    text: "The brand does not disappear behind a marketplace flow. The route stays direct from the beginning.",
+    title: "No public sale layer",
+    text: "The brand does not disappear behind marketplace sequence. The route stays direct from the first exchange.",
   },
   {
     title: "Recorded continuity",
-    text: "Inquiry, allocation, dispatch, and future service stay attached to the same client record.",
+    text: "Correspondence, allocation, dispatch, and future service stay attached to the same object line.",
   },
   {
     title: "Controlled release",
-    text: "Access remains qualified and paced. Availability is handled with intention rather than open inventory noise.",
+    text: "Access remains qualified and paced. Availability is handled as placement rather than open inventory noise.",
   },
 ];
 const acquisitionModeCards = [
   {
-    title: "Immediate inquiry",
-    text: "For clients ready to begin the acquisition route now through direct contact.",
-    action: "Begin inquiry",
+    title: "Direct placement",
+    text: "For clients ready to begin private correspondence toward a prepared allocation.",
+    action: "Begin correspondence",
   },
   {
-    title: "Quiet registration",
-    text: "For clients who want future access, collector visibility, or a softer point of entry.",
-    action: "Join waitlist",
+    title: "Future register",
+    text: "For clients who want future access, collector visibility, or a quieter point of entry.",
+    action: "Enter the register",
   },
 ];
 const acquisitionContrasts = [
   {
     title: "Conventional commerce",
     lines: [
-      "Open inventory, visible quantity, and generic checkout sequencing.",
-      "The brand disappears behind platform language and shipping logic.",
-      "The object arrives disconnected from ownership history.",
+      "Open inventory, visible quantity, and public purchase sequencing.",
+      "The brand disappears behind platform language and fulfillment logic.",
+      "The object arrives without provenance or future custody.",
     ],
   },
   {
     title: "Praeliator acquisition",
     lines: [
-      "Inquiry remains direct and the route stays inside the brand voice.",
+      "Correspondence remains direct and the route stays inside the house voice.",
       "Allocation, dispatch, and continuity remain qualified rather than public.",
-      "Ownership begins before delivery and continues after purchase.",
+      "Ownership begins before delivery and continues after acquisition.",
     ],
   },
 ];
 const acquisitionStandards = [
-  "No cart layer between the client and the brand.",
-  "Qualified review before allocation continues.",
-  "Dispatch, confirmation, and aftercare retained under one record.",
+  "No public cart layer between the client and the house.",
+  "Qualified review precedes any prepared allocation.",
+  "Dispatch, confirmation, and conservation remain under one object line.",
 ];
 const contactChannels = [
   {
     step: "01",
     title: "WhatsApp",
-    role: "Primary route",
-    text: "The fastest path for private inquiry, immediate clarification, and continued contact once the route begins.",
+    role: "Primary correspondence",
+    text: "The fastest path for private inquiry, immediate clarification, and continued house contact once the route begins.",
   },
   {
     step: "02",
     title: "Email",
-    role: "Secondary route",
-    text: "A quieter path for slower communication when the inquiry does not need live back and forth.",
+    role: "House mail",
+    text: "A quieter path for slower communication when correspondence should read more formal and archival.",
   },
   {
     step: "03",
     title: "Instagram",
-    role: "Light contact",
-    text: "Useful for presence, softer first contact, and brand visibility, but not the primary acquisition route.",
+    role: "Public signal",
+    text: "Useful for presence, softer first contact, and brand visibility, but not the primary acquisition line.",
   },
 ];
 const contactPrinciples = [
   {
     title: "No support-center tone",
-    text: "The brand stays direct. Communication does not collapse into generic help-desk language.",
+    text: "The house stays direct. Communication does not collapse into generic help-desk language.",
   },
   {
     title: "One voice",
@@ -817,12 +817,12 @@ const contactPrinciples = [
 ];
 const contactStandards = [
   "WhatsApp remains the primary route for direct private inquiries.",
-  "Email remains available when a slower and quieter exchange makes more sense.",
-  "Instagram remains open for lighter contact, but does not replace the primary route.",
+  "Email remains available when a slower and more formal exchange makes more sense.",
+  "Instagram remains open for lighter contact, but does not replace the acquisition line.",
 ];
 const contactContrasts = [
   {
-    title: "Generic support",
+    title: "Generic contact",
     lines: [
       "Contact feels like a service queue rather than part of the brand.",
       "Every channel is treated as equal, so hierarchy disappears.",
@@ -840,14 +840,14 @@ const contactContrasts = [
 ];
 const contactEntryModes = [
   {
-    title: "Immediate inquiry",
-    text: "For clients ready to begin a direct conversation now through the primary route.",
+    title: "Direct correspondence",
+    text: "For clients ready to begin a private conversation now through the primary house line.",
     action: "Open WhatsApp",
   },
   {
-    title: "Quiet registration",
-    text: "For clients who want future access or a softer point of entry before direct continuation.",
-    action: "Join waitlist",
+    title: "Future register",
+    text: "For clients who want future access or a quieter point of entry before direct continuation.",
+    action: "Enter register",
   },
 ];
 const houseArchivePillars = [
@@ -953,6 +953,61 @@ const visArchiveSlides = [
       { label: "Aftercare", value: "Legacy Refresh remains tied to maturity and continuity." },
     ],
   },
+];
+const objectDoctrinePlates = [
+  {
+    title: "Provenance before possession",
+    text: "The pair should be understood before it is acquired: material, silhouette, issue route, and future custody all matter.",
+  },
+  {
+    title: "Materials as evidence",
+    text: "Leather, lining, padding, cuff, and presentation are not feature copy. They are the visible proof of the object standard.",
+  },
+  {
+    title: "Conservation after use",
+    text: "A Praeliator pair is allowed to age, but never to become anonymous. Service exists to retain continuity.",
+  },
+  {
+    title: "House memory",
+    text: "Registration, delivery age, service review, and transfer logic turn ownership into an ongoing record.",
+  },
+];
+const serialPhilosophyMarks = [
+  {
+    label: "Serial",
+    value: "The object receives an identity that can be retained beyond the first owner.",
+  },
+  {
+    label: "Claim code",
+    value: "The one-time code turns possession into recorded custody.",
+  },
+  {
+    label: "Certificate",
+    value: "The card and digital record agree on the same house line.",
+  },
+  {
+    label: "Delivery date",
+    value: "Service maturity follows the recorded delivery date, not the day someone finds the page.",
+  },
+];
+const conservationDoctrine = [
+  {
+    title: "Clean",
+    text: "Surface care preserves the leather without erasing the marks of proper use.",
+  },
+  {
+    title: "Condition",
+    text: "The object is reviewed as a retained pair, not as a generic repair item.",
+  },
+  {
+    title: "Refresh",
+    text: "Legacy Refresh opens only when the recorded age and service posture justify review.",
+  },
+];
+const certificatePreviewFields = [
+  { label: "House line", value: "Ownership Record" },
+  { label: "Object identity", value: "Serial · model · issue" },
+  { label: "Continuity", value: "Delivery · eligibility · service" },
 ];
 const acquisitionPlacementSignals = [
   {
@@ -5279,6 +5334,40 @@ function ExploreFurtherScene({
           ))}
         </div>
 
+        <motion.div
+          animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+          transition={{ duration: 0.8, delay: 0.26, ease: easeLuxury }}
+          className="mt-16 overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,rgba(22,18,14,0.92),rgba(10,9,8,0.96))] shadow-[0_30px_90px_rgba(0,0,0,0.26)]"
+        >
+          <div className="grid gap-0 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="border-b border-white/10 p-6 sm:p-8 lg:p-10 xl:border-b-0 xl:border-r">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#c7a97e]">
+                Object doctrine
+              </p>
+              <h3 className="ownership-display mt-5 max-w-[10ch] text-[clamp(2.6rem,5vw,4.7rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-[#f4efe7]">
+                The glove is issued into memory.
+              </h3>
+              <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
+                The site should make the object feel authored before it asks for
+                interest: provenance, material evidence, registration, service
+                maturity, and future conservation all belong to one house system.
+              </p>
+            </div>
+            <div className="grid gap-0 divide-y divide-white/10 p-6 sm:p-8 lg:p-10">
+              {objectDoctrinePlates.map((plate) => (
+                <div key={plate.title} className="py-5 first:pt-0 last:pb-0">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#c7a97e]">
+                    {plate.title}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-white/62">
+                    {plate.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
         <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
             <motion.button
@@ -9236,6 +9325,101 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
+      <section className="relative overflow-hidden py-8 sm:py-10 lg:py-14">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(188,151,122,0.08),transparent_30%)]" />
+        <Container className="relative">
+          <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch lg:gap-8">
+            <Reveal>
+              <div className="h-full rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,14,12,0.92),rgba(9,8,8,0.97))] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  House numbering
+                </p>
+                <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.25rem]">
+                  A pair should be identifiable beyond the first moment of ownership.
+                </h2>
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                  Serial, claim code, delivery date, and certificate are not
+                  decorative paperwork. They are the object identity system that
+                  lets VIS continue as a recorded pair instead of becoming
+                  anonymous equipment.
+                </p>
+
+                <div className="mt-8 rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    Certificate preview
+                  </p>
+                  <div className="mt-4">
+                    <DataList items={certificatePreviewFields} compact />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="grid h-full gap-4 sm:grid-cols-2">
+                {serialPhilosophyMarks.map((mark, index) => (
+                  <motion.div
+                    key={mark.label}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{
+                      duration: 0.72,
+                      delay: index * 0.045,
+                      ease: easeLuxury,
+                    }}
+                    className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,9,8,0.95))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-6"
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                      {mark.label}
+                    </p>
+                    <p className="mt-4 text-sm leading-7 text-white/62">
+                      {mark.value}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="relative py-8 sm:py-10 lg:py-14">
+        <Container>
+          <Reveal>
+            <div className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(238,226,210,0.96),rgba(196,178,154,0.92))] text-[#231b15] shadow-[0_34px_100px_rgba(0,0,0,0.24)]">
+              <div className="grid gap-0 lg:grid-cols-[0.94fr_1.06fr]">
+                <div className="border-b border-[#c9b59c] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#8f6e4d] sm:text-xs">
+                    Conservation doctrine
+                  </p>
+                  <h2 className="ownership-display mt-4 max-w-[10ch] text-[3rem] font-semibold leading-[0.82] tracking-[-0.06em] text-[#231b15] sm:text-[4.4rem]">
+                    Use is not the end of the object.
+                  </h2>
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-[#4d3e32] sm:text-base sm:leading-8">
+                    Legacy Refresh is not a public service menu. It is a future
+                    review ritual for a retained pair whose age, condition, and
+                    continuity still belong to the house.
+                  </p>
+                </div>
+                <div className="grid gap-0 divide-y divide-[#c9b59c] p-6 sm:p-8 lg:p-10">
+                  {conservationDoctrine.map((item) => (
+                    <div key={item.title} className="py-5 first:pt-0 last:pb-0">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#8f6e4d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-[#4d3e32]">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
         <Container className="relative">
@@ -10394,6 +10578,71 @@ const renderAcquisitionPage = () => (
         </div>
       </Container>
     </section>
+
+    <section className="relative overflow-hidden py-10 sm:py-12 lg:py-16">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(188,151,122,0.08),transparent_30%)]" />
+      <Container className="relative">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-10">
+          <Reveal>
+            <HouseLetterCard
+              eyebrow="Private placement"
+              title="Acquisition should feel like allocation, not checkout."
+              body="The short WhatsApp brief is only the threshold. After correspondence, a private issued session can carry the prepared allocation, reference, destination record, and payment chamber without ever becoming public ecommerce."
+              signature="Praeliator / allocation note"
+              className="h-full"
+            />
+          </Reveal>
+
+          <div className="grid gap-5">
+            <Reveal delay={0.05}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.97))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  Placement sequence
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {acquisitionSteps.map((item) => (
+                    <div
+                      key={item.step}
+                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.step} / {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.92),rgba(9,8,8,0.96))] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.2)] sm:p-8">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  House conditions
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  {acquisitionPrinciples.map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </Container>
+    </section>
   </>
 );
 
@@ -10817,6 +11066,42 @@ const renderWaitlistPage = () => (
         </Container>
       </section>
 
+      <section className="relative py-8 sm:py-10 lg:py-14">
+        <Container>
+          <Reveal>
+            <div className="overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,14,13,0.94),rgba(10,9,8,0.98))] shadow-[0_30px_90px_rgba(0,0,0,0.26)]">
+              <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+                <div className="border-b border-white/10 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
+                    Future allocation register
+                  </p>
+                  <h2 className="mt-4 max-w-[11ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.1rem]">
+                    Interest should have a place before inventory exists.
+                  </h2>
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    The waitlist is not a marketing list. It is the quiet
+                    register for future issue, collector posture, and timing
+                    before direct correspondence becomes necessary.
+                  </p>
+                </div>
+                <div className="grid gap-0 divide-y divide-white/10 p-6 sm:p-8 lg:p-10">
+                  {waitlistCollectorSignals.map((item) => (
+                    <div key={item.title} className="py-5 first:pt-0 last:pb-0">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                        {item.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
       <section className="relative py-10 sm:py-12 lg:py-16">
         <Container>
           <div className="grid gap-10 xl:grid-cols-[0.96fr_1.04fr] xl:gap-14">
@@ -11092,6 +11377,48 @@ const renderWaitlistPage = () => (
                 Qualified inquiries continue directly. Slower channels remain available
                 where appropriate.
               </p>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="relative py-8 sm:py-10 lg:py-14">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start lg:gap-10">
+            <Reveal>
+              <HouseLetterCard
+                eyebrow="House correspondence"
+                title="Contact is part of the object route."
+                body="A serious pair should not move through generic support language. Each channel has a role, and each role keeps the same quiet authority as the object itself."
+                signature="Praeliator / correspondence note"
+                className="h-full"
+              />
+            </Reveal>
+
+            <Reveal delay={0.06}>
+              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.97))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  Correspondence hierarchy
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  {contactChannels.map((channel) => (
+                    <div
+                      key={channel.title}
+                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                        {channel.role}
+                      </p>
+                      <p className="mt-3 text-xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                        {channel.title}
+                      </p>
+                      <p className="mt-3 text-sm leading-7 text-white/62">
+                        {channel.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </Reveal>
           </div>
         </Container>
@@ -11618,6 +11945,50 @@ const renderWaitlistPage = () => (
       </MobileSectionFrame>
 
       <MobileSectionFrame
+        eyebrow="House numbering"
+        title="Serial, claim code, and delivery date become object identity."
+        description="The pair is not only received. It is recorded, attached to a client line, and made eligible for future service by its real delivery age."
+      >
+        <div className="grid gap-3">
+          {serialPhilosophyMarks.map((mark) => (
+            <div
+              key={mark.label}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {mark.label}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                {mark.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Conservation"
+        title="Use is not the end of the object."
+        description="Legacy Refresh is a future review ritual for a retained pair, not a public service menu."
+      >
+        <div className="grid gap-3">
+          {conservationDoctrine.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
         eyebrow="Entry"
         title="Acquisition continues directly."
         description="VIS is presented first as an object and acquired second as a route."
@@ -11705,6 +12076,28 @@ const renderWaitlistPage = () => (
                 {item.title}
               </p>
               <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Private placement"
+        title="Allocation, not checkout."
+        description="Correspondence can become a private issued session with a reference, destination record, and on-site payment chamber without becoming public ecommerce."
+      >
+        <div className="grid gap-3">
+          {acquisitionSteps.map((item) => (
+            <div
+              key={item.step}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.step} / {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                {item.text}
+              </p>
             </div>
           ))}
         </div>
@@ -11926,6 +12319,28 @@ const renderWaitlistPage = () => (
                 {item.title}
               </p>
               <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </MobileSectionFrame>
+
+      <MobileSectionFrame
+        eyebrow="Future allocation register"
+        title="Interest should have a place before inventory exists."
+        description="The waitlist is a quiet register for future issue, collector posture, and timing before direct correspondence becomes necessary."
+      >
+        <div className="grid gap-3">
+          {waitlistCollectorSignals.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+            >
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                {item.text}
+              </p>
             </div>
           ))}
         </div>
@@ -12266,9 +12681,9 @@ const renderWaitlistPage = () => (
       </MobileSectionFrame>
 
       <MobileSectionFrame
-        eyebrow="Channels"
-        title="Secondary paths stay available."
-        description="Email stays useful for slower exchanges. Instagram stays useful for presence and softer first contact."
+        eyebrow="House correspondence"
+        title="Contact is part of the object route."
+        description="Email stays useful for slower exchanges. Instagram stays useful for presence, while WhatsApp remains the acquisition line."
       >
         <div className="grid gap-3">
           {contactChannels.map((channel) => (
