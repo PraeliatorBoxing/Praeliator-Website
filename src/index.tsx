@@ -7072,6 +7072,12 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return "/";
     return normalizePath(window.location.pathname);
   });
+  const currentRouteRef = useRef<Route>(route);
+  const intendedScrollPositionRef = useRef({
+    route,
+    x: typeof window === "undefined" ? 0 : window.scrollX,
+    y: typeof window === "undefined" ? 0 : window.scrollY,
+  });
   const [locale, setLocale] = useState<SiteLocale>(() => getInitialSiteLocale());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerLogoBroken, setHeaderLogoBroken] = useState(false);
@@ -7236,6 +7242,164 @@ export default function PraeliatorWebsite() {
     return () => {
       waitlistRequestControllerRef.current?.abort();
       acquisitionRequestControllerRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    currentRouteRef.current = route;
+    if (typeof window === "undefined") return;
+
+    const frame = window.requestAnimationFrame(() => {
+      intendedScrollPositionRef.current = {
+        route,
+        x: window.scrollX,
+        y: window.scrollY,
+      };
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [route]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const previousScrollRestoration = window.history.scrollRestoration;
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    let lastUserScrollIntentAt = 0;
+    let viewportMutationUntil = 0;
+    let isRestoring = false;
+    let restoreFrame = 0;
+    let restoreTimer = 0;
+
+    const scrollingKeys = new Set([
+      " ",
+      "ArrowDown",
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowRight",
+      "End",
+      "Home",
+      "PageDown",
+      "PageUp",
+    ]);
+
+    const markUserScrollIntent = () => {
+      lastUserScrollIntentAt = Date.now();
+    };
+
+    const activeElementWantsViewport = () => {
+      const activeElement = document.activeElement as HTMLElement | null;
+      return Boolean(
+        activeElement &&
+          ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName),
+      );
+    };
+
+    const rememberCurrentScroll = () => {
+      intendedScrollPositionRef.current = {
+        route: currentRouteRef.current,
+        x: window.scrollX,
+        y: window.scrollY,
+      };
+    };
+
+    const restoreIntendedScroll = () => {
+      if (activeElementWantsViewport()) return;
+      const snapshot = intendedScrollPositionRef.current;
+      if (snapshot.route !== currentRouteRef.current) return;
+      if (Date.now() - lastUserScrollIntentAt < 420) return;
+      if (
+        Math.abs(window.scrollY - snapshot.y) < 2 &&
+        Math.abs(window.scrollX - snapshot.x) < 2
+      ) {
+        return;
+      }
+
+      isRestoring = true;
+      window.scrollTo({
+        left: snapshot.x,
+        top: snapshot.y,
+        behavior: "auto",
+      });
+      window.requestAnimationFrame(() => {
+        isRestoring = false;
+      });
+    };
+
+    const scheduleScrollRestore = () => {
+      viewportMutationUntil = Date.now() + 700;
+      if (activeElementWantsViewport()) return;
+
+      if (restoreFrame) window.cancelAnimationFrame(restoreFrame);
+      if (restoreTimer) window.clearTimeout(restoreTimer);
+
+      restoreFrame = window.requestAnimationFrame(() => {
+        restoreFrame = window.requestAnimationFrame(restoreIntendedScroll);
+      });
+      restoreTimer = window.setTimeout(restoreIntendedScroll, 260);
+    };
+
+    const handleScroll = () => {
+      if (isRestoring) return;
+      const now = Date.now();
+      if (now < viewportMutationUntil) return;
+      if (now - lastUserScrollIntentAt <= 1200) {
+        rememberCurrentScroll();
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (scrollingKeys.has(event.key)) markUserScrollIntent();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        scheduleScrollRestore();
+      }
+    };
+
+    window.addEventListener("wheel", markUserScrollIntent, { passive: true });
+    window.addEventListener("touchstart", markUserScrollIntent, {
+      passive: true,
+    });
+    window.addEventListener("touchmove", markUserScrollIntent, {
+      passive: true,
+    });
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", scheduleScrollRestore, { passive: true });
+    window.addEventListener("orientationchange", scheduleScrollRestore);
+    window.addEventListener("pageshow", scheduleScrollRestore);
+    window.visualViewport?.addEventListener("resize", scheduleScrollRestore, {
+      passive: true,
+    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("focusin", markUserScrollIntent);
+
+    return () => {
+      if (restoreFrame) window.cancelAnimationFrame(restoreFrame);
+      if (restoreTimer) window.clearTimeout(restoreTimer);
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = previousScrollRestoration;
+      }
+
+      window.removeEventListener("wheel", markUserScrollIntent);
+      window.removeEventListener("touchstart", markUserScrollIntent);
+      window.removeEventListener("touchmove", markUserScrollIntent);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", scheduleScrollRestore);
+      window.removeEventListener("orientationchange", scheduleScrollRestore);
+      window.removeEventListener("pageshow", scheduleScrollRestore);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        scheduleScrollRestore,
+      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("focusin", markUserScrollIntent);
     };
   }, []);
 
