@@ -3564,32 +3564,33 @@ function MobilePageHeroBanner({
   note?: string;
 }) {
   return (
-    <section className="relative overflow-hidden pb-6 pt-24">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+    <section className="relative overflow-hidden pb-8 pt-[5.85rem]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(188,151,122,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(77,52,32,0.18),transparent_42%)]" />
+      <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(0,0,0,0.82),rgba(0,0,0,0.18),transparent)]" />
       <Container className="relative">
-        <div className="overflow-hidden rounded-[2rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] shadow-[0_30px_100px_rgba(0,0,0,0.36)]">
+        <div className="overflow-hidden rounded-[2.35rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(15,13,12,0.86),rgba(7,7,6,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.42)]">
           {media ? (
             <MediaSurface
               src={media.image}
               alt={media.alt}
               video={media.video}
-              className="min-h-[22rem] rounded-none border-0 shadow-none"
+              className="min-h-[26.5rem] rounded-none border-0 shadow-none"
               dim="heavy"
               priorityCopy={
                 media.overlayTitle || media.overlayText || media.badge ? (
-                  <div className="max-w-[16rem]">
+                  <div className="max-w-[17rem]">
                     {media.badge ? (
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-[#d0b39b]">
                         {media.badge}
                       </p>
                     ) : null}
                     {media.overlayTitle ? (
-                      <p className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                      <p className="ownership-display mt-4 text-[2.55rem] font-semibold leading-[0.86] tracking-[-0.065em] text-[#f4efe7]">
                         {media.overlayTitle}
                       </p>
                     ) : null}
                     {media.overlayText ? (
-                      <p className="mt-4 text-sm leading-7 text-white/72">
+                      <p className="mt-4 text-[0.95rem] leading-7 text-white/74">
                         {media.overlayText}
                       </p>
                     ) : null}
@@ -3598,22 +3599,22 @@ function MobilePageHeroBanner({
               }
             />
           ) : null}
-          <div className="p-5 sm:p-6">
-            <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d]">
+          <div className="p-6 sm:p-7">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
               {eyebrow}
             </p>
-            <h1 className="mt-4 max-w-[12ch] text-[2.6rem] font-semibold leading-[0.9] tracking-[-0.065em] text-[#f4efe7]">
+            <h1 className="ownership-display mt-4 max-w-[11.5ch] text-[3.08rem] font-semibold leading-[0.82] tracking-[-0.07em] text-[#f4efe7]">
               {title}
             </h1>
-            <p className="mt-5 max-w-[34rem] text-sm leading-7 text-white/60">
+            <p className="mt-5 max-w-[34rem] text-[0.96rem] leading-7 text-white/68">
               {description}
             </p>
             {note ? (
-              <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-white/34">
+              <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-white/42">
                 {note}
               </p>
             ) : null}
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-7 flex flex-col gap-3">
               {actions.map((action) =>
                 action.href ? (
                   <Button
@@ -3622,8 +3623,8 @@ function MobilePageHeroBanner({
                     variant={action.variant === "secondary" ? "outline" : undefined}
                     className={
                       action.variant === "secondary"
-                        ? "h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                        : "h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                        ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                        : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
                     }
                   >
                     <a href={action.href} target="_blank" rel="noreferrer">
@@ -3638,8 +3639,8 @@ function MobilePageHeroBanner({
                     onClick={action.onClick}
                     className={
                       action.variant === "secondary"
-                        ? "h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                        : "h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                        ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                        : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
                     }
                   >
                     {action.label}
@@ -3648,14 +3649,14 @@ function MobilePageHeroBanner({
               )}
             </div>
             {stats && stats.length ? (
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="-mx-6 mt-7 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {stats.map((item, index) => (
                   <Reveal key={`${item.label}-${index}`} delay={0.05 * index}>
-                    <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="min-w-[10.8rem] rounded-[1.35rem] border border-white/[0.09] bg-white/[0.025] p-4">
                       <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                         {item.label}
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-white/76">
+                      <p className="mt-2 text-sm leading-6 text-white/78">
                         {item.value}
                       </p>
                     </div>
@@ -3682,19 +3683,22 @@ function MobileSectionFrame({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative py-6">
+    <section className="relative py-7">
       <Container>
-        <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.9),rgba(10,10,9,0.94))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
-            {eyebrow}
-          </p>
-          <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-5 text-sm leading-7 text-white/60">{description}</p>
-          ) : null}
-          <div className="mt-6">{children}</div>
+        <div className="border-t border-white/[0.11] pt-6">
+          <div className="relative overflow-hidden rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(16,14,12,0.82),rgba(8,8,7,0.96))] p-6 shadow-[0_26px_80px_rgba(0,0,0,0.28)]">
+            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.62),transparent)]" />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+              {eyebrow}
+            </p>
+            <h2 className="ownership-display mt-4 max-w-[11.5ch] text-[2.75rem] font-semibold leading-[0.84] tracking-[-0.065em] text-[#f4efe7]">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-5 text-[0.96rem] leading-7 text-white/68">{description}</p>
+            ) : null}
+            <div className="mt-7">{children}</div>
+          </div>
         </div>
       </Container>
     </section>
@@ -3713,21 +3717,24 @@ function MobileHomeFooter({
   emailLink: string;
 }) {
   return (
-    <section className="relative overflow-hidden pb-10 pt-6">
+    <section className="relative overflow-hidden pb-10 pt-7">
       <Container>
-        <div className="rounded-[1.9rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
+        <div className="rounded-[2.1rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,12,11,0.9),rgba(6,6,6,0.98))] p-6 shadow-[0_34px_100px_rgba(0,0,0,0.36)]">
           <div className="text-center">
             <img
               src="/logo-header.png"
               alt="Praeliator"
-              className="mx-auto h-12 w-auto object-contain opacity-95"
+              className="mx-auto h-14 w-auto object-contain opacity-95"
             />
-            <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-white/46">
-              Praeliator
+            <p className="mt-4 text-[10px] uppercase tracking-[0.32em] text-[#b9a18d]">
+              House route
+            </p>
+            <p className="ownership-display mx-auto mt-3 max-w-[11ch] text-[2.35rem] font-semibold leading-[0.86] tracking-[-0.06em] text-[#f4efe7]">
+              The object continues here.
             </p>
           </div>
 
-          <div className="mt-8 grid gap-3">
+          <div className="mt-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
             {[
               { label: "VIS", route: "/praeliator-vis" as Route },
               { label: "Acquisition", route: "/acquisition" as Route },
@@ -3738,7 +3745,7 @@ function MobileHomeFooter({
                 key={item.route}
                 type="button"
                 onClick={() => goTo(item.route)}
-                className="flex items-center justify-between rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/80 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+                className="flex w-full items-center justify-between py-4 text-left text-sm uppercase tracking-[0.14em] text-white/82 transition duration-500 hover:text-white"
               >
                 <span>{item.label}</span>
                 <ChevronRight className="h-4 w-4 text-white/30" />
@@ -3746,7 +3753,7 @@ function MobileHomeFooter({
             ))}
           </div>
 
-          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="mt-8 rounded-[1.45rem] border border-white/[0.08] bg-white/[0.025] p-5">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Direct contact
             </p>
@@ -4141,25 +4148,25 @@ function MobileHeader({
     <motion.header className="fixed inset-x-0 top-0 z-50">
       <motion.div
         animate={{
-          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.88)" : "rgba(6,6,6,0)",
-          backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
-          borderColor: mobileMenuOpen ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0)",
+          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.9)" : "rgba(6,6,6,0.18)",
+          backdropFilter: mobileMenuOpen ? "blur(20px)" : "blur(10px)",
+          borderColor: mobileMenuOpen ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.035)",
         }}
         transition={{ duration: 0.45, ease: easeLuxury }}
-        className="border-b border-transparent bg-transparent"
+        className="border-b border-transparent bg-[linear-gradient(180deg,rgba(5,5,5,0.72),rgba(5,5,5,0.2),transparent)]"
       >
-        <Container className="relative flex items-center justify-between py-4 md:py-5">
+        <Container className="relative flex items-center justify-between py-3.5 md:py-5">
           <button
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileMenuOpen((current) => !current)}
-            className="group inline-flex min-h-[3.4rem] w-14 flex-col items-center justify-center gap-[0.18rem] bg-transparent text-white/82 transition duration-300 hover:text-white md:min-h-[3.7rem] md:w-16"
+            className="group inline-flex min-h-[3.1rem] w-12 flex-col items-center justify-center gap-[0.1rem] bg-transparent text-white/82 transition duration-300 hover:text-white md:min-h-[3.7rem] md:w-16"
           >
             <PraeliatorMenuWreathIcon
               open={mobileMenuOpen}
-              className="h-[2.25rem] w-[2.25rem] md:h-[2.55rem] md:w-[2.55rem]"
+              className="h-[2.05rem] w-[2.05rem] md:h-[2.55rem] md:w-[2.55rem]"
             />
-            <span className="text-[8px] uppercase tracking-[0.28em] text-white/52 transition duration-300 group-hover:text-white/76 md:text-[9px]">
+            <span className="text-[7px] uppercase tracking-[0.25em] text-white/56 transition duration-300 group-hover:text-white/76 md:text-[9px]">
               {menuLabel}
             </span>
           </button>
@@ -4189,10 +4196,10 @@ function MobileHeader({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.35, ease: easeLuxury }}
-              className="pb-3 md:pb-4"
+              className="pb-2.5 md:pb-4"
             >
               <Container className="flex justify-center">
-                <p className="text-[9px] uppercase tracking-[0.34em] text-white/34 md:text-[10px]">
+                <p className="text-[8px] uppercase tracking-[0.34em] text-white/40 md:text-[10px]">
                   {pageMicroLabel}
                 </p>
               </Container>
@@ -4209,17 +4216,17 @@ function MobileHeader({
               transition={{ duration: 0.4, ease: easeLuxury }}
               className="overflow-hidden border-t border-white/[0.06]"
             >
-              <Container className="pb-5 pt-4 md:pb-8 md:pt-6">
-                <div className="grid gap-3 md:grid-cols-2">
+              <Container className="pb-6 pt-4 md:pb-8 md:pt-6">
+                <div className="grid gap-2.5 md:grid-cols-2">
                   {menuItems.map((item) => (
                     <button
                       key={item.path}
                       type="button"
                       onClick={() => goTo(item.path)}
-                      className="group flex items-center justify-between rounded-[1.25rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05] md:min-h-[5.5rem] md:px-5"
+                      className="group flex items-center justify-between rounded-[1.2rem] border border-white/[0.08] bg-white/[0.025] px-4 py-4 text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05] md:min-h-[5.5rem] md:px-5"
                     >
                       <div>
-                        <p className="text-base uppercase tracking-[0.14em] text-white/88 md:text-[1.05rem]">
+                        <p className="text-[0.96rem] uppercase tracking-[0.16em] text-white/90 md:text-[1.05rem]">
                           {item.label}
                         </p>
                         <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/34 md:text-[11px]">
@@ -4257,25 +4264,25 @@ function MobileClubFooter({
   navLinks: Array<{ label: string; path: Route }>;
 }) {
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10">
+    <footer className="relative overflow-hidden border-t border-white/[0.08] bg-[linear-gradient(180deg,#0b0b0b_0%,#050505_100%)] py-10">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_34%)]" />
       <Container className="relative">
-        <div className="rounded-[2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.3)]">
+        <div className="rounded-[2.15rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,12,11,0.9),rgba(6,6,6,0.98))] p-6 shadow-[0_34px_100px_rgba(0,0,0,0.36)]">
           <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d]">
-            Private client club
+            House register
           </p>
-          <h2 className="mt-4 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
-            Praeliator Club
+          <h2 className="ownership-display mt-4 max-w-[11ch] text-[2.55rem] font-semibold leading-[0.84] tracking-[-0.065em] text-[#f4efe7]">
+            Continue through the proper route.
           </h2>
-          <p className="mt-5 text-sm leading-7 text-white/60">
+          <p className="mt-5 text-[0.96rem] leading-7 text-white/66">
             Controlled access, direct contact, and ownership carried with
             continuity.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-7 flex flex-col gap-3">
             <Button
               asChild
-              className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+              className="h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                 {privateInquiryLabel}
@@ -4285,19 +4292,19 @@ function MobileClubFooter({
               type="button"
               variant="outline"
               onClick={() => goTo("/waitlist")}
-              className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+              className="h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
             >
               {waitlistLabel}
             </Button>
           </div>
 
-          <div className="mt-8 grid gap-3">
+          <div className="mt-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
             {navLinks.map((item) => (
               <button
-                key={item.route}
+                key={item.path}
                 type="button"
-                onClick={() => goTo(item.route)}
-                className="flex items-center justify-between rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4 text-left text-sm text-white/80 transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
+                onClick={() => goTo(item.path)}
+                className="flex w-full items-center justify-between py-4 text-left text-sm uppercase tracking-[0.14em] text-white/82 transition duration-500 hover:text-white"
               >
                 <span>{item.label}</span>
                 <ChevronRight className="h-4 w-4 text-white/30" />
@@ -4305,7 +4312,7 @@ function MobileClubFooter({
             ))}
           </div>
 
-          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="mt-8 rounded-[1.45rem] border border-white/[0.08] bg-white/[0.025] p-5">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Signals
             </p>
@@ -4318,7 +4325,7 @@ function MobileClubFooter({
             </div>
           </div>
 
-          <div className="mt-8 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="mt-8 rounded-[1.45rem] border border-white/[0.08] bg-white/[0.025] p-5">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Direct contact
             </p>
@@ -6523,6 +6530,20 @@ function BrowserFormStyles() {
     <style>{`
       html, body, #root { background: #040404; min-height: 100%; }
       body { overscroll-behavior-y: none; }
+      @media (max-width: 767px) {
+        body {
+          overscroll-behavior-y: auto;
+          -webkit-font-smoothing: antialiased;
+          text-rendering: geometricPrecision;
+        }
+        button,
+        a,
+        input,
+        select,
+        textarea {
+          -webkit-tap-highlight-color: transparent;
+        }
+      }
       .ownership-display {
         font-family: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
         font-feature-settings: "liga" 1, "dlig" 1, "case" 1;
@@ -11486,9 +11507,10 @@ const renderWaitlistPage = () => (
 
   const renderMobileHomePage = () => (
     <>
-      <section className="relative overflow-hidden pb-6 pt-24">
+      <section className="relative overflow-hidden pb-7 pt-[5.85rem]">
+        <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(0,0,0,0.82),rgba(0,0,0,0.18),transparent)]" />
         <Container>
-          <div className="overflow-hidden rounded-[2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(13,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_36px_110px_rgba(0,0,0,0.36)]">
+          <div className="overflow-hidden rounded-[2.35rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(13,12,11,0.88),rgba(7,7,6,0.98))] shadow-[0_36px_120px_rgba(0,0,0,0.42)]">
             <MediaSurface
               src={homeCinematicMedia.hero.poster}
               alt="Praeliator hero"
@@ -11500,35 +11522,35 @@ const renderWaitlistPage = () => (
                   <p className="text-[10px] uppercase tracking-[0.32em] text-[#d0b39b]">
                     Praeliator
                   </p>
-                  <p className="mt-4 text-[2.9rem] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+                  <p className="ownership-display mt-4 text-[3.1rem] font-semibold leading-[0.82] tracking-[-0.07em] text-[#f4efe7]">
                     Boxing, treated like an art form.
                   </p>
-                  <p className="mt-5 text-sm leading-7 text-white/72">
+                  <p className="mt-5 text-[0.96rem] leading-7 text-white/74">
                     {copy.home.heroLine}
                   </p>
                 </div>
               }
             />
-            <div className="p-5">
+            <div className="p-6">
               <div className="flex flex-col gap-3">
                 <Button
                   type="button"
                   onClick={() => goTo("/praeliator-vis")}
-                  className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                  className="h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
                 >
                   {copy.home.visCta}
                 </Button>
                 <Button
                   asChild
                   variant="outline"
-                  className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                  className="h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
                 >
                   <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                     {copy.privateInquiry}
                   </a>
                 </Button>
               </div>
-              <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="-mx-6 mt-7 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {[
                   { label: "Format", value: "16 oz · lace-up" },
                   { label: "Material", value: "Top-grain cowhide" },
@@ -11537,7 +11559,7 @@ const renderWaitlistPage = () => (
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
+                    className="min-w-[10.5rem] rounded-[1.3rem] border border-white/[0.09] bg-white/[0.025] p-4"
                   >
                     <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                       {item.label}
@@ -11551,11 +11573,11 @@ const renderWaitlistPage = () => (
         </Container>
       </section>
 
-      <section className="relative py-6">
+      <section className="relative py-7">
         <Container>
           <div className="grid gap-4">
             <Reveal>
-              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+              <div className="overflow-hidden rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,13,12,0.86),rgba(7,7,6,0.97))] shadow-[0_28px_88px_rgba(0,0,0,0.32)]">
                 <MediaSurface
                   src={homeCinematicMedia.vis.poster}
                   alt="Praeliator VIS"
@@ -11563,14 +11585,14 @@ const renderWaitlistPage = () => (
                   className="min-h-[18rem] rounded-none border-0 shadow-none"
                   dim="medium"
                 />
-                <div className="p-5">
+                <div className="p-6">
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                     VIS
                   </p>
-                  <h2 className="mt-3 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                  <h2 className="ownership-display mt-3 text-[2.45rem] font-semibold leading-[0.86] tracking-[-0.06em] text-[#f4efe7]">
                     The flagship training glove.
                   </h2>
-                  <p className="mt-4 text-sm leading-7 text-white/60">
+                  <p className="mt-4 text-[0.96rem] leading-7 text-white/66">
                     A 16 oz lace-up training glove in top-grain cowhide, built
                     for disciplined training and technical sparring.
                   </p>
@@ -11578,14 +11600,14 @@ const renderWaitlistPage = () => (
                     <Button
                       type="button"
                       onClick={() => goTo("/praeliator-vis")}
-                      className="h-[3.4rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+                      className="h-[3.75rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
                     >
                       Enter VIS
                     </Button>
                     <Button
                       asChild
                       variant="outline"
-                      className="h-[3.4rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+                      className="h-[3.75rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7]"
                     >
                       <a href={createWhatsAppLink("Hello Praeliator, I would like to inquire about Praeliator VIS.")} target="_blank" rel="noreferrer">
                         Inquire about VIS
@@ -11597,7 +11619,7 @@ const renderWaitlistPage = () => (
             </Reveal>
 
             <Reveal delay={0.06}>
-              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+              <div className="overflow-hidden rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,13,12,0.86),rgba(7,7,6,0.97))] shadow-[0_28px_88px_rgba(0,0,0,0.32)]">
                 <MediaSurface
                   src={homeCinematicMedia.material.poster}
                   alt="Praeliator material"
@@ -11609,7 +11631,7 @@ const renderWaitlistPage = () => (
                       <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
                         Material
                       </p>
-                      <p className="mt-4 text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7]">
+                      <p className="ownership-display mt-4 text-[2.2rem] font-semibold leading-[0.88] tracking-[-0.06em] text-[#f4efe7]">
                         Top-grain leather. Soft satin finish.
                       </p>
                     </div>
@@ -11619,7 +11641,7 @@ const renderWaitlistPage = () => (
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+              <div className="overflow-hidden rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,13,12,0.86),rgba(7,7,6,0.97))] shadow-[0_28px_88px_rgba(0,0,0,0.32)]">
                 <MediaSurface
                   src={homeCinematicMedia.acquisition.poster}
                   alt="Praeliator acquisition"
@@ -11627,21 +11649,21 @@ const renderWaitlistPage = () => (
                   className="min-h-[16rem] rounded-none border-0 shadow-none"
                   dim="heavy"
                 />
-                <div className="p-5">
+                <div className="p-6">
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                     {copy.home.acquisitionWord}
                   </p>
-                  <h2 className="mt-3 text-3xl font-semibold leading-[0.94] tracking-[-0.055em] text-[#f4efe7]">
+                  <h2 className="ownership-display mt-3 text-[2.45rem] font-semibold leading-[0.86] tracking-[-0.06em] text-[#f4efe7]">
                     {copy.home.acquisitionLine}
                   </h2>
-                  <p className="mt-4 text-sm leading-7 text-white/60">
+                  <p className="mt-4 text-[0.96rem] leading-7 text-white/66">
                     Inquiry, review, allocation, delivery, and aftercare stay
                     inside one controlled route.
                   </p>
                   <div className="mt-5 flex flex-col gap-3">
                     <Button
                       asChild
-                      className="h-[3.4rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
+                      className="h-[3.75rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
                     >
                       <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
                         {copy.privateInquiry}
@@ -11651,7 +11673,7 @@ const renderWaitlistPage = () => (
                       type="button"
                       variant="outline"
                       onClick={() => goTo("/acquisition")}
-                      className="h-[3.4rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
+                      className="h-[3.75rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7]"
                     >
                       View acquisition route
                     </Button>
@@ -12103,20 +12125,21 @@ const renderWaitlistPage = () => (
         </div>
       </MobileSectionFrame>
 
-      <section className="relative py-6">
+      <section className="relative py-7">
         <Container>
-          <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.92),rgba(11,10,9,0.98))] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.28)]">
+          <div className="rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(17,16,15,0.88),rgba(7,7,6,0.98))] p-6 shadow-[0_30px_96px_rgba(0,0,0,0.34)]">
+            <div className="pointer-events-none mx-auto mb-6 h-px w-2/3 bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.58),transparent)]" />
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#b9a18d]">
               {acquisitionCopy.briefEyebrow}
             </p>
-            <h2 className="mt-4 max-w-[12ch] text-[2.7rem] font-semibold leading-[0.88] tracking-[-0.06em] text-[#f4efe7]">
+            <h2 className="ownership-display mt-4 max-w-[11.5ch] text-[2.85rem] font-semibold leading-[0.82] tracking-[-0.065em] text-[#f4efe7]">
               {acquisitionCopy.briefTitle}
             </h2>
-            <p className="mt-5 text-sm leading-7 text-white/60">
+            <p className="mt-5 text-[0.96rem] leading-7 text-white/68">
               {acquisitionCopy.briefDescription}
             </p>
 
-            <div className="mt-5 grid gap-3">
+            <div className="mt-6 divide-y divide-white/[0.08] border-y border-white/[0.08]">
               {[
                 "The house retains the brief privately.",
                 "WhatsApp then opens with a quieter reference.",
@@ -12124,12 +12147,12 @@ const renderWaitlistPage = () => (
               ].map((item, index) => (
                 <div
                   key={item}
-                  className="rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4"
+                  className="py-4"
                 >
                   <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
                     Step {String(index + 1).padStart(2, "0")}
                   </p>
-                  <p className="mt-3 text-sm leading-7 text-white/62">
+                  <p className="mt-3 text-sm leading-7 text-white/68">
                     {item}
                   </p>
                 </div>
@@ -12346,9 +12369,10 @@ const renderWaitlistPage = () => (
         </div>
       </MobileSectionFrame>
 
-      <section className="relative py-6">
+      <section className="relative py-7">
         <Container>
-          <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.96),rgba(11,10,9,0.98))] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.3)]">
+          <div className="rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(15,14,13,0.9),rgba(7,7,6,0.98))] p-6 shadow-[0_30px_96px_rgba(0,0,0,0.34)]">
+            <div className="pointer-events-none mx-auto mb-6 h-px w-2/3 bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.58),transparent)]" />
             <form className="grid gap-4" onSubmit={handleWaitlistSubmit} noValidate>
               <div className="hidden" aria-hidden="true">
                 <label htmlFor={WAITLIST_HONEYPOT_FIELD}>Leave this field empty</label>
@@ -12799,12 +12823,12 @@ const renderWaitlistPage = () => (
       : "mt-5 text-[clamp(2.5rem,9vw,3rem)] font-semibold leading-[0.92] tracking-[-0.055em] sm:text-5xl";
 
     return (
-    <section className="relative min-h-[100svh] overflow-hidden pb-8 pt-24 sm:pb-12 sm:pt-32 lg:pb-16 lg:pt-36">
+    <section className="relative min-h-[100svh] overflow-hidden pb-8 pt-[5.85rem] sm:pb-12 sm:pt-32 lg:pb-16 lg:pt-36">
       <div className={`absolute inset-0 ${sectionBackground}`} />
       <Container className="relative">
-        <div className="grid gap-5 sm:gap-6 md:grid-cols-[0.88fr_1.12fr] md:items-stretch">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-[0.88fr_1.12fr] md:items-stretch">
           <Reveal className="flex">
-            <div className={`relative flex h-full overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10 ${introPanel}`}>
+            <div className={`relative flex h-full overflow-hidden rounded-[1.85rem] border p-5 sm:rounded-[2rem] sm:p-8 lg:p-10 ${introPanel}`}>
               {archiveTone ? (
                 <>
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,186,149,0.2),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0))]" />
@@ -12822,7 +12846,7 @@ const renderWaitlistPage = () => (
                   <h1 className={titleClass}>
                     {title}
                   </h1>
-                  <p className={`mt-6 max-w-xl text-sm leading-7 sm:text-base sm:leading-8 ${bodyText}`}>
+                  <p className={`mt-5 max-w-xl text-[0.96rem] leading-7 sm:mt-6 sm:text-base sm:leading-8 ${bodyText}`}>
                     {description}
                   </p>
                   {shellNote ? (
@@ -12831,7 +12855,7 @@ const renderWaitlistPage = () => (
                     </p>
                   ) : null}
                 </div>
-                <div className={`mt-8 rounded-[1.6rem] border p-5 ${asidePanel}`}>
+                <div className={`mt-7 rounded-[1.45rem] border p-4 sm:mt-8 sm:rounded-[1.6rem] sm:p-5 ${asidePanel}`}>
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
                     {asideTitle}
                   </p>
@@ -12842,7 +12866,7 @@ const renderWaitlistPage = () => (
           </Reveal>
 
           <Reveal delay={0.06}>
-            <div className={`relative overflow-hidden rounded-[2rem] border p-5 sm:p-8 lg:p-10 ${formPanel}`}>
+            <div className={`relative overflow-hidden rounded-[1.85rem] border p-5 sm:rounded-[2rem] sm:p-8 lg:p-10 ${formPanel}`}>
               {archiveTone ? (
                 <>
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0))]" />
@@ -14542,7 +14566,7 @@ const renderWaitlistPage = () => (
 
     if (!authInitialized) {
       return (
-        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.18),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-24">
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.18),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-[5.85rem]">
           <Container className="relative pb-6">
             <div className="ownership-grain relative overflow-hidden rounded-[2rem] border border-[#d5c3ab] bg-[linear-gradient(180deg,rgba(252,247,241,0.99),rgba(238,228,214,0.97))] p-5 text-[#231b15] shadow-[0_30px_90px_rgba(77,53,30,0.16)]">
               <OwnershipWatermark
@@ -14568,7 +14592,7 @@ const renderWaitlistPage = () => (
 
     if (!authSession) {
       return (
-        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.2),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-24">
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.2),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#e8dac7_58%,#15100c_100%)] pt-[5.85rem]">
           <Container className="relative pb-6">
             {authNotice ? (
               <div className="mb-4">
@@ -14624,7 +14648,7 @@ const renderWaitlistPage = () => (
 
     return (
       <>
-        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.24),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#eadccc_54%,#140f0b_100%)] pt-24">
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.24),transparent_34%),linear-gradient(180deg,#f3eadf_0%,#eadccc_54%,#140f0b_100%)] pt-[5.85rem]">
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(20,15,11,0),rgba(20,15,11,0.96))]" />
           <Container className="relative pb-6">
             {authNotice ? (
@@ -14633,7 +14657,7 @@ const renderWaitlistPage = () => (
               </div>
             ) : null}
 
-            <div className="ownership-grain relative overflow-hidden rounded-[2rem] border border-[#d4c2aa] bg-[linear-gradient(180deg,rgba(252,247,241,0.995),rgba(237,227,214,0.975))] text-[#231b15] shadow-[0_34px_110px_rgba(77,53,30,0.18)]">
+            <div className="ownership-grain relative overflow-hidden rounded-[2.15rem] border border-[#d4c2aa] bg-[linear-gradient(180deg,rgba(252,247,241,0.995),rgba(237,227,214,0.975))] text-[#231b15] shadow-[0_34px_110px_rgba(77,53,30,0.18)]">
               <div className="pointer-events-none absolute inset-y-0 left-0 w-[0.55rem] bg-[linear-gradient(180deg,#8a633e,#d8ba8a)]" />
               <OwnershipWatermark
                 className="right-[-1.75rem] top-[-1.75rem] h-40 w-40"
@@ -14675,39 +14699,28 @@ const renderWaitlistPage = () => (
                   </p>
                 </div>
 
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                      Retained pairs
-                    </p>
-                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
-                      {ownershipPairs.length}
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                      Eligible now
-                    </p>
-                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
-                      {ownershipEligibleNowCount}
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                      Active review
-                    </p>
-                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
-                      {ownershipActiveReviewCount}
-                    </p>
-                  </div>
-                  <div className="rounded-[1rem] border border-[#d8c9b5] bg-[#fbf6ef] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
-                      Completed refreshes
-                    </p>
-                    <p className="mt-3 text-[2.2rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
-                      {ownershipCompletedRefreshCount}
-                    </p>
-                  </div>
+                <div className="-mx-5 mt-6 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {[
+                    { label: "Retained pairs", value: ownershipPairs.length },
+                    { label: "Eligible now", value: ownershipEligibleNowCount },
+                    { label: "Active review", value: ownershipActiveReviewCount },
+                    {
+                      label: "Completed refreshes",
+                      value: ownershipCompletedRefreshCount,
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="min-w-[9.4rem] rounded-[1.15rem] border border-[#d8c9b5] bg-[#fbf6ef] p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#8d755c]">
+                        {item.label}
+                      </p>
+                      <p className="mt-3 text-[2.25rem] font-semibold leading-none tracking-[-0.06em] text-[#231b15]">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-6 grid gap-3">
@@ -15323,7 +15336,3 @@ const renderWaitlistPage = () => (
     </div>
   );
 }
-
-
-
-

@@ -163,9 +163,9 @@ type GeoapifyAutocompleteResponse = {
 
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const chamberFieldClass =
-  "min-h-[3.95rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
+  "min-h-[4.15rem] w-full rounded-[1.55rem] border border-[#c8ad8e] bg-[#fffaf4] px-5 text-[16px] text-[#241912] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition placeholder:text-[#a89177] focus:border-[#8f6848] focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,122,86,0.09)] [color-scheme:light] sm:text-[1rem]";
 const chamberTextareaClass =
-  "min-h-[8.5rem] w-full rounded-[1.6rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 py-4 text-[1rem] text-[#241912] outline-none transition placeholder:text-[#bca892] focus:border-[#a37a56] focus:bg-white";
+  "min-h-[9.5rem] w-full rounded-[1.55rem] border border-[#c8ad8e] bg-[#fffaf4] px-5 py-4 text-[16px] text-[#241912] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition placeholder:text-[#a89177] focus:border-[#8f6848] focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,122,86,0.09)] [color-scheme:light] sm:text-[1rem]";
 const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY as
   | string
   | undefined;
@@ -1164,8 +1164,8 @@ export function PrivateAcquisitionRoute({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(199,160,111,0.12),transparent_34%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,7,6,0.92),rgba(8,7,6,0.98))]" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[110rem] flex-col px-4 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8 lg:px-10 lg:pb-12 lg:pt-10">
-        <header className="flex items-center justify-between gap-6">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[110rem] flex-col px-3 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-8 lg:px-10 lg:pb-12 lg:pt-10">
+        <header className="flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={onReturnHome}
@@ -1174,47 +1174,47 @@ export function PrivateAcquisitionRoute({
             <img
               src={wordmarkSrc}
               alt="Praeliator"
-              className="h-9 w-auto sm:h-11"
+              className="h-8 w-auto sm:h-11"
               draggable={false}
             />
           </button>
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-2 sm:gap-5">
             <PrivateRouteLanguageSwitcher
               locale={locale}
               onChange={onLocaleChange}
               label={languageLabel}
             />
-            <p className="text-[10px] uppercase tracking-[0.34em] text-white/42 sm:text-[11px]">
+            <p className="hidden text-[10px] uppercase tracking-[0.34em] text-white/42 sm:block sm:text-[11px]">
               Private issuance
             </p>
           </div>
         </header>
 
-        <div className="mt-8 grid flex-1 gap-6 lg:mt-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+        <div className="mt-6 grid flex-1 gap-4 sm:gap-6 lg:mt-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease: easeLuxury }}
             className="flex"
           >
-            <div className="flex h-full w-full flex-col justify-between rounded-[2.25rem] border border-[#35271d] bg-[linear-gradient(180deg,rgba(251,244,236,0.98),rgba(245,235,224,0.98))] p-6 text-[#241912] shadow-[0_38px_120px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
+            <div className="flex h-full w-full flex-col justify-between rounded-[2rem] border border-[#35271d] bg-[linear-gradient(180deg,rgba(251,244,236,0.98),rgba(245,235,224,0.98))] p-5 text-[#241912] shadow-[0_30px_90px_rgba(0,0,0,0.22)] sm:rounded-[2.25rem] sm:p-8 lg:p-10">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.3em] text-[#9a7a5b]">
                   Private issuance
                 </p>
-                <h1 className="mt-5 max-w-[12ch] font-['Cormorant_Garamond'] text-[3.2rem] font-semibold leading-[0.92] tracking-[-0.06em] sm:text-[4rem] lg:text-[5rem]">
+                <h1 className="mt-4 max-w-[11ch] font-['Cormorant_Garamond'] text-[2.85rem] font-semibold leading-[0.86] tracking-[-0.065em] sm:mt-5 sm:text-[4rem] lg:text-[5rem]">
                   {title}
                 </h1>
-                <p className="mt-5 max-w-2xl text-[1.02rem] leading-8 text-[#59483b] sm:text-[1.08rem]">
+                <p className="mt-5 max-w-2xl text-[0.98rem] leading-7 text-[#59483b] sm:text-[1.08rem] sm:leading-8">
                   {description}
                 </p>
               </div>
 
-              <div className="mt-8 rounded-[1.8rem] border border-[#d8c3aa] bg-[rgba(255,251,245,0.65)] p-5 sm:p-6">
+              <div className="mt-7 rounded-[1.55rem] border border-[#d8c3aa] bg-[rgba(255,251,245,0.7)] p-4 sm:mt-8 sm:rounded-[1.8rem] sm:p-6">
                 <p className="text-[11px] uppercase tracking-[0.28em] text-[#9a7a5b]">
                   House note
                 </p>
-                <p className="mt-3 text-base leading-8 text-[#5f4b3c]">
+                <p className="mt-3 text-[0.95rem] leading-7 text-[#5f4b3c] sm:text-base sm:leading-8">
                   Hidden access alone is not sufficient. The private link and the issued reference must agree before the object line, destination record, and payment chamber are revealed.
                 </p>
               </div>
@@ -1227,7 +1227,7 @@ export function PrivateAcquisitionRoute({
             transition={{ duration: 0.9, delay: 0.06, ease: easeLuxury }}
             className="flex"
           >
-            <div className="flex h-full w-full flex-col rounded-[2.25rem] border border-[#35271d] bg-[linear-gradient(180deg,rgba(251,244,236,0.98),rgba(245,235,224,0.98))] p-6 text-[#241912] shadow-[0_38px_120px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
+            <div className="flex h-full w-full flex-col rounded-[2rem] border border-[#35271d] bg-[linear-gradient(180deg,rgba(251,244,236,0.98),rgba(245,235,224,0.98))] p-4 text-[#241912] shadow-[0_30px_90px_rgba(0,0,0,0.22)] sm:rounded-[2.25rem] sm:p-8 lg:p-10">
               <AnimatePresence mode="wait">
                 {loadingState ? (
                   <motion.div
@@ -1236,12 +1236,12 @@ export function PrivateAcquisitionRoute({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.45, ease: easeLuxury }}
-                    className="flex min-h-[26rem] flex-1 flex-col items-start justify-center"
+                    className="flex min-h-[22rem] flex-1 flex-col items-start justify-center sm:min-h-[26rem]"
                   >
                     <p className="text-[11px] uppercase tracking-[0.28em] text-[#9a7a5b]">
                       Preparing
                     </p>
-                    <p className="mt-4 font-['Cormorant_Garamond'] text-5xl leading-none tracking-[-0.06em]">
+                    <p className="mt-4 font-['Cormorant_Garamond'] text-[2.75rem] leading-[0.92] tracking-[-0.06em] sm:text-5xl">
                       Quietly opening the chamber.
                     </p>
                     <div className="mt-6 h-1 w-28 overflow-hidden rounded-full bg-[#dbcab8]">
@@ -1264,12 +1264,12 @@ export function PrivateAcquisitionRoute({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.45, ease: easeLuxury }}
-                    className="flex min-h-[26rem] flex-1 flex-col justify-center"
+                    className="flex min-h-[22rem] flex-1 flex-col justify-center sm:min-h-[26rem]"
                   >
                     <p className="text-[11px] uppercase tracking-[0.28em] text-[#9a7a5b]">
                       Invalid issuance
                     </p>
-                    <p className="mt-4 max-w-[13ch] font-['Cormorant_Garamond'] text-5xl leading-[0.95] tracking-[-0.06em]">
+                    <p className="mt-4 max-w-[13ch] font-['Cormorant_Garamond'] text-[2.8rem] leading-[0.92] tracking-[-0.06em] sm:text-5xl sm:leading-[0.95]">
                       This private page could not be verified.
                     </p>
                     <p className="mt-5 max-w-xl text-base leading-8 text-[#5f4b3c]">
@@ -1280,7 +1280,7 @@ export function PrivateAcquisitionRoute({
                       <Button
                         type="button"
                         onClick={onReturnHome}
-                        className="min-h-[3.75rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c]"
+                        className="min-h-[3.85rem] w-full rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] sm:w-auto"
                       >
                         Return to Praeliator
                       </Button>
@@ -1300,10 +1300,10 @@ export function PrivateAcquisitionRoute({
                         <p className="text-[11px] uppercase tracking-[0.28em] text-[#9a7a5b]">
                           Access verification
                         </p>
-                        <p className="mt-4 font-['Cormorant_Garamond'] text-[3rem] leading-[0.94] tracking-[-0.06em] sm:text-[3.6rem]">
+                        <p className="mt-4 font-['Cormorant_Garamond'] text-[2.75rem] leading-[0.9] tracking-[-0.065em] sm:text-[3.6rem] sm:leading-[0.94]">
                           Enter your issued reference.
                         </p>
-                        <p className="mt-5 max-w-2xl text-base leading-8 text-[#5f4b3c]">
+                        <p className="mt-5 max-w-2xl text-[0.98rem] leading-7 text-[#5f4b3c] sm:text-base sm:leading-8">
                           This page remains private until the reference and the
                           issued session link are verified together.
                         </p>
@@ -1321,7 +1321,7 @@ export function PrivateAcquisitionRoute({
                               setReferenceCode(event.target.value.toUpperCase());
                               if (accessError) setAccessError("");
                             }}
-                            className="min-h-[4rem] rounded-[1.8rem] border border-[#ccb59a] bg-[#f8f2ea] px-5 text-[1rem] tracking-[0.14em] text-[#241912] outline-none transition focus:border-[#a37a56] focus:bg-white"
+                            className="min-h-[4.15rem] rounded-[1.55rem] border border-[#c8ad8e] bg-[#fffaf4] px-5 text-[16px] tracking-[0.14em] text-[#241912] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition focus:border-[#8f6848] focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,122,86,0.09)] [color-scheme:light] sm:rounded-[1.8rem] sm:text-[1rem]"
                             placeholder="PRA-VIS-7K4M9Q"
                             autoCapitalize="characters"
                             autoComplete="one-time-code"
@@ -1342,7 +1342,7 @@ export function PrivateAcquisitionRoute({
                           <Button
                             type="submit"
                             disabled={accessSubmitting}
-                            className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
+                            className="min-h-[3.85rem] w-full rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60 sm:w-auto"
                           >
                             {accessSubmitting
                               ? "Verifying reference..."
@@ -1364,7 +1364,7 @@ export function PrivateAcquisitionRoute({
                     <p className="text-[11px] uppercase tracking-[0.28em] text-[#9a7a5b]">
                       Retained confirmation
                     </p>
-                    <p className="mt-4 max-w-[13ch] font-['Cormorant_Garamond'] text-[3rem] leading-[0.94] tracking-[-0.06em] sm:text-[3.8rem]">
+                    <p className="mt-4 max-w-[13ch] font-['Cormorant_Garamond'] text-[2.8rem] leading-[0.9] tracking-[-0.065em] sm:text-[3.8rem] sm:leading-[0.94]">
                       The acquisition has been confirmed.
                     </p>
                     <p className="mt-5 max-w-2xl text-base leading-8 text-[#5f4b3c]">
@@ -1421,7 +1421,7 @@ export function PrivateAcquisitionRoute({
                       <Button
                         type="button"
                         onClick={onReturnHome}
-                        className="min-h-[3.75rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c]"
+                        className="min-h-[3.85rem] w-full rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] sm:w-auto"
                       >
                         Return to Praeliator
                       </Button>
@@ -1434,10 +1434,10 @@ export function PrivateAcquisitionRoute({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.45, ease: easeLuxury }}
-                    className="grid flex-1 gap-6 lg:grid-cols-[0.92fr_1.08fr]"
+                    className="grid flex-1 gap-5 lg:grid-cols-[0.92fr_1.08fr] lg:gap-6"
                   >
                     <div className="grid gap-4">
-                      <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
+                      <div className="rounded-[1.55rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5 sm:rounded-[1.8rem]">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                           House reference
                         </p>
@@ -1450,7 +1450,7 @@ export function PrivateAcquisitionRoute({
                         </p>
                       </div>
 
-                      <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
+                      <div className="rounded-[1.55rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5 sm:rounded-[1.8rem]">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                           Object record
                         </p>
@@ -1474,12 +1474,12 @@ export function PrivateAcquisitionRoute({
                         </div>
                       </div>
 
-                      <div className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
+                      <div className="rounded-[1.55rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5 sm:rounded-[1.8rem]">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                           Allocation ledger
                         </p>
                         <div className="divide-y divide-[#e7d8c7]">
-                          <div className="flex items-start justify-between gap-6 py-4 first:pt-0">
+                          <div className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                             <div>
                               <p className="text-lg leading-8 text-[#241912]">
                                 {activeSession?.productName || "Praeliator VIS"}
@@ -1488,7 +1488,7 @@ export function PrivateAcquisitionRoute({
                                 Quantity {activeSession?.quantity || 1}
                               </p>
                             </div>
-                            <p className="text-lg leading-8 text-[#241912]">
+                            <p className="text-lg leading-8 text-[#241912] sm:text-right">
                               {activeSession
                                 ? formatMoney(
                                     activeSession.subtotalAmount,
@@ -1498,7 +1498,7 @@ export function PrivateAcquisitionRoute({
                             </p>
                           </div>
 
-                          <div className="flex items-start justify-between gap-6 py-4">
+                          <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                             <div>
                               <p className="text-lg leading-8 text-[#241912]">
                                 Private allocation and fulfillment
@@ -1512,7 +1512,7 @@ export function PrivateAcquisitionRoute({
                                   .join(", ") || "Prepared under private review"}
                               </p>
                             </div>
-                            <p className="text-lg leading-8 text-[#241912]">
+                            <p className="text-lg leading-8 text-[#241912] sm:text-right">
                               {activeSession
                                 ? formatMoney(
                                     activeSession.shippingAmount,
@@ -1522,13 +1522,13 @@ export function PrivateAcquisitionRoute({
                             </p>
                           </div>
 
-                          <div className="flex items-start justify-between gap-6 py-4 pb-0">
+                          <div className="flex flex-col gap-2 py-4 pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                             <div>
                               <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a7a5b]">
                                 Total due today
                               </p>
                             </div>
-                            <p className="font-['Cormorant_Garamond'] text-[2.1rem] leading-none tracking-[-0.05em] text-[#241912]">
+                            <p className="font-['Cormorant_Garamond'] text-[2.25rem] leading-none tracking-[-0.05em] text-[#241912] sm:text-right">
                               {activeSession
                                 ? formatMoney(
                                     activeSession.totalAmount,
@@ -1541,7 +1541,7 @@ export function PrivateAcquisitionRoute({
                       </div>
 
                       <form
-                        className="rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6"
+                        className="rounded-[1.65rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:rounded-[1.8rem] sm:p-6"
                         onSubmit={handleSaveDeliveryDetails}
                         autoComplete="on"
                       >
@@ -1549,10 +1549,10 @@ export function PrivateAcquisitionRoute({
                           <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                             Destination record
                           </p>
-                          <p className="mt-4 font-['Cormorant_Garamond'] text-[2.2rem] leading-[0.94] tracking-[-0.06em] text-[#241912]">
+                          <p className="mt-4 font-['Cormorant_Garamond'] text-[2.25rem] leading-[0.9] tracking-[-0.06em] text-[#241912] sm:leading-[0.94]">
                             Retain the delivery details before payment opens.
                           </p>
-                          <p className="mt-5 text-base leading-8 text-[#5f4b3c]">
+                          <p className="mt-5 text-[0.98rem] leading-7 text-[#5f4b3c] sm:text-base sm:leading-8">
                             These details remain attached to the acquisition
                             record and are required before the payment chamber
                             can proceed.
@@ -1745,7 +1745,7 @@ export function PrivateAcquisitionRoute({
                                     onClick={() =>
                                       handleSelectAddressSuggestion(suggestion)
                                     }
-                                    className="rounded-[1rem] px-3 py-3 text-left transition duration-200 hover:bg-[#f6ede3]"
+                                    className="rounded-[1rem] px-3 py-3 text-left transition duration-200 hover:bg-[#f6ede3] active:bg-[#efe1d2]"
                                   >
                                     <p className="text-sm leading-6 text-[#241912]">
                                       {suggestion.label}
@@ -1908,7 +1908,7 @@ export function PrivateAcquisitionRoute({
                           <Button
                             type="submit"
                             disabled={deliverySubmitting}
-                            className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
+                            className="min-h-[3.85rem] w-full rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60 sm:w-auto"
                           >
                             {deliverySubmitting
                               ? "Retaining destination..."
@@ -1925,15 +1925,15 @@ export function PrivateAcquisitionRoute({
                       </form>
                     </div>
 
-                    <div className="flex flex-col rounded-[1.8rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:p-6">
+                    <div className="flex flex-col rounded-[1.65rem] border border-[#d8c3aa] bg-[#fcf8f2] p-5 shadow-[0_18px_50px_rgba(111,79,49,0.06)] sm:rounded-[1.8rem] sm:p-6">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
                           Confirmation chamber
                         </p>
-                        <p className="mt-4 font-['Cormorant_Garamond'] text-[2.4rem] leading-[0.94] tracking-[-0.06em] text-[#241912]">
+                        <p className="mt-4 font-['Cormorant_Garamond'] text-[2.35rem] leading-[0.9] tracking-[-0.06em] text-[#241912] sm:leading-[0.94]">
                           Confirm the prepared allocation within the site.
                         </p>
-                        <p className="mt-5 text-base leading-8 text-[#5f4b3c]">
+                        <p className="mt-5 text-[0.98rem] leading-7 text-[#5f4b3c] sm:text-base sm:leading-8">
                           The destination record must be complete before payment
                           opens. Once confirmed, the issuance is sealed under
                           the allocation record.
@@ -1950,7 +1950,7 @@ export function PrivateAcquisitionRoute({
                             onRefresh={refreshState}
                           />
                         ) : (
-                          <div className="rounded-[1.8rem] border border-dashed border-[#d8c3aa] bg-[#f8f2ea] p-6">
+                          <div className="rounded-[1.55rem] border border-dashed border-[#d8c3aa] bg-[#f8f2ea] p-5 sm:rounded-[1.8rem] sm:p-6">
                             <p className="text-sm leading-8 text-[#5f4b3c]">
                               {deliveryDetailsCompleted
                                 ? "The destination record is complete. Payment can now be prepared inside this page without sending you to an external link."
@@ -1966,7 +1966,7 @@ export function PrivateAcquisitionRoute({
                                 type="button"
                                 onClick={handlePreparePayment}
                                 disabled={paymentSubmitting || !deliveryDetailsCompleted}
-                                className="min-h-[3.85rem] rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60"
+                                className="min-h-[3.85rem] w-full rounded-full bg-[#211711] px-7 text-sm text-[#f7efe5] shadow-[0_20px_50px_rgba(24,18,14,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#16100c] disabled:pointer-events-none disabled:opacity-60 sm:w-auto"
                               >
                                 {paymentSubmitting
                                   ? "Preparing payment..."
