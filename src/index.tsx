@@ -3539,6 +3539,66 @@ function ClubFooter({
   );
 }
 
+function MobileHeroMediaBackdrop({
+  media,
+}: {
+  media: {
+    image: string;
+    alt: string;
+    video?: string;
+  };
+}) {
+  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
+    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener?.("change", update);
+    return () => mediaQuery.removeEventListener?.("change", update);
+  }, []);
+
+  const animatedImage = videoPathToAnimatedImagePath(media.video);
+  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const fallbackImage = getVideoFallbackImage(media.video, media.image);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden bg-[#050505]">
+      <div
+        className="absolute inset-0 scale-[1.035] bg-cover bg-center"
+        style={{ backgroundImage: `url(${fallbackImage})` }}
+        aria-label={media.alt}
+        role="img"
+      />
+      {shouldUseAnimatedImage ? (
+        <img
+          className="absolute inset-0 h-full w-full object-cover"
+          src={animatedImage}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
+      ) : media.video ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={fallbackImage}
+          preload="metadata"
+        >
+          <source src={media.video} type="video/mp4" />
+        </video>
+      ) : null}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.72)_78%,rgba(0,0,0,0.9))]" />
+      <div className="absolute inset-x-0 top-0 h-[42svh] bg-[linear-gradient(180deg,rgba(3,3,3,0.88),rgba(3,3,3,0.34),transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-[58svh] bg-[linear-gradient(180deg,transparent,rgba(3,3,3,0.28),rgba(3,3,3,0.94))]" />
+    </div>
+  );
+}
+
 function MobilePageHeroBanner({
   eyebrow,
   title,
@@ -3563,108 +3623,117 @@ function MobilePageHeroBanner({
   stats?: Array<{ label: string; value: string }>;
   note?: string;
 }) {
+  const actionButtons = (
+    <div className="mt-7 flex flex-col gap-3">
+      {actions.map((action) =>
+        action.href ? (
+          <Button
+            key={action.label}
+            asChild
+            variant={action.variant === "secondary" ? "outline" : undefined}
+            className={
+              action.variant === "secondary"
+                ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+            }
+          >
+            <a href={action.href} target="_blank" rel="noreferrer">
+              {action.label}
+            </a>
+          </Button>
+        ) : (
+          <Button
+            key={action.label}
+            type="button"
+            variant={action.variant === "secondary" ? "outline" : undefined}
+            onClick={action.onClick}
+            className={
+              action.variant === "secondary"
+                ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+            }
+          >
+            {action.label}
+          </Button>
+        ),
+      )}
+    </div>
+  );
+
+  const statRail = stats && stats.length ? (
+    <div className="-mx-6 mt-7 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {stats.map((item, index) => (
+        <Reveal key={`${item.label}-${index}`} delay={0.05 * index}>
+          <div className="min-w-[10.8rem] rounded-[1.35rem] border border-white/[0.09] bg-white/[0.025] p-4 backdrop-blur-md">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              {item.label}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/78">
+              {item.value}
+            </p>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+  ) : null;
+
+  if (media) {
+    return (
+      <section className="relative isolate min-h-[92svh] overflow-hidden bg-[#050505]">
+        <MobileHeroMediaBackdrop media={media} />
+        <Container className="relative z-10 flex min-h-[92svh] items-end pb-7 pt-[6.4rem]">
+          <Reveal className="w-full">
+            <div className="max-w-[21rem]">
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b]">
+                {media.badge || eyebrow}
+              </p>
+              {media.overlayTitle ? (
+                <p className="mt-4 max-w-[15rem] text-[0.78rem] uppercase leading-5 tracking-[0.24em] text-white/54">
+                  {media.overlayTitle}
+                </p>
+              ) : null}
+              <h1 className="ownership-display mt-5 max-w-[10.5ch] text-[3.45rem] font-semibold leading-[0.78] tracking-[-0.075em] text-[#f4efe7]">
+                {title}
+              </h1>
+              <p className="mt-6 max-w-[20rem] text-[0.98rem] leading-7 text-white/74">
+                {description}
+              </p>
+              {note ? (
+                <p className="mt-5 max-w-[18rem] text-[10px] uppercase leading-5 tracking-[0.24em] text-white/44">
+                  {note}
+                </p>
+              ) : null}
+            </div>
+            {actionButtons}
+            {statRail}
+          </Reveal>
+        </Container>
+      </section>
+    );
+  }
+
   return (
-    <section className="relative overflow-hidden pb-8 pt-[5.85rem]">
+    <section className="relative overflow-hidden pb-8 pt-[6.2rem]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(188,151,122,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(77,52,32,0.18),transparent_42%)]" />
       <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(0,0,0,0.82),rgba(0,0,0,0.18),transparent)]" />
       <Container className="relative">
-        <div className="overflow-hidden rounded-[2.35rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(15,13,12,0.86),rgba(7,7,6,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.42)]">
-          {media ? (
-            <MediaSurface
-              src={media.image}
-              alt={media.alt}
-              video={media.video}
-              className="min-h-[26.5rem] rounded-none border-0 shadow-none"
-              dim="heavy"
-              priorityCopy={
-                media.overlayTitle || media.overlayText || media.badge ? (
-                  <div className="max-w-[17rem]">
-                    {media.badge ? (
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-[#d0b39b]">
-                        {media.badge}
-                      </p>
-                    ) : null}
-                    {media.overlayTitle ? (
-                      <p className="ownership-display mt-4 text-[2.55rem] font-semibold leading-[0.86] tracking-[-0.065em] text-[#f4efe7]">
-                        {media.overlayTitle}
-                      </p>
-                    ) : null}
-                    {media.overlayText ? (
-                      <p className="mt-4 text-[0.95rem] leading-7 text-white/74">
-                        {media.overlayText}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : undefined
-              }
-            />
+        <div className="border-y border-white/[0.11] py-8">
+          <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+            {eyebrow}
+          </p>
+          <h1 className="ownership-display mt-4 max-w-[10.8ch] text-[3.15rem] font-semibold leading-[0.8] tracking-[-0.072em] text-[#f4efe7]">
+            {title}
+          </h1>
+          <p className="mt-5 max-w-[34rem] text-[0.98rem] leading-7 text-white/70">
+            {description}
+          </p>
+          {note ? (
+            <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-white/44">
+              {note}
+            </p>
           ) : null}
-          <div className="p-6 sm:p-7">
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
-              {eyebrow}
-            </p>
-            <h1 className="ownership-display mt-4 max-w-[11.5ch] text-[3.08rem] font-semibold leading-[0.82] tracking-[-0.07em] text-[#f4efe7]">
-              {title}
-            </h1>
-            <p className="mt-5 max-w-[34rem] text-[0.96rem] leading-7 text-white/68">
-              {description}
-            </p>
-            {note ? (
-              <p className="mt-5 text-[10px] uppercase tracking-[0.24em] text-white/42">
-                {note}
-              </p>
-            ) : null}
-            <div className="mt-7 flex flex-col gap-3">
-              {actions.map((action) =>
-                action.href ? (
-                  <Button
-                    key={action.label}
-                    asChild
-                    variant={action.variant === "secondary" ? "outline" : undefined}
-                    className={
-                      action.variant === "secondary"
-                        ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                        : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
-                    }
-                  >
-                    <a href={action.href} target="_blank" rel="noreferrer">
-                      {action.label}
-                    </a>
-                  </Button>
-                ) : (
-                  <Button
-                    key={action.label}
-                    type="button"
-                    variant={action.variant === "secondary" ? "outline" : undefined}
-                    onClick={action.onClick}
-                    className={
-                      action.variant === "secondary"
-                        ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                        : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
-                    }
-                  >
-                    {action.label}
-                  </Button>
-                ),
-              )}
-            </div>
-            {stats && stats.length ? (
-              <div className="-mx-6 mt-7 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {stats.map((item, index) => (
-                  <Reveal key={`${item.label}-${index}`} delay={0.05 * index}>
-                    <div className="min-w-[10.8rem] rounded-[1.35rem] border border-white/[0.09] bg-white/[0.025] p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {item.label}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-white/78">
-                        {item.value}
-                      </p>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          {actionButtons}
+          {statRail}
         </div>
       </Container>
     </section>
@@ -3683,11 +3752,11 @@ function MobileSectionFrame({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative py-7">
+    <section className="relative py-8">
       <Container>
-        <div className="border-t border-white/[0.11] pt-6">
-          <div className="relative overflow-hidden rounded-[2.05rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(16,14,12,0.82),rgba(8,8,7,0.96))] p-6 shadow-[0_26px_80px_rgba(0,0,0,0.28)]">
-            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.62),transparent)]" />
+        <div className="relative border-y border-white/[0.11] py-7">
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.62),transparent)]" />
+          <div>
             <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
               {eyebrow}
             </p>
@@ -3702,6 +3771,32 @@ function MobileSectionFrame({
         </div>
       </Container>
     </section>
+  );
+}
+
+function MobileEditorialLedger({
+  items,
+  numbered = false,
+}: {
+  items: Array<{ title: string; text: string }>;
+  numbered?: boolean;
+}) {
+  return (
+    <div className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
+      {items.map((item, index) => (
+        <Reveal key={`${item.title}-${index}`} delay={0.035 * index}>
+          <div className="py-5">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+              {numbered ? `${String(index + 1).padStart(2, "0")} / ` : ""}
+              {item.title}
+            </p>
+            <p className="mt-3 text-[0.95rem] leading-7 text-white/68">
+              {item.text}
+            </p>
+          </div>
+        </Reveal>
+      ))}
+    </div>
   );
 }
 
@@ -5217,7 +5312,7 @@ function CinematicScene({
               delay: inView ? 0.34 : 0,
               ease: easeLuxury,
             }}
-            className="max-w-[92vw] text-[clamp(2.4rem,7.4vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.12em] text-white/96 sm:tracking-[0.14em]"
+            className="max-w-[92vw] text-[clamp(2.85rem,13.5vw,6.6rem)] font-extralight uppercase leading-[0.9] tracking-[0.075em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -5229,7 +5324,7 @@ function CinematicScene({
                 delay: inView ? 0.48 : 0,
                 ease: easeLuxury,
               }}
-              className="mt-4 max-w-[28rem] text-[clamp(0.8rem,1.1vw,0.98rem)] leading-6 tracking-[0.1em] text-white/72 sm:leading-7"
+              className="mt-5 max-w-[22rem] text-[0.92rem] leading-7 tracking-[0.08em] text-white/74 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:tracking-[0.1em]"
             >
               {section.line}
             </motion.p>
@@ -5241,12 +5336,12 @@ function CinematicScene({
               delay: inView ? 0.62 : 0,
               ease: easeLuxury,
             }}
-            className="mt-8"
+            className="mt-9"
           >
             {section.href ? (
               <Button
                 asChild
-                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="min-h-[3.65rem] rounded-full bg-[#efe5d7] px-8 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
                   {section.cta}
@@ -5256,7 +5351,7 @@ function CinematicScene({
               <Button
                 type="button"
                 onClick={section.action}
-                className="rounded-full bg-[#efe5d7] px-8 py-5 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
+                className="min-h-[3.65rem] rounded-full bg-[#efe5d7] px-8 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 {section.cta}
               </Button>
@@ -11780,16 +11875,7 @@ const renderWaitlistPage = () => (
         title="Luxury is not louder. It is more resolved."
         description="VIS does not rely on excess to look expensive. The authority of the object comes from proportion, restraint, and the feeling that every visible choice was made on purpose."
       >
-        <div className="grid gap-3">
-          {visEditorialBlocks.map((item) => (
-            <div key={item.title} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger items={visEditorialBlocks} />
       </MobileSectionFrame>
 
       <section className="relative py-6">
@@ -11816,31 +11902,22 @@ const renderWaitlistPage = () => (
             </Reveal>
 
             <Reveal delay={0.06}>
-              <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,13,12,0.9),rgba(9,9,8,0.95))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
-                <div className="grid gap-3">
-                  {[
-                    {
-                      title: "Silhouette",
-                      text: "A training profile that reads deliberate before it reads aggressive.",
-                    },
-                    {
-                      title: "Wrist transition",
-                      text: "The glove narrows with intention before widening again at the cuff.",
-                    },
-                    {
-                      title: "Visual restraint",
-                      text: "Debossed branding and disciplined contrast keep the object quiet.",
-                    },
-                  ].map((item) => (
-                    <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {item.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <MobileEditorialLedger
+                items={[
+                  {
+                    title: "Silhouette",
+                    text: "A training profile that reads deliberate before it reads aggressive.",
+                  },
+                  {
+                    title: "Wrist transition",
+                    text: "The glove narrows with intention before widening again at the cuff.",
+                  },
+                  {
+                    title: "Visual restraint",
+                    text: "Debossed branding and disciplined contrast keep the object quiet.",
+                  },
+                ]}
+              />
             </Reveal>
           </div>
         </Container>
@@ -11858,28 +11935,23 @@ const renderWaitlistPage = () => (
           className="min-h-[18rem]"
           dim="light"
         />
-        <div className="mt-4 grid gap-3">
-          {[
-            {
-              title: "Surface",
-              text: "Grain, seam, and edge remain visible enough to feel handmade, never noisy enough to feel busy.",
-            },
-            {
-              title: "Tone",
-              text: "VIS lives in a restrained black register with warmth underneath, not a flat synthetic black.",
-            },
-            {
-              title: "Branding",
-              text: "Debossed marks keep the glove inside the same visual language as the rest of Praeliator.",
-            },
-          ].map((item) => (
-            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
-            </div>
-          ))}
+        <div className="mt-4">
+          <MobileEditorialLedger
+            items={[
+              {
+                title: "Surface",
+                text: "Grain, seam, and edge remain visible enough to feel handmade, never noisy enough to feel busy.",
+              },
+              {
+                title: "Tone",
+                text: "VIS lives in a restrained black register with warmth underneath, not a flat synthetic black.",
+              },
+              {
+                title: "Branding",
+                text: "Debossed marks keep the glove inside the same visual language as the rest of Praeliator.",
+              },
+            ]}
+          />
         </div>
       </MobileSectionFrame>
 
@@ -11971,21 +12043,12 @@ const renderWaitlistPage = () => (
         title="Serial, claim code, and delivery date become object identity."
         description="The pair is not only received. It is recorded, attached to a client line, and made eligible for future service by its real delivery age."
       >
-        <div className="grid gap-3">
-          {serialPhilosophyMarks.map((mark) => (
-            <div
-              key={mark.label}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {mark.label}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">
-                {mark.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger
+          items={serialPhilosophyMarks.map((mark) => ({
+            title: mark.label,
+            text: mark.value,
+          }))}
+        />
       </MobileSectionFrame>
 
       <MobileSectionFrame
@@ -11993,21 +12056,7 @@ const renderWaitlistPage = () => (
         title="Use is not the end of the object."
         description="Legacy Refresh is a future review ritual for a retained pair, not a public service menu."
       >
-        <div className="grid gap-3">
-          {conservationDoctrine.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">
-                {item.text}
-              </p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger items={conservationDoctrine} />
       </MobileSectionFrame>
 
       <MobileSectionFrame
@@ -12075,8 +12124,8 @@ const renderWaitlistPage = () => (
         title="Short, direct, and properly retained."
         description="This page should not feel like a lead form. It exists only to let the house retain context before the direct conversation continues."
       >
-        <div className="grid gap-3">
-          {[
+        <MobileEditorialLedger
+          items={[
             {
               title: "Private first",
               text: "The house can retain the brief before WhatsApp opens, so the client does not need to introduce themselves in the message thread.",
@@ -12089,18 +12138,8 @@ const renderWaitlistPage = () => (
               title: "Quiet tone",
               text: "Only a minimal title, name, and interest are requested. Nothing here should feel like a normal intake funnel.",
             },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
-            </div>
-          ))}
-        </div>
+          ]}
+        />
       </MobileSectionFrame>
 
       <MobileSectionFrame
@@ -12108,21 +12147,13 @@ const renderWaitlistPage = () => (
         title="Allocation, not checkout."
         description="Correspondence can become a private issued session with a reference, destination record, and on-site payment chamber without becoming public ecommerce."
       >
-        <div className="grid gap-3">
-          {acquisitionSteps.map((item) => (
-            <div
-              key={item.step}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.step} / {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">
-                {item.text}
-              </p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger
+          numbered
+          items={acquisitionSteps.map((item) => ({
+            title: item.title,
+            text: item.text,
+          }))}
+        />
       </MobileSectionFrame>
 
       <section className="relative py-7">
@@ -12322,8 +12353,8 @@ const renderWaitlistPage = () => (
         title={waitlistCopy.introTitle}
         description={waitlistCopy.introDescription}
       >
-        <div className="grid gap-3">
-          {[
+        <MobileEditorialLedger
+          items={[
             {
               title: waitlistCopy.review,
               text: waitlistCopy.reviewText,
@@ -12336,15 +12367,8 @@ const renderWaitlistPage = () => (
               title: waitlistCopy.continuation,
               text: waitlistCopy.continuationText,
             },
-          ].map((item) => (
-            <div key={item.title} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
-            </div>
-          ))}
-        </div>
+          ]}
+        />
       </MobileSectionFrame>
 
       <MobileSectionFrame
@@ -12352,21 +12376,7 @@ const renderWaitlistPage = () => (
         title="Interest should have a place before inventory exists."
         description="The waitlist is a quiet register for future issue, collector posture, and timing before direct correspondence becomes necessary."
       >
-        <div className="grid gap-3">
-          {waitlistCollectorSignals.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4"
-            >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">
-                {item.text}
-              </p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger items={waitlistCollectorSignals} />
       </MobileSectionFrame>
 
       <section className="relative py-7">
@@ -12709,29 +12719,15 @@ const renderWaitlistPage = () => (
         title="Contact is part of the object route."
         description="Email stays useful for slower exchanges. Instagram stays useful for presence, while WhatsApp remains the acquisition line."
       >
-        <div className="grid gap-3">
-          {contactChannels.map((channel) => (
-            <div key={channel.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {channel.role}
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                {channel.title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-white/60">{channel.text}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid gap-3">
-          {contactPrinciples.map((item) => (
-            <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {item.title}
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/60">{item.text}</p>
-            </div>
-          ))}
-        </div>
+        <MobileEditorialLedger
+          items={[
+            ...contactChannels.map((channel) => ({
+              title: `${channel.role} / ${channel.title}`,
+              text: channel.text,
+            })),
+            ...contactPrinciples,
+          ]}
+        />
       </MobileSectionFrame>
 
       <MobileSectionFrame
@@ -12765,12 +12761,12 @@ const renderWaitlistPage = () => (
             </a>
           </Button>
         </div>
-        <div className="mt-4 grid gap-3">
+        <div className="mt-5 divide-y divide-white/[0.08] border-y border-white/[0.08]">
           {contactEmailDirectory.map((entry) => (
             <a
               key={entry.address}
               href={entry.href}
-              className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4 transition duration-500 hover:border-white/18 hover:bg-white/[0.05]"
+              className="block py-5 transition duration-500 hover:text-white"
             >
               <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                 {entry.label}
