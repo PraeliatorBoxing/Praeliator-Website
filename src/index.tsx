@@ -3679,9 +3679,9 @@ function MobilePageHeroBanner({
 
   if (media) {
     return (
-      <section className="relative isolate min-h-[92svh] overflow-hidden bg-[#050505]">
+      <section className="relative isolate min-h-[86svh] overflow-hidden bg-[#050505]">
         <MobileHeroMediaBackdrop media={media} />
-        <Container className="relative z-10 flex min-h-[92svh] items-end pb-7 pt-[6.4rem]">
+        <Container className="relative z-10 flex min-h-[86svh] items-end pb-7 pt-[6.1rem]">
           <Reveal className="w-full">
             <div className="max-w-[21rem]">
               <p className="text-[10px] uppercase tracking-[0.34em] text-[#d0b39b]">
@@ -3692,10 +3692,10 @@ function MobilePageHeroBanner({
                   {media.overlayTitle}
                 </p>
               ) : null}
-              <h1 className="ownership-display mt-5 max-w-[10.5ch] text-[3.45rem] font-semibold leading-[0.78] tracking-[-0.075em] text-[#f4efe7]">
+              <h1 className="ownership-display mt-5 max-w-[10.5ch] text-[3.02rem] font-semibold leading-[0.82] tracking-[-0.068em] text-[#f4efe7]">
                 {title}
               </h1>
-              <p className="mt-6 max-w-[20rem] text-[0.98rem] leading-7 text-white/74">
+              <p className="mt-5 max-w-[20rem] text-[0.94rem] leading-7 text-white/72">
                 {description}
               </p>
               {note ? (
@@ -3705,7 +3705,6 @@ function MobilePageHeroBanner({
               ) : null}
             </div>
             {actionButtons}
-            {statRail}
           </Reveal>
         </Container>
       </section>
@@ -5231,7 +5230,7 @@ function CinematicScene({
     }
   };
   return (
-    <section className="relative isolate h-dvh min-h-dvh supports-[height:100svh]:h-[100svh] supports-[height:100svh]:min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden snap-start">
+    <section className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start">
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
           animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
@@ -5312,7 +5311,7 @@ function CinematicScene({
               delay: inView ? 0.34 : 0,
               ease: easeLuxury,
             }}
-            className="max-w-[92vw] text-[clamp(2.85rem,13.5vw,6.6rem)] font-extralight uppercase leading-[0.9] tracking-[0.075em] text-white/96 sm:tracking-[0.14em]"
+            className="max-w-[92vw] text-[clamp(2.55rem,10.5vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.09em] text-white/96 sm:tracking-[0.14em]"
           >
             {section.word}
           </motion.p>
@@ -5542,7 +5541,7 @@ function HomeFooterScene({
   emailLink: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
+    <section className="relative isolate flex min-h-[100svh] items-center bg-[linear-gradient(180deg,#111111_0%,#0a0a0a_100%)] px-8 py-20 sm:px-12 lg:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_34%)]" />
       <div className="relative z-10 mx-auto w-full max-w-[120rem]">
         <div className="border-t border-white/18 pt-14">
@@ -5556,64 +5555,79 @@ function HomeFooterScene({
               Praeliator
             </p>
           </div>
-          <div className="mt-14 grid gap-10 md:grid-cols-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_auto]">
-            <div className="space-y-5">
-              <button
-                type="button"
-                onClick={() => goTo("/praeliator-vis")}
-                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
-              >
-                VIS
-              </button>
-              <button
-                type="button"
-                onClick={() => goTo("/acquisition")}
-                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
-              >
-                Acquisition
-              </button>
-              <button
-                type="button"
-                onClick={() => goTo("/waitlist")}
-                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
-              >
-                Waitlist
-              </button>
-            </div>
-            <div className="space-y-5">
-              <button
-                type="button"
-                onClick={() => goTo("/contact")}
-                className="block text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
-              >
-                Contact
-              </button>
-              <a
-                href={whatsappGeneralLink}
-                target="_blank"
-                rel="noreferrer"
-                className="block text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:text-white"
-              >
-                Private Inquiry
-              </a>
-            </div>
-            <div className="space-y-5">
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
-                Presentation
+          <div className="mt-14 grid gap-12 lg:grid-cols-[1.35fr_1fr_auto] lg:items-start">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-white/38">
+                Navigation
               </p>
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
-                Ownership
+              <div className="mt-5 grid gap-x-10 gap-y-5 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => goTo("/praeliator-vis")}
+                  className="group flex items-center justify-between gap-5 border-b border-white/[0.08] pb-4 text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:border-white/20 hover:text-white"
+                >
+                  <span>VIS</span>
+                  <ChevronRight className="h-4 w-4 text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white/54" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo("/acquisition")}
+                  className="group flex items-center justify-between gap-5 border-b border-white/[0.08] pb-4 text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:border-white/20 hover:text-white"
+                >
+                  <span>Acquisition</span>
+                  <ChevronRight className="h-4 w-4 text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white/54" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo("/waitlist")}
+                  className="group flex items-center justify-between gap-5 border-b border-white/[0.08] pb-4 text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:border-white/20 hover:text-white"
+                >
+                  <span>Waitlist</span>
+                  <ChevronRight className="h-4 w-4 text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white/54" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo("/contact")}
+                  className="group flex items-center justify-between gap-5 border-b border-white/[0.08] pb-4 text-left text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:border-white/20 hover:text-white"
+                >
+                  <span>Contact</span>
+                  <ChevronRight className="h-4 w-4 text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white/54" />
+                </button>
+                <a
+                  href={whatsappGeneralLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center justify-between gap-5 border-b border-white/[0.08] pb-4 text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92 transition hover:border-white/20 hover:text-white sm:col-span-2"
+                >
+                  <span>Private Inquiry</span>
+                  <ChevronRight className="h-4 w-4 text-white/24 transition group-hover:translate-x-0.5 group-hover:text-white/54" />
+                </a>
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-white/38">
+                House signals
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                {[
+                  "Presentation",
+                  "Ownership",
+                  "Hand-assembled",
+                  "Top-grain leather",
+                ].map((signal) => (
+                  <span
+                    key={signal}
+                    className="cursor-default rounded-full border border-white/[0.1] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-white/58"
+                  >
+                    {signal}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-5 max-w-sm text-sm leading-7 text-white/45">
+                Markers of the house, separated from the routes above.
               </p>
             </div>
-            <div className="space-y-5">
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
-                Hand-assembled
-              </p>
-              <p className="text-[clamp(1rem,1.15vw,1.25rem)] uppercase tracking-[0.12em] text-white/92">
-                Top-grain leather
-              </p>
-            </div>
-            <div className="flex items-start justify-start gap-5 md:justify-end">
+            <div className="flex items-start justify-start gap-5 lg:justify-end">
               <a
                 href={instagramLink}
                 target="_blank"
@@ -5659,7 +5673,7 @@ function HomeTailScene({
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <section className="relative isolate h-dvh min-h-dvh supports-[height:100svh]:h-[100svh] supports-[height:100svh]:min-h-dvh supports-[height:100svh]:min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
+    <section className="relative isolate h-[100svh] min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
       <div
         ref={scrollContainerRef}
         className="browser-scrollbar h-full overflow-y-auto overscroll-contain"
@@ -6620,6 +6634,226 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
   );
 }
 
+type ShareNudgeCopy = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  action: string;
+  copyLink: string;
+  copied: string;
+  close: string;
+};
+
+const shareNudgeCopyByLocale: Record<SiteLocale, ShareNudgeCopy> = {
+  en: {
+    eyebrow: "Quiet note",
+    title: "Share this page",
+    body: "Keep the current route close or send it privately.",
+    action: "Share page",
+    copyLink: "Copy link",
+    copied: "Link copied",
+    close: "Close",
+  },
+  es: {
+    eyebrow: "Nota discreta",
+    title: "Compartir pagina",
+    body: "Conserva esta ruta o enviala en privado.",
+    action: "Compartir pagina",
+    copyLink: "Copiar enlace",
+    copied: "Enlace copiado",
+    close: "Cerrar",
+  },
+  ja: {
+    eyebrow: "Private note",
+    title: "Share this page",
+    body: "Keep this route or send it privately.",
+    action: "Share page",
+    copyLink: "Copy link",
+    copied: "Link copied",
+    close: "Close",
+  },
+  fr: {
+    eyebrow: "Note discrete",
+    title: "Partager la page",
+    body: "Gardez cette route ou envoyez-la en prive.",
+    action: "Partager",
+    copyLink: "Copier le lien",
+    copied: "Lien copie",
+    close: "Fermer",
+  },
+};
+
+function SharePageNudge({
+  enabled,
+  locale,
+  routeTitle,
+}: {
+  enabled: boolean;
+  locale: SiteLocale;
+  routeTitle: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const dismissedRef = useRef(false);
+  const showTimerRef = useRef<number | null>(null);
+  const nudgeCopy = shareNudgeCopyByLocale[locale] || shareNudgeCopyByLocale.en;
+
+  useEffect(() => {
+    if (showTimerRef.current) {
+      window.clearTimeout(showTimerRef.current);
+      showTimerRef.current = null;
+    }
+    setVisible(false);
+    setCopied(false);
+    if (!enabled || typeof window === "undefined") return;
+
+    const storageKey = "praeliator-share-nudge-dismissed";
+    dismissedRef.current =
+      window.sessionStorage.getItem(storageKey) === "true";
+
+    const reveal = () => {
+      if (dismissedRef.current) return;
+      setVisible(true);
+    };
+
+    const scheduleReveal = (delay = 0) => {
+      if (dismissedRef.current || showTimerRef.current) return;
+      showTimerRef.current = window.setTimeout(() => {
+        showTimerRef.current = null;
+        reveal();
+      }, delay);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "PrintScreen") scheduleReveal(180);
+    };
+
+    let wasHidden = false;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        wasHidden = true;
+        return;
+      }
+      if (document.visibilityState === "visible" && wasHidden) {
+        scheduleReveal(650);
+      }
+    };
+
+    const touchLike =
+      window.matchMedia("(pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0;
+    let scrollArmed = true;
+    const handleScroll = () => {
+      if (!touchLike || !scrollArmed) return;
+      if (window.scrollY < window.innerHeight * 1.35) return;
+      scrollArmed = false;
+      scheduleReveal(950);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      if (showTimerRef.current) {
+        window.clearTimeout(showTimerRef.current);
+        showTimerRef.current = null;
+      }
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [enabled, routeTitle]);
+
+  const dismiss = () => {
+    dismissedRef.current = true;
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("praeliator-share-nudge-dismissed", "true");
+    }
+    setVisible(false);
+  };
+
+  const copyCurrentLink = async () => {
+    if (typeof window === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const shareCurrentPage = async () => {
+    if (typeof window === "undefined") return;
+    const shareData = {
+      title: routeTitle ? `Praeliator - ${routeTitle}` : "Praeliator",
+      text: "Praeliator",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        dismiss();
+        return;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
+
+    await copyCurrentLink();
+  };
+
+  return (
+    <AnimatePresence>
+      {enabled && visible ? (
+        <motion.aside
+          role="status"
+          initial={{ opacity: 0, y: 18, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+          transition={{ duration: 0.45, ease: easeLuxury }}
+          className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[120] rounded-[1.35rem] border border-[#d7b98d]/18 bg-[linear-gradient(180deg,rgba(18,16,14,0.94),rgba(7,7,6,0.94))] p-4 text-[#f4efe7] shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:left-auto sm:right-5 sm:w-[23rem]"
+        >
+          <button
+            type="button"
+            onClick={dismiss}
+            aria-label={nudgeCopy.close}
+            className="absolute right-4 top-4 text-[10px] uppercase tracking-[0.2em] text-white/40 transition hover:text-white/76"
+          >
+            {nudgeCopy.close}
+          </button>
+          <p className="pr-16 text-[9px] uppercase tracking-[0.28em] text-[#d7b98d]/72">
+            {nudgeCopy.eyebrow}
+          </p>
+          <p className="mt-3 ownership-display text-[1.55rem] font-semibold leading-none tracking-[-0.04em] text-[#f4efe7]">
+            {nudgeCopy.title}
+          </p>
+          <p className="mt-3 max-w-[18rem] text-sm leading-6 text-white/58">
+            {copied ? nudgeCopy.copied : nudgeCopy.body}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              onClick={() => void shareCurrentPage()}
+              className="h-11 rounded-full bg-[#efe5d7] px-5 text-xs text-[#151210] shadow-[0_12px_30px_rgba(239,229,215,0.14)] hover:bg-[#e4d7c7]"
+            >
+              {nudgeCopy.action}
+            </Button>
+            <button
+              type="button"
+              onClick={() => void copyCurrentLink()}
+              className="text-xs uppercase tracking-[0.18em] text-white/48 transition hover:text-white/78"
+            >
+              {nudgeCopy.copyLink}
+            </button>
+          </div>
+        </motion.aside>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 function BrowserFormStyles() {
   return (
     <style>{`
@@ -6780,7 +7014,8 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return "desktop";
 
     const width = window.innerWidth;
-    const shortestSide = Math.min(window.innerWidth, window.innerHeight);
+    const height = window.innerHeight;
+    const shortestSide = Math.min(width, height);
     const coarsePointer =
       window.matchMedia("(pointer: coarse)").matches ||
       window.matchMedia("(hover: none)").matches;
@@ -6788,7 +7023,7 @@ export default function PraeliatorWebsite() {
       /iPad/i.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-    if (shortestSide < 768) return "mobile";
+    if (width < 768 || (coarsePointer && shortestSide < 768)) return "mobile";
     if (width >= 1024 && !coarsePointer && !isIPadLikeDevice) return "desktop";
     return "tablet";
   }, []);
@@ -7006,7 +7241,12 @@ export default function PraeliatorWebsite() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const syncViewport = () => setViewportMode(getViewportMode());
+    const syncViewport = () => {
+      const nextMode = getViewportMode();
+      setViewportMode((currentMode) =>
+        currentMode === nextMode ? currentMode : nextMode,
+      );
+    };
     syncViewport();
     window.addEventListener("resize", syncViewport, { passive: true });
     window.addEventListener("orientationchange", syncViewport);
@@ -15113,6 +15353,11 @@ const renderWaitlistPage = () => (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
       <LuxuryCursor enabled={luxuryCursorEnabled} />
+      <SharePageNudge
+        enabled={!hidesGlobalChrome && route !== "/private-acquisition"}
+        locale={locale}
+        routeTitle={localizedRouteTitles[route] || "Praeliator"}
+      />
 
       {!hidesGlobalChrome && isDesktopViewport ? (
         <motion.header
@@ -15297,7 +15542,7 @@ const renderWaitlistPage = () => (
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${viewportMode}-${route}`}
+            key={route}
             variants={pageTransition}
             initial="initial"
             animate="animate"
