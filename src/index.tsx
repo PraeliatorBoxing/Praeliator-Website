@@ -3050,6 +3050,29 @@ function DataList({
   );
 }
 
+function QuietEditorialMatrix({
+  items,
+  columns = 3,
+}: {
+  items: Array<{ label: string; text: string }>;
+  columns?: 2 | 3;
+}) {
+  return (
+    <div
+      className={`grid gap-x-8 gap-y-4 ${columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}
+    >
+      {items.map((item) => (
+        <div key={item.label} className="border-t border-white/[0.08] pt-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+            {item.label}
+          </p>
+          <p className="mt-3 text-sm leading-7 text-white/62">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function HouseLetterCard({
   eyebrow,
   title,
@@ -3175,14 +3198,14 @@ function PageStatStrip({
   items: Array<{ label: string; value: string }>;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-x-8 gap-y-5 border-y border-white/[0.08] py-5 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item, index) => (
         <Reveal key={`${item.label}-${index}`} delay={0.12 + index * 0.04}>
-          <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+          <div className="max-w-[18rem]">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               {item.label}
             </p>
-            <p className="mt-3 text-sm leading-6 text-white/78">{item.value}</p>
+            <p className="mt-2 text-sm leading-7 text-white/74">{item.value}</p>
           </div>
         </Reveal>
       ))}
@@ -3445,18 +3468,18 @@ function ClubFooter({
                   {waitlistLabel}
                 </Button>
               </div>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="mt-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
                 {[
                   "Private acquisition",
                   "Controlled release rhythm",
                   "Ownership continuity",
                 ].map((item) => (
-                  <div
+                  <p
                     key={item}
-                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.025] px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-white/58"
+                    className="py-3 text-[10px] uppercase tracking-[0.24em] text-white/54"
                   >
                     {item}
-                  </div>
+                  </p>
                 ))}
               </div>
             </div>
@@ -5480,7 +5503,7 @@ function ExploreFurtherScene({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
           {houseArchivePillars.map((pillar, index) => (
             <motion.div
               key={pillar.title}
@@ -5490,9 +5513,14 @@ function ExploreFurtherScene({
                 delay: 0.12 + index * 0.04,
                 ease: easeLuxury,
               }}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-white/62"
+              className="flex items-center gap-5"
             >
-              {pillar.title}
+              {index ? (
+                <span aria-hidden="true" className="h-px w-5 bg-white/[0.14]" />
+              ) : null}
+              <span className="text-[10px] uppercase tracking-[0.24em] text-white/56">
+                {pillar.title}
+              </span>
             </motion.div>
           ))}
         </div>
@@ -5610,25 +5638,25 @@ function HomeFooterScene({
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.32em] text-white/38">
-                House signals
+                House notes
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 divide-y divide-white/[0.08] border-y border-white/[0.08]">
                 {[
                   "Presentation",
                   "Ownership",
                   "Hand-assembled",
                   "Top-grain leather",
                 ].map((signal) => (
-                  <span
+                  <p
                     key={signal}
-                    className="cursor-default rounded-full border border-white/[0.1] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-white/58"
+                    className="py-3 text-[10px] uppercase tracking-[0.24em] text-white/54"
                   >
                     {signal}
-                  </span>
+                  </p>
                 ))}
               </div>
               <p className="mt-5 max-w-sm text-sm leading-7 text-white/45">
-                Markers of the house, separated from the routes above.
+                Material and custody markers, separated from the routes above.
               </p>
             </div>
             <div className="flex items-start justify-start gap-5 lg:justify-end">
@@ -9261,7 +9289,7 @@ export default function PraeliatorWebsite() {
                   grip bar, and wrist control all belong to the same standard of discipline.
                 </p>
 
-                <div className="mt-8 rounded-[1.45rem] border border-white/10 bg-white/[0.03] p-5">
+                <div className="mt-8 border-y border-white/[0.08] py-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
                     Impact structure
                   </p>
@@ -9379,19 +9407,17 @@ export default function PraeliatorWebsite() {
               </div>
 
               <div className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
-                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                    Aftercare
-                  </p>
-                  <div className="mt-4 grid gap-0 divide-y divide-white/10 border-t border-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0 lg:border-y lg:border-x-0">
-                    {visService.map((item) => (
-                      <div key={item} className="py-4 lg:px-5 lg:py-5">
-                        <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
-                          {item}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                  Aftercare
+                </p>
+                <div className="mt-4 grid gap-0 divide-y divide-white/10 border-y border-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0 lg:border-x-0">
+                  {visService.map((item) => (
+                    <div key={item} className="py-4 lg:px-5 lg:py-5">
+                      <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -9496,28 +9522,14 @@ export default function PraeliatorWebsite() {
             </Reveal>
 
             <Reveal delay={0.06}>
-              <div className="grid h-full gap-4 sm:grid-cols-2">
-                {serialPhilosophyMarks.map((mark, index) => (
-                  <motion.div
-                    key={mark.label}
-                    initial={{ opacity: 0, y: 18 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{
-                      duration: 0.72,
-                      delay: index * 0.045,
-                      ease: easeLuxury,
-                    }}
-                    className="rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.88),rgba(10,9,8,0.95))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-6"
-                  >
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                      {mark.label}
-                    </p>
-                    <p className="mt-4 text-sm leading-7 text-white/62">
-                      {mark.value}
-                    </p>
-                  </motion.div>
-                ))}
+              <div className="h-full">
+                <QuietEditorialMatrix
+                  columns={2}
+                  items={serialPhilosophyMarks.map((mark) => ({
+                    label: mark.label,
+                    text: mark.value,
+                  }))}
+                />
               </div>
             </Reveal>
           </div>
@@ -10557,7 +10569,7 @@ const renderAcquisitionPage = () => (
                 <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
                   What happens
                 </p>
-                <div className="mt-5 grid gap-4">
+                <div className="mt-5 divide-y divide-white/[0.08] border-y border-white/[0.08]">
                   {[
                     "Complete the short brief below.",
                     "Select Send Text.",
@@ -10566,12 +10578,12 @@ const renderAcquisitionPage = () => (
                   ].map((item, index) => (
                     <div
                       key={item}
-                      className="rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4"
+                      className="grid gap-2 py-4 sm:grid-cols-[92px_1fr] sm:items-start"
                     >
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#b9a18d]">
                         Step {String(index + 1).padStart(2, "0")}
                       </p>
-                      <p className="mt-3 text-sm leading-7 text-white/62">
+                      <p className="text-sm leading-7 text-white/62">
                         {item}
                       </p>
                     </div>
@@ -10739,20 +10751,14 @@ const renderAcquisitionPage = () => (
                 <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                   Placement sequence
                 </p>
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  {acquisitionSteps.map((item) => (
-                    <div
-                      key={item.step}
-                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
-                    >
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {item.step} / {item.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/62">
-                        {item.text}
-                      </p>
-                    </div>
-                  ))}
+                <div className="mt-5">
+                  <QuietEditorialMatrix
+                    columns={2}
+                    items={acquisitionSteps.map((item) => ({
+                      label: `${item.step} / ${item.title}`,
+                      text: item.text,
+                    }))}
+                  />
                 </div>
               </div>
             </Reveal>
@@ -10762,20 +10768,14 @@ const renderAcquisitionPage = () => (
                 <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                   House conditions
                 </p>
-                <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                  {acquisitionPrinciples.map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4"
-                    >
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {item.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/62">
-                        {item.text}
-                      </p>
-                    </div>
-                  ))}
+                <div className="mt-5">
+                  <QuietEditorialMatrix
+                    columns={3}
+                    items={acquisitionPrinciples.map((item) => ({
+                      label: item.title,
+                      text: item.text,
+                    }))}
+                  />
                 </div>
               </div>
             </Reveal>
@@ -11261,20 +11261,14 @@ const renderWaitlistPage = () => (
                   <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
                     Collector signals
                   </p>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                    {waitlistCollectorSignals.map((item) => (
-                      <div
-                        key={item.title}
-                        className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
-                      >
-                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                          {item.title}
-                        </p>
-                        <p className="mt-3 text-sm leading-7 text-white/62">
-                          {item.text}
-                        </p>
-                      </div>
-                    ))}
+                  <div className="mt-5">
+                    <QuietEditorialMatrix
+                      columns={3}
+                      items={waitlistCollectorSignals.map((item) => ({
+                        label: item.title,
+                        text: item.text,
+                      }))}
+                    />
                   </div>
                 </div>
               </Reveal>
@@ -11290,27 +11284,20 @@ const renderWaitlistPage = () => (
                     list. That reference becomes the quiet line for future
                     continuation.
                   </p>
-                  <div className="mt-5 grid gap-3">
-                    <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        Future release posture
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">
-                        The waitlist remains appropriate for future access,
-                        collector visibility, or quiet intent before immediate
-                        inquiry becomes necessary.
-                      </p>
-                    </div>
-                    <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        Direct continuation
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/60">
-                        When timing matters, the route may still continue
-                        directly on WhatsApp without losing the recorded
-                        reference.
-                      </p>
-                    </div>
+                  <div className="mt-5">
+                    <QuietEditorialMatrix
+                      columns={2}
+                      items={[
+                        {
+                          label: "Future release posture",
+                          text: "The waitlist remains appropriate for future access, collector visibility, or quiet intent before immediate inquiry becomes necessary.",
+                        },
+                        {
+                          label: "Direct continuation",
+                          text: "When timing matters, the route may still continue directly on WhatsApp without losing the recorded reference.",
+                        },
+                      ]}
+                    />
                   </div>
                 </div>
               </Reveal>
@@ -11977,32 +11964,34 @@ const renderWaitlistPage = () => (
         eyebrow="Construction logic"
         title="Technically serious without becoming visually loud."
       >
-        <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-            Impact structure
-          </p>
-          <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
-            {visPaddingLayers.map((layer, index) => (
-              <div
-                key={`${layer}-${index}`}
-                className="grid gap-2 py-4 sm:grid-cols-[86px_1fr] sm:items-center"
-              >
-                <p className="text-[10px] uppercase tracking-[0.18em] text-white/38 sm:text-[11px]">
-                  Layer {index + 1}
-                </p>
-                <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
-                  {layer}
-                </p>
-              </div>
-            ))}
+        <div className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
+          <div className="py-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Impact structure
+            </p>
+            <div className="mt-4 divide-y divide-white/10 border-t border-white/10">
+              {visPaddingLayers.map((layer, index) => (
+                <div
+                  key={`${layer}-${index}`}
+                  className="grid gap-2 py-4 sm:grid-cols-[86px_1fr] sm:items-center"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/38 sm:text-[11px]">
+                    Layer {index + 1}
+                  </p>
+                  <p className="text-sm leading-7 text-white/78 sm:text-[15px] sm:leading-8">
+                    {layer}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="mt-4 rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-            Object record
-          </p>
-          <div className="mt-4">
-            <DataList items={visSpecifications} compact />
+          <div className="py-4">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+              Object record
+            </p>
+            <div className="mt-4">
+              <DataList items={visSpecifications} compact />
+            </div>
           </div>
         </div>
       </MobileSectionFrame>
@@ -12018,8 +12007,8 @@ const renderWaitlistPage = () => (
           className="min-h-[18rem]"
           dim="light"
         />
-        <div className="mt-4 grid gap-4">
-          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+        <div className="mt-4 divide-y divide-white/[0.08] border-y border-white/[0.08]">
+          <div className="py-4">
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
               Presentation
             </p>
@@ -12031,7 +12020,7 @@ const renderWaitlistPage = () => (
               ))}
             </div>
           </div>
-          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="py-4">
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
               Ownership
             </p>
@@ -12039,7 +12028,7 @@ const renderWaitlistPage = () => (
               <DataList items={ownershipSignals} compact />
             </div>
           </div>
-          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
+          <div className="py-4">
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
               Aftercare
             </p>
