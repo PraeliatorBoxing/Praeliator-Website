@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { syncHouseLedgerSaleFromSession } from "./house-ledger.js";
 
 export const PRIVATE_ACQUISITION_COOKIE_NAME =
   "praeliator_private_acquisition_grant";
@@ -921,6 +922,10 @@ export async function ensureStripePaymentState(session) {
       sessionId: normalizedSession.id,
       paymentIntentId: paymentIntent.id,
       amountReceived: paymentIntent.amount_received,
+      chargeId:
+        typeof paymentIntent.latest_charge === "string"
+          ? paymentIntent.latest_charge
+          : paymentIntent.latest_charge?.id || null,
     });
   }
 
@@ -958,10 +963,33 @@ export async function markSessionPaid({
   sessionId,
   paymentIntentId,
   amountReceived,
+  chargeId = null,
 }) {
   const supabase = createSupabaseAdmin();
-  const timestamp = nowIso();
+  const { data: currentSession, error: currentSessionError } = await supabase
+    .from("private_acquisition_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .eq("stripe_payment_intent_id", paymentIntentId)
+    .single();
 
+  if (currentSessionError) throw currentSessionError;
+
+  if (currentSession.status === "paid") {
+    await syncHouseLedgerSaleFromSession({
+      session: currentSession,
+      paymentIntentId,
+      amountReceived,
+      chargeId,
+    });
+
+    return {
+      ...currentSession,
+      amount_received: amountReceived,
+    };
+  }
+
+  const timestamp = nowIso();
   const { data, error } = await supabase
     .from("private_acquisition_sessions")
     .update({
@@ -978,6 +1006,13 @@ export async function markSessionPaid({
     .single();
 
   if (error) throw error;
+
+  await syncHouseLedgerSaleFromSession({
+    session: data,
+    paymentIntentId,
+    amountReceived,
+    chargeId,
+  });
 
   return {
     ...data,
@@ -997,6 +1032,10 @@ export async function handleStripePaymentEvent(event) {
       sessionId,
       paymentIntentId: paymentIntent.id,
       amountReceived: paymentIntent.amount_received,
+      chargeId:
+        typeof paymentIntent.latest_charge === "string"
+          ? paymentIntent.latest_charge
+          : paymentIntent.latest_charge?.id || null,
     });
     return;
   }

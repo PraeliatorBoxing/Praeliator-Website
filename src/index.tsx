@@ -32,6 +32,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
+import { HouseLedgerRoute } from "./components/house-ledger-route";
 const visSpecifications = [
   { label: "Object class", value: "Recorded training pair" },
   { label: "Allocation amount", value: "$6,000 MXN" },
@@ -650,6 +651,7 @@ type Route =
   | "/praeliator-vis"
   | "/acquisition"
   | "/private-acquisition"
+  | "/house-ledger"
   | "/waitlist"
   | "/contact"
   | "/sign-in"
@@ -735,6 +737,7 @@ const routeTitles: Record<Route, string> = {
   "/praeliator-vis": "Praeliator VIS",
   "/acquisition": "Acquisition",
   "/private-acquisition": "Private Acquisition",
+  "/house-ledger": "House Ledger",
   "/waitlist": "Waitlist",
   "/contact": "Contact",
   "/sign-in": "Sign In",
@@ -751,6 +754,7 @@ const routeMicroLabels: Record<Route, string> = {
   "/praeliator-vis": "VIS",
   "/acquisition": "ACQUISITION",
   "/private-acquisition": "PRIVATE",
+  "/house-ledger": "LEDGER",
   "/waitlist": "WAITLIST",
   "/contact": "CONTACT",
   "/sign-in": "ACCESS",
@@ -3027,6 +3031,7 @@ function normalizePath(pathname: string): Route {
     clean === "/praeliator-vis" ||
     clean === "/acquisition" ||
     clean === "/private-acquisition" ||
+    clean === "/house-ledger" ||
     clean === "/waitlist" ||
     clean === "/contact" ||
     clean === "/sign-in" ||
@@ -7979,11 +7984,13 @@ export default function PraeliatorWebsite() {
   };
 
   const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
-  const hidesGlobalChrome = route === "/private-acquisition";
+  const hidesGlobalChrome =
+    route === "/private-acquisition" || route === "/house-ledger";
   const routeUsesFooter =
     !authRoutes.has(route) &&
     route !== "/ownership-record" &&
-    route !== "/private-acquisition";
+    route !== "/private-acquisition" &&
+    route !== "/house-ledger";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -15142,6 +15149,19 @@ const renderWaitlistPage = () => (
             languageLabel={copy.languageLabel}
           />
         );
+      case "/house-ledger":
+        return (
+          <HouseLedgerRoute
+            authSession={authSession}
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+            onGoToSignIn={() => goTo("/sign-in")}
+            onSignOut={handleSignOut}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
+          />
+        );
       case "/waitlist":
         return renderMobileWaitlistPage();
       case "/contact":
@@ -15178,6 +15198,19 @@ const renderWaitlistPage = () => (
           <PrivateAcquisitionRoute
             wordmarkSrc={brandAssetPaths.headerWordmark}
             onReturnHome={() => goTo("/")}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
+          />
+        );
+      case "/house-ledger":
+        return (
+          <HouseLedgerRoute
+            authSession={authSession}
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+            onGoToSignIn={() => goTo("/sign-in")}
+            onSignOut={handleSignOut}
             locale={locale}
             onLocaleChange={setLocale}
             languageLabel={copy.languageLabel}
