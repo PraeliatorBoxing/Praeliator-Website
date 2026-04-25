@@ -3739,7 +3739,8 @@ function MobilePageHeroBanner({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(188,151,122,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(77,52,32,0.18),transparent_42%)]" />
       <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(0,0,0,0.82),rgba(0,0,0,0.18),transparent)]" />
       <Container className="relative">
-        <div className="border-y border-white/[0.11] py-8">
+        <div className="relative overflow-hidden border-b border-white/[0.09] pb-8 pt-8">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-[linear-gradient(180deg,transparent,rgba(185,161,141,0.06),transparent)]" />
           <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
             {eyebrow}
           </p>
@@ -3774,10 +3775,11 @@ function MobileSectionFrame({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative py-8">
+    <section className="relative -mt-3 py-5">
       <Container>
-        <div className="relative border-y border-white/[0.11] py-7">
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.62),transparent)]" />
+        <div className="relative overflow-hidden border-t border-white/[0.085] pb-4 pt-8">
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.4),transparent)]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-[linear-gradient(180deg,transparent,rgba(185,161,141,0.045),transparent)]" />
           <div>
             <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
               {eyebrow}
@@ -3788,7 +3790,7 @@ function MobileSectionFrame({
             {description ? (
               <p className="mt-4 max-w-[26rem] text-[0.88rem] leading-6 text-white/56">{description}</p>
             ) : null}
-            <div className="mt-6">{children}</div>
+            <div className="mt-5">{children}</div>
           </div>
         </div>
       </Container>
