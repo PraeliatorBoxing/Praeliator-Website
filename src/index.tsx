@@ -714,22 +714,22 @@ const acquisitionSteps = [
   {
     step: "01",
     title: "Correspondence",
-    text: "The route begins through direct house communication. There is no public purchase surface between the client and the object.",
+    text: "The route begins in direct correspondence.",
   },
   {
     step: "02",
     title: "Object line",
-    text: "Each qualified inquiry becomes a retained reference with route status, allocation context, and future custody visibility.",
+    text: "The inquiry receives a retained reference.",
   },
   {
     step: "03",
     title: "Placement review",
-    text: "Interest, timing, destination, and availability are clarified before dispatch. Control stays with the house, not a cart.",
+    text: "Timing, destination, and availability are reviewed.",
   },
   {
     step: "04",
     title: "Custody and conservation",
-    text: "Dispatch, confirmation, maintenance, and future service continue under the same object record after acquisition.",
+    text: "Delivery and aftercare stay on the same record.",
   },
 ];
 const acquisitionPrinciples = [
@@ -786,33 +786,33 @@ const contactChannels = [
     step: "01",
     title: "WhatsApp",
     role: "Primary correspondence",
-    text: "The fastest path for private inquiry, immediate clarification, and continued house contact once the route begins.",
+    text: "Primary route for active inquiry.",
   },
   {
     step: "02",
     title: "Email",
     role: "House mail",
-    text: "A quieter path for slower communication when correspondence should read more formal and archival.",
+    text: "Slower, more formal follow-up.",
   },
   {
     step: "03",
     title: "Instagram",
     role: "Public signal",
-    text: "Useful for presence, softer first contact, and brand visibility, but not the primary acquisition line.",
+    text: "Public presence, not the main route.",
   },
 ];
 const contactPrinciples = [
   {
     title: "No support-center tone",
-    text: "The house stays direct. Communication does not collapse into generic help-desk language.",
+    text: "Direct language. No support tone.",
   },
   {
     title: "One voice",
-    text: "Whether the route begins on WhatsApp, email, or Instagram, the tone remains calm, precise, and controlled.",
+    text: "One voice across every channel.",
   },
   {
     title: "Visible hierarchy",
-    text: "Not every channel carries the same weight. WhatsApp remains primary, while the others stay available with clear roles.",
+    text: "WhatsApp first. The others remain secondary.",
   },
 ];
 const contactStandards = [
@@ -1032,15 +1032,15 @@ const acquisitionConciergeNotes = [
 const waitlistCollectorSignals = [
   {
     title: "Release signals",
-    text: "The waitlist is meant to keep future access orderly when a client is not yet entering direct acquisition.",
+    text: "Holds future access in one line.",
   },
   {
     title: "Collector memory",
-    text: "Collector interest, timeline, and route preference are remembered as part of the intake line rather than discarded after form submission.",
+    text: "Retains interest, timing, and route.",
   },
   {
     title: "House correspondence",
-    text: "Follow-up should feel like private correspondence from the house, not automated campaign mail.",
+    text: "Follow-up remains private.",
   },
 ];
 const contactResponseStandards = [
@@ -1070,15 +1070,15 @@ const ownershipServiceLedgerLabels = [
 const visEditorialBlocks = [
   {
     title: "Material discipline",
-    text: "The glove is built in top-grain cowhide with a restrained finish that reads deep black first and espresso second. It avoids the loud shine that makes luxury feel synthetic.",
+    text: "Top-grain cowhide with a restrained black finish.",
   },
   {
     title: "Engineered structure",
-    text: "The silhouette is meant to feel sculpted rather than swollen. Palm ventilation, an integrated grip bar, attached thumb, and the extended cuff all work inside the same visual system.",
+    text: "Ventilated palm, grip bar, attached thumb, extended cuff.",
   },
   {
     title: "Object quality",
-    text: "Presentation was not treated like a separate afterthought. Packaging, ownership, and aftercare all continue the same tone as the glove itself.",
+    text: "Packaging, record, and aftercare follow the same line.",
   },
 ];
 const clubFooterColumns = [
@@ -3763,9 +3763,9 @@ function MobileSectionFrame({
               {title}
             </h2>
             {description ? (
-              <p className="mt-5 text-[0.96rem] leading-7 text-white/68">{description}</p>
+              <p className="mt-4 max-w-[26rem] text-[0.88rem] leading-6 text-white/56">{description}</p>
             ) : null}
-            <div className="mt-7">{children}</div>
+            <div className="mt-6">{children}</div>
           </div>
         </div>
       </Container>
@@ -3789,7 +3789,7 @@ function MobileEditorialLedger({
               {numbered ? `${String(index + 1).padStart(2, "0")} / ` : ""}
               {item.title}
             </p>
-            <p className="mt-3 text-[0.95rem] leading-7 text-white/68">
+            <p className="mt-2 text-[0.88rem] leading-6 text-white/60">
               {item.text}
             </p>
           </div>
@@ -5399,75 +5399,103 @@ function ExploreFurtherScene({
         transition={{ duration: 0.8, ease: easeLuxury }}
         className="relative z-10 mx-auto w-full max-w-[120rem]"
       >
-        <div className="mx-auto max-w-[64rem] text-center">
+        <div className="mx-auto max-w-[48rem] text-center">
           <p className="text-[10px] uppercase tracking-[0.34em] text-[#c7a97e] sm:text-xs">
             House continuation
           </p>
           <h2 className="ownership-display mt-5 text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-[#f4efe7]">
-            The house continues after the opening sequence.
+            After the opening, the object stays visible.
           </h2>
-          <p className="mx-auto mt-6 max-w-[42rem] text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-            The first three chambers stay cinematic and untouched. Beyond them,
-            the site should begin to prove that Praeliator is a house with
-            object authority, private acquisition, recorded custody, and memory.
-          </p>
         </div>
 
-        <div className="mt-14 grid gap-4 lg:grid-cols-4 lg:gap-5">
+        <div className="mt-14 grid gap-4 lg:grid-cols-[1.18fr_0.82fr]">
+          <motion.div
+            animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+            transition={{
+              duration: 0.8,
+              delay: 0.08,
+              ease: easeLuxury,
+            }}
+          >
+            <MediaSurface
+              src={visImageSources.hero}
+              alt="Praeliator VIS continuation study"
+              video={visPageMedia.studyVideo}
+              className="min-h-[25rem] sm:min-h-[31rem] lg:min-h-[38rem]"
+              priorityCopy={
+                <div className="max-w-[14rem]">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                    Object
+                  </p>
+                  <p className="mt-4 ownership-display text-[2.25rem] font-semibold leading-[0.9] tracking-[-0.055em] text-[#f4efe7] sm:text-[3rem]">
+                    VIS stays central.
+                  </p>
+                </div>
+              }
+            />
+          </motion.div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {[
+              {
+                title: "Route",
+                statement: "Inquiry stays direct.",
+                image: visImageSources.packaging,
+                video: homeCinematicMedia.acquisition.video,
+              },
+              {
+                title: "Record",
+                statement: "Ownership stays retained.",
+                image: visImageSources.leather,
+                video: homeCinematicMedia.ownership.video,
+              },
+            ].map((panel, index) => (
+              <motion.div
+                key={panel.title}
+                animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.16 + index * 0.06,
+                  ease: easeLuxury,
+                }}
+              >
+                <MediaSurface
+                  src={panel.image}
+                  alt={`Praeliator ${panel.title.toLowerCase()} panel`}
+                  video={panel.video}
+                  className="min-h-[15rem] sm:min-h-[18rem]"
+                  priorityCopy={
+                    <div className="max-w-[12rem]">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                        {panel.title}
+                      </p>
+                      <p className="mt-3 text-xl font-semibold leading-[0.95] tracking-[-0.04em] text-[#f4efe7] sm:text-2xl">
+                        {panel.statement}
+                      </p>
+                    </div>
+                  }
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           {houseArchivePillars.map((pillar, index) => (
             <motion.div
               key={pillar.title}
               animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
               transition={{
                 duration: 0.8,
-                delay: 0.08 + index * 0.05,
+                delay: 0.12 + index * 0.04,
                 ease: easeLuxury,
               }}
-              className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,15,13,0.88),rgba(12,10,9,0.94))] p-5 shadow-[0_22px_60px_rgba(0,0,0,0.18)]"
+              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-white/62"
             >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#c7a97e]">
-                {pillar.title}
-              </p>
-              <p className="mt-4 text-sm leading-7 text-white/60">
-                {pillar.text}
-              </p>
+              {pillar.title}
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
-          transition={{ duration: 0.8, delay: 0.26, ease: easeLuxury }}
-          className="mt-16 overflow-hidden rounded-[2.1rem] border border-white/10 bg-[linear-gradient(135deg,rgba(22,18,14,0.92),rgba(10,9,8,0.96))] shadow-[0_30px_90px_rgba(0,0,0,0.26)]"
-        >
-          <div className="grid gap-0 xl:grid-cols-[0.92fr_1.08fr]">
-            <div className="border-b border-white/10 p-6 sm:p-8 lg:p-10 xl:border-b-0 xl:border-r">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#c7a97e]">
-                Object doctrine
-              </p>
-              <h3 className="ownership-display mt-5 max-w-[10ch] text-[clamp(2.6rem,5vw,4.7rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-[#f4efe7]">
-                The glove is issued into memory.
-              </h3>
-              <p className="mt-6 max-w-xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">
-                The site should make the object feel authored before it asks for
-                interest: provenance, material evidence, registration, service
-                maturity, and future conservation all belong to one house system.
-              </p>
-            </div>
-            <div className="grid gap-0 divide-y divide-white/10 p-6 sm:p-8 lg:p-10">
-              {objectDoctrinePlates.map((plate) => (
-                <div key={plate.title} className="py-5 first:pt-0 last:pb-0">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#c7a97e]">
-                    {plate.title}
-                  </p>
-                  <p className="mt-3 text-sm leading-7 text-white/62">
-                    {plate.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
 
         <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
           {cards.map((card, index) => (
@@ -5497,32 +5525,8 @@ function ExploreFurtherScene({
                 <p className="mt-4 text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
                   {card.title}
                 </p>
-                <p className="mt-4 max-w-[24rem] text-[clamp(0.88rem,0.95vw,1rem)] leading-7 text-white/68">
-                  {card.text}
-                </p>
               </div>
             </motion.button>
-          ))}
-        </div>
-
-        <div className="mt-16 grid gap-5 lg:grid-cols-2 lg:gap-6">
-          {houseLetterExcerpts.map((letter, index) => (
-            <motion.div
-              key={letter.title}
-              animate={{ opacity: active ? 1 : 0.5, y: active ? 0 : 18 }}
-              transition={{
-                duration: 0.8,
-                delay: 0.34 + index * 0.08,
-                ease: easeLuxury,
-              }}
-            >
-              <HouseLetterCard
-                eyebrow={letter.eyebrow}
-                title={letter.title}
-                body={letter.body}
-                signature={letter.signature}
-              />
-            </motion.div>
           ))}
         </div>
       </motion.div>
@@ -11802,26 +11806,22 @@ const renderWaitlistPage = () => (
 
       <MobileSectionFrame
         eyebrow="Explore"
-        title="Continue deeper into the brand."
-        description="The same world, reorganized for phone without weakening the identity."
+        title="Continue deeper."
       >
         <div className="grid gap-3">
           {[
             {
               title: "Discover VIS",
-              text: "The flagship training glove.",
               route: "/praeliator-vis" as Route,
               image: visImageSources.hero,
             },
             {
               title: "Private Acquisition",
-              text: "Handled directly, with control.",
               route: "/acquisition" as Route,
               image: visImageSources.packaging,
             },
             {
               title: "Join Waitlist",
-              text: "Future access, recorded properly.",
               route: "/waitlist" as Route,
               image: homeImageSources.presentation,
             },
@@ -11833,16 +11833,16 @@ const renderWaitlistPage = () => (
               className="group overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/[0.03] text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
             >
               <div
-                className="h-36 bg-cover bg-center"
+                className="h-44 bg-cover bg-center"
                 style={{ backgroundImage: `url(${card.image})` }}
               />
               <div className="flex items-center justify-between gap-4 p-4">
-                <div>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                    Continue
+                  </p>
                   <p className="text-base uppercase tracking-[0.12em] text-white/88">
                     {card.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/56">
-                    {card.text}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-white/30 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
@@ -11893,7 +11893,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Thesis"
         title="Luxury is not louder. It is more resolved."
-        description="VIS does not rely on excess to look expensive. The authority of the object comes from proportion, restraint, and the feeling that every visible choice was made on purpose."
       >
         <MobileEditorialLedger items={visEditorialBlocks} />
       </MobileSectionFrame>
@@ -11946,7 +11945,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Material"
         title="Top-grain cowhide. Soft satin finish."
-        description="The leather was chosen to read deep black first and espresso second. It avoids the synthetic shine that makes luxury feel false."
       >
         <MediaSurface
           src={visImageSources.leather}
@@ -11978,7 +11976,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Construction logic"
         title="Technically serious without becoming visually loud."
-        description="Padding, palm ventilation, thumb attachment, grip bar, and wrist control all belong to the same standard of discipline."
       >
         <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4">
           <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
@@ -12013,7 +12010,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Continuity"
         title="The object extends beyond the glove."
-        description="Presentation, authenticity, and aftercare stay inside the same language."
       >
         <MediaSurface
           src={visImageSources.packaging}
@@ -12061,7 +12057,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="House numbering"
         title="Serial, claim code, and delivery date become object identity."
-        description="The pair is not only received. It is recorded, attached to a client line, and made eligible for future service by its real delivery age."
       >
         <MobileEditorialLedger
           items={serialPhilosophyMarks.map((mark) => ({
@@ -12074,7 +12069,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Conservation"
         title="Use is not the end of the object."
-        description="Legacy Refresh is a future review ritual for a retained pair, not a public service menu."
       >
         <MobileEditorialLedger items={conservationDoctrine} />
       </MobileSectionFrame>
@@ -12082,7 +12076,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Entry"
         title="Acquisition continues directly."
-        description="VIS is presented first as an object and acquired second as a route."
       >
         <div className="flex flex-col gap-3">
           <Button
@@ -12142,21 +12135,20 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Acquisition route"
         title="Short, direct, and properly retained."
-        description="This page should not feel like a lead form. It exists only to let the house retain context before the direct conversation continues."
       >
         <MobileEditorialLedger
           items={[
             {
               title: "Private first",
-              text: "The house can retain the brief before WhatsApp opens, so the client does not need to introduce themselves in the message thread.",
+              text: "The brief is retained before WhatsApp opens.",
             },
             {
               title: "Direct second",
-              text: "WhatsApp remains the real acquisition route. The brief exists only to support that handoff, never to replace it.",
+              text: "WhatsApp remains the real route.",
             },
             {
               title: "Quiet tone",
-              text: "Only a minimal title, name, and interest are requested. Nothing here should feel like a normal intake funnel.",
+              text: "Only title, name, and interest are requested.",
             },
           ]}
         />
@@ -12165,7 +12157,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Private placement"
         title="Allocation, not checkout."
-        description="Correspondence can become a private issued session with a reference, destination record, and on-site payment chamber without becoming public ecommerce."
       >
         <MobileEditorialLedger
           numbered
@@ -12371,7 +12362,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow={localizedRouteTitles["/waitlist"]}
         title={waitlistCopy.introTitle}
-        description={waitlistCopy.introDescription}
       >
         <MobileEditorialLedger
           items={[
@@ -12394,7 +12384,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Future allocation register"
         title="Interest should have a place before inventory exists."
-        description="The waitlist is a quiet register for future issue, collector posture, and timing before direct correspondence becomes necessary."
       >
         <MobileEditorialLedger items={waitlistCollectorSignals} />
       </MobileSectionFrame>
@@ -12712,7 +12701,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow={contactCopy.primaryCta}
         title={contactCopy.primaryTitle}
-        description={contactCopy.primaryDescription}
       >
         <div className="flex flex-col gap-3">
           <Button
@@ -12737,7 +12725,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="House correspondence"
         title="Contact is part of the object route."
-        description="Email stays useful for slower exchanges. Instagram stays useful for presence, while WhatsApp remains the acquisition line."
       >
         <MobileEditorialLedger
           items={[
@@ -12753,7 +12740,6 @@ const renderWaitlistPage = () => (
       <MobileSectionFrame
         eyebrow="Direct links"
         title="Choose the route that fits the timing."
-        description="Qualified inquiries continue directly. Slower channels remain available where appropriate."
       >
         <div className="grid gap-3">
           <Button
