@@ -33,10 +33,72 @@ type HubSpotUpsertResponse = {
   results?: Array<{ id?: string }>;
 };
 
+export type IntakeLocale = "en" | "es" | "ja" | "fr";
+
 const DEFAULT_SERVICE_MESSAGE =
   "A private response follows after review. Your client record is now open.";
 const DEFAULT_ACQUISITION_BRIEF_MESSAGE =
   "The brief has been retained under the house record. Continue on WhatsApp with the reference only.";
+
+const privateInquiryServiceMessages: Record<
+  IntakeLocale,
+  {
+    inquiry: string;
+    acquisition: string;
+    acquisitionBrief: string;
+  }
+> = {
+  en: {
+    inquiry:
+      "A private response follows after review. Your client record is now open.",
+    acquisition:
+      "A private placement response follows after review. Your acquisition reference is now open.",
+    acquisitionBrief:
+      "The brief has been retained under the house record. Continue on WhatsApp with the reference only.",
+  },
+  es: {
+    inquiry:
+      "La respuesta privada seguira despues de la revision. Tu registro de cliente ya ha sido abierto.",
+    acquisition:
+      "La respuesta de adquisicion privada seguira despues de la revision. Tu referencia de adquisicion ya ha sido abierta.",
+    acquisitionBrief:
+      "El brief ha sido retenido bajo el registro de la casa. Continua en WhatsApp solo con la referencia.",
+  },
+  ja: {
+    inquiry:
+      "私的な返信は審査後に続きます。クライアント記録はすでに開かれています。",
+    acquisition:
+      "私的な取得対応は審査後に続きます。取得参照はすでに開かれています。",
+    acquisitionBrief:
+      "ブリーフはすでにハウス記録の下で保持されています。参照番号のみでWhatsAppへ続いてください。",
+  },
+  fr: {
+    inquiry:
+      "Une reponse privee suivra apres examen. Votre dossier client est maintenant ouvert.",
+    acquisition:
+      "Une reponse d'acquisition privee suivra apres examen. Votre reference d'acquisition est maintenant ouverte.",
+    acquisitionBrief:
+      "Le dossier a ete retenu sous le registre de la maison. Continuez sur WhatsApp avec la reference seulement.",
+  },
+};
+
+export function normalizeIntakeLocale(value?: string): IntakeLocale {
+  return value === "es" || value === "ja" || value === "fr" ? value : "en";
+}
+
+export function getPrivateInquiryServiceMessage(locale: IntakeLocale): string {
+  return privateInquiryServiceMessages[locale].inquiry;
+}
+
+export function getPrivateAcquisitionServiceMessage(locale: IntakeLocale): string {
+  return privateInquiryServiceMessages[locale].acquisition;
+}
+
+export function getPrivateAcquisitionBriefServiceMessage(
+  locale: IntakeLocale,
+): string {
+  return privateInquiryServiceMessages[locale].acquisitionBrief;
+}
 
 function requireEnv(name: string): string {
   const value = process.env[name];

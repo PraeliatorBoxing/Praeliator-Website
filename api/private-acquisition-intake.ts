@@ -1,5 +1,8 @@
 import {
+  getPrivateAcquisitionBriefServiceMessage,
+  getPrivateAcquisitionServiceMessage,
   jsonResponse,
+  normalizeIntakeLocale,
   persistPrivateAcquisitionBrief,
   persistPrivateInquiry,
 } from "./_lib/private-inquiry.js";
@@ -22,10 +25,8 @@ type AcquisitionPayload = {
   sourceRoute?: string;
   briefMode?: boolean;
   destinationNumber?: string;
+  locale?: string;
 };
-
-const SERVICE_MESSAGE =
-  "A private placement response follows after review. Your acquisition reference is now open.";
 
 function normalizePayload(raw: AcquisitionPayload) {
   return {
@@ -46,6 +47,7 @@ function normalizePayload(raw: AcquisitionPayload) {
     sourceRoute: (raw.sourceRoute || "/acquisition").trim(),
     briefMode: Boolean(raw.briefMode),
     destinationNumber: (raw.destinationNumber || "").trim(),
+    locale: normalizeIntakeLocale(raw.locale),
   };
 }
 
@@ -88,6 +90,7 @@ export async function POST(request: Request) {
         interest: payload.interest,
         sourceRoute: payload.sourceRoute,
         destinationNumber: payload.destinationNumber,
+        serviceMessage: getPrivateAcquisitionBriefServiceMessage(payload.locale),
       });
 
       return jsonResponse({ success: true, ...result }, 200);
@@ -120,7 +123,7 @@ export async function POST(request: Request) {
       note: compiledNote,
       sourceRoute: payload.sourceRoute,
       lifecycleStage: "lead",
-      serviceMessage: SERVICE_MESSAGE,
+      serviceMessage: getPrivateAcquisitionServiceMessage(payload.locale),
     });
 
     return jsonResponse({ success: true, ...result }, 200);

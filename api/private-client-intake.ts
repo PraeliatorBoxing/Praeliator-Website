@@ -1,5 +1,7 @@
 import {
+  getPrivateInquiryServiceMessage,
   jsonResponse,
+  normalizeIntakeLocale,
   persistPrivateInquiry,
 } from "./_lib/private-inquiry.js";
 
@@ -16,10 +18,8 @@ type IntakePayload = {
   contactPreference?: string;
   note?: string;
   sourceRoute?: string;
+  locale?: string;
 };
-
-const SERVICE_MESSAGE =
-  "A private response follows after review. Your client record is now open.";
 
 function normalizePayload(raw: IntakePayload) {
   return {
@@ -35,6 +35,7 @@ function normalizePayload(raw: IntakePayload) {
     contactPreference: (raw.contactPreference || "").trim(),
     note: (raw.note || "").trim(),
     sourceRoute: (raw.sourceRoute || "/waitlist").trim(),
+    locale: normalizeIntakeLocale(raw.locale),
   };
 }
 
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
       note: payload.note,
       sourceRoute: payload.sourceRoute,
       lifecycleStage: "lead",
-      serviceMessage: SERVICE_MESSAGE,
+      serviceMessage: getPrivateInquiryServiceMessage(payload.locale),
     });
 
     return jsonResponse({ success: true, ...result }, 200);

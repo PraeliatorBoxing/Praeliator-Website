@@ -464,6 +464,93 @@ const initialAcquisitionWhatsAppForm = {
   fullName: "",
   interest: "",
 };
+const localizedHandoffCopy: Record<
+  SiteLocale,
+  {
+    whatsappGeneral: string;
+    whatsappVis: string;
+    whatsappWaitlistFollowUp: string;
+    whatsappAcquisitionFollowUp: string;
+    whatsappAcquisitionBrief: string;
+    referenceLabel: string;
+    waitlistServiceMessage: string;
+    acquisitionServiceMessage: string;
+    acquisitionBriefServiceMessage: string;
+  }
+> = {
+  en: {
+    whatsappGeneral:
+      "Hello Praeliator, I would like to inquire about a private purchase.",
+    whatsappVis: "Hello Praeliator, I would like to inquire about Praeliator VIS.",
+    whatsappWaitlistFollowUp:
+      "Hello Praeliator, I joined the waitlist and would like to follow up.",
+    whatsappAcquisitionFollowUp:
+      "Hello Praeliator, I would like to continue my private acquisition inquiry.",
+    whatsappAcquisitionBrief:
+      "Hello Praeliator, I would like to begin a private acquisition inquiry.",
+    referenceLabel: "Reference",
+    waitlistServiceMessage:
+      "A private reply will follow after review. Qualified inquiries continue directly with reference in place.",
+    acquisitionServiceMessage:
+      "A private placement response follows after review.",
+    acquisitionBriefServiceMessage:
+      "The brief has been retained under the house record.",
+  },
+  es: {
+    whatsappGeneral:
+      "Hola Praeliator, me gustaria consultar por una adquisicion privada.",
+    whatsappVis: "Hola Praeliator, me gustaria consultar por Praeliator VIS.",
+    whatsappWaitlistFollowUp:
+      "Hola Praeliator, me uni a la lista de espera y me gustaria dar seguimiento.",
+    whatsappAcquisitionFollowUp:
+      "Hola Praeliator, me gustaria continuar mi consulta privada de adquisicion.",
+    whatsappAcquisitionBrief:
+      "Hola Praeliator, me gustaria iniciar una consulta privada de adquisicion.",
+    referenceLabel: "Referencia",
+    waitlistServiceMessage:
+      "La respuesta privada seguira despues de la revision. Las consultas calificadas continuan directamente con la referencia ya en su lugar.",
+    acquisitionServiceMessage:
+      "La respuesta privada de adquisicion seguira despues de la revision.",
+    acquisitionBriefServiceMessage:
+      "El brief ha sido retenido bajo el registro de la casa.",
+  },
+  ja: {
+    whatsappGeneral:
+      "Praeliator様、プライベートな取得について問い合わせたいと思います。",
+    whatsappVis: "Praeliator様、Praeliator VISについて問い合わせたいと思います。",
+    whatsappWaitlistFollowUp:
+      "Praeliator様、ウェイトリストに登録しましたので、その後の流れについて伺いたいと思います。",
+    whatsappAcquisitionFollowUp:
+      "Praeliator様、私的な取得問い合わせを続けたいと思います。",
+    whatsappAcquisitionBrief:
+      "Praeliator様、私的な取得問い合わせを始めたいと思います。",
+    referenceLabel: "参照番号",
+    waitlistServiceMessage:
+      "私的な返信は審査後に続きます。適格な問い合わせは参照番号を伴って直接続行されます。",
+    acquisitionServiceMessage:
+      "私的な取得対応は審査後に続きます。",
+    acquisitionBriefServiceMessage:
+      "ブリーフはすでにハウス記録の下で保持されています。",
+  },
+  fr: {
+    whatsappGeneral:
+      "Bonjour Praeliator, je souhaiterais me renseigner sur une acquisition privee.",
+    whatsappVis: "Bonjour Praeliator, je souhaiterais me renseigner sur Praeliator VIS.",
+    whatsappWaitlistFollowUp:
+      "Bonjour Praeliator, j'ai rejoint la liste d'attente et je souhaiterais assurer le suivi.",
+    whatsappAcquisitionFollowUp:
+      "Bonjour Praeliator, je souhaiterais poursuivre ma demande d'acquisition privee.",
+    whatsappAcquisitionBrief:
+      "Bonjour Praeliator, je souhaiterais commencer une demande d'acquisition privee.",
+    referenceLabel: "Reference",
+    waitlistServiceMessage:
+      "Une reponse privee suivra apres examen. Les demandes qualifiees se poursuivent directement avec la reference deja en place.",
+    acquisitionServiceMessage:
+      "Une reponse d'acquisition privee suivra apres examen.",
+    acquisitionBriefServiceMessage:
+      "Le dossier a ete retenu sous le registre de la maison.",
+  },
+};
 const initialTransferReviewDraft: OwnershipTransferReviewDraft = {
   nextCustodianName: "",
   nextCustodianEmail: "",
@@ -6845,15 +6932,6 @@ export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
     `${whatsappBase}?text=${encodeURIComponent(message)}`;
-  const whatsappGeneralLink = createWhatsAppLink(
-    "Hello Praeliator, I would like to inquire about a private purchase.",
-  );
-  const whatsappVisLink = createWhatsAppLink(
-    "Hello Praeliator, I would like to inquire about Praeliator VIS.",
-  );
-  const whatsappWaitlistFollowUpLink = createWhatsAppLink(
-    "Hello Praeliator, I joined the waitlist and would like to follow up.",
-  );
   const houseEmailLink = "mailto:house@praeliator.com?subject=Praeliator%20Inquiry";
   const careEmailLink = "mailto:care@praeliator.com?subject=Praeliator%20Care";
   const studioEmailLink = "mailto:studio@praeliator.com?subject=Praeliator%20Studio";
@@ -7531,6 +7609,19 @@ export default function PraeliatorWebsite() {
   const ownershipCopy = copy.ownership;
   const localizedRouteTitles = copy.routeTitles as Record<Route, string>;
   const localizedRouteMicroLabels = copy.routeMicroLabels as Record<Route, string>;
+  const handoffCopy = localizedHandoffCopy[locale];
+  const buildReferenceAwareWhatsAppMessage = (
+    openingLine: string,
+    reference?: string | null,
+  ) =>
+    [openingLine, reference ? `${handoffCopy.referenceLabel}: ${reference}.` : null]
+      .filter(Boolean)
+      .join("\n\n");
+  const whatsappGeneralLink = createWhatsAppLink(handoffCopy.whatsappGeneral);
+  const whatsappVisLink = createWhatsAppLink(handoffCopy.whatsappVis);
+  const whatsappWaitlistFollowUpLink = createWhatsAppLink(
+    handoffCopy.whatsappWaitlistFollowUp,
+  );
   const localizedInterestOptions = useMemo(
     () =>
       interestOptions.map((option) => ({
@@ -8599,6 +8690,7 @@ export default function PraeliatorWebsite() {
       contactPreference: normalizedForm.contactPreference,
       note: normalizedForm.note,
       sourceRoute: route,
+      locale,
       clientTimestamp: new Date().toISOString(),
       viewport:
         typeof window !== "undefined"
@@ -8640,9 +8732,7 @@ export default function PraeliatorWebsite() {
         success: true,
         error: "",
         reference: result.reference || "",
-        serviceMessage:
-          result.serviceMessage ||
-          "A private reply will follow after review. Qualified inquiries continue directly with reference in place.",
+        serviceMessage: result.serviceMessage || handoffCopy.waitlistServiceMessage,
       });
       setWaitlistForm(initialWaitlistForm);
       setWaitlistErrors({});
@@ -8765,6 +8855,7 @@ export default function PraeliatorWebsite() {
         normalizedForm.destinationRegion || normalizedForm.country,
       note: normalizedForm.note,
       sourceRoute: route,
+      locale,
       clientTimestamp: new Date().toISOString(),
       timezone:
         typeof window !== "undefined"
@@ -8795,8 +8886,7 @@ export default function PraeliatorWebsite() {
         error: "",
         reference: result.reference || "",
         serviceMessage:
-          result.serviceMessage ||
-          "A private placement response follows after review.",
+          result.serviceMessage || handoffCopy.acquisitionServiceMessage,
       });
       setAcquisitionForm(initialAcquisitionIntakeForm);
       setAcquisitionErrors({});
@@ -8953,6 +9043,7 @@ export default function PraeliatorWebsite() {
           fullName: normalizedForm.fullName,
           interest: normalizedForm.interest,
           sourceRoute: route,
+          locale,
           destinationNumber: `+${whatsappBase.replace(/[^\d]/g, "")}`,
         }),
         signal: controller.signal,
@@ -8976,20 +9067,18 @@ export default function PraeliatorWebsite() {
         error: "",
         reference: result.reference || "",
         serviceMessage:
-          result.serviceMessage ||
-          "The brief has been retained under the house record.",
+          result.serviceMessage || handoffCopy.acquisitionBriefServiceMessage,
       });
       setAcquisitionWhatsAppForm(initialAcquisitionWhatsAppForm);
       setAcquisitionWhatsAppErrors({});
       setAcquisitionWhatsAppTouched({});
 
-      const message = [
-        "Hello Praeliator, I would like to begin a private acquisition inquiry.",
-        result.reference ? `Reference: ${result.reference}.` : null,
-      ]
-        .filter(Boolean)
-        .join("\n\n");
-      const whatsappLink = createWhatsAppLink(message);
+      const whatsappLink = createWhatsAppLink(
+        buildReferenceAwareWhatsAppMessage(
+          handoffCopy.whatsappAcquisitionBrief,
+          result.reference,
+        ),
+      );
 
       if (typeof window !== "undefined") {
         window.location.assign(whatsappLink);
@@ -9622,7 +9711,10 @@ export default function PraeliatorWebsite() {
 const renderAcquisitionPageLegacy = () => {
   const acquisitionFollowUpLink = acquisitionState.reference
     ? createWhatsAppLink(
-        `Hello Praeliator, I would like to continue my private acquisition inquiry. Reference: ${acquisitionState.reference}.`,
+        buildReferenceAwareWhatsAppMessage(
+          handoffCopy.whatsappAcquisitionFollowUp,
+          acquisitionState.reference,
+        ),
       )
     : whatsappGeneralLink;
 
@@ -10788,6 +10880,15 @@ const renderAcquisitionPage = () => (
   </>
 );
 
+  const waitlistFollowUpLink = waitlistState.reference
+    ? createWhatsAppLink(
+        buildReferenceAwareWhatsAppMessage(
+          handoffCopy.whatsappWaitlistFollowUp,
+          waitlistState.reference,
+        ),
+      )
+    : whatsappWaitlistFollowUpLink;
+
 const renderWaitlistPage = () => (
     <>
       <PageHeroBanner
@@ -11164,7 +11265,7 @@ const renderWaitlistPage = () => (
                               className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                             >
                               <a
-                                href={whatsappWaitlistFollowUpLink}
+                                href={waitlistFollowUpLink}
                                 target="_blank"
                                 rel="noreferrer"
                                 onClick={() =>
@@ -11717,7 +11818,7 @@ const renderWaitlistPage = () => (
                       variant="outline"
                       className="h-[3.75rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7]"
                     >
-                      <a href={createWhatsAppLink("Hello Praeliator, I would like to inquire about Praeliator VIS.")} target="_blank" rel="noreferrer">
+                      <a href={whatsappVisLink} target="_blank" rel="noreferrer">
                         Inquire about VIS
                       </a>
                     </Button>
@@ -12628,7 +12729,7 @@ const renderWaitlistPage = () => (
                           className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
                         >
                           <a
-                            href={whatsappWaitlistFollowUpLink}
+                            href={waitlistFollowUpLink}
                             target="_blank"
                             rel="noreferrer"
                             onClick={() =>
