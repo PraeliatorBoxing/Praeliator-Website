@@ -142,10 +142,22 @@ type GeoapifyAutocompleteResponse = {
     formatted?: string;
     address_line1?: string;
     address_line2?: string;
+    housenumber?: string;
+    street?: string;
     city?: string;
+    town?: string;
+    village?: string;
+    hamlet?: string;
+    municipality?: string;
+    suburb?: string;
+    district?: string;
+    neighbourhood?: string;
+    county?: string;
     state?: string;
+    state_code?: string;
     postcode?: string;
     country?: string;
+    country_code?: string;
   }>;
   features?: Array<{
     properties?: {
@@ -153,10 +165,22 @@ type GeoapifyAutocompleteResponse = {
       formatted?: string;
       address_line1?: string;
       address_line2?: string;
+      housenumber?: string;
+      street?: string;
       city?: string;
+      town?: string;
+      village?: string;
+      hamlet?: string;
+      municipality?: string;
+      suburb?: string;
+      district?: string;
+      neighbourhood?: string;
+      county?: string;
       state?: string;
+      state_code?: string;
       postcode?: string;
       country?: string;
+      country_code?: string;
     };
   }>;
 };
@@ -295,7 +319,11 @@ function normalizeAddressComparison(value: string) {
 }
 
 function normalizeCountryHintToIso2(value: string) {
-  const normalized = value.trim().toLowerCase();
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   if (!normalized) return "";
   if (/^[a-z]{2}$/i.test(normalized)) return normalized;
   return countryHintToIso2[normalized] || "";
@@ -305,6 +333,14 @@ function buildAddressLookupQuery(query: string, countryHint: string) {
   if (!countryHint) return query;
   if (query.toLowerCase().includes(countryHint.toLowerCase())) return query;
   return `${query}, ${countryHint}`;
+}
+
+function getFirstGeoapifyValue(...values: Array<string | undefined | null>) {
+  for (const value of values) {
+    const normalized = String(value || "").trim();
+    if (normalized) return normalized;
+  }
+  return "";
 }
 
 function mapGeoapifySuggestion(
@@ -319,29 +355,61 @@ function mapGeoapifySuggestion(
       : feature;
   if (!properties) return null;
 
-  const addressLine1 = String(properties.address_line1 || "").trim();
+  const addressLine1 = getFirstGeoapifyValue(
+    properties.address_line1,
+    [properties.street, properties.housenumber].filter(Boolean).join(" "),
+    String(properties.formatted || "").split(",")[0],
+  );
   if (!addressLine1) return null;
+
+  const city = getFirstGeoapifyValue(
+    properties.city,
+    properties.town,
+    properties.village,
+    properties.hamlet,
+    properties.municipality,
+    properties.county,
+  );
+  const region = getFirstGeoapifyValue(
+    properties.state,
+    properties.state_code,
+    properties.county,
+  );
+  const postalCode = getFirstGeoapifyValue(properties.postcode);
+  const country = getFirstGeoapifyValue(
+    properties.country,
+    fallbackCountry,
+    properties.country_code,
+  );
+  const locality = getFirstGeoapifyValue(
+    properties.suburb,
+    properties.district,
+    properties.neighbourhood,
+    properties.address_line2,
+  );
+  const secondaryParts = [locality, city, postalCode, region, country].filter(
+    Boolean,
+  );
+  const uniqueSecondaryParts = secondaryParts.filter(
+    (value, index) =>
+      secondaryParts.findIndex(
+        (candidate) =>
+          normalizeAddressComparison(candidate || "") ===
+          normalizeAddressComparison(value || ""),
+      ) === index,
+  );
 
   return {
     id: String(
-      properties.place_id || properties.formatted || properties.address_line1,
+      properties.place_id || properties.formatted || addressLine1,
     ),
-    label: String(properties.formatted || properties.address_line1 || "").trim(),
-    secondaryText:
-      [
-        properties.address_line2,
-        properties.city,
-        properties.postcode,
-        properties.state,
-        properties.country || fallbackCountry,
-      ]
-        .filter(Boolean)
-        .join(", ") || null,
+    label: getFirstGeoapifyValue(properties.formatted, addressLine1),
+    secondaryText: uniqueSecondaryParts.join(", ") || null,
     addressLine1,
-    city: String(properties.city || "").trim() || null,
-    region: String(properties.state || "").trim() || null,
-    postalCode: String(properties.postcode || "").trim() || null,
-    country: String(properties.country || fallbackCountry || "").trim() || null,
+    city: city || null,
+    region: region || null,
+    postalCode: postalCode || null,
+    country: country || null,
   };
 }
 
@@ -806,31 +874,16 @@ export function PrivateAcquisitionRoute({
                 Boolean(suggestion?.addressLine1),
               )
           : [];
-        const comparableQuery = normalizeAddressComparison(query);
-        const exactSuggestion =
-          nextSuggestions.length === 1
-            ? nextSuggestions[0]
-            : nextSuggestions.find((suggestion) => {
-                const lineValue = normalizeAddressComparison(
-                  suggestion.addressLine1,
-                );
-                const labelValue = normalizeAddressComparison(suggestion.label);
+        const dedupedSuggestions = nextSuggestions.filter(
+          (suggestion, index, collection) =>
+            collection.findIndex(
+              (candidate) =>
+                normalizeAddressComparison(candidate.label) ===
+                normalizeAddressComparison(suggestion.label),
+            ) === index,
+        );
 
-                return (
-                  comparableQuery.length >= 8 &&
-                  (lineValue === comparableQuery ||
-                    labelValue === comparableQuery ||
-                    labelValue.startsWith(`${comparableQuery},`) ||
-                    labelValue.startsWith(`${comparableQuery} `))
-                );
-              });
-
-        if (exactSuggestion) {
-          handleSelectAddressSuggestion(exactSuggestion);
-          return;
-        }
-
-        setAddressSuggestions(nextSuggestions);
+        setAddressSuggestions(dedupedSuggestions);
       } catch (error) {
         if (controller.signal.aborted) return;
         setAddressSuggestions([]);
