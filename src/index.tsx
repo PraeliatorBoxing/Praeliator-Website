@@ -15250,7 +15250,7 @@ const renderWaitlistPage = () => (
       case "/oauth/consent":
         return renderOAuthConsentPage();
       default:
-        return renderHomePage();
+        return renderMobileHomePage();
     }
   };
 
