@@ -7026,6 +7026,7 @@ export default function PraeliatorWebsite() {
   const acquisitionWhatsAppRequestControllerRef =
     useRef<AbortController | null>(null);
   const [authSession, setAuthSession] = useState<Session | null>(null);
+  const [canAccessHouseLedger, setCanAccessHouseLedger] = useState(false);
   const [authInitialized, setAuthInitialized] = useState(!supabase);
   const [authLoading, setAuthLoading] = useState(false);
   const [authNotice, setAuthNotice] = useState<AuthNotice | null>(null);
@@ -7317,6 +7318,40 @@ export default function PraeliatorWebsite() {
       authSubscription.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!authSession?.access_token) {
+      setCanAccessHouseLedger(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const checkHouseLedgerAccess = async () => {
+      try {
+        const response = await fetch("/api/house-ledger?mode=access", {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${authSession.access_token}`,
+          },
+        });
+
+        if (cancelled) return;
+        setCanAccessHouseLedger(response.ok);
+      } catch {
+        if (!cancelled) {
+          setCanAccessHouseLedger(false);
+        }
+      }
+    };
+
+    void checkHouseLedgerAccess();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authSession]);
 
   useEffect(() => {
     if (!supabase || typeof window === "undefined") return;
@@ -7653,29 +7688,41 @@ export default function PraeliatorWebsite() {
     [copy],
   );
   const localizedNavItems = useMemo(
-    () => [
-      {
-        label: copy.nav.vis,
-        path: "/praeliator-vis" as Route,
-        meta: copy.navMeta.vis,
-      },
-      {
-        label: copy.nav.acquisition,
-        path: "/acquisition" as Route,
-        meta: copy.navMeta.acquisition,
-      },
-      {
-        label: copy.nav.waitlist,
-        path: "/waitlist" as Route,
-        meta: copy.navMeta.waitlist,
-      },
-      {
-        label: copy.nav.contact,
-        path: "/contact" as Route,
-        meta: copy.navMeta.contact,
-      },
-    ],
-    [copy],
+    () => {
+      const baseItems = [
+        {
+          label: copy.nav.vis,
+          path: "/praeliator-vis" as Route,
+          meta: copy.navMeta.vis,
+        },
+        {
+          label: copy.nav.acquisition,
+          path: "/acquisition" as Route,
+          meta: copy.navMeta.acquisition,
+        },
+        {
+          label: copy.nav.waitlist,
+          path: "/waitlist" as Route,
+          meta: copy.navMeta.waitlist,
+        },
+        {
+          label: copy.nav.contact,
+          path: "/contact" as Route,
+          meta: copy.navMeta.contact,
+        },
+      ];
+
+      if (canAccessHouseLedger) {
+        baseItems.push({
+          label: localizedRouteTitles["/house-ledger"],
+          path: "/house-ledger" as Route,
+          meta: localizedRouteMicroLabels["/house-ledger"],
+        });
+      }
+
+      return baseItems;
+    },
+    [canAccessHouseLedger, copy, localizedRouteMicroLabels, localizedRouteTitles],
   );
   const authPrimaryLabel =
     authSession ? copy.ownershipRecord : copy.signIn;

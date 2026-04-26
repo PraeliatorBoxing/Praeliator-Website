@@ -371,6 +371,17 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
 
 export async function GET(request: Request) {
   try {
+    const url = new URL(request.url);
+    const mode = normalizeInlineText(url.searchParams.get("mode")).toLowerCase();
+
+    if (mode === "access") {
+      await requireHouseLedgerOwner(request);
+      return createHouseLedgerResponse({
+        success: true,
+        access: true,
+      });
+    }
+
     return await handleState(request);
   } catch (error) {
     if (error instanceof HouseLedgerAccessError) {
