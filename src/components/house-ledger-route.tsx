@@ -106,6 +106,23 @@ const textAreaFieldClassName =
 const issuanceSpecificationDefault =
   "Format=16 oz lace-up\nMaterial=Top-grain cowhide";
 
+async function parseJsonResponse<T>(response: Response, fallbackError: string) {
+  const contentType = response.headers.get("content-type") || "";
+  const rawBody = await response.text();
+
+  if (!contentType.toLowerCase().includes("application/json")) {
+    throw new Error(
+      "The house ledger endpoint returned a non-JSON response. Check that /api routes are reaching Vercel functions instead of the site shell.",
+    );
+  }
+
+  try {
+    return JSON.parse(rawBody) as T;
+  } catch {
+    throw new Error(fallbackError);
+  }
+}
+
 function formatMoney(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -308,7 +325,10 @@ export function HouseLedgerRoute({
             Authorization: `Bearer ${authToken}`,
           },
         });
-        const result = (await response.json()) as StateResponse;
+        const result = await parseJsonResponse<StateResponse>(
+          response,
+          "The house ledger response could not be read.",
+        );
 
         if (!response.ok || !result.success) {
           throw new Error(result.error || "The house ledger could not be opened.");
@@ -381,7 +401,10 @@ export function HouseLedgerRoute({
         },
         body: JSON.stringify({}),
       });
-      const result = (await response.json()) as ReadNotificationsResponse;
+      const result = await parseJsonResponse<ReadNotificationsResponse>(
+        response,
+        "The ledger notices response could not be read.",
+      );
 
       if (!response.ok || !result.success) {
         throw new Error(result.error || "Ledger notifications could not be updated.");
@@ -431,7 +454,10 @@ export function HouseLedgerRoute({
         },
         body: JSON.stringify({ saleId, fulfillmentStatus }),
       });
-      const result = (await response.json()) as SaleStatusResponse;
+      const result = await parseJsonResponse<SaleStatusResponse>(
+        response,
+        "The sale line response could not be read.",
+      );
 
       if (!response.ok || !result.success) {
         throw new Error(result.error || "The sale line could not be updated.");
@@ -518,7 +544,10 @@ export function HouseLedgerRoute({
         },
         body: JSON.stringify(issueForm),
       });
-      const result = (await response.json()) as IssueAcquisitionResponse;
+      const result = await parseJsonResponse<IssueAcquisitionResponse>(
+        response,
+        "The issuance response could not be read.",
+      );
 
       if (!response.ok || !result.success) {
         if (result.fieldErrors) {
