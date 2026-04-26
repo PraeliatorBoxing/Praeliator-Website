@@ -60,6 +60,24 @@ type HouseLedgerState = {
   notifications: HouseLedgerNotification[];
 };
 
+type HouseLedgerIssueResult = {
+  issuance: {
+    referenceCode: string;
+    privateUrl: string;
+    expiresAt: string;
+    orderSummary: {
+      productName: string;
+      quantity: number;
+      currency: string;
+      totalAmount: number;
+      shippingCountry?: string | null;
+      shippingRegion?: string | null;
+    };
+  };
+  preparedNotice: string;
+  powerShellSnippet: string;
+};
+
 type StateResponse =
   | ({ success: true } & HouseLedgerState)
   | { success: false; error?: string };
@@ -72,6 +90,10 @@ type SaleStatusResponse =
   | { success: true; sale: HouseLedgerSale }
   | { success: false; error?: string };
 
+type IssueAcquisitionResponse =
+  | ({ success: true } & HouseLedgerIssueResult)
+  | { success: false; error?: string; fieldErrors?: Record<string, string> };
+
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const cardClassName =
   "overflow-hidden rounded-[1.75rem] border border-[#d7c8b3] bg-[linear-gradient(180deg,rgba(253,249,242,0.98),rgba(241,232,220,0.96))] text-[#241b15] shadow-[0_20px_54px_rgba(77,53,30,0.1)]";
@@ -79,6 +101,10 @@ const ledgerSurfaceClassName =
   "min-h-dvh bg-[radial-gradient(circle_at_top,rgba(181,142,92,0.17),transparent_26%),linear-gradient(180deg,#f7efe4_0%,#efe3d2_48%,#eadbc7_100%)] text-[#231b15]";
 const fieldClassName =
   "w-full rounded-full border border-[#ceb89d] bg-[#fffaf4] px-4 py-3 text-sm text-[#231912] outline-none transition focus:border-[#8f6848] focus:bg-white";
+const textAreaFieldClassName =
+  "w-full rounded-[1.4rem] border border-[#ceb89d] bg-[#fffaf4] px-4 py-4 text-sm leading-7 text-[#231912] outline-none transition focus:border-[#8f6848] focus:bg-white";
+const issuanceSpecificationDefault =
+  "Format=16 oz lace-up\nMaterial=Top-grain cowhide";
 
 function formatMoney(amount: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
@@ -135,6 +161,19 @@ function formatFulfillmentStatus(value: HouseLedgerSale["fulfillmentStatus"]) {
   }
 }
 
+function formatIssuedExpiry(value?: string | null) {
+  if (!value) return "Pending";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function getNotificationPermissionState() {
   if (typeof window === "undefined" || !("Notification" in window)) {
     return "unsupported" as const;
@@ -170,8 +209,30 @@ export function HouseLedgerRoute({
   const [notificationPermission, setNotificationPermission] = useState(
     getNotificationPermissionState(),
   );
+  const [issueForm, setIssueForm] = useState({
+    clientName: "",
+    clientEmail: "",
+    clientPhone: "",
+    productName: "Praeliator VIS",
+    subtotal: "6000",
+    shipping: "300",
+    currency: "mxn",
+    quantity: "1",
+    shippingCountry: "",
+    shippingRegion: "",
+    expiresInHours: "72",
+    createdBy: "Praeliator",
+    specifications: issuanceSpecificationDefault,
+  });
+  const [issueFieldErrors, setIssueFieldErrors] = useState<Record<string, string>>(
+    {},
+  );
+  const [issueSubmitting, setIssueSubmitting] = useState(false);
+  const [issueResult, setIssueResult] = useState<HouseLedgerIssueResult | null>(null);
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const seenNotificationIdsRef = useRef<Set<string>>(new Set());
   const hasHydratedNotificationsRef = useRef(false);
+  const copyFeedbackTimeoutRef = useRef<number | null>(null);
 
   const authToken = authSession?.access_token || "";
   const signedInEmail = authSession?.user.email?.trim().toLowerCase() || "";
@@ -189,6 +250,14 @@ export function HouseLedgerRoute({
       ),
     [state],
   );
+
+  useEffect(() => {
+    return () => {
+      if (copyFeedbackTimeoutRef.current) {
+        window.clearTimeout(copyFeedbackTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleIncomingBrowserNotifications = useCallback(
     (nextState: HouseLedgerState) => {
@@ -387,6 +456,90 @@ export function HouseLedgerRoute({
       );
     } finally {
       setStatusUpdatingId(null);
+    }
+  };
+
+  const handleIssueFieldChange = (
+    key: keyof typeof issueForm,
+    value: string,
+  ) => {
+    setIssueForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+    setIssueFieldErrors((current) => {
+      if (!(key in current)) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const handleCopyValue = async (label: string, value: string) => {
+    if (!value || typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyFeedback(`${label} could not be copied on this device.`);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyFeedback(`${label} copied.`);
+    } catch {
+      setCopyFeedback(`${label} could not be copied on this device.`);
+    }
+
+    if (copyFeedbackTimeoutRef.current) {
+      window.clearTimeout(copyFeedbackTimeoutRef.current);
+    }
+
+    copyFeedbackTimeoutRef.current = window.setTimeout(() => {
+      setCopyFeedback(null);
+    }, 2200);
+  };
+
+  const handleIssueAcquisition = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!authToken || issueSubmitting) return;
+
+    setIssueSubmitting(true);
+    setIssueFieldErrors({});
+    setCopyFeedback(null);
+
+    try {
+      const response = await fetch("/api/house-ledger-issue-acquisition", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(issueForm),
+      });
+      const result = (await response.json()) as IssueAcquisitionResponse;
+
+      if (!response.ok || !result.success) {
+        if (result.fieldErrors) {
+          setIssueFieldErrors(result.fieldErrors);
+        }
+
+        throw new Error(
+          result.error || "The private acquisition page could not be issued.",
+        );
+      }
+
+      setIssueResult(result);
+      setError(null);
+    } catch (issueError) {
+      setError(
+        issueError instanceof Error
+          ? issueError.message
+          : "The private acquisition page could not be issued.",
+      );
+    } finally {
+      setIssueSubmitting(false);
     }
   };
 
@@ -608,7 +761,514 @@ export function HouseLedgerRoute({
           ) : null}
 
           {!loading && state ? (
-            <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+            <div className="grid gap-4">
+              <div className={`${cardClassName} p-5 sm:p-6 lg:p-8`}>
+                <div className="grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.26em] text-[#987554]">
+                      Issue acquisition
+                    </p>
+                    <h2 className="mt-4 text-[clamp(2.2rem,5vw,4.1rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-[#231912]">
+                      Prepare a private page without opening terminal.
+                    </h2>
+                    <p className="mt-5 max-w-xl text-sm leading-7 text-[#5d4a3b] sm:text-base sm:leading-8">
+                      This issuing desk is reserved for the owner record. Enter the client and order details once, then retain the reference, URL, expiry, and prepared notice from the same chamber.
+                    </p>
+                    <div className="mt-6 grid gap-3">
+                      <div className="rounded-[1.25rem] border border-[#ddcbb6] bg-white/50 p-4">
+                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#8f6f50]">
+                          Access posture
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-[#5b4839]">
+                          The public site remains unchanged. Only the owner-signed ledger session can issue a new private acquisition page from here.
+                        </p>
+                      </div>
+                      <div className="rounded-[1.25rem] border border-[#ddcbb6] bg-white/50 p-4">
+                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#8f6f50]">
+                          Result retained
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-[#5b4839]">
+                          Each issue returns the live reference code, private URL, validity window, a copyable client notice, and the equivalent PowerShell block for your own working record.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <form className="grid gap-4" onSubmit={handleIssueAcquisition}>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Client name
+                        </span>
+                        <input
+                          value={issueForm.clientName}
+                          onChange={(event) =>
+                            handleIssueFieldChange("clientName", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.clientName ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="Client name"
+                          autoComplete="name"
+                        />
+                        {issueFieldErrors.clientName ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.clientName}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Client email
+                        </span>
+                        <input
+                          value={issueForm.clientEmail}
+                          onChange={(event) =>
+                            handleIssueFieldChange("clientEmail", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.clientEmail ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="client@email.com"
+                          autoComplete="email"
+                          inputMode="email"
+                        />
+                        {issueFieldErrors.clientEmail ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.clientEmail}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Client phone
+                        </span>
+                        <input
+                          value={issueForm.clientPhone}
+                          onChange={(event) =>
+                            handleIssueFieldChange("clientPhone", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.clientPhone ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="+52 55 0000 0000"
+                          autoComplete="tel"
+                          inputMode="tel"
+                        />
+                        {issueFieldErrors.clientPhone ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.clientPhone}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Product name
+                        </span>
+                        <input
+                          value={issueForm.productName}
+                          onChange={(event) =>
+                            handleIssueFieldChange("productName", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.productName ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="Praeliator VIS"
+                        />
+                        {issueFieldErrors.productName ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.productName}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Destination country
+                        </span>
+                        <input
+                          value={issueForm.shippingCountry}
+                          onChange={(event) =>
+                            handleIssueFieldChange("shippingCountry", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.shippingCountry ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="Mexico"
+                          autoComplete="country-name"
+                        />
+                        {issueFieldErrors.shippingCountry ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.shippingCountry}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Destination region
+                        </span>
+                        <input
+                          value={issueForm.shippingRegion}
+                          onChange={(event) =>
+                            handleIssueFieldChange("shippingRegion", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.shippingRegion ? "border-[#b98d83]" : ""
+                          }`}
+                          placeholder="Monterrey"
+                          autoComplete="address-level1"
+                        />
+                        {issueFieldErrors.shippingRegion ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.shippingRegion}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Subtotal
+                        </span>
+                        <input
+                          value={issueForm.subtotal}
+                          onChange={(event) =>
+                            handleIssueFieldChange("subtotal", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.subtotal ? "border-[#b98d83]" : ""
+                          }`}
+                          inputMode="decimal"
+                          placeholder="6000"
+                        />
+                        {issueFieldErrors.subtotal ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.subtotal}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Fulfillment
+                        </span>
+                        <input
+                          value={issueForm.shipping}
+                          onChange={(event) =>
+                            handleIssueFieldChange("shipping", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.shipping ? "border-[#b98d83]" : ""
+                          }`}
+                          inputMode="decimal"
+                          placeholder="300"
+                        />
+                        {issueFieldErrors.shipping ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.shipping}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Currency
+                        </span>
+                        <input
+                          value={issueForm.currency}
+                          onChange={(event) =>
+                            handleIssueFieldChange("currency", event.target.value)
+                          }
+                          className={fieldClassName}
+                          placeholder="mxn"
+                          autoCapitalize="off"
+                        />
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Quantity
+                        </span>
+                        <input
+                          value={issueForm.quantity}
+                          onChange={(event) =>
+                            handleIssueFieldChange("quantity", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.quantity ? "border-[#b98d83]" : ""
+                          }`}
+                          inputMode="numeric"
+                          placeholder="1"
+                        />
+                        {issueFieldErrors.quantity ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.quantity}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Validity hours
+                        </span>
+                        <input
+                          value={issueForm.expiresInHours}
+                          onChange={(event) =>
+                            handleIssueFieldChange("expiresInHours", event.target.value)
+                          }
+                          className={`${fieldClassName} ${
+                            issueFieldErrors.expiresInHours ? "border-[#b98d83]" : ""
+                          }`}
+                          inputMode="numeric"
+                          placeholder="72"
+                        />
+                        {issueFieldErrors.expiresInHours ? (
+                          <span className="text-xs leading-6 text-[#7a3b33]">
+                            {issueFieldErrors.expiresInHours}
+                          </span>
+                        ) : null}
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                          Created by
+                        </span>
+                        <input
+                          value={issueForm.createdBy}
+                          onChange={(event) =>
+                            handleIssueFieldChange("createdBy", event.target.value)
+                          }
+                          className={fieldClassName}
+                          placeholder="Praeliator"
+                        />
+                      </label>
+                    </div>
+
+                    <label className="grid gap-2">
+                      <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                        Specifications
+                      </span>
+                      <textarea
+                        value={issueForm.specifications}
+                        onChange={(event) =>
+                          handleIssueFieldChange("specifications", event.target.value)
+                        }
+                        className={`${textAreaFieldClassName} min-h-[9rem] resize-y ${
+                          issueFieldErrors.specifications ? "border-[#b98d83]" : ""
+                        }`}
+                        placeholder="Format=16 oz lace-up"
+                      />
+                      <span className="text-xs leading-6 text-[#70594a]">
+                        One line per specification in the form <span className="font-medium">Label=Value</span>.
+                      </span>
+                      {issueFieldErrors.specifications ? (
+                        <span className="text-xs leading-6 text-[#7a3b33]">
+                          {issueFieldErrors.specifications}
+                        </span>
+                      ) : null}
+                    </label>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                      <Button
+                        type="submit"
+                        disabled={issueSubmitting}
+                        className="rounded-full bg-[#201814] px-7 py-6 text-sm text-[#f6eee3] shadow-[0_14px_36px_rgba(35,27,21,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
+                      >
+                        {issueSubmitting ? "Issuing private page..." : "Issue Private Page"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setIssueForm({
+                            clientName: "",
+                            clientEmail: "",
+                            clientPhone: "",
+                            productName: "Praeliator VIS",
+                            subtotal: "6000",
+                            shipping: "300",
+                            currency: "mxn",
+                            quantity: "1",
+                            shippingCountry: "",
+                            shippingRegion: "",
+                            expiresInHours: "72",
+                            createdBy: "Praeliator",
+                            specifications: issuanceSpecificationDefault,
+                          });
+                          setIssueFieldErrors({});
+                        }}
+                        className="rounded-full border-[#d0bca1] bg-transparent px-6 py-6 text-sm text-[#5b4738] transition duration-500 hover:-translate-y-0.5 hover:border-[#b99973] hover:bg-white/40"
+                      >
+                        Reset form
+                      </Button>
+                      {copyFeedback ? (
+                        <span className="text-xs uppercase tracking-[0.22em] text-[#7d634a]">
+                          {copyFeedback}
+                        </span>
+                      ) : null}
+                    </div>
+                  </form>
+                </div>
+
+                {issueResult ? (
+                  <div className="mt-8 grid gap-4 border-t border-[#d9ccb9] pt-6 xl:grid-cols-[0.84fr_1.16fr]">
+                    <div className="grid gap-3">
+                      <div className="rounded-[1.3rem] border border-[#dcccb8] bg-white/55 p-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#957452]">
+                          Issued reference
+                        </p>
+                        <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#241912]">
+                          {issueResult.issuance.referenceCode}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              void handleCopyValue(
+                                "Reference code",
+                                issueResult.issuance.referenceCode,
+                              )
+                            }
+                            className="rounded-full border-[#d0bca1] bg-transparent px-4 py-4 text-xs text-[#5b4738] transition duration-500 hover:-translate-y-0.5 hover:border-[#b99973] hover:bg-white/40"
+                          >
+                            Copy reference
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              void handleCopyValue(
+                                "Private URL",
+                                issueResult.issuance.privateUrl,
+                              )
+                            }
+                            className="rounded-full border-[#d0bca1] bg-transparent px-4 py-4 text-xs text-[#5b4738] transition duration-500 hover:-translate-y-0.5 hover:border-[#b99973] hover:bg-white/40"
+                          >
+                            Copy URL
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-[1.3rem] border border-[#dcccb8] bg-white/55 p-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#957452]">
+                          Valid until
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-[#5e4b3b]">
+                          {formatIssuedExpiry(issueResult.issuance.expiresAt)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[1.3rem] border border-[#dcccb8] bg-white/55 p-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#957452]">
+                          Order line
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-[#5e4b3b]">
+                          {issueResult.issuance.orderSummary.productName}
+                        </p>
+                        <p className="text-sm leading-7 text-[#5e4b3b]">
+                          Qty {issueResult.issuance.orderSummary.quantity} Â·{" "}
+                          {formatMoney(
+                            issueResult.issuance.orderSummary.totalAmount,
+                            issueResult.issuance.orderSummary.currency,
+                          )}
+                        </p>
+                        {(issueResult.issuance.orderSummary.shippingRegion ||
+                          issueResult.issuance.orderSummary.shippingCountry) ? (
+                          <p className="text-sm leading-7 text-[#5e4b3b]">
+                            {[
+                              issueResult.issuance.orderSummary.shippingRegion,
+                              issueResult.issuance.orderSummary.shippingCountry,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </p>
+                        ) : null}
+                        <div className="mt-4">
+                          <Button
+                            asChild
+                            type="button"
+                            className="rounded-full bg-[#201814] px-5 py-4 text-xs text-[#f6eee3] shadow-[0_12px_30px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f]"
+                          >
+                            <a
+                              href={issueResult.issuance.privateUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Open issued page
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4">
+                      <div className="rounded-[1.3rem] border border-[#dcccb8] bg-white/55 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.24em] text-[#957452]">
+                              Prepared client notice
+                            </p>
+                            <p className="mt-2 text-sm leading-7 text-[#5e4b3b]">
+                              Ready to send without rewriting the reference by hand.
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              void handleCopyValue(
+                                "Prepared notice",
+                                issueResult.preparedNotice,
+                              )
+                            }
+                            className="rounded-full border-[#d0bca1] bg-transparent px-4 py-4 text-xs text-[#5b4738] transition duration-500 hover:-translate-y-0.5 hover:border-[#b99973] hover:bg-white/40"
+                          >
+                            Copy notice
+                          </Button>
+                        </div>
+                        <pre className="mt-4 whitespace-pre-wrap rounded-[1.1rem] border border-[#eadcc9] bg-[#fffaf4] px-4 py-4 text-sm leading-7 text-[#2b211a]">
+                          {issueResult.preparedNotice}
+                        </pre>
+                      </div>
+
+                      <div className="rounded-[1.3rem] border border-[#dcccb8] bg-white/55 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-[0.24em] text-[#957452]">
+                              Equivalent PowerShell
+                            </p>
+                            <p className="mt-2 text-sm leading-7 text-[#5e4b3b]">
+                              Running this block again would issue a new session. Keep it only as a working template or record.
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              void handleCopyValue(
+                                "PowerShell block",
+                                issueResult.powerShellSnippet,
+                              )
+                            }
+                            className="rounded-full border-[#d0bca1] bg-transparent px-4 py-4 text-xs text-[#5b4738] transition duration-500 hover:-translate-y-0.5 hover:border-[#b99973] hover:bg-white/40"
+                          >
+                            Copy block
+                          </Button>
+                        </div>
+                        <pre className="mt-4 overflow-x-auto rounded-[1.1rem] border border-[#eadcc9] bg-[#fffaf4] px-4 py-4 text-sm leading-7 text-[#2b211a]">
+                          {issueResult.powerShellSnippet}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
               <div className={`${cardClassName} p-5 sm:p-6`}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -805,6 +1465,7 @@ export function HouseLedgerRoute({
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           ) : null}
