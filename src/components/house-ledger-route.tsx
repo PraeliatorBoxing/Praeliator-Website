@@ -636,7 +636,7 @@ export function HouseLedgerRoute({
   }
 
   return (
-    <section className={ledgerSurfaceClassName}>
+    <section className={ledgerSurfaceClassName} data-native-cursor="true">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <header className="mb-6 flex flex-col gap-4 rounded-[1.7rem] border border-[#d5c6b2] bg-[linear-gradient(180deg,rgba(252,247,240,0.88),rgba(245,236,224,0.9))] p-4 shadow-[0_18px_44px_rgba(82,58,34,0.08)] sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <div className="flex items-center gap-4">
@@ -790,7 +790,7 @@ export function HouseLedgerRoute({
             </div>
           ) : null}
 
-          {!loading && !state && authSession ? (
+          {!loading && !state && authSession && !error ? (
             <div className={`${cardClassName} px-6 py-8 text-sm leading-7 text-[#5a4738] sm:px-8`}>
               This route has not been issued to the current account.
             </div>

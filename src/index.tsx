@@ -6509,7 +6509,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     const resolveVariant = (target: EventTarget | null): LuxuryCursorVariant => {
       if (!(target instanceof Element)) return "default";
       if (target.closest(textSelector)) return "hidden";
-      if (target.closest("[data-native-cursor='true']")) return "default";
+      if (target.closest("[data-native-cursor='true']")) return "hidden";
       if (target.closest(interactiveSelector)) return "button";
       return "default";
     };
@@ -6824,6 +6824,18 @@ function BrowserFormStyles() {
       html.praeliator-luxury-cursor [contenteditable=''],
       html.praeliator-luxury-cursor [contenteditable='plaintext-only'] {
         cursor: text !important;
+      }
+      html.praeliator-luxury-cursor [data-native-cursor='true'],
+      html.praeliator-luxury-cursor [data-native-cursor='true'] * {
+        cursor: auto !important;
+      }
+      html.praeliator-luxury-cursor [data-native-cursor='true'] button,
+      html.praeliator-luxury-cursor [data-native-cursor='true'] [role='button'],
+      html.praeliator-luxury-cursor [data-native-cursor='true'] a[href],
+      html.praeliator-luxury-cursor [data-native-cursor='true'] summary,
+      html.praeliator-luxury-cursor [data-native-cursor='true'] label[for],
+      html.praeliator-luxury-cursor [data-native-cursor='true'] select {
+        cursor: pointer !important;
       }
       .browser-form-element {
         -webkit-appearance: none;
@@ -11836,7 +11848,7 @@ const renderWaitlistPage = () => (
         </Container>
       </section>
 
-      <section className="relative py-7">
+      <section className="relative pb-3 pt-7">
         <Container>
           <div className="grid gap-4">
             <Reveal>
@@ -11944,57 +11956,65 @@ const renderWaitlistPage = () => (
                 </div>
               </div>
             </Reveal>
+            <Reveal delay={0.14}>
+              <div className="mt-2 border-t border-white/[0.06] pt-5">
+                <div className="mb-4 flex items-end justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                      Continue
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/54">
+                      The route stays in the same scroll.
+                    </p>
+                  </div>
+                </div>
+                <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {[
+                    {
+                      title: "Discover VIS",
+                      route: "/praeliator-vis" as Route,
+                      image: visImageSources.hero,
+                    },
+                    {
+                      title: "Private Acquisition",
+                      route: "/acquisition" as Route,
+                      image: visImageSources.packaging,
+                    },
+                    {
+                      title: "Join Waitlist",
+                      route: "/waitlist" as Route,
+                      image: homeImageSources.presentation,
+                    },
+                  ].map((card) => (
+                    <button
+                      key={card.route}
+                      type="button"
+                      onClick={() => goTo(card.route)}
+                      className="group w-[16.5rem] shrink-0 overflow-hidden rounded-[1.55rem] border border-white/[0.085] bg-[linear-gradient(180deg,rgba(16,15,14,0.88),rgba(9,8,8,0.96))] text-left transition duration-500 hover:border-white/15"
+                    >
+                      <div
+                        className="h-40 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${card.image})` }}
+                      />
+                      <div className="flex items-center justify-between gap-4 p-4">
+                        <div className="min-w-0">
+                          <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                            Route
+                          </p>
+                          <p className="mt-2 text-sm uppercase tracking-[0.12em] text-white/86">
+                            {card.title}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/56" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
         </Container>
       </section>
-
-      <MobileSectionFrame
-        eyebrow="Explore"
-        title="Continue deeper."
-      >
-        <div className="grid gap-3">
-          {[
-            {
-              title: "Discover VIS",
-              route: "/praeliator-vis" as Route,
-              image: visImageSources.hero,
-            },
-            {
-              title: "Private Acquisition",
-              route: "/acquisition" as Route,
-              image: visImageSources.packaging,
-            },
-            {
-              title: "Join Waitlist",
-              route: "/waitlist" as Route,
-              image: homeImageSources.presentation,
-            },
-          ].map((card) => (
-            <button
-              key={card.route}
-              type="button"
-              onClick={() => goTo(card.route)}
-              className="group overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/[0.03] text-left transition duration-500 hover:border-white/16 hover:bg-white/[0.05]"
-            >
-              <div
-                className="h-44 bg-cover bg-center"
-                style={{ backgroundImage: `url(${card.image})` }}
-              />
-              <div className="flex items-center justify-between gap-4 p-4">
-                <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                    Continue
-                  </p>
-                  <p className="text-base uppercase tracking-[0.12em] text-white/88">
-                    {card.title}
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-white/30 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
-              </div>
-            </button>
-          ))}
-        </div>
-      </MobileSectionFrame>
 
       <MobileHomeFooter
         goTo={goTo}
