@@ -3211,6 +3211,40 @@ function getVideoFallbackImage(video?: string, fallback?: string) {
   return videoPathToAnimatedImagePath(video) ?? fallback;
 }
 
+function useMobileMediaActivation(enabled: boolean, rootMargin = "180px 0px") {
+  const ref = useRef<HTMLElement | null>(null);
+  const [isActive, setIsActive] = useState(!enabled);
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") {
+      setIsActive(true);
+      return;
+    }
+
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setIsActive(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsActive(entry.isIntersecting);
+      },
+      {
+        root: null,
+        rootMargin,
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [enabled, rootMargin]);
+
+  return { ref, isActive };
+}
+
 function MediaSurface({
   src,
   alt,
@@ -3232,6 +3266,7 @@ function MediaSurface({
     heavy: "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
   };
   const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
@@ -3240,11 +3275,22 @@ function MediaSurface({
     mediaQuery.addEventListener?.("change", update);
     return () => mediaQuery.removeEventListener?.("change", update);
   }, []);
+  useEffect(() => {
+    setAnimatedImageFailed(false);
+  }, [video]);
   const animatedImage = videoPathToAnimatedImagePath(video);
-  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const { ref: mediaActivationRef, isActive: isMediaActive } =
+    useMobileMediaActivation(Boolean(usePhoneAnimatedImage && video));
+  const shouldUseAnimatedImage = Boolean(
+    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
+  );
   const fallbackImage = getVideoFallbackImage(video, src);
+  const shouldRenderVideo = Boolean(
+    video && !shouldUseAnimatedImage && (!usePhoneAnimatedImage || isMediaActive),
+  );
   return (
     <div
+      ref={mediaActivationRef as React.RefObject<HTMLDivElement>}
       className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
     >
       <div
@@ -3260,8 +3306,9 @@ function MediaSurface({
           alt=""
           aria-hidden="true"
           draggable={false}
+          onError={() => setAnimatedImageFailed(true)}
         />
-      ) : video ? (
+      ) : shouldRenderVideo ? (
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -3269,7 +3316,7 @@ function MediaSurface({
           loop
           playsInline
           poster={fallbackImage}
-          preload="metadata"
+          preload={usePhoneAnimatedImage ? "none" : "metadata"}
         >
           <source src={video} type="video/mp4" />
         </video>
@@ -3664,6 +3711,7 @@ function MobileHeroMediaBackdrop({
   };
 }) {
   const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -3673,13 +3721,28 @@ function MobileHeroMediaBackdrop({
     mediaQuery.addEventListener?.("change", update);
     return () => mediaQuery.removeEventListener?.("change", update);
   }, []);
+  useEffect(() => {
+    setAnimatedImageFailed(false);
+  }, [media.video]);
 
   const animatedImage = videoPathToAnimatedImagePath(media.video);
-  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const { ref: mediaActivationRef, isActive: isMediaActive } =
+    useMobileMediaActivation(Boolean(usePhoneAnimatedImage && media.video), "220px 0px");
+  const shouldUseAnimatedImage = Boolean(
+    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
+  );
   const fallbackImage = getVideoFallbackImage(media.video, media.image);
+  const shouldRenderVideo = Boolean(
+    media.video &&
+      !shouldUseAnimatedImage &&
+      (!usePhoneAnimatedImage || isMediaActive),
+  );
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#050505]">
+    <div
+      ref={mediaActivationRef as React.RefObject<HTMLDivElement>}
+      className="absolute inset-0 overflow-hidden bg-[#050505]"
+    >
       <div
         className="absolute inset-0 scale-[1.035] bg-cover bg-center"
         style={{ backgroundImage: `url(${fallbackImage})` }}
@@ -3693,8 +3756,9 @@ function MobileHeroMediaBackdrop({
           alt=""
           aria-hidden="true"
           draggable={false}
+          onError={() => setAnimatedImageFailed(true)}
         />
-      ) : media.video ? (
+      ) : shouldRenderVideo ? (
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -3702,7 +3766,7 @@ function MobileHeroMediaBackdrop({
           loop
           playsInline
           poster={fallbackImage}
-          preload="metadata"
+          preload={usePhoneAnimatedImage ? "none" : "metadata"}
         >
           <source src={media.video} type="video/mp4" />
         </video>
@@ -5310,6 +5374,7 @@ function CinematicScene({
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -5319,9 +5384,18 @@ function CinematicScene({
     mediaQuery.addEventListener?.("change", update);
     return () => mediaQuery.removeEventListener?.("change", update);
   }, []);
+  useEffect(() => {
+    setAnimatedImageFailed(false);
+  }, [section.video]);
   const animatedImage = videoPathToAnimatedImagePath(section.video);
-  const shouldUseAnimatedImage = Boolean(usePhoneAnimatedImage && animatedImage);
+  const { ref: sceneActivationRef, isActive: isSceneActive } =
+    useMobileMediaActivation(stackedFlow, "220px 0px");
+  const shouldUseAnimatedImage = Boolean(
+    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
+  );
   const fallbackImage = getVideoFallbackImage(section.video, section.poster);
+  const effectiveInView = stackedFlow ? isSceneActive : inView;
+  const shouldRenderVideo = !shouldUseAnimatedImage && (!stackedFlow || isSceneActive);
   useEffect(() => {
     setVideoReady(shouldUseAnimatedImage);
     setShowLoader(false);
@@ -5350,6 +5424,7 @@ function CinematicScene({
   };
   return (
     <section
+      ref={sceneActivationRef as React.RefObject<HTMLElement>}
       className={
         stackedFlow
           ? "relative isolate min-h-[100svh] overflow-hidden"
@@ -5358,7 +5433,7 @@ function CinematicScene({
     >
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
-          animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
+          animate={{ scale: effectiveInView ? 1 : 1.02, opacity: 1 }}
           transition={{ duration: 1.35, ease: easeLuxury }}
           className="absolute inset-0"
         >
@@ -5374,15 +5449,16 @@ function CinematicScene({
               alt=""
               aria-hidden="true"
               draggable={false}
+              onError={() => setAnimatedImageFailed(true)}
             />
-          ) : (
+          ) : shouldRenderVideo ? (
             <video
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
               muted
               loop
               playsInline
-              preload="auto"
+              preload={stackedFlow ? "none" : "metadata"}
               poster={fallbackImage}
               onCanPlay={markVideoReady}
               onLoadedData={markVideoReady}
@@ -5390,7 +5466,7 @@ function CinematicScene({
             >
               <source src={section.video} type="video/mp4" />
             </video>
-          )}
+          ) : null}
         </motion.div>
         <AnimatePresence>
           {!videoReady && showLoader ? (
@@ -5424,22 +5500,22 @@ function CinematicScene({
       >
         <motion.div
           animate={{
-            opacity: inView ? 1 : 0,
-            y: inView ? 0 : 42,
-            filter: inView ? "blur(0px)" : "blur(12px)",
+            opacity: effectiveInView ? 1 : 0,
+            y: effectiveInView ? 0 : 42,
+            filter: effectiveInView ? "blur(0px)" : "blur(12px)",
           }}
           transition={{
             duration: 0.85,
-            delay: inView ? 0.28 : 0,
+            delay: effectiveInView ? 0.28 : 0,
             ease: easeLuxury,
           }}
           className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
         >
           <motion.p
-            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 22 }}
+            animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 22 }}
             transition={{
               duration: 0.8,
-              delay: inView ? 0.34 : 0,
+              delay: effectiveInView ? 0.34 : 0,
               ease: easeLuxury,
             }}
             className="max-w-[92vw] text-[clamp(2.55rem,10.5vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.09em] text-white/96 sm:tracking-[0.14em]"
@@ -5448,10 +5524,10 @@ function CinematicScene({
           </motion.p>
           {section.line ? (
             <motion.p
-              animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 16 }}
+              animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 16 }}
               transition={{
                 duration: 0.78,
-                delay: inView ? 0.48 : 0,
+                delay: effectiveInView ? 0.48 : 0,
                 ease: easeLuxury,
               }}
               className="mt-5 max-w-[22rem] text-[0.92rem] leading-7 tracking-[0.08em] text-white/74 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:tracking-[0.1em]"
@@ -5460,10 +5536,10 @@ function CinematicScene({
             </motion.p>
           ) : null}
           <motion.div
-            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 14 }}
+            animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 14 }}
             transition={{
               duration: 0.76,
-              delay: inView ? 0.62 : 0,
+              delay: effectiveInView ? 0.62 : 0,
               ease: easeLuxury,
             }}
             className="mt-9"
