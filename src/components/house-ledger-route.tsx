@@ -318,7 +318,7 @@ export function HouseLedgerRoute({
       }
 
       try {
-        const response = await fetch("/api/house-ledger-state", {
+        const response = await fetch("/api/house-ledger", {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -392,14 +392,14 @@ export function HouseLedgerRoute({
 
     setMarkingRead(true);
     try {
-      const response = await fetch("/api/house-ledger-notifications-read", {
+      const response = await fetch("/api/house-ledger", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ action: "notifications-read" }),
       });
       const result = await parseJsonResponse<ReadNotificationsResponse>(
         response,
@@ -445,14 +445,18 @@ export function HouseLedgerRoute({
 
     setStatusUpdatingId(saleId);
     try {
-      const response = await fetch("/api/house-ledger-sale-status", {
+      const response = await fetch("/api/house-ledger", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ saleId, fulfillmentStatus }),
+        body: JSON.stringify({
+          action: "sale-status",
+          saleId,
+          fulfillmentStatus,
+        }),
       });
       const result = await parseJsonResponse<SaleStatusResponse>(
         response,
@@ -535,14 +539,17 @@ export function HouseLedgerRoute({
     setCopyFeedback(null);
 
     try {
-      const response = await fetch("/api/house-ledger-issue-acquisition", {
+      const response = await fetch("/api/house-ledger", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(issueForm),
+        body: JSON.stringify({
+          action: "issue-acquisition",
+          ...issueForm,
+        }),
       });
       const result = await parseJsonResponse<IssueAcquisitionResponse>(
         response,
