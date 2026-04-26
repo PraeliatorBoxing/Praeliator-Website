@@ -5291,6 +5291,7 @@ function FieldNote({ children }: { children: React.ReactNode }) {
 function CinematicScene({
   section,
   active,
+  stackedFlow = false,
 }: {
   section: {
     key: string;
@@ -5303,6 +5304,7 @@ function CinematicScene({
     poster: string;
   };
   active: boolean;
+  stackedFlow?: boolean;
 }) {
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
@@ -5347,7 +5349,13 @@ function CinematicScene({
     }
   };
   return (
-    <section className="relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start">
+    <section
+      className={
+        stackedFlow
+          ? "relative isolate min-h-[100svh] overflow-hidden"
+          : "relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
+      }
+    >
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
           animate={{ scale: inView ? 1 : 1.02, opacity: 1 }}
@@ -5407,7 +5415,13 @@ function CinematicScene({
         <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[34svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.78))]" />
       </div>
-      <div className="relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28">
+      <div
+        className={
+          stackedFlow
+            ? "relative z-10 flex min-h-[100svh] items-center justify-center px-6 py-20 sm:px-10 sm:py-24 lg:px-16 lg:py-28"
+            : "relative z-10 flex h-full items-center justify-center px-6 pt-20 sm:px-10 sm:pt-24 lg:px-16 lg:pt-28"
+        }
+      >
         <motion.div
           animate={{
             opacity: inView ? 1 : 0,
@@ -5790,6 +5804,7 @@ function HomeTailScene({
   instagramLink,
   emailLink,
   scrollContainerRef,
+  stackedFlow = false,
 }: {
   active: boolean;
   goTo: (nextRoute: Route) => void;
@@ -5797,7 +5812,22 @@ function HomeTailScene({
   instagramLink: string;
   emailLink: string;
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+  stackedFlow?: boolean;
 }) {
+  if (stackedFlow) {
+    return (
+      <section className="relative isolate bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
+        <ExploreFurtherScene active={active} goTo={goTo} />
+        <HomeFooterScene
+          goTo={goTo}
+          whatsappGeneralLink={whatsappGeneralLink}
+          instagramLink={instagramLink}
+          emailLink={emailLink}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="relative isolate h-[100svh] min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
       <div
@@ -6302,6 +6332,7 @@ function FullScreenCinematicHomepage({
                 key={section.key}
                 section={section}
                 active={true}
+                stackedFlow
               />
             );
           }
@@ -6314,6 +6345,7 @@ function FullScreenCinematicHomepage({
               instagramLink={instagramLink}
               emailLink={emailLink}
               scrollContainerRef={null}
+              stackedFlow
             />
           );
         })}
