@@ -28,7 +28,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "luxe",
     ],
     answers: {
-      en: "Praeliator presents itself as a private luxury boxing house rather than a mass-market equipment brand. The standard is restraint, object quality, controlled access, and continuity after acquisition, so the pair is treated more like a retained object than a generic sports purchase.",
+      en: "We do not position Praeliator as a mass-market equipment label. We keep it as a private luxury boxing house, where restraint, object quality, controlled access, and continuity after acquisition matter more than volume or noise. In that sense, the pair is treated less like a generic sports purchase and more like a retained object under the house.",
       es: "Praeliator se presenta como una casa privada de lujo dedicada al boxeo, no como una marca masiva de equipo. El estándar está en la contención, la calidad del objeto, el acceso controlado y la continuidad después de la adquisición, de modo que el par se trata más como un objeto retenido que como una compra deportiva genérica.",
       ja: "Praeliator は大衆向けの用品ブランドではなく、私的なラグジュアリー・ボクシングハウスとして構成されています。その基準は抑制、対象物としての品質、管理されたアクセス、取得後の継続性にあり、ペアは一般的なスポーツ購入品ではなく、保持される対象物として扱われます。",
       fr: "Praeliator se présente comme une maison privée de luxe consacrée à la boxe, et non comme une marque d'équipement de masse. Le standard repose sur la retenue, la qualité d'objet, l'accès contrôlé et la continuité après acquisition, de sorte que la paire est traitée comme un objet retenu plutôt que comme un achat sportif générique.",
@@ -51,7 +51,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "art objet",
     ],
     answers: {
-      en: "Praeliator treats boxing as an art form and the glove as a resolved object, not only a piece of equipment. That is why the site emphasizes silhouette, material, presentation, custody, and aftercare instead of acting like a normal product listing or open public storefront.",
+      en: "We treat boxing as an art form and the glove as a resolved object, not merely as equipment. That is why we place weight on silhouette, material, presentation, custody, and aftercare instead of reducing the work to a public storefront or an ordinary product listing.",
       es: "Praeliator trata el boxeo como una forma de arte y al guante como un objeto resuelto, no solo como una pieza de equipo. Por eso el sitio enfatiza silueta, material, presentación, custodia y aftercare en lugar de comportarse como una ficha de producto normal o una tienda pública abierta.",
       ja: "Praeliator はボクシングを芸術形式として、グローブを単なる道具ではなく解決された対象物として扱います。だからこそサイトは通常の製品一覧や公開店舗のようには振る舞わず、シルエット、素材、提示、保管、アフターケアを強く重視しています。",
       fr: "Praeliator traite la boxe comme une forme d'art et le gant comme un objet résolu, et non comme un simple équipement. C'est pourquoi le site met l'accent sur la silhouette, la matière, la présentation, la garde et l'après-achat au lieu d'agir comme une fiche produit ordinaire ou une vitrine publique ouverte.",
@@ -71,7 +71,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "commence",
     ],
     answers: {
-      en: "Acquisition begins by direct correspondence. The first inquiry is reviewed before any private allocation or payment chamber is issued.",
+      en: "We begin acquisition by direct correspondence. The first inquiry is reviewed before we issue any private allocation or payment chamber.",
       es: "La adquisición comienza por correspondencia directa. La primera consulta se revisa antes de emitir cualquier asignación privada o cámara de pago.",
       ja: "取得は直接のやり取りから始まります。最初の問い合わせが確認されるまで、私的な割当や支払い導線は発行されません。",
       fr: "L'acquisition commence par une correspondance directe. La première demande est examinée avant qu'une allocation privée ou qu'une chambre de paiement ne soit émise.",
@@ -90,7 +90,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "achat public",
     ],
     answers: {
-      en: "No. Praeliator VIS is not offered through a public cart. Approved clients may receive a private acquisition session prepared specifically for their line.",
+      en: "No. We do not place Praeliator VIS inside a public cart. When a client is approved, we may issue a private acquisition session prepared for that specific line.",
       es: "No. Praeliator VIS no se ofrece mediante un carrito público. Los clientes aprobados pueden recibir una sesión privada de adquisición preparada para su propia línea.",
       ja: "いいえ。Praeliator VIS は公開カート商品ではありません。承認された顧客にのみ、専用の私的取得セッションが用意されます。",
       fr: "Non. Praeliator VIS n'est pas proposé par panier public. Les clients approuvés peuvent recevoir une session d'acquisition privée préparée pour leur propre ligne.",
@@ -108,7 +108,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "registre",
     ],
     answers: {
-      en: "The Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
+      en: "Our Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
       es: "El Registro de Propiedad es la capa privada donde los pares registrados, la edad de entrega registrada y la elegibilidad futura de servicio permanecen bajo una misma línea de casa.",
       ja: "Ownership Record は、登録されたペア、記録された到着年齢、将来のサービス適格性を同じハウスの系統下に保持する私的な記録層です。",
       fr: "L'Ownership Record est la couche privée où les paires enregistrées, l'ancienneté de livraison enregistrée et l'éligibilité future de service restent sous une même ligne de maison.",
@@ -128,7 +128,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "apres-vente",
     ],
     answers: {
-      en: "Legacy Refresh is a private post-purchase service ritual. It becomes available according to the pair's recorded maturity rather than the registration date alone.",
+      en: "We keep Legacy Refresh as a private post-purchase service ritual. It opens according to the pair's recorded maturity rather than the registration date alone.",
       es: "Legacy Refresh es un ritual privado de servicio posterior a la compra. Se abre según la madurez registrada del par y no solo por la fecha de registro.",
       ja: "Legacy Refresh は購入後の私的なサービス儀式です。登録日ではなく、記録された成熟度に応じて開きます。",
       fr: "Legacy Refresh est un rituel de service privé après achat. Il s'ouvre selon la maturité enregistrée de la paire et non selon la seule date d'enregistrement.",
@@ -147,7 +147,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "livraison",
     ],
     answers: {
-      en: "Delivery details are collected only after private access is verified and before payment is opened, so the route remains controlled from inquiry through fulfillment.",
+      en: "We collect delivery details only after private access has been verified and before payment opens, so the route remains controlled from inquiry through fulfillment.",
       es: "Los datos de entrega se solicitan solo después de verificar el acceso privado y antes de abrir el pago, para que la ruta siga controlada desde la consulta hasta el cumplimiento.",
       ja: "配送情報は私的アクセスの確認後、支払い開始前にのみ収集されるため、問い合わせから履行までの導線は統制されたまま保たれます。",
       fr: "Les détails de livraison ne sont recueillis qu'après vérification de l'accès privé et avant l'ouverture du paiement, afin que la voie demeure contrôlée de la demande jusqu'à l'accomplissement.",
@@ -167,7 +167,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "confidentialite",
     ],
     answers: {
-      en: "Praeliator retains only the information needed to review correspondence, issue private acquisition access, maintain ownership records, continue service, and prepare delivery. Payments are handled through Stripe, and technical analytics may run when configured in production.",
+      en: "We retain only the information required to review correspondence, issue private acquisition access, maintain ownership records, continue service, and prepare delivery. We handle payment through Stripe, and we may run technical analytics when they are configured in production.",
       es: "Praeliator retiene solo la información necesaria para revisar correspondencia, emitir acceso privado de adquisición, mantener registros de propiedad, continuar servicio y preparar entrega. Los pagos se procesan mediante Stripe y la analítica técnica puede funcionar cuando está activada en producción.",
       ja: "Praeliator は、対応審査、私的取得アクセスの発行、所有記録の維持、継続サービス、配送準備に必要な情報だけを保持します。決済は Stripe が処理し、技術的な解析は本番で設定されている場合にのみ動作します。",
       fr: "Praeliator ne retient que les informations nécessaires pour examiner la correspondance, émettre l'accès privé d'acquisition, maintenir les registres de propriété, poursuivre le service et préparer la livraison. Les paiements sont traités par Stripe, et l'analytique technique peut fonctionner lorsqu'elle est activée en production.",
@@ -194,7 +194,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "montant",
     ],
     answers: {
-      en: "The current published VIS acquisition total is MX$6,300: Praeliator VIS at MX$6,000 and private allocation and fulfillment at MX$300. Payment is completed inside the issued private acquisition route rather than through a public checkout.",
+      en: "Our current published VIS acquisition total is MX$6,300: Praeliator VIS at MX$6,000 and private allocation and fulfillment at MX$300. Payment is completed inside the issued private acquisition route rather than through a public checkout.",
       es: "El total publicado actual para la adquisición de VIS es MX$6,300: Praeliator VIS en MX$6,000 y asignación privada con cumplimiento en MX$300. El pago se completa dentro de la ruta privada emitida, no mediante un checkout público.",
       ja: "現在公開されている VIS の取得総額は MX$6,300 です。内訳は Praeliator VIS が MX$6,000、私的割当と履行が MX$300 です。支払いは公開チェックアウトではなく、発行された私的取得ルート内で完了します。",
       fr: "Le total publié actuel pour l'acquisition de VIS est de MX$6,300 : Praeliator VIS à MX$6,000 et allocation privée avec accomplissement à MX$300. Le paiement s'effectue à l'intérieur de la voie privée émise, et non via un checkout public.",
@@ -228,7 +228,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "matiere",
     ],
     answers: {
-      en: "The published VIS record describes a 16 oz lace-up training pair in top-grain cowhide leather, with 4-way stretch lining, a ventilated palm panel, integrated grip bar, attached thumb, and extended lace-up cuff. Presentation includes a rigid box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
+      en: "Our published VIS record describes a 16 oz lace-up training pair in top-grain cowhide leather, with 4-way stretch lining, a ventilated palm panel, integrated grip bar, attached thumb, and an extended lace-up cuff. Presentation includes a rigid box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
       es: "El registro publicado de VIS describe un par de entrenamiento de 16 oz con cierre de agujetas, cuero vacuno top-grain, forro elástico 4-way, palma ventilada, grip bar integrado, pulgar unido y puño extendido de agujetas. La presentación incluye caja rígida, dust bag de seda, papel de seda, tarjeta de autenticidad y tarjeta de cuidado.",
       ja: "公開されている VIS の記録では、16 oz のレースアップ式トレーニングペアで、トップグレインのカウハイド、4-way ストレッチライニング、通気パーム、統合グリップバー、アタッチドサム、延長レースアップカフが示されています。付属は剛性ボックス、シルクダストバッグ、シルクラッピング、真正性カード、ケアカードです。",
       fr: "Le registre publié de VIS décrit une paire d'entraînement 16 oz à laçage, en cuir bovin top-grain, avec doublure extensible 4-way, paume ventilée, grip bar intégré, pouce attaché et manchette allongée à laçage. La présentation comprend boîte rigide, dust bag en soie, papier de soie, carte d'authenticité et carte d'entretien.",
@@ -257,7 +257,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "matiere",
     ],
     answers: {
-      en: "The published VIS construction points to top-grain cowhide leather, balanced structure, a ventilated palm, integrated grip bar, attached thumb, 4-way stretch lining, and an extended lace-up cuff. It is positioned as a disciplined training object with material seriousness rather than flash.",
+      en: "In the published VIS line, we work with top-grain cowhide leather, a balanced structure, a ventilated palm, an integrated grip bar, an attached thumb, 4-way stretch lining, and an extended lace-up cuff. We hold it as a disciplined training object with material seriousness rather than flash.",
       es: "La construcción publicada de VIS apunta a cuero vacuno top-grain, estructura equilibrada, palma ventilada, grip bar integrado, pulgar unido, forro 4-way stretch y un puño extendido de agujetas. Se plantea como un objeto de entrenamiento serio en materialidad, no como algo vistoso.",
       ja: "公開されている VIS の構造には、トップグレインのカウハイド、均整の取れた構成、通気パーム、統合グリップバー、アタッチドサム、4-way ストレッチライニング、延長レースアップカフが含まれます。派手さよりも素材的な厳格さを持つ訓練用対象物として位置づけられています。",
       fr: "La construction publiée de VIS renvoie à un cuir bovin top-grain, une structure équilibrée, une paume ventilée, un grip bar intégré, un pouce attaché, une doublure extensible 4-way et une manchette allongée à laçage. L'objet est présenté comme un instrument d'entraînement discipliné, sérieux dans sa matière plutôt que démonstratif.",
@@ -280,7 +280,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "boite",
     ],
     answers: {
-      en: "The published presentation includes a rigid box, silk dust bag, silk wrapping paper, authenticity card, and care card. The packaging is part of the house presentation language, not an afterthought added around a generic product.",
+      en: "Our published presentation includes a rigid box, silk dust bag, silk wrapping paper, authenticity card, and care card. We consider the packaging part of the house language, not an afterthought wrapped around a generic product.",
       es: "La presentación publicada incluye caja rígida, dust bag de seda, papel de seda, tarjeta de autenticidad y tarjeta de cuidado. El empaque forma parte del lenguaje de presentación de la casa, no es un añadido tardío alrededor de un producto genérico.",
       ja: "公開されている提示内容には、剛性ボックス、シルクダストバッグ、シルクラッピング、真正性カード、ケアカードが含まれます。パッケージは一般的な製品の周辺要素ではなく、ハウスの提示言語そのものの一部です。",
       fr: "La présentation publiée comprend une boîte rigide, un dust bag en soie, du papier de soie, une carte d'authenticité et une carte d'entretien. L'emballage fait partie du langage de présentation de la maison, et non d'un ajout tardif autour d'un produit générique.",
@@ -305,7 +305,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "session privee",
     ],
     answers: {
-      en: "A private acquisition session is issued with a unique URL token and a separate reference code. The client verifies the reference first, completes delivery details, and only then opens the payment chamber. After payment succeeds, the session is no longer reusable under normal flow.",
+      en: "We issue a private acquisition session with a unique URL token and a separate reference code. The client verifies the reference first, completes delivery details, and only then opens the payment chamber. Once payment succeeds, the session is no longer reusable under normal flow.",
       es: "Una sesión privada de adquisición se emite con un token de URL único y un código de referencia aparte. El cliente primero verifica la referencia, completa los datos de entrega y solo entonces abre la cámara de pago. Tras un pago exitoso, la sesión deja de ser reutilizable en el flujo normal.",
       ja: "私的取得セッションは、一意の URL トークンと別個の参照コードで発行されます。顧客は最初に参照を確認し、配送情報を完了してから支払いチャンバーを開きます。支払いが成功すると、そのセッションは通常フローでは再利用できません。",
       fr: "Une session privée d'acquisition est émise avec un jeton d'URL unique et un code de référence séparé. Le client vérifie d'abord la référence, complète les détails de livraison, puis seulement ouvre la chambre de paiement. Une fois le paiement réussi, la session n'est plus réutilisable dans le flux normal.",
@@ -327,7 +327,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "allocation privee",
     ],
     answers: {
-      en: "The waitlist is positioned as a quieter register for future allocation, collector interest, and continued private access rather than a generic marketing list. Availability is handled more like placement under the house than open inventory noise.",
+      en: "We keep the waitlist as a quieter register for future allocation, collector interest, and continued private access rather than as a generic marketing list. Availability is handled more like placement under the house than open inventory noise.",
       es: "La waitlist se plantea como un registro más silencioso para futuras asignaciones, interés de coleccionistas y acceso privado continuo, no como una lista de marketing genérica. La disponibilidad se maneja más como colocación bajo la casa que como ruido de inventario abierto.",
       ja: "ウェイトリストは一般的なマーケティングリストではなく、将来の割当、コレクターの関心、継続する私的アクセスのための静かな登録として位置づけられています。可用性は公開在庫ではなく、ハウスによる配置として扱われます。",
       fr: "La waitlist est pensée comme un registre plus discret pour l'allocation future, l'intérêt de collection et l'accès privé continu, et non comme une liste marketing générique. La disponibilité est traitée davantage comme un placement sous la maison que comme un bruit d'inventaire ouvert.",
@@ -350,7 +350,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "demande",
     ],
     answers: {
-      en: "Praeliator uses direct correspondence rather than a public sales funnel. WhatsApp remains the fast route, while the written correspondence page keeps longer inquiries inside the site under house, care, or studio lines.",
+      en: "We prefer direct correspondence over a public sales funnel. WhatsApp remains the faster route, while the written correspondence page keeps longer inquiries inside the site under house, care, or studio lines.",
       es: "Praeliator utiliza correspondencia directa en lugar de un embudo público de ventas. WhatsApp sigue siendo la vía rápida, mientras que la página de correspondencia escrita mantiene consultas más largas dentro del sitio bajo las líneas house, care o studio.",
       ja: "Praeliator は公開販売ファネルではなく、直接のやり取りを用います。WhatsApp が素早い導線であり、より長い書面での問い合わせはサイト内の house / care / studio ラインで扱われます。",
       fr: "Praeliator utilise une correspondance directe plutôt qu'un entonnoir public de vente. WhatsApp demeure la voie rapide, tandis que la page de correspondance écrite garde les demandes plus longues à l'intérieur du site sous les lignes house, care ou studio.",
@@ -373,7 +373,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "continuite",
     ],
     answers: {
-      en: "Praeliator is built so the relationship does not stop at sale and delivery. Registration, recorded age, service eligibility, and future review remain attached to the same object line, which is why ownership and aftercare are treated as part of the house rather than separate support behavior.",
+      en: "We have built Praeliator so the relationship does not stop at sale and delivery. Registration, recorded age, service eligibility, and future review remain attached to the same object line, which is why we treat ownership and aftercare as part of the house rather than as separate support behavior.",
       es: "Praeliator está construido para que la relación no termine en la venta y la entrega. El registro, la edad documentada, la elegibilidad de servicio y la revisión futura permanecen unidos a la misma línea de objeto, por eso propiedad y aftercare se tratan como parte de la casa y no como soporte separado.",
       ja: "Praeliator は販売と配送で関係が終わらないように構成されています。登録、記録された年齢、サービス適格性、将来の審査は同じ対象物ラインに結び付けられており、そのため所有とアフターケアは別個のサポート行為ではなくハウスの一部として扱われます。",
       fr: "Praeliator est construit pour que la relation ne s'arrête pas à la vente et à la livraison. L'enregistrement, l'ancienneté consignée, l'éligibilité de service et l'examen futur restent attachés à la même ligne d'objet, c'est pourquoi propriété et après-vente sont traités comme partie intégrante de la maison et non comme un support séparé.",
@@ -390,16 +390,16 @@ const localeNames: Record<IntakeLocale, string> = {
 
 const brandDossier: Record<IntakeLocale, string> = {
   en: [
-    "Praeliator is a private luxury boxing house.",
-    "The public site frames boxing as an art form and the glove as a resolved object rather than ordinary equipment.",
-    "The flagship published object is Praeliator VIS, a recorded training pair.",
-    "Published VIS positioning includes top-grain cowhide leather, restrained construction, rigid presentation, and controlled aftercare.",
-    "Private acquisition begins by direct correspondence, not by public cart or open ecommerce flow.",
-    "Approved clients may receive a private acquisition session with unique access, reference verification, destination details, and on-site payment.",
-    "The Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
-    "Legacy Refresh is a selective post-purchase service route governed by the recorded delivery date and the pair's maturity.",
-    "Praeliator keeps contact and access controlled through direct correspondence, WhatsApp, written inquiry, ownership access, and issued private routes.",
-    "The tone should remain restrained, exact, calm, serious, and premium rather than loud, sporty, or mass-market.",
+    "We keep Praeliator as a private luxury boxing house.",
+    "We frame boxing as an art form and the glove as a resolved object rather than ordinary equipment.",
+    "Our flagship published object is Praeliator VIS, a recorded training pair.",
+    "The published VIS line carries top-grain cowhide leather, restrained construction, rigid presentation, and controlled aftercare.",
+    "We begin private acquisition by direct correspondence, not by public cart or open ecommerce flow.",
+    "For approved clients, we may issue a private acquisition session with unique access, reference verification, destination details, and on-site payment.",
+    "Our Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
+    "We hold Legacy Refresh as a selective post-purchase service route governed by the recorded delivery date and the pair's maturity.",
+    "We keep contact and access controlled through direct correspondence, WhatsApp, written inquiry, ownership access, and issued private routes.",
+    "Our tone should remain restrained, exact, calm, serious, and premium rather than loud, sporty, or mass-market.",
   ].join(" "),
   es: [
     "Praeliator es una casa privada de lujo dedicada al boxeo.",
@@ -440,7 +440,7 @@ const brandDossier: Record<IntakeLocale, string> = {
 };
 
 const unknownAnswer: Record<IntakeLocale, string> = {
-  en: "I can answer the published route around acquisition, VIS specifications, payment access, ownership, Legacy Refresh, delivery, and privacy. If you ask within one of those lines, I can answer directly here.",
+  en: "Within the published house record, we can answer directly on acquisition, VIS specifications, payment access, ownership, Legacy Refresh, delivery, privacy, and the broader Praeliator position. If you keep the question within those lines, we can continue here properly.",
   es: "Puedo responder sobre la ruta publicada de adquisición, especificaciones de VIS, acceso al pago, propiedad, Legacy Refresh, entrega y privacidad. Si preguntas dentro de una de esas líneas, puedo responder aquí mismo.",
   ja: "取得ルート、VIS の仕様、支払いアクセス、所有記録、Legacy Refresh、配送、プライバシーに関する公開情報にはここで回答できます。これらの範囲で尋ねていただければ、ここで直接お答えします。",
   fr: "Je peux répondre ici sur la voie publiée d'acquisition, les spécifications de VIS, l'accès au paiement, la propriété, Legacy Refresh, la livraison et la confidentialité. Si la question reste dans l'une de ces lignes, je peux répondre directement.",
@@ -566,12 +566,13 @@ export async function POST(request: Request) {
         model: process.env.OPENAI_FAQ_MODEL || "gpt-4.1-mini",
         store: false,
         instructions:
-          `You are the Praeliator house FAQ reply. Answer in ${localeNames[locale]}. ` +
-          "Keep the tone restrained, exact, calm, and premium. Keep answers under 140 words. " +
+          `You are the Praeliator house reply. Answer in ${localeNames[locale]}. ` +
+          "Speak as the house in first person. Never refer to Praeliator in the third person when answering. " +
+          "Keep the tone restrained, exact, calm, private, and impeccably composed, with the manners of a discreet luxury house. Keep answers under 140 words. " +
           "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully by stating what is known from the published route and where the public record stops. " +
           "For questions about identity, quality, positioning, luxury, tone, object philosophy, craftsmanship, acquisition, ownership, service, delivery, privacy, or contact, answer directly from the dossier. " +
           "Do not invent inventory counts, hidden policies, unpublished lead times, custom promises, or legal guarantees. " +
-          "Do not mention AI, training data, or internal tooling.",
+          "Do not mention AI, training data, or internal tooling. Avoid generic marketing phrases and avoid startup language.",
         input:
           `Question: ${question}\n\n` +
           `Praeliator house dossier:\n${brandDossier[locale]}\n\n` +
