@@ -49,7 +49,7 @@ const utilityPageCopy: Record<
         "This page holds the practical side of acquisition, ownership, service, and private process so the main site can stay restrained.",
       curatedLabel: "House answer",
       indexLabel: "Question index",
-      aiEyebrow: "AI answer layer",
+      aiEyebrow: "Question line",
       aiTitle: "Ask the house directly.",
       aiIntro:
         "Use the question field for anything practical. Answers remain short, restrained, and tied to the published Praeliator record.",
@@ -60,10 +60,10 @@ const utilityPageCopy: Record<
         "When does Legacy Refresh become available?",
       ],
       questionPlaceholder: "Ask a practical question about acquisition, ownership, or service.",
-      askLabel: "Ask FAQ AI",
+      askLabel: "Ask the house",
       askingLabel: "Preparing answer...",
-      aiModeLabel: "AI answer",
-      fallbackModeLabel: "Curated answer",
+      aiModeLabel: "House reply",
+      fallbackModeLabel: "Filed answer",
       emptyAnswer:
         "The answer layer is ready. Ask a question about acquisition, ownership, or service.",
       unavailable:
@@ -149,7 +149,7 @@ const utilityPageCopy: Record<
         "Esta página reúne la parte práctica de la adquisición, la propiedad, el servicio y el proceso privado para que el sitio principal permanezca sobrio.",
       curatedLabel: "Respuesta de la casa",
       indexLabel: "Índice de preguntas",
-      aiEyebrow: "Capa de respuesta IA",
+      aiEyebrow: "Línea de preguntas",
       aiTitle: "Pregunta directo a la casa.",
       aiIntro:
         "Usa el campo para cualquier duda práctica. La respuesta se mantiene breve, sobria y unida al registro publicado de Praeliator.",
@@ -160,10 +160,10 @@ const utilityPageCopy: Record<
         "¿Cuándo se abre Legacy Refresh?",
       ],
       questionPlaceholder: "Haz una pregunta práctica sobre adquisición, propiedad o servicio.",
-      askLabel: "Preguntar a la IA FAQ",
+      askLabel: "Preguntar a la casa",
       askingLabel: "Preparando respuesta...",
-      aiModeLabel: "Respuesta IA",
-      fallbackModeLabel: "Respuesta curada",
+      aiModeLabel: "Respuesta de la casa",
+      fallbackModeLabel: "Respuesta archivada",
       emptyAnswer:
         "La capa de respuesta está lista. Haz una pregunta sobre adquisición, propiedad o servicio.",
       unavailable:
@@ -249,7 +249,7 @@ const utilityPageCopy: Record<
         "このページでは、取得、所有、サービス、私的な手続きに関する実務情報だけをまとめ、メインサイトの静けさを保ちます。",
       curatedLabel: "ハウス回答",
       indexLabel: "質問一覧",
-      aiEyebrow: "AI回答レイヤー",
+      aiEyebrow: "質問の導線",
       aiTitle: "直接、ハウスへ尋ねてください。",
       aiIntro:
         "実務上の質問をここに入力してください。回答は短く、抑制され、Praeliator が公開している記録に基づいて返されます。",
@@ -260,10 +260,10 @@ const utilityPageCopy: Record<
         "Legacy Refresh はいつ開きますか。",
       ],
       questionPlaceholder: "取得、所有、サービスに関する実務的な質問を入力してください。",
-      askLabel: "FAQ AI に質問する",
+      askLabel: "ハウスへ尋ねる",
       askingLabel: "回答を準備しています...",
-      aiModeLabel: "AI回答",
-      fallbackModeLabel: "既定回答",
+      aiModeLabel: "ハウス回答",
+      fallbackModeLabel: "既定記録",
       emptyAnswer:
         "回答レイヤーの準備ができています。取得、所有、またはサービスについて質問してください。",
       unavailable:
@@ -349,7 +349,7 @@ const utilityPageCopy: Record<
         "Cette page rassemble la partie pratique de l'acquisition, de la propriété, du service et du processus privé afin que le site principal demeure retenu.",
       curatedLabel: "Réponse de la maison",
       indexLabel: "Index des questions",
-      aiEyebrow: "Couche de réponse IA",
+      aiEyebrow: "Ligne de questions",
       aiTitle: "Posez la question directement à la maison.",
       aiIntro:
         "Utilisez ce champ pour toute question pratique. La réponse demeure brève, retenue et liée au registre publié de Praeliator.",
@@ -360,10 +360,10 @@ const utilityPageCopy: Record<
         "Quand Legacy Refresh devient-il disponible ?",
       ],
       questionPlaceholder: "Posez une question pratique sur l'acquisition, la propriété ou le service.",
-      askLabel: "Interroger l'IA FAQ",
+      askLabel: "Interroger la maison",
       askingLabel: "Préparation de la réponse...",
-      aiModeLabel: "Réponse IA",
-      fallbackModeLabel: "Réponse éditée",
+      aiModeLabel: "Réponse de la maison",
+      fallbackModeLabel: "Réponse archivée",
       emptyAnswer:
         "La couche de réponse est prête. Posez une question sur l'acquisition, la propriété ou le service.",
       unavailable:
@@ -468,8 +468,8 @@ function UtilityPageFrame({
         aria-hidden="true"
       />
       <div className="relative z-10 mx-auto w-full max-w-[112rem] px-5 sm:px-7 lg:px-10">
-        <div className="overflow-hidden rounded-[2.6rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(13,12,11,0.97),rgba(8,8,7,0.985))] shadow-[0_42px_140px_rgba(0,0,0,0.42)]">
-          <div className="flex flex-col gap-4 border-b border-white/[0.08] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
+        <div className="border-t border-white/[0.08] pt-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Button
               type="button"
               variant="outline"
@@ -488,19 +488,19 @@ function UtilityPageFrame({
             </a>
           </div>
 
-          <div className="grid gap-12 px-5 py-8 sm:px-8 lg:grid-cols-[0.72fr_1.28fr] lg:px-10 lg:py-12">
-            <div>
+          <div className="mt-8 grid gap-14 border-t border-white/[0.08] pt-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-10 lg:pt-12">
+            <div className="lg:pr-6">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#c7a97e]">
                 {eyebrow}
               </p>
-              <h1 className="mt-5 max-w-[10ch] text-[clamp(3.2rem,6vw,6rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-[#f3e8d8]">
+              <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,5.8vw,5.8rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-[#f3e8d8]">
                 {title}
               </h1>
-              <p className="mt-6 max-w-[35rem] text-sm leading-8 text-white/64 sm:text-base">
+              <p className="mt-6 max-w-[34rem] text-sm leading-8 text-white/60 sm:text-base">
                 {intro}
               </p>
             </div>
-            <div className="grid gap-5">{children}</div>
+            <div className="grid gap-8 lg:border-l lg:border-white/[0.08] lg:pl-10">{children}</div>
           </div>
         </div>
       </div>
@@ -520,7 +520,7 @@ export function FaqPage({
   const copy = utilityPageCopy[locale];
   const [activeIndex, setActiveIndex] = useState(0);
   const [question, setQuestion] = useState("");
-  const [aiState, setAiState] = useState<{
+  const [replyState, setReplyState] = useState<{
     loading: boolean;
     error: string;
     answer: string;
@@ -540,7 +540,7 @@ export function FaqPage({
     const trimmedQuestion = question.trim();
     if (!trimmedQuestion) return;
 
-    setAiState({
+    setReplyState({
       loading: true,
       error: "",
       answer: "",
@@ -563,14 +563,14 @@ export function FaqPage({
       if (!response.ok || !result?.success || !result?.answer) {
         throw new Error(result?.error || copy.faq.unavailable);
       }
-      setAiState({
+      setReplyState({
         loading: false,
         error: "",
         answer: result.answer,
         mode: result.mode === "curated" ? "curated" : "ai",
       });
     } catch (error) {
-      setAiState({
+      setReplyState({
         loading: false,
         error: error instanceof Error ? error.message : copy.faq.unavailable,
         answer: "",
@@ -589,7 +589,7 @@ export function FaqPage({
       returnLabel={copy.returnLabel}
       inquiryLabel={copy.inquiryLabel}
     >
-      <section className="border-t border-white/[0.08] pt-5 sm:pt-6">
+      <section className="border-t border-white/[0.08] pt-6 sm:pt-7">
         <div className="grid gap-6 xl:grid-cols-[0.76fr_1.24fr] xl:gap-7">
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
@@ -616,88 +616,96 @@ export function FaqPage({
             </div>
           </div>
 
-          <article className="border-l border-white/[0.08] pl-0 xl:pl-7">
+          <article className="xl:pl-7">
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
               {copy.faq.curatedLabel}
             </p>
             <h2 className="mt-4 max-w-[14ch] text-[clamp(2rem,4vw,3.6rem)] font-semibold leading-[0.88] tracking-[-0.05em] text-[#f3e8d8]">
               {activeItem.question}
             </h2>
-            <p className="mt-6 max-w-3xl text-[1rem] leading-8 text-white/70 sm:text-[1.06rem]">
+            <p className="mt-6 max-w-3xl text-[1rem] leading-8 text-white/68 sm:text-[1.06rem]">
               {activeItem.answer}
             </p>
           </article>
         </div>
       </section>
 
-      <section className="border-t border-white/[0.08] pt-6 sm:pt-7">
-        <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-          {copy.faq.aiEyebrow}
-        </p>
-        <h2 className="mt-4 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-[#f3e8d8]">
-          {copy.faq.aiTitle}
-        </h2>
-        <p className="mt-5 max-w-3xl text-sm leading-8 text-white/64 sm:text-base">
-          {copy.faq.aiIntro}
-        </p>
-
-        <div className="mt-6">
-          <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-            {copy.faq.suggestionsLabel}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {copy.faq.suggestionPrompts.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                onClick={() => setQuestion(prompt)}
-                className="border-b border-white/[0.14] pb-1 text-[11px] uppercase tracking-[0.2em] text-white/58 transition duration-300 hover:border-white/28 hover:text-white"
-              >
-                {prompt}
-              </button>
-            ))}
+      <section className="border-t border-white/[0.08] pt-8 sm:pt-10">
+        <div className="grid gap-8 xl:grid-cols-[0.42fr_1.58fr] xl:gap-10">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+              {copy.faq.aiEyebrow}
+            </p>
+            <h2 className="mt-4 max-w-[11ch] text-[clamp(1.9rem,4vw,3rem)] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f3e8d8]">
+              {copy.faq.aiTitle}
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-8 text-white/60 sm:text-base">
+              {copy.faq.aiIntro}
+            </p>
           </div>
-        </div>
 
-        <form className="mt-6 grid gap-4 border-t border-white/[0.08] pt-6" onSubmit={handleAsk}>
-          <textarea
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            rows={5}
-            data-native-cursor="true"
-            className="min-h-[11rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
-            placeholder={copy.faq.questionPlaceholder}
-          />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Button
-              type="submit"
-              disabled={aiState.loading || question.trim().length === 0}
-              className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {aiState.loading ? copy.faq.askingLabel : copy.faq.askLabel}
-            </Button>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white/34">
-              {aiState.mode === "curated"
-                ? copy.faq.fallbackModeLabel
-                : aiState.mode === "ai"
-                  ? copy.faq.aiModeLabel
-                  : copy.faq.emptyAnswer}
+          <div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                {copy.faq.suggestionsLabel}
               </p>
-          </div>
-        </form>
+              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
+                {copy.faq.suggestionPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => setQuestion(prompt)}
+                    className="border-b border-white/[0.14] pb-1 text-[11px] uppercase tracking-[0.2em] text-white/54 transition duration-300 hover:border-white/28 hover:text-white"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="mt-6 border-t border-white/[0.08] pt-6">
-          {aiState.error ? (
-            <p className="text-sm leading-8 text-[#d99b8d]">{aiState.error}</p>
-          ) : aiState.answer ? (
-            <p className="text-[1rem] leading-8 text-white/72 sm:text-[1.06rem]">
-              {aiState.answer}
-            </p>
-          ) : (
-            <p className="text-[1rem] leading-8 text-white/44">
-              {copy.faq.emptyAnswer}
-            </p>
-          )}
+            <form className="mt-8 grid gap-5 border-t border-white/[0.08] pt-7" onSubmit={handleAsk}>
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                rows={5}
+                data-native-cursor="true"
+                className="min-h-[11rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
+                placeholder={copy.faq.questionPlaceholder}
+              />
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex flex-col gap-3">
+                  <Button
+                    type="submit"
+                    disabled={replyState.loading || question.trim().length === 0}
+                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {replyState.loading ? copy.faq.askingLabel : copy.faq.askLabel}
+                  </Button>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/34">
+                    {replyState.mode === "curated"
+                      ? copy.faq.fallbackModeLabel
+                      : replyState.mode === "ai"
+                        ? copy.faq.aiModeLabel
+                        : copy.faq.emptyAnswer}
+                  </p>
+                </div>
+
+                <div className="max-w-3xl sm:text-right">
+                  {replyState.error ? (
+                    <p className="text-sm leading-8 text-[#d99b8d]">{replyState.error}</p>
+                  ) : replyState.answer ? (
+                    <p className="text-[1rem] leading-8 text-white/72 sm:text-[1.06rem]">
+                      {replyState.answer}
+                    </p>
+                  ) : (
+                    <p className="text-[1rem] leading-8 text-white/44">
+                      {copy.faq.emptyAnswer}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
     </UtilityPageFrame>

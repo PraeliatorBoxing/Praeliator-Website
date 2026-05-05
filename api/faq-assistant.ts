@@ -1,12 +1,14 @@
 type IntakeLocale = "en" | "es" | "ja" | "fr";
 
 type FaqKnowledgeEntry = {
+  topic: string;
   keywords: string[];
   answers: Record<IntakeLocale, string>;
 };
 
 const faqKnowledge: FaqKnowledgeEntry[] = [
   {
+    topic: "Acquisition route",
     keywords: [
       "acquisition",
       "private acquisition",
@@ -26,6 +28,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Public availability",
     keywords: [
       "vis",
       "public",
@@ -44,6 +47,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Ownership Record",
     keywords: [
       "ownership",
       "record",
@@ -61,6 +65,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Legacy Refresh",
     keywords: [
       "legacy",
       "refresh",
@@ -80,6 +85,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Delivery and fulfillment",
     keywords: [
       "delivery",
       "shipping",
@@ -98,6 +104,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Privacy and providers",
     keywords: [
       "privacy",
       "data",
@@ -116,6 +123,115 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       fr: "Praeliator ne retient que les informations nécessaires pour examiner la correspondance, émettre l'accès privé d'acquisition, maintenir les registres de propriété, poursuivre le service et préparer la livraison. Les paiements sont traités par Stripe, et l'analytique technique peut fonctionner lorsqu'elle est activée en production.",
     },
   },
+  {
+    topic: "VIS price and payment total",
+    keywords: [
+      "price",
+      "cost",
+      "amount",
+      "total",
+      "mxn",
+      "mx$",
+      "6000",
+      "6300",
+      "payment",
+      "deposit",
+      "precio",
+      "costo",
+      "importe",
+      "支払い",
+      "prix",
+      "montant",
+    ],
+    answers: {
+      en: "The current published VIS acquisition total is MX$6,300: Praeliator VIS at MX$6,000 and private allocation and fulfillment at MX$300. Payment is completed inside the issued private acquisition route rather than through a public checkout.",
+      es: "El total publicado actual para la adquisición de VIS es MX$6,300: Praeliator VIS en MX$6,000 y asignación privada con cumplimiento en MX$300. El pago se completa dentro de la ruta privada emitida, no mediante un checkout público.",
+      ja: "現在公開されている VIS の取得総額は MX$6,300 です。内訳は Praeliator VIS が MX$6,000、私的割当と履行が MX$300 です。支払いは公開チェックアウトではなく、発行された私的取得ルート内で完了します。",
+      fr: "Le total publié actuel pour l'acquisition de VIS est de MX$6,300 : Praeliator VIS à MX$6,000 et allocation privée avec accomplissement à MX$300. Le paiement s'effectue à l'intérieur de la voie privée émise, et non via un checkout public.",
+    },
+  },
+  {
+    topic: "VIS specifications",
+    keywords: [
+      "spec",
+      "specification",
+      "weight",
+      "16 oz",
+      "lace",
+      "lace up",
+      "material",
+      "leather",
+      "lining",
+      "palm",
+      "thumb",
+      "wrist",
+      "assembled",
+      "packaging",
+      "box",
+      "dust bag",
+      "silk",
+      "specs",
+      "especificacion",
+      "materiales",
+      "仕様",
+      "cuir",
+      "matiere",
+    ],
+    answers: {
+      en: "The published VIS record describes a 16 oz lace-up training pair in top-grain cowhide leather, with 4-way stretch lining, a ventilated palm panel, integrated grip bar, attached thumb, and extended lace-up cuff. Presentation includes a rigid box, silk dust bag, silk wrapping paper, authenticity card, and care card.",
+      es: "El registro publicado de VIS describe un par de entrenamiento de 16 oz con cierre de agujetas, cuero vacuno top-grain, forro elástico 4-way, palma ventilada, grip bar integrado, pulgar unido y puño extendido de agujetas. La presentación incluye caja rígida, dust bag de seda, papel de seda, tarjeta de autenticidad y tarjeta de cuidado.",
+      ja: "公開されている VIS の記録では、16 oz のレースアップ式トレーニングペアで、トップグレインのカウハイド、4-way ストレッチライニング、通気パーム、統合グリップバー、アタッチドサム、延長レースアップカフが示されています。付属は剛性ボックス、シルクダストバッグ、シルクラッピング、真正性カード、ケアカードです。",
+      fr: "Le registre publié de VIS décrit une paire d'entraînement 16 oz à laçage, en cuir bovin top-grain, avec doublure extensible 4-way, paume ventilée, grip bar intégré, pouce attaché et manchette allongée à laçage. La présentation comprend boîte rigide, dust bag en soie, papier de soie, carte d'authenticité et carte d'entretien.",
+    },
+  },
+  {
+    topic: "Private acquisition access and payment flow",
+    keywords: [
+      "reference",
+      "reference code",
+      "token",
+      "session",
+      "payment chamber",
+      "payment route",
+      "stripe",
+      "access code",
+      "unlock",
+      "codigo",
+      "referencia",
+      "トークン",
+      "référence",
+      "session privee",
+    ],
+    answers: {
+      en: "A private acquisition session is issued with a unique URL token and a separate reference code. The client verifies the reference first, completes delivery details, and only then opens the payment chamber. After payment succeeds, the session is no longer reusable under normal flow.",
+      es: "Una sesión privada de adquisición se emite con un token de URL único y un código de referencia aparte. El cliente primero verifica la referencia, completa los datos de entrega y solo entonces abre la cámara de pago. Tras un pago exitoso, la sesión deja de ser reutilizable en el flujo normal.",
+      ja: "私的取得セッションは、一意の URL トークンと別個の参照コードで発行されます。顧客は最初に参照を確認し、配送情報を完了してから支払いチャンバーを開きます。支払いが成功すると、そのセッションは通常フローでは再利用できません。",
+      fr: "Une session privée d'acquisition est émise avec un jeton d'URL unique et un code de référence séparé. Le client vérifie d'abord la référence, complète les détails de livraison, puis seulement ouvre la chambre de paiement. Une fois le paiement réussi, la session n'est plus réutilisable dans le flux normal.",
+    },
+  },
+  {
+    topic: "Inquiry and contact route",
+    keywords: [
+      "whatsapp",
+      "contact",
+      "inquiry",
+      "mail",
+      "email",
+      "house",
+      "care",
+      "studio",
+      "consulta",
+      "correo",
+      "連絡",
+      "demande",
+    ],
+    answers: {
+      en: "Praeliator uses direct correspondence rather than a public sales funnel. WhatsApp remains the fast route, while the written correspondence page keeps longer inquiries inside the site under house, care, or studio lines.",
+      es: "Praeliator utiliza correspondencia directa en lugar de un embudo público de ventas. WhatsApp sigue siendo la vía rápida, mientras que la página de correspondencia escrita mantiene consultas más largas dentro del sitio bajo las líneas house, care o studio.",
+      ja: "Praeliator は公開販売ファネルではなく、直接のやり取りを用います。WhatsApp が素早い導線であり、より長い書面での問い合わせはサイト内の house / care / studio ラインで扱われます。",
+      fr: "Praeliator utilise une correspondance directe plutôt qu'un entonnoir public de vente. WhatsApp demeure la voie rapide, tandis que la page de correspondance écrite garde les demandes plus longues à l'intérieur du site sous les lignes house, care ou studio.",
+    },
+  },
 ];
 
 const localeNames: Record<IntakeLocale, string> = {
@@ -126,41 +242,62 @@ const localeNames: Record<IntakeLocale, string> = {
 };
 
 const unknownAnswer: Record<IntakeLocale, string> = {
-  en: "That detail is not published publicly in the current house record. For anything beyond the published route, begin a private inquiry and the house can continue directly.",
-  es: "Ese detalle no está publicado públicamente en el registro actual de la casa. Para cualquier punto fuera de la ruta publicada, inicia una consulta privada y la casa puede continuar directamente.",
-  ja: "その詳細は現在の公開ハウス記録には含まれていません。公開されている範囲を超える事項については、私的な問い合わせから続行してください。",
-  fr: "Ce détail n'est pas publié publiquement dans le registre actuel de la maison. Pour tout point au-delà de la voie publiée, commencez une demande privée et la maison pourra poursuivre directement.",
+  en: "I can answer the published route around acquisition, VIS specifications, payment access, ownership, Legacy Refresh, delivery, and privacy. If you ask within one of those lines, I can answer directly here.",
+  es: "Puedo responder sobre la ruta publicada de adquisición, especificaciones de VIS, acceso al pago, propiedad, Legacy Refresh, entrega y privacidad. Si preguntas dentro de una de esas líneas, puedo responder aquí mismo.",
+  ja: "取得ルート、VIS の仕様、支払いアクセス、所有記録、Legacy Refresh、配送、プライバシーに関する公開情報にはここで回答できます。これらの範囲で尋ねていただければ、ここで直接お答えします。",
+  fr: "Je peux répondre ici sur la voie publiée d'acquisition, les spécifications de VIS, l'accès au paiement, la propriété, Legacy Refresh, la livraison et la confidentialité. Si la question reste dans l'une de ces lignes, je peux répondre directement.",
 };
 
 function normalizeLocale(value?: string): IntakeLocale {
   return value === "es" || value === "ja" || value === "fr" ? value : "en";
 }
 
-function tokenize(value: string) {
+function normalizeText(value: string) {
   return value
-    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
+function tokenize(value: string) {
+  return normalizeText(value)
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/)
     .filter(Boolean);
 }
 
 function getFallbackAnswer(question: string, locale: IntakeLocale) {
+  const normalizedQuestion = normalizeText(question);
   const haystack = tokenize(question);
   let bestMatch: FaqKnowledgeEntry | null = null;
   let bestScore = 0;
 
   for (const entry of faqKnowledge) {
-    const score = entry.keywords.reduce(
-      (total, keyword) => total + (haystack.includes(keyword.toLowerCase()) ? 1 : 0),
-      0,
-    );
+    const score = entry.keywords.reduce((total, keyword) => {
+      const normalizedKeyword = normalizeText(keyword).trim();
+      if (!normalizedKeyword) return total;
+
+      const keywordTokens = normalizedKeyword.split(/\s+/).filter(Boolean);
+      const matchedTokens = keywordTokens.filter((token) => haystack.includes(token)).length;
+      const phraseMatch = normalizedQuestion.includes(normalizedKeyword);
+
+      let nextTotal = total;
+      if (phraseMatch) {
+        nextTotal += normalizedKeyword.includes(" ") ? 4 : 2;
+      }
+      if (matchedTokens > 0) {
+        nextTotal += matchedTokens === keywordTokens.length ? 2 : matchedTokens * 0.75;
+      }
+      return nextTotal;
+    }, 0);
+
     if (score > bestScore) {
       bestScore = score;
       bestMatch = entry;
     }
   }
 
-  return bestMatch && bestScore > 0
+  return bestMatch && bestScore >= 2
     ? bestMatch.answers[locale]
     : unknownAnswer[locale];
 }
@@ -213,7 +350,7 @@ export async function POST(request: Request) {
     const context = faqKnowledge
       .map((entry, index) => {
         const answer = entry.answers.en;
-        return `${index + 1}. ${answer}`;
+        return `${index + 1}. ${entry.topic}: ${answer}`;
       })
       .join("\n");
 
@@ -227,9 +364,11 @@ export async function POST(request: Request) {
         model: process.env.OPENAI_FAQ_MODEL || "gpt-4.1-mini",
         store: false,
         instructions:
-          `You are the Praeliator FAQ answer layer. Answer in ${localeNames[locale]}. ` +
-          "Use only the provided Praeliator house guidance. Keep the tone restrained, exact, and private. " +
-          "Keep answers under 120 words. If the answer is not supported by the provided context, say that the detail is not published publicly and direct the user to private inquiry. Do not invent availability, shipping promises, lead times, or policies.",
+          `You are the Praeliator house FAQ reply. Answer in ${localeNames[locale]}. ` +
+          "Keep the tone restrained, exact, calm, and premium. Keep answers under 140 words. " +
+          "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully by stating what is known from the published route and where the public record stops. " +
+          "Do not invent inventory counts, hidden policies, unpublished lead times, custom promises, or legal guarantees. " +
+          "Do not mention AI, training data, or internal tooling.",
         input:
           `Question: ${question}\n\n` +
           `Praeliator house guidance:\n${context}\n\n` +
