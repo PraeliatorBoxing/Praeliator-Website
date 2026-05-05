@@ -28,7 +28,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "luxe",
     ],
     answers: {
-      en: "We do not position Praeliator as a mass-market equipment label. We keep it as a private luxury boxing house, where restraint, object quality, controlled access, and continuity after acquisition matter more than volume or noise. In that sense, the pair is treated less like a generic sports purchase and more like a retained object under the house.",
+      en: "Luxury, if it is to mean anything, must rest on discipline. For us that means restraint, object quality, controlled access, and continuity after acquisition. VIS is not placed as open inventory, nor treated as a casual sports purchase. It is issued, recorded, and retained under the house.",
       es: "Praeliator se presenta como una casa privada de lujo dedicada al boxeo, no como una marca masiva de equipo. El estándar está en la contención, la calidad del objeto, el acceso controlado y la continuidad después de la adquisición, de modo que el par se trata más como un objeto retenido que como una compra deportiva genérica.",
       ja: "Praeliator は大衆向けの用品ブランドではなく、私的なラグジュアリー・ボクシングハウスとして構成されています。その基準は抑制、対象物としての品質、管理されたアクセス、取得後の継続性にあり、ペアは一般的なスポーツ購入品ではなく、保持される対象物として扱われます。",
       fr: "Praeliator se présente comme une maison privée de luxe consacrée à la boxe, et non comme une marque d'équipement de masse. Le standard repose sur la retenue, la qualité d'objet, l'accès contrôlé et la continuité après acquisition, de sorte que la paire est traitée comme un objet retenu plutôt que comme un achat sportif générique.",
@@ -51,7 +51,7 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
       "art objet",
     ],
     answers: {
-      en: "We treat boxing as an art form and the glove as a resolved object, not merely as equipment. That is why we place weight on silhouette, material, presentation, custody, and aftercare instead of reducing the work to a public storefront or an ordinary product listing.",
+      en: "We regard boxing as an art form and the glove as a resolved object, not merely as equipment. That is why silhouette, material, presentation, custody, and aftercare carry more weight here than storefront language or ordinary product display.",
       es: "Praeliator trata el boxeo como una forma de arte y al guante como un objeto resuelto, no solo como una pieza de equipo. Por eso el sitio enfatiza silueta, material, presentación, custodia y aftercare en lugar de comportarse como una ficha de producto normal o una tienda pública abierta.",
       ja: "Praeliator はボクシングを芸術形式として、グローブを単なる道具ではなく解決された対象物として扱います。だからこそサイトは通常の製品一覧や公開店舗のようには振る舞わず、シルエット、素材、提示、保管、アフターケアを強く重視しています。",
       fr: "Praeliator traite la boxe comme une forme d'art et le gant comme un objet résolu, et non comme un simple équipement. C'est pourquoi le site met l'accent sur la silhouette, la matière, la présentation, la garde et l'après-achat au lieu d'agir comme une fiche produit ordinaire ou une vitrine publique ouverte.",
@@ -390,16 +390,16 @@ const localeNames: Record<IntakeLocale, string> = {
 
 const brandDossier: Record<IntakeLocale, string> = {
   en: [
-    "We keep Praeliator as a private luxury boxing house.",
-    "We frame boxing as an art form and the glove as a resolved object rather than ordinary equipment.",
+    "We are a private luxury boxing house.",
+    "We regard boxing as an art form and the glove as a resolved object rather than ordinary equipment.",
     "Our flagship published object is Praeliator VIS, a recorded training pair.",
     "The published VIS line carries top-grain cowhide leather, restrained construction, rigid presentation, and controlled aftercare.",
-    "We begin private acquisition by direct correspondence, not by public cart or open ecommerce flow.",
-    "For approved clients, we may issue a private acquisition session with unique access, reference verification, destination details, and on-site payment.",
+    "Private acquisition begins by direct correspondence, not by public cart or open ecommerce flow.",
+    "For approved clients, a private acquisition session may be issued with unique access, reference verification, destination details, and on-site payment.",
     "Our Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
-    "We hold Legacy Refresh as a selective post-purchase service route governed by the recorded delivery date and the pair's maturity.",
-    "We keep contact and access controlled through direct correspondence, WhatsApp, written inquiry, ownership access, and issued private routes.",
-    "Our tone should remain restrained, exact, calm, serious, and premium rather than loud, sporty, or mass-market.",
+    "Legacy Refresh is held as a selective post-purchase service route governed by the recorded delivery date and the pair's maturity.",
+    "Contact and access remain controlled through direct correspondence, WhatsApp, written inquiry, ownership access, and issued private routes.",
+    "The house voice should remain restrained, exact, calm, serious, and premium rather than loud, sporty, or mass-market.",
   ].join(" "),
   es: [
     "Praeliator es una casa privada de lujo dedicada al boxeo.",
@@ -569,6 +569,7 @@ export async function POST(request: Request) {
           `You are the Praeliator house reply. Answer in ${localeNames[locale]}. ` +
           "Speak as the house in first person. Never refer to Praeliator in the third person when answering. " +
           "Keep the tone restrained, exact, calm, private, and impeccably composed, with the manners of a discreet luxury house. Keep answers under 140 words. " +
+          "Prefer elegant, confident phrasing such as 'For us' or calm declarative statements. Avoid business-strategy verbs like 'position', 'market', 'brand narrative', or 'we keep' when a more graceful phrasing is available. " +
           "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully by stating what is known from the published route and where the public record stops. " +
           "For questions about identity, quality, positioning, luxury, tone, object philosophy, craftsmanship, acquisition, ownership, service, delivery, privacy, or contact, answer directly from the dossier. " +
           "Do not invent inventory counts, hidden policies, unpublished lead times, custom promises, or legal guarantees. " +
