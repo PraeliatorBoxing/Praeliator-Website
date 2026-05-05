@@ -799,6 +799,7 @@ const navItems: Array<{ label: string; path: Route }> = [
   { label: "Acquisition", path: "/acquisition" },
   { label: "Waitlist", path: "/waitlist" },
   { label: "Contact", path: "/contact" },
+  { label: "FAQ", path: "/faq" },
 ];
 const pageHeroStats: Record<
   "/praeliator-vis" | "/acquisition" | "/waitlist" | "/contact",
@@ -6627,24 +6628,24 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const pointerX = useMotionValue(-160);
   const pointerY = useMotionValue(-160);
   const shellX = useSpring(pointerX, {
-    stiffness: 520,
-    damping: 34,
-    mass: 0.22,
+    stiffness: 320,
+    damping: 32,
+    mass: 0.42,
   });
   const shellY = useSpring(pointerY, {
-    stiffness: 520,
-    damping: 34,
-    mass: 0.22,
+    stiffness: 320,
+    damping: 32,
+    mass: 0.42,
   });
   const haloX = useSpring(pointerX, {
-    stiffness: 260,
+    stiffness: 180,
     damping: 28,
-    mass: 0.42,
+    mass: 0.72,
   });
   const haloY = useSpring(pointerY, {
-    stiffness: 260,
+    stiffness: 180,
     damping: 28,
-    mass: 0.42,
+    mass: 0.72,
   });
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -6863,14 +6864,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
   const isButtonVariant = variant === "button";
   const isHidden = !visible || variant === "hidden";
-  const shellWidth = isButtonVariant ? 34 : 26;
-  const shellHeight = isButtonVariant ? 34 : 26;
+  const shellWidth = isButtonVariant ? 28 : 24;
+  const shellHeight = isButtonVariant ? 28 : 24;
   const shellRadius = 999;
-  const haloWidth = isButtonVariant ? 72 : 58;
-  const haloHeight = isButtonVariant ? 72 : 58;
+  const haloWidth = isButtonVariant ? 56 : 48;
+  const haloHeight = isButtonVariant ? 56 : 48;
   const haloRadius = 999;
-  const centerGlyphWidth = 5.5;
-  const centerGlyphHeight = 5.5;
+  const centerGlyphWidth = 4.5;
+  const centerGlyphHeight = 4.5;
 
   return (
     <>
@@ -6880,9 +6881,9 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         style={{ x: haloX, y: haloY }}
         animate={{
           opacity: isHidden ? 0 : isButtonVariant ? 0.46 : 0.34,
-          scale: isHidden ? 0.76 : pressed ? 0.9 : isButtonVariant ? 1.02 : 1,
+          scale: isHidden ? 0.84 : pressed ? 0.94 : 1,
         }}
-        transition={{ duration: 0.26, ease: easeLuxury }}
+        transition={{ duration: 0.34, ease: easeLuxury }}
       >
         <motion.div
           className="-translate-x-1/2 -translate-y-1/2 blur-[18px]"
@@ -6895,7 +6896,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
                 ? "radial-gradient(circle, rgba(214,186,149,0.16) 0%, rgba(214,186,149,0.04) 48%, rgba(214,186,149,0) 78%)"
                 : "radial-gradient(circle, rgba(239,229,215,0.12) 0%, rgba(214,186,149,0.03) 48%, rgba(214,186,149,0) 76%)",
           }}
-          transition={{ duration: 0.36, ease: easeLuxury }}
+          transition={{ duration: 0.42, ease: easeLuxury }}
         />
       </motion.div>
 
@@ -6905,9 +6906,9 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         style={{ x: shellX, y: shellY }}
         animate={{
           opacity: isHidden ? 0 : 1,
-          scale: isHidden ? 0.8 : pressed ? 0.9 : isButtonVariant ? 1.04 : 1,
+          scale: isHidden ? 0.88 : pressed ? 0.94 : 1,
         }}
-        transition={{ duration: 0.24, ease: easeLuxury }}
+        transition={{ duration: 0.3, ease: easeLuxury }}
       >
         <motion.div
           className="-translate-x-1/2 -translate-y-1/2 overflow-hidden border"
@@ -7957,6 +7958,18 @@ export default function PraeliatorWebsite() {
           path: "/contact" as Route,
           meta: copy.navMeta.contact,
         },
+        {
+          label: localizedRouteTitles["/faq"],
+          path: "/faq" as Route,
+          meta:
+            locale === "es"
+              ? "Respuestas útiles"
+              : locale === "ja"
+                ? "実務案内"
+                : locale === "fr"
+                  ? "Réponses utiles"
+                  : "Practical answers",
+        },
       ];
 
       if (canAccessHouseLedger) {
@@ -7969,7 +7982,13 @@ export default function PraeliatorWebsite() {
 
       return baseItems;
     },
-    [canAccessHouseLedger, copy, localizedRouteMicroLabels, localizedRouteTitles],
+    [
+      canAccessHouseLedger,
+      copy,
+      locale,
+      localizedRouteMicroLabels,
+      localizedRouteTitles,
+    ],
   );
   const authPrimaryLabel =
     authSession ? copy.ownershipRecord : copy.signIn;
