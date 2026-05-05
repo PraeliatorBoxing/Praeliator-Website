@@ -443,6 +443,103 @@ const utilityPageCopy: Record<
   },
 };
 
+const faqDirectLineCopy: Record<
+  SiteLocale,
+  {
+    eyebrow: string;
+    title: string;
+    intro: string;
+    suggestionsLabel: string;
+    suggestionPrompts: string[];
+    questionPlaceholder: string;
+    askLabel: string;
+    askingLabel: string;
+    emptyAnswer: string;
+    unavailable: string;
+  }
+> = {
+  en: {
+    eyebrow: "Direct question",
+    title: "Continue the question here.",
+    intro:
+      "For anything practical within the published record, continue here. Replies remain brief, exact, and tied to the house record.",
+    suggestionsLabel: "Published lines",
+    suggestionPrompts: [
+      "How does private acquisition begin?",
+      "Can I buy VIS through a public checkout?",
+      "When does Legacy Refresh become available?",
+    ],
+    questionPlaceholder:
+      "Write a practical question about acquisition, ownership, or service.",
+    askLabel: "Request reply",
+    askingLabel: "Reviewing question...",
+    emptyAnswer:
+      "Write a practical question about acquisition, ownership, or service.",
+    unavailable:
+      "A direct reply could not be returned just now. The published record remains available above.",
+  },
+  es: {
+    eyebrow: "Pregunta directa",
+    title: "Continúa la pregunta aquí.",
+    intro:
+      "Para cualquier punto práctico dentro del registro publicado, continúa aquí. La respuesta se mantiene breve, exacta y unida al registro de la casa.",
+    suggestionsLabel: "Rutas publicadas",
+    suggestionPrompts: [
+      "¿Cómo comienza la adquisición privada?",
+      "¿Se puede comprar VIS desde un checkout público?",
+      "¿Cuándo se abre Legacy Refresh?",
+    ],
+    questionPlaceholder:
+      "Escribe una pregunta práctica sobre adquisición, propiedad o servicio.",
+    askLabel: "Solicitar respuesta",
+    askingLabel: "Revisando pregunta...",
+    emptyAnswer:
+      "Escribe una pregunta práctica sobre adquisición, propiedad o servicio.",
+    unavailable:
+      "No fue posible devolver una respuesta directa en este momento. El registro publicado sigue disponible arriba.",
+  },
+  ja: {
+    eyebrow: "直接の質問",
+    title: "この場で続けてください。",
+    intro:
+      "公開されている記録の範囲にある実務上の質問であれば、ここで続けられます。返答は短く、正確で、ハウス記録に沿ったものに保たれます。",
+    suggestionsLabel: "公開済みの主題",
+    suggestionPrompts: [
+      "私的取得はどのように始まりますか。",
+      "VIS は公開チェックアウトで購入できますか。",
+      "Legacy Refresh はいつ開きますか。",
+    ],
+    questionPlaceholder:
+      "取得、所有、またはサービスに関する実務上の質問を書いてください。",
+    askLabel: "返答を求める",
+    askingLabel: "質問を確認しています...",
+    emptyAnswer:
+      "取得、所有、またはサービスに関する実務上の質問を書いてください。",
+    unavailable:
+      "ただいま直接の返答を返せませんでした。公開されている記録は上で引き続き確認できます。",
+  },
+  fr: {
+    eyebrow: "Question directe",
+    title: "Poursuivez la question ici.",
+    intro:
+      "Pour toute question pratique qui relève du registre publié, poursuivez ici. La réponse demeure brève, exacte et tenue à la ligne de la maison.",
+    suggestionsLabel: "Lignes publiées",
+    suggestionPrompts: [
+      "Comment l'acquisition privée commence-t-elle ?",
+      "VIS peut-il être acheté via un checkout public ?",
+      "Quand Legacy Refresh devient-il disponible ?",
+    ],
+    questionPlaceholder:
+      "Écrivez une question pratique sur l'acquisition, la propriété ou le service.",
+    askLabel: "Demander une réponse",
+    askingLabel: "Examen de la question...",
+    emptyAnswer:
+      "Écrivez une question pratique sur l'acquisition, la propriété ou le service.",
+    unavailable:
+      "Une réponse directe ne peut pas être retournée pour l'instant. Le registre publié demeure disponible plus haut.",
+  },
+};
+
 function UtilityPageFrame({
   eyebrow,
   title,
@@ -518,6 +615,7 @@ export function FaqPage({
   inquiryHref: string;
 }) {
   const copy = utilityPageCopy[locale];
+  const directQuestionCopy = faqDirectLineCopy[locale];
   const [activeIndex, setActiveIndex] = useState(0);
   const [question, setQuestion] = useState("");
   const [replyState, setReplyState] = useState<{
@@ -561,7 +659,7 @@ export function FaqPage({
       });
       const result = await response.json();
       if (!response.ok || !result?.success || !result?.answer) {
-        throw new Error(result?.error || copy.faq.unavailable);
+        throw new Error(result?.error || directQuestionCopy.unavailable);
       }
       setReplyState({
         loading: false,
@@ -572,7 +670,8 @@ export function FaqPage({
     } catch (error) {
       setReplyState({
         loading: false,
-        error: error instanceof Error ? error.message : copy.faq.unavailable,
+        error:
+          error instanceof Error ? error.message : directQuestionCopy.unavailable,
         answer: "",
         mode: null,
       });
@@ -634,23 +733,23 @@ export function FaqPage({
         <div className="grid gap-8 xl:grid-cols-[0.42fr_1.58fr] xl:gap-10">
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-              {copy.faq.aiEyebrow}
+              {directQuestionCopy.eyebrow}
             </p>
             <h2 className="mt-4 max-w-[11ch] text-[clamp(1.9rem,4vw,3rem)] font-semibold leading-[0.92] tracking-[-0.05em] text-[#f3e8d8]">
-              {copy.faq.aiTitle}
+              {directQuestionCopy.title}
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-8 text-white/60 sm:text-base">
-              {copy.faq.aiIntro}
+              {directQuestionCopy.intro}
             </p>
           </div>
 
           <div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                {copy.faq.suggestionsLabel}
+                {directQuestionCopy.suggestionsLabel}
               </p>
               <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
-                {copy.faq.suggestionPrompts.map((prompt) => (
+                {directQuestionCopy.suggestionPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
@@ -670,28 +769,25 @@ export function FaqPage({
                 rows={5}
                 data-native-cursor="true"
                 className="min-h-[11rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
-                placeholder={copy.faq.questionPlaceholder}
+                placeholder={directQuestionCopy.questionPlaceholder}
               />
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex flex-col gap-3">
-                  <Button
-                    type="submit"
-                    disabled={replyState.loading || question.trim().length === 0}
-                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {replyState.loading ? copy.faq.askingLabel : copy.faq.askLabel}
-                  </Button>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/34">
-                    {replyState.mode === "curated"
-                      ? copy.faq.fallbackModeLabel
-                      : replyState.mode === "ai"
-                        ? copy.faq.aiModeLabel
-                        : copy.faq.emptyAnswer}
-                  </p>
-                </div>
+              <div className="flex flex-col gap-4">
+                <Button
+                  type="submit"
+                  disabled={replyState.loading || question.trim().length === 0}
+                  className="self-start rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {replyState.loading
+                    ? directQuestionCopy.askingLabel
+                    : directQuestionCopy.askLabel}
+                </Button>
 
-                <div className="max-w-3xl sm:text-right">
-                  {replyState.error ? (
+                <div className="max-w-3xl">
+                  {replyState.loading ? (
+                    <p className="text-[1rem] leading-8 text-white/46">
+                      {directQuestionCopy.askingLabel}
+                    </p>
+                  ) : replyState.error ? (
                     <p className="text-sm leading-8 text-[#d99b8d]">{replyState.error}</p>
                   ) : replyState.answer ? (
                     <p className="text-[1rem] leading-8 text-white/72 sm:text-[1.06rem]">
@@ -699,7 +795,7 @@ export function FaqPage({
                     </p>
                   ) : (
                     <p className="text-[1rem] leading-8 text-white/44">
-                      {copy.faq.emptyAnswer}
+                      {directQuestionCopy.emptyAnswer}
                     </p>
                   )}
                 </div>
