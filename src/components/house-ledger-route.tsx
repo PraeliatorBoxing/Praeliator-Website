@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Session } from "@supabase/supabase-js";
 import { motion } from "motion/react";
 import { Button } from "./ui/button";
-import { type SiteLocale, siteLocaleOptions } from "../lib/site-locale";
+import {
+  normalizedSiteLocaleOptions,
+  type SiteLocale,
+} from "../lib/site-locale";
 
 type HouseLedgerStats = {
   totalSalesCount: number;
@@ -662,7 +665,7 @@ export function HouseLedgerRoute({
                 onChange={(event) => onLocaleChange(event.target.value as SiteLocale)}
                 className="bg-transparent text-[11px] uppercase tracking-[0.24em] text-[#231912] outline-none"
               >
-                {siteLocaleOptions.map((option) => (
+              {normalizedSiteLocaleOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.shortLabel}
                   </option>

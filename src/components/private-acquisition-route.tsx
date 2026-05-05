@@ -8,7 +8,10 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { Button } from "./ui/button";
-import { type SiteLocale, siteLocaleOptions } from "../lib/site-locale";
+import {
+  normalizedSiteLocaleOptions,
+  type SiteLocale,
+} from "../lib/site-locale";
 
 type AcquisitionSessionSummary = {
   referenceCode: string;
@@ -461,7 +464,7 @@ function PrivateRouteLanguageSwitcher({
             transition={{ duration: 0.2, ease: easeLuxury }}
             className="absolute right-0 top-[calc(100%+0.6rem)] z-30 min-w-[11rem] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#0b0a09]/96 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.34)] backdrop-blur-xl"
           >
-            {siteLocaleOptions.map((option) => (
+                {normalizedSiteLocaleOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
@@ -1975,6 +1978,16 @@ export function PrivateAcquisitionRoute({
                               : "Payment remains sealed"}
                           </p>
                         </div>
+                        <p className="mt-3 text-[11px] leading-6 text-[#6a5647]">
+                          Delivery and contact details are retained only for this acquisition, fulfillment, and future continuity under the house.
+                          {" "}
+                          <a
+                            href="/privacy-notice"
+                            className="underline decoration-[#b69574] underline-offset-4 transition duration-300 hover:text-[#2f2219]"
+                          >
+                            Privacy Notice
+                          </a>
+                        </p>
                       </form>
                     </div>
 

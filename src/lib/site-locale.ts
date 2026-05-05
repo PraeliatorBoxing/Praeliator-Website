@@ -2,6 +2,36 @@ export type SiteLocale = "en" | "es" | "ja" | "fr";
 
 export const SITE_LOCALE_STORAGE_KEY = "praeliator_site_locale";
 
+const mojibakePattern = /[ÃÂæœ]/;
+
+function repairMojibake(value: string) {
+  if (!mojibakePattern.test(value)) return value;
+  try {
+    const bytes = Uint8Array.from(
+      [...value].map((character) => character.charCodeAt(0)),
+    );
+    const decoded = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    return decoded.includes("�") ? value : decoded;
+  } catch {
+    return value;
+  }
+}
+
+function normalizeLocaleValue<T>(value: T): T {
+  if (typeof value === "string") {
+    return repairMojibake(value) as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeLocaleValue(item)) as T;
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, normalizeLocaleValue(entry)]),
+    ) as T;
+  }
+  return value;
+}
+
 export const siteLocaleOptions = [
   { value: "en" as const, label: "English", shortLabel: "EN" },
   { value: "es" as const, label: "Español", shortLabel: "ES" },
@@ -957,6 +987,9 @@ export const siteCopy = {
   },
 } as Record<SiteLocale, any>;
 
+export const normalizedSiteLocaleOptions = normalizeLocaleValue(siteLocaleOptions);
+const normalizedSiteCopy = normalizeLocaleValue(siteCopy) as Record<SiteLocale, any>;
+
 export function getSiteCopy(locale: SiteLocale) {
-  return siteCopy[locale];
+  return normalizedSiteCopy[locale];
 }

@@ -5,13 +5,19 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
+import { SiteAnalytics } from "./components/site-analytics";
+import { SiteHead } from "./components/site-head";
+import {
+  FaqPage,
+  PrivacyNoticePage,
+} from "./components/site-utility-pages";
 import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
 import {
   getInitialSiteLocale,
   getSiteCopy,
+  normalizedSiteLocaleOptions,
   SITE_LOCALE_STORAGE_KEY,
   type SiteLocale,
-  siteLocaleOptions,
 } from "./lib/site-locale";
 import {
   AnimatePresence,
@@ -33,6 +39,7 @@ import {
 } from "lucide-react";
 import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
 import { HouseLedgerRoute } from "./components/house-ledger-route";
+import type { SiteRoute } from "./lib/site-seo";
 const visSpecifications = [
   { label: "Object class", value: "Recorded training pair" },
   { label: "Allocation amount", value: "$6,000 MXN" },
@@ -654,6 +661,8 @@ type Route =
   | "/house-ledger"
   | "/waitlist"
   | "/contact"
+  | "/faq"
+  | "/privacy-notice"
   | "/sign-in"
   | "/sign-up"
   | "/magic-link"
@@ -740,6 +749,8 @@ const routeTitles: Record<Route, string> = {
   "/house-ledger": "House Ledger",
   "/waitlist": "Waitlist",
   "/contact": "Contact",
+  "/faq": "FAQ",
+  "/privacy-notice": "Privacy Notice",
   "/sign-in": "Sign In",
   "/sign-up": "Create Account",
   "/magic-link": "One-Time Code",
@@ -757,6 +768,8 @@ const routeMicroLabels: Record<Route, string> = {
   "/house-ledger": "LEDGER",
   "/waitlist": "WAITLIST",
   "/contact": "CONTACT",
+  "/faq": "FAQ",
+  "/privacy-notice": "PRIVACY",
   "/sign-in": "ACCESS",
   "/sign-up": "ACCESS",
   "/magic-link": "ACCESS",
@@ -3281,12 +3294,10 @@ function MediaSurface({
   const animatedImage = videoPathToAnimatedImagePath(video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(usePhoneAnimatedImage && video));
-  const shouldUseAnimatedImage = Boolean(
-    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
-  );
-  const fallbackImage = getVideoFallbackImage(video, src);
+  const shouldUseAnimatedImage = false;
+  const fallbackImage = usePhoneAnimatedImage ? src : getVideoFallbackImage(video, src);
   const shouldRenderVideo = Boolean(
-    video && !shouldUseAnimatedImage && (!usePhoneAnimatedImage || isMediaActive),
+    video && !usePhoneAnimatedImage && !shouldUseAnimatedImage && isMediaActive,
   );
   return (
     <div
@@ -3419,7 +3430,11 @@ function PageHeroBanner({
                         }
                       >
                         <a href={action.href} target="_blank" rel="noreferrer">
-                          {action.label}
+                          {isWhatsAppHref(action.href) ? (
+                            <WhatsAppTextLabel label={action.label} />
+                          ) : (
+                            action.label
+                          )}
                         </a>
                       </Button>
                     ) : (
@@ -3559,6 +3574,8 @@ function ClubFooter({
   privateInquiryLabel,
   waitlistLabel,
   navLinks,
+  faqLabel,
+  privacyLabel,
 }: {
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
@@ -3567,6 +3584,8 @@ function ClubFooter({
   privateInquiryLabel: string;
   waitlistLabel: string;
   navLinks: Array<{ label: string; path: Route }>;
+  faqLabel: string;
+  privacyLabel: string;
 }) {
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
@@ -3595,7 +3614,7 @@ function ClubFooter({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {privateInquiryLabel}
+                    <WhatsAppTextLabel label={privateInquiryLabel} />
                   </a>
                 </Button>
                 <Button
@@ -3672,12 +3691,14 @@ function ClubFooter({
                       href={instagramLink}
                       target="_blank"
                       rel="noreferrer"
+                      aria-label="Praeliator Instagram"
                       className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
                     >
                       <Instagram className="h-5 w-5" />
                     </a>
                     <a
                       href={emailLink}
+                      aria-label="Email Praeliator"
                       className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
                     >
                       <Mail className="h-5 w-5" />
@@ -3686,11 +3707,28 @@ function ClubFooter({
                       href={whatsappGeneralLink}
                       target="_blank"
                       rel="noreferrer"
+                      aria-label="WhatsApp Praeliator"
                       className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
                     >
                       <MessageCircle className="h-5 w-5" />
                     </a>
                   </div>
+                </div>
+                <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-white/[0.08] pt-5">
+                  <button
+                    type="button"
+                    onClick={() => goTo("/faq")}
+                    className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
+                  >
+                    {faqLabel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => goTo("/privacy-notice")}
+                    className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
+                  >
+                    {privacyLabel}
+                  </button>
                 </div>
               </div>
             </div>
@@ -3728,14 +3766,15 @@ function MobileHeroMediaBackdrop({
   const animatedImage = videoPathToAnimatedImagePath(media.video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(usePhoneAnimatedImage && media.video), "220px 0px");
-  const shouldUseAnimatedImage = Boolean(
-    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
-  );
-  const fallbackImage = getVideoFallbackImage(media.video, media.image);
+  const shouldUseAnimatedImage = false;
+  const fallbackImage = usePhoneAnimatedImage
+    ? media.image
+    : getVideoFallbackImage(media.video, media.image);
   const shouldRenderVideo = Boolean(
     media.video &&
+      !usePhoneAnimatedImage &&
       !shouldUseAnimatedImage &&
-      (!usePhoneAnimatedImage || isMediaActive),
+      isMediaActive,
   );
 
   return (
@@ -4041,12 +4080,14 @@ function MobileHomeFooter({
                 href={instagramLink}
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Praeliator Instagram"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
               >
                 <Instagram className="h-5 w-5" />
               </a>
               <a
                 href={emailLink}
+                aria-label="Email Praeliator"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
               >
                 <Mail className="h-5 w-5" />
@@ -4055,6 +4096,7 @@ function MobileHomeFooter({
                 href={whatsappGeneralLink}
                 target="_blank"
                 rel="noreferrer"
+                aria-label="WhatsApp Praeliator"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
               >
                 <MessageCircle className="h-5 w-5" />
@@ -4529,6 +4571,8 @@ function MobileClubFooter({
   privateInquiryLabel,
   waitlistLabel,
   navLinks,
+  faqLabel,
+  privacyLabel,
 }: {
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
@@ -4537,6 +4581,8 @@ function MobileClubFooter({
   privateInquiryLabel: string;
   waitlistLabel: string;
   navLinks: Array<{ label: string; path: Route }>;
+  faqLabel: string;
+  privacyLabel: string;
 }) {
   return (
     <footer className="relative overflow-hidden border-t border-white/[0.08] bg-[linear-gradient(180deg,#0b0b0b_0%,#050505_100%)] py-10">
@@ -4560,7 +4606,7 @@ function MobileClubFooter({
               className="h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
             >
               <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                {privateInquiryLabel}
+                <WhatsAppTextLabel label={privateInquiryLabel} />
               </a>
             </Button>
             <Button
@@ -4632,6 +4678,22 @@ function MobileClubFooter({
                 <MessageCircle className="h-5 w-5" />
               </a>
             </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-white/[0.08] pt-5">
+            <button
+              type="button"
+              onClick={() => goTo("/faq")}
+              className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
+            >
+              {faqLabel}
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo("/privacy-notice")}
+              className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
+            >
+              {privacyLabel}
+            </button>
           </div>
         </div>
       </Container>
@@ -4756,8 +4818,8 @@ function LanguageSwitcher({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const currentOption =
-    siteLocaleOptions.find((option) => option.value === locale) ??
-    siteLocaleOptions[0];
+    normalizedSiteLocaleOptions.find((option) => option.value === locale) ??
+    normalizedSiteLocaleOptions[0];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -4802,7 +4864,7 @@ function LanguageSwitcher({
             transition={{ duration: 0.2, ease: easeLuxury }}
             className="absolute right-0 top-[calc(100%+0.65rem)] z-[90] min-w-[11rem] overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#0b0a09]/96 p-1 shadow-[0_24px_60px_rgba(0,0,0,0.34)] backdrop-blur-xl"
           >
-            {siteLocaleOptions.map((option) => (
+            {normalizedSiteLocaleOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
@@ -5390,12 +5452,15 @@ function CinematicScene({
   const animatedImage = videoPathToAnimatedImagePath(section.video);
   const { ref: sceneActivationRef, isActive: isSceneActive } =
     useMobileMediaActivation(stackedFlow, "220px 0px");
-  const shouldUseAnimatedImage = Boolean(
-    usePhoneAnimatedImage && animatedImage && !animatedImageFailed,
-  );
-  const fallbackImage = getVideoFallbackImage(section.video, section.poster);
+  const shouldUseAnimatedImage = false;
+  const fallbackImage = usePhoneAnimatedImage
+    ? section.poster
+    : getVideoFallbackImage(section.video, section.poster);
   const effectiveInView = stackedFlow ? isSceneActive : inView;
-  const shouldRenderVideo = !shouldUseAnimatedImage && (!stackedFlow || isSceneActive);
+  const shouldRenderVideo =
+    !usePhoneAnimatedImage &&
+    !shouldUseAnimatedImage &&
+    (!stackedFlow || isSceneActive);
   useEffect(() => {
     setVideoReady(shouldUseAnimatedImage);
     setShowLoader(false);
@@ -5550,7 +5615,11 @@ function CinematicScene({
                 className="min-h-[3.65rem] rounded-full bg-[#efe5d7] px-8 text-[11px] uppercase tracking-[0.24em] text-[#151210] shadow-[0_16px_40px_rgba(239,229,215,0.22)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_22px_54px_rgba(239,229,215,0.28)]"
               >
                 <a href={section.href} target="_blank" rel="noreferrer">
-                  {section.cta}
+                  {isWhatsAppHref(section.href) ? (
+                    <WhatsAppTextLabel label={section.cta} />
+                  ) : (
+                    section.cta
+                  )}
                 </a>
               </Button>
             ) : section.action ? (
@@ -6503,6 +6572,19 @@ function AuthStatusNotice({
       </p>
       <p className={`mt-3 text-sm leading-7 ${palette.body}`}>{notice.body}</p>
     </div>
+  );
+}
+
+function isWhatsAppHref(href?: string) {
+  return Boolean(href && /(wa\.me|whatsapp\.com)/i.test(href));
+}
+
+function WhatsAppTextLabel({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <MessageCircle className="h-[0.95rem] w-[0.95rem]" aria-hidden="true" />
+      <span>{label}</span>
+    </span>
   );
 }
 
@@ -7762,13 +7844,30 @@ export default function PraeliatorWebsite() {
 
   const authPrimaryRoute: Route = authSession ? "/ownership-record" : "/sign-in";
   const copy = useMemo(() => getSiteCopy(locale), [locale]);
+  const supplementalRouteTitles = useMemo(
+    () =>
+      ({
+        en: { "/faq": "FAQ", "/privacy-notice": "Privacy Notice" },
+        es: { "/faq": "Preguntas", "/privacy-notice": "Privacidad" },
+        ja: { "/faq": "FAQ", "/privacy-notice": "プライバシー" },
+        fr: { "/faq": "FAQ", "/privacy-notice": "Confidentialité" },
+      })[locale],
+    [locale],
+  );
   const authCopy = copy.auth;
   const acquisitionCopy = copy.acquisition;
   const waitlistCopy = copy.waitlist;
   const contactCopy = copy.contact;
   const ownershipCopy = copy.ownership;
-  const localizedRouteTitles = copy.routeTitles as Record<Route, string>;
-  const localizedRouteMicroLabels = copy.routeMicroLabels as Record<Route, string>;
+  const localizedRouteTitles = {
+    ...routeTitles,
+    ...supplementalRouteTitles,
+    ...(copy.routeTitles as Partial<Record<Route, string>>),
+  } as Record<Route, string>;
+  const localizedRouteMicroLabels = {
+    ...routeMicroLabels,
+    ...(copy.routeMicroLabels as Partial<Record<Route, string>>),
+  } as Record<Route, string>;
   const handoffCopy = localizedHandoffCopy[locale];
   const buildReferenceAwareWhatsAppMessage = (
     openingLine: string,
@@ -7871,10 +7970,6 @@ export default function PraeliatorWebsite() {
     window.localStorage.setItem(SITE_LOCALE_STORAGE_KEY, locale);
     document.documentElement.lang = locale;
   }, [locale]);
-
-  useEffect(() => {
-    document.title = `${localizedRouteTitles[route]} | Praeliator`;
-  }, [localizedRouteTitles, route]);
 
   useEffect(() => {
     if (reduceMotion || route === "/" || !isDesktopViewport) return;
@@ -10940,6 +11035,17 @@ const renderAcquisitionPage = () => (
                       ? acquisitionCopy.retainingBrief
                       : acquisitionCopy.retainBrief}
                   </Button>
+                  <p className="mt-3 text-[11px] leading-6 text-white/42">
+                    Submitted contact details remain tied to private correspondence only.
+                    {" "}
+                    <button
+                      type="button"
+                      onClick={() => goTo("/privacy-notice")}
+                      className="underline decoration-white/24 underline-offset-4 transition duration-300 hover:text-white/72"
+                    >
+                      Privacy Notice
+                    </button>
+                  </p>
                 </div>
 
                 <AnimatePresence>
@@ -11404,6 +11510,17 @@ const renderWaitlistPage = () => (
                     <FieldNote>
                       {waitlistCopy.reviewTiming}
                     </FieldNote>
+                    <p className="mt-3 text-[11px] leading-6 text-white/42">
+                      Submitted details are retained only for review and follow-up under the house.
+                      {" "}
+                      <button
+                        type="button"
+                        onClick={() => goTo("/privacy-notice")}
+                        className="underline decoration-white/24 underline-offset-4 transition duration-300 hover:text-white/72"
+                      >
+                        Privacy Notice
+                      </button>
+                    </p>
                   </div>
                   <AnimatePresence>
                     {waitlistState.success ? (
@@ -12554,6 +12671,17 @@ const renderWaitlistPage = () => (
                     ? acquisitionCopy.retainingBrief
                     : acquisitionCopy.retainBrief}
                 </Button>
+                <p className="mt-3 text-[11px] leading-6 text-white/42">
+                  Submitted contact details remain tied to private correspondence only.
+                  {" "}
+                  <button
+                    type="button"
+                    onClick={() => goTo("/privacy-notice")}
+                    className="underline decoration-white/24 underline-offset-4 transition duration-300 hover:text-white/72"
+                  >
+                    Privacy Notice
+                  </button>
+                </p>
               </div>
 
               <AnimatePresence>
@@ -12876,6 +13004,17 @@ const renderWaitlistPage = () => (
                 <FieldNote>
                   {waitlistCopy.reviewTiming}
                 </FieldNote>
+                <p className="mt-3 text-[11px] leading-6 text-white/42">
+                  Submitted details are retained only for review and follow-up under the house.
+                  {" "}
+                  <button
+                    type="button"
+                    onClick={() => goTo("/privacy-notice")}
+                    className="underline decoration-white/24 underline-offset-4 transition duration-300 hover:text-white/72"
+                  >
+                    Privacy Notice
+                  </button>
+                </p>
               </div>
 
               <AnimatePresence>
@@ -15341,6 +15480,22 @@ const renderWaitlistPage = () => (
         return renderMobileWaitlistPage();
       case "/contact":
         return renderMobileContactPage();
+      case "/faq":
+        return (
+          <FaqPage
+            locale={locale}
+            onReturnHome={() => goTo("/")}
+            inquiryHref={whatsappGeneralLink}
+          />
+        );
+      case "/privacy-notice":
+        return (
+          <PrivacyNoticePage
+            locale={locale}
+            onReturnHome={() => goTo("/")}
+            inquiryHref={whatsappGeneralLink}
+          />
+        );
       case "/sign-in":
         return renderSignInPage();
       case "/sign-up":
@@ -15395,6 +15550,22 @@ const renderWaitlistPage = () => (
         return renderWaitlistPage();
       case "/contact":
         return renderContactPage();
+      case "/faq":
+        return (
+          <FaqPage
+            locale={locale}
+            onReturnHome={() => goTo("/")}
+            inquiryHref={whatsappGeneralLink}
+          />
+        );
+      case "/privacy-notice":
+        return (
+          <PrivacyNoticePage
+            locale={locale}
+            onReturnHome={() => goTo("/")}
+            inquiryHref={whatsappGeneralLink}
+          />
+        );
       case "/sign-in":
         return renderSignInPage();
       case "/sign-up":
@@ -15418,6 +15589,8 @@ const renderWaitlistPage = () => (
   return (
     <div className="min-h-screen bg-[#070707] text-[#f4efe7]">
       <BrowserFormStyles />
+      <SiteHead route={route as SiteRoute} locale={locale} />
+      <SiteAnalytics />
       <LuxuryCursor enabled={luxuryCursorEnabled} />
 
       {!hidesGlobalChrome && isDesktopViewport ? (
@@ -15623,6 +15796,8 @@ const renderWaitlistPage = () => (
           privateInquiryLabel={copy.privateInquiry}
           waitlistLabel={waitlistCopy.joinWaitlist}
           navLinks={localizedNavItems.map(({ label, path }) => ({ label, path }))}
+          faqLabel={localizedRouteTitles["/faq"]}
+          privacyLabel={localizedRouteTitles["/privacy-notice"]}
         />
       ) : (
         <MobileClubFooter
@@ -15633,6 +15808,8 @@ const renderWaitlistPage = () => (
           privateInquiryLabel={copy.privateInquiry}
           waitlistLabel={waitlistCopy.joinWaitlist}
           navLinks={localizedNavItems.map(({ label, path }) => ({ label, path }))}
+          faqLabel={localizedRouteTitles["/faq"]}
+          privacyLabel={localizedRouteTitles["/privacy-notice"]}
         />
       )}
     </div>
