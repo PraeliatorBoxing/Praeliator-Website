@@ -463,8 +463,11 @@ function UtilityPageFrame({
 }>) {
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#080808_0%,#040404_100%)] pb-20 pt-28 sm:pb-24 sm:pt-32">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(198,157,118,0.08),transparent_30%)]" />
-      <div className="mx-auto w-full max-w-[112rem] px-5 sm:px-7 lg:px-10">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(198,157,118,0.08),transparent_30%)]"
+        aria-hidden="true"
+      />
+      <div className="relative z-10 mx-auto w-full max-w-[112rem] px-5 sm:px-7 lg:px-10">
         <div className="overflow-hidden rounded-[2.6rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(13,12,11,0.97),rgba(8,8,7,0.985))] shadow-[0_42px_140px_rgba(0,0,0,0.42)]">
           <div className="flex flex-col gap-4 border-b border-white/[0.08] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
             <Button
