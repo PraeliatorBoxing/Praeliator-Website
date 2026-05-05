@@ -452,6 +452,10 @@ const initialWaitlistForm = {
   contactPreference: "",
   note: "",
 };
+const initialContactForm = {
+  ...initialWaitlistForm,
+  interest: "House correspondence",
+};
 const initialAcquisitionIntakeForm = {
   title: "",
   fullName: "",
@@ -629,6 +633,17 @@ const contactPreferenceOptions = [
   { value: "Phone", label: "Phone" },
   { value: "Email", label: "Email" },
   { value: "Either", label: "Either" },
+];
+const contactLineOptions = [
+  { value: "House correspondence", label: "House" },
+  { value: "Care correspondence", label: "Care" },
+  { value: "Studio correspondence", label: "Studio" },
+];
+const contactTimelineOptions = [
+  { value: "Immediate response requested", label: "Immediate" },
+  { value: "Within 3 days", label: "Within 3 days" },
+  { value: "Within 7 days", label: "Within 7 days" },
+  { value: "No urgency", label: "No urgency" },
 ];
 const acquisitionTitleOptions = titleOptions;
 const acquisitionCollectorIntentOptions = [
@@ -3047,6 +3062,8 @@ function normalizePath(pathname: string): Route {
     clean === "/house-ledger" ||
     clean === "/waitlist" ||
     clean === "/contact" ||
+    clean === "/faq" ||
+    clean === "/privacy-notice" ||
     clean === "/sign-in" ||
     clean === "/sign-up" ||
     clean === "/magic-link" ||
@@ -7139,27 +7156,24 @@ export default function PraeliatorWebsite() {
   const whatsappBase = "https://wa.me/525540658550";
   const createWhatsAppLink = (message: string) =>
     `${whatsappBase}?text=${encodeURIComponent(message)}`;
-  const houseEmailLink = "mailto:house@praeliator.com?subject=Praeliator%20Inquiry";
-  const careEmailLink = "mailto:care@praeliator.com?subject=Praeliator%20Care";
-  const studioEmailLink = "mailto:studio@praeliator.com?subject=Praeliator%20Studio";
-  const emailLink = houseEmailLink;
+  const emailLink = "/contact";
   const contactEmailDirectory = [
     {
       label: "House",
       address: "house@praeliator.com",
-      href: houseEmailLink,
+      value: "House correspondence",
       note: "Primary private correspondence and slower direct inquiry.",
     },
     {
       label: "Care",
       address: "care@praeliator.com",
-      href: careEmailLink,
+      value: "Care correspondence",
       note: "Aftercare, service continuity, and ownership-related follow-up.",
     },
     {
       label: "Studio",
       address: "studio@praeliator.com",
-      href: studioEmailLink,
+      value: "Studio correspondence",
       note: "Editorial, creative, and studio-facing correspondence.",
     },
   ] as const;
@@ -7182,6 +7196,18 @@ export default function PraeliatorWebsite() {
   const [waitlistTouched, setWaitlistTouched] = useState<
     Partial<Record<WaitlistFieldName, boolean>>
   >({});
+  const [contactForm, setContactForm] = useState(initialContactForm);
+  const [contactErrors, setContactErrors] = useState<WaitlistErrors>({});
+  const [contactTouched, setContactTouched] = useState<
+    Partial<Record<WaitlistFieldName, boolean>>
+  >({});
+  const [contactState, setContactState] = useState({
+    loading: false,
+    success: false,
+    error: "",
+    reference: "",
+    serviceMessage: "",
+  });
   const [waitlistState, setWaitlistState] = useState({
     loading: false,
     success: false,
@@ -7223,7 +7249,9 @@ export default function PraeliatorWebsite() {
   const [waitlistStartedAt, setWaitlistStartedAt] = useState<number | null>(
     null,
   );
+  const contactPanelRef = useRef<HTMLDivElement | null>(null);
   const waitlistRequestControllerRef = useRef<AbortController | null>(null);
+  const contactRequestControllerRef = useRef<AbortController | null>(null);
   const acquisitionRequestControllerRef = useRef<AbortController | null>(null);
   const acquisitionWhatsAppRequestControllerRef =
     useRef<AbortController | null>(null);
@@ -8252,7 +8280,9 @@ export default function PraeliatorWebsite() {
     !authRoutes.has(route) &&
     route !== "/ownership-record" &&
     route !== "/private-acquisition" &&
-    route !== "/house-ledger";
+    route !== "/house-ledger" &&
+    route !== "/faq" &&
+    route !== "/privacy-notice";
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -8876,6 +8906,211 @@ export default function PraeliatorWebsite() {
       }
       return normalized;
     });
+  };
+  const markContactFieldTouched = (field: WaitlistFieldName) => {
+    setContactTouched((current) => ({ ...current, [field]: true }));
+  };
+  const markContactFieldsTouched = (fields: WaitlistFieldName[]) => {
+    setContactTouched((current) => ({
+      ...current,
+      ...Object.fromEntries(fields.map((field) => [field, true])),
+    }));
+  };
+  const getVisibleContactFieldError = (field: WaitlistFieldName) =>
+    contactTouched[field] ? contactErrors[field] : undefined;
+  const getContactFieldDescribedBy = (field: WaitlistFieldName) =>
+    getVisibleContactFieldError(field) ? `contact-${field}-error` : undefined;
+  const getContactFieldSuccess = (field: WaitlistFieldName) => {
+    if (!contactTouched[field]) return false;
+    if (contactErrors[field]) return false;
+    const value = contactForm[field];
+    return typeof value === "string" ? value.trim().length > 0 : false;
+  };
+  const updateContactForm = (
+    updater: (current: typeof initialContactForm) => typeof initialContactForm,
+  ) => {
+    setContactForm((current) => {
+      const next = updater(current);
+      if (Object.keys(contactTouched).length > 0) {
+        setContactErrors(validateWaitlistForm(next));
+      }
+      return next;
+    });
+  };
+  const handleContactChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const field = event.target.name as WaitlistFieldName;
+    const value = normalizeWaitlistFieldValue(field, event.target.value, "change");
+    updateContactForm((current) => ({ ...current, [field]: value }));
+  };
+  const handleContactBlur = (field: WaitlistFieldName) => {
+    markContactFieldTouched(field);
+    updateContactForm((current) => {
+      const normalized = {
+        ...current,
+        [field]: normalizeWaitlistFieldValue(field, current[field], "blur"),
+      };
+      setContactErrors(validateWaitlistForm(normalized));
+      return normalized;
+    });
+  };
+  const handleContactSelectChange = (
+    field: WaitlistFieldName,
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    markContactFieldTouched(field);
+    handleContactChange(event);
+  };
+  const handleContactCountryChange = (
+    value: string,
+    matchedOption?: { label: string; code: string },
+  ) => {
+    updateContactForm((current) => {
+      const next = {
+        ...current,
+        country: normalizeWaitlistFieldValue("country", value, "change"),
+        phoneCountryCode: matchedOption
+          ? normalizeWaitlistFieldValue(
+              "phoneCountryCode",
+              matchedOption.code,
+              "change",
+            )
+          : current.phoneCountryCode,
+      };
+      if (contactTouched.country || contactTouched.phoneCountryCode) {
+        setContactErrors(validateWaitlistForm(next));
+      }
+      return next;
+    });
+  };
+  const handleContactCountryBlur = () => {
+    markContactFieldsTouched(["country", "phoneCountryCode"]);
+    updateContactForm((current) => {
+      const normalized = {
+        ...current,
+        country: normalizeWaitlistFieldValue("country", current.country, "blur"),
+        phoneCountryCode: normalizeWaitlistFieldValue(
+          "phoneCountryCode",
+          current.phoneCountryCode,
+          "blur",
+        ),
+      };
+      setContactErrors(validateWaitlistForm(normalized));
+      return normalized;
+    });
+  };
+  const scrollToContactPanel = () => {
+    contactPanelRef.current?.scrollIntoView({
+      block: "start",
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  };
+  const setContactLine = (line: (typeof contactLineOptions)[number]["value"]) => {
+    markContactFieldTouched("interest");
+    updateContactForm((current) => ({ ...current, interest: line }));
+    setContactState((current) => ({
+      ...current,
+      success: false,
+      error: "",
+      reference: "",
+      serviceMessage: "",
+    }));
+    scrollToContactPanel();
+  };
+  const handleContactSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const normalizedForm = normalizeWaitlistForm(contactForm);
+    const nextErrors = validateWaitlistForm(normalizedForm);
+    setContactForm(normalizedForm);
+    setContactErrors(nextErrors);
+    markContactFieldsTouched(waitlistRequiredFields);
+    if (Object.keys(nextErrors).length > 0) {
+      setContactState({
+        loading: false,
+        success: false,
+        error: "Please correct the highlighted fields.",
+        reference: "",
+        serviceMessage: "",
+      });
+      return;
+    }
+    setContactState({
+      loading: true,
+      success: false,
+      error: "",
+      reference: "",
+      serviceMessage: "",
+    });
+    const controller = new AbortController();
+    contactRequestControllerRef.current?.abort();
+    contactRequestControllerRef.current = controller;
+    const timeoutId = window.setTimeout(() => controller.abort(), WAITLIST_REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(waitlistEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Praeliator-Intake": "contact",
+        },
+        body: JSON.stringify({
+          title: normalizedForm.title,
+          fullName: normalizedForm.fullName,
+          email: normalizedForm.email,
+          phoneCountryCode: normalizedForm.phoneCountryCode,
+          phoneNumber: normalizedForm.whatsapp,
+          fullPhone:
+            `${normalizedForm.phoneCountryCode} ${normalizedForm.whatsapp}`.trim(),
+          country: normalizedForm.country,
+          interest: normalizedForm.interest,
+          timeline: normalizedForm.timeline,
+          contactPreference: normalizedForm.contactPreference,
+          note: normalizedForm.note,
+          sourceRoute: "/contact",
+          locale,
+        }),
+        signal: controller.signal,
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || "Correspondence could not be retained.");
+      }
+      setContactState({
+        loading: false,
+        success: true,
+        error: "",
+        reference: result.reference || "",
+        serviceMessage:
+          result.serviceMessage || handoffCopy.waitlistServiceMessage,
+      });
+      setContactForm(initialContactForm);
+      setContactErrors({});
+      setContactTouched({});
+    } catch (error) {
+      const message =
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Request timed out. Please try again or continue on WhatsApp."
+          : error instanceof Error
+            ? error.message
+            : "Correspondence could not be retained.";
+      setContactState({
+        loading: false,
+        success: false,
+        error: message,
+        reference: "",
+        serviceMessage: "",
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+      contactRequestControllerRef.current = null;
+    }
   };
   const handleWaitlistSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -11701,150 +11936,193 @@ const renderWaitlistPage = () => (
       </section>
     </>
   );
-  const renderContactPage = () => (
-    <>
-      <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute inset-0 scale-[1.03] bg-cover bg-center"
-            style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)})` }}
-            aria-hidden="true"
-          />
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)}
-          >
-            <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
-          <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
-          <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
-        </div>
+  const renderContactPage = () => {
+    const contactFormCopyByLocale: Record<
+      SiteLocale,
+      {
+        writtenCta: string;
+        writtenTitle: string;
+        writtenDescription: string;
+        lineLabel: string;
+        lineIntro: string;
+        submit: string;
+        submitting: string;
+        retained: string;
+        retainedNote: string;
+        standardsTitle: string;
+        standardsBody: string;
+        privacyLead: string;
+      }
+    > = {
+      en: {
+        writtenCta: "Written Correspondence",
+        writtenTitle: "A written line can remain inside the house.",
+        writtenDescription:
+          "For slower, more deliberate contact, correspondence can be retained here and returned under reference rather than handed off to a mail client.",
+        lineLabel: "Correspondence line",
+        lineIntro: "Select the line, leave the note, and the house returns under reference.",
+        submit: "Retain Correspondence",
+        submitting: "Retaining...",
+        retained: "Correspondence retained",
+        retainedNote:
+          "The line now sits under the house record. Continue by WhatsApp only if timing requires it.",
+        standardsTitle: "Mailbox posture",
+        standardsBody:
+          "Each address stays visible for reference, but the written route is retained here so the handoff remains quiet, controlled, and attached to the same client line.",
+        privacyLead: "Submitted details are retained only for review and follow-up under the house.",
+      },
+      es: {
+        writtenCta: "Correspondencia escrita",
+        writtenTitle: "La via escrita puede permanecer dentro de la casa.",
+        writtenDescription:
+          "Para un contacto mas lento y deliberado, la correspondencia puede quedar retenida aqui y volver bajo referencia en lugar de salir hacia una app de correo.",
+        lineLabel: "Linea de correspondencia",
+        lineIntro: "Elige la linea, deja la nota y la casa vuelve bajo referencia.",
+        submit: "Retener correspondencia",
+        submitting: "Reteniendo...",
+        retained: "Correspondencia retenida",
+        retainedNote:
+          "La linea ya queda bajo el registro de la casa. Continua por WhatsApp solo si el timing lo requiere.",
+        standardsTitle: "Postura de buzones",
+        standardsBody:
+          "Cada direccion permanece visible como referencia, pero la via escrita se retiene aqui para que el handoff siga siendo sobrio, controlado y unido a la misma linea de cliente.",
+        privacyLead: "Los datos enviados se retienen solo para revision y seguimiento bajo la casa.",
+      },
+      ja: {
+        writtenCta: "Written Correspondence",
+        writtenTitle: "書面の連絡もこのサイト内で保持できます。",
+        writtenDescription:
+          "より静かで慎重な連絡のために、書面での対応はメールアプリへ渡さず、この場で参照番号付きの記録として保持されます。",
+        lineLabel: "Correspondence line",
+        lineIntro: "宛先を選び、要件を残すと、ハウスが参照番号付きで返答します。",
+        submit: "Retain Correspondence",
+        submitting: "Retaining...",
+        retained: "Correspondence retained",
+        retainedNote:
+          "この連絡はすでにハウス記録の下に保持されています。時機が必要な場合のみ WhatsApp へ続けてください。",
+        standardsTitle: "Mailbox posture",
+        standardsBody:
+          "各アドレスは参照として残しつつ、書面の導線自体はここで保持されるため、引き渡しは静かで統制され、同じ顧客記録に結び付いたままです。",
+        privacyLead: "送信された情報は、ハウスの審査とフォローアップのためにのみ保持されます。",
+      },
+      fr: {
+        writtenCta: "Correspondance écrite",
+        writtenTitle: "La voie écrite peut demeurer à l'intérieur de la maison.",
+        writtenDescription:
+          "Pour un contact plus lent et plus délibéré, la correspondance peut être retenue ici et revenir sous référence au lieu d'être remise à une application mail.",
+        lineLabel: "Ligne de correspondance",
+        lineIntro: "Choisissez la ligne, laissez la note, et la maison revient sous référence.",
+        submit: "Retenir la correspondance",
+        submitting: "Rétention...",
+        retained: "Correspondance retenue",
+        retainedNote:
+          "La ligne est désormais attachée au registre de la maison. Continuez par WhatsApp seulement si le moment l'exige.",
+        standardsTitle: "Posture des boîtes",
+        standardsBody:
+          "Chaque adresse reste visible à titre de repère, mais la voie écrite est retenue ici afin que le passage demeure discret, contrôlé et attaché à la même ligne client.",
+        privacyLead: "Les informations soumises sont retenues seulement pour l'examen et le suivi sous la maison.",
+      },
+    };
+    const contactFormCopy = contactFormCopyByLocale[locale];
 
-        <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
-          <motion.div
-            initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1.02, ease: easeLuxury }}
-            className="max-w-[54rem]"
-          >
-            <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
-              {localizedRouteTitles["/contact"]}
-            </p>
-            <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
-              {contactCopy.heroTitle}
-            </h1>
-            <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
-              {contactCopy.heroDescription}
-            </p>
+    return (
+      <>
+        <section className="relative isolate min-h-dvh supports-[height:100svh]:min-h-[100svh] overflow-hidden bg-[#050505]">
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className="absolute inset-0 scale-[1.03] bg-cover bg-center"
+              style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)})` }}
+              aria-hidden="true"
+            />
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)}
+            >
+              <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
+            <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
+            <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
+          </div>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-              >
-                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                  {contactCopy.primaryCta}
-                </a>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => goTo("/waitlist")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-              >
-                {contactCopy.secondaryCta}
-              </Button>
-            </div>
+          <Container className="relative flex min-h-dvh supports-[height:100svh]:min-h-[100svh] items-end pb-14 pt-28 sm:pb-18 sm:pt-32 lg:pb-24 lg:pt-36">
+            <motion.div
+              initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 1.02, ease: easeLuxury }}
+              className="max-w-[54rem]"
+            >
+              <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
+                {localizedRouteTitles["/contact"]}
+              </p>
+              <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.065em] text-[#f4efe7]">
+                {contactCopy.heroTitle}
+              </h1>
+              <p className="mt-7 max-w-2xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
+                {contactCopy.heroDescription}
+              </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 text-[10px] uppercase tracking-[0.28em] text-white/36 sm:text-[11px]">
-              <span>WhatsApp</span>
-              <span className="h-px w-5 bg-white/12" />
-              <span>Email</span>
-              <span className="h-px w-5 bg-white/12" />
-              <span>Instagram</span>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
-
-      <section className="relative py-16 sm:py-20 lg:py-24">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
-            <Reveal>
-              <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                  {contactCopy.primaryCta}
-                </p>
-                <h2 className="mt-5 max-w-[9ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
-                  {contactCopy.primaryTitle}
-                </h2>
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                  {contactCopy.primaryDescription}
-                </p>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Button
-                    asChild
-                    className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
-                  >
-                    <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-                      {contactCopy.openWhatsapp}
-                    </a>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => goTo("/waitlist")}
-                    className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                  >
-                    {contactCopy.quieterEntry}
-                  </Button>
-                </div>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  asChild
+                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
+                >
+                  <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                    {contactCopy.primaryCta}
+                  </a>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={scrollToContactPanel}
+                  className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                >
+                  {contactFormCopy.writtenCta}
+                </Button>
               </div>
-            </Reveal>
 
-            <Reveal delay={0.08}>
-              <div className="divide-y divide-white/10 border-t border-white/10">
-                <div className="py-6 sm:py-7">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    Secondary
-                  </p>
-                  <div className="mt-4 flex items-start justify-between gap-6">
-                    <div>
-                      <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                        Email
-                      </h3>
-                      <p className="mt-3 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                        Slower and quieter, but still appropriate when immediate back and
-                        forth is not necessary.
-                      </p>
-                    </div>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="shrink-0 rounded-full border-white/15 bg-transparent px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                    >
-                      <a href={emailLink}>Write email</a>
-                    </Button>
-                  </div>
-                </div>
+              <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 text-[10px] uppercase tracking-[0.28em] text-white/36 sm:text-[11px]">
+                <span>WhatsApp</span>
+                <span className="h-px w-5 bg-white/12" />
+                <span>Written</span>
+                <span className="h-px w-5 bg-white/12" />
+                <span>Instagram</span>
+              </div>
+            </motion.div>
+          </Container>
+        </section>
 
-                <div className="py-6 sm:py-7">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    House mailboxes
+        <section className="relative py-16 sm:py-20 lg:py-24">
+          <Container>
+            <div className="grid gap-10 lg:grid-cols-[0.94fr_1.06fr] lg:items-start lg:gap-14">
+              <Reveal>
+                <div className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.9),rgba(9,8,8,0.94))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                    {contactFormCopy.writtenCta}
                   </p>
-                  <div className="mt-4 grid gap-3">
+                  <h2 className="mt-5 max-w-[10ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] sm:text-5xl">
+                    {contactFormCopy.writtenTitle}
+                  </h2>
+                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    {contactFormCopy.writtenDescription}
+                  </p>
+
+                  <div className="mt-7 grid gap-3">
                     {contactEmailDirectory.map((entry) => (
-                      <a
+                      <button
                         key={entry.address}
-                        href={entry.href}
-                        className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 transition duration-500 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.05]"
+                        type="button"
+                        onClick={() => setContactLine(entry.value)}
+                        className={`rounded-[1.35rem] border p-4 text-left transition duration-500 hover:-translate-y-0.5 ${
+                          contactForm.interest === entry.value
+                            ? "border-[#c7a98d]/40 bg-white/[0.06]"
+                            : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.05]"
+                        }`}
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
@@ -11859,139 +12137,313 @@ const renderWaitlistPage = () => (
                             </p>
                           </div>
                           <span className="text-[11px] uppercase tracking-[0.22em] text-white/32">
-                            Write
+                            Select
                           </span>
                         </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="py-6 sm:py-7">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    Secondary
-                  </p>
-                  <div className="mt-4 flex items-start justify-between gap-6">
-                    <div>
-                      <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                        Instagram
-                      </h3>
-                      <p className="mt-3 max-w-md text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                        Available for lighter contact and brand presence, but not the main
-                        purchase route.
-                      </p>
-                    </div>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="shrink-0 rounded-full border-white/15 bg-transparent px-5 py-5 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                    >
-                      <a href={instagramLink} target="_blank" rel="noreferrer">
-                        Visit Instagram
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <p className="mt-8 max-w-lg text-sm leading-7 text-white/42 sm:text-base sm:leading-8">
-                Qualified inquiries continue directly. Slower channels remain available
-                where appropriate.
-              </p>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative py-8 sm:py-10 lg:py-14">
-        <Container>
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start lg:gap-10">
-            <Reveal>
-              <HouseLetterCard
-                eyebrow="House correspondence"
-                title="Contact is part of the object route."
-                body="A serious pair should not move through generic support language. Each channel has a role, and each role keeps the same quiet authority as the object itself."
-                signature="Praeliator / correspondence note"
-                className="h-full"
-              />
-            </Reveal>
-
-            <Reveal delay={0.06}>
-              <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.97))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
-                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                  Correspondence hierarchy
-                </p>
-                <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                  {contactChannels.map((channel) => (
-                    <div
-                      key={channel.title}
-                      className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
-                    >
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                        {channel.role}
-                      </p>
-                      <p className="mt-3 text-xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
-                        {channel.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-white/62">
-                        {channel.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </Container>
-      </section>
-
-      <section className="relative py-16 sm:py-18 lg:py-22">
-        <Container>
-          <div className="grid gap-10 xl:grid-cols-[0.94fr_1.06fr] xl:gap-14">
-            <Reveal>
-              <HouseLetterCard
-                eyebrow="House letter / response"
-                title="Even direct contact should still feel like the house."
-                body="The route matters as much as the channel. Whether inquiry begins on WhatsApp, email, or Instagram, the response should remain calm, exact, and private rather than collapsing into customer-support language."
-                signature="Praeliator / direct correspondence"
-                className="h-full"
-              />
-            </Reveal>
-
-            <div className="grid gap-5">
-              <Reveal delay={0.05}>
-                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.96))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    Response standards
-                  </p>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                    {contactResponseStandards.map((item) => (
-                      <div
-                        key={item.title}
-                        className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
-                      >
-                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                          {item.title}
-                        </p>
-                        <p className="mt-3 text-sm leading-7 text-white/62">
-                          {item.text}
-                        </p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
               </Reveal>
 
-              <Reveal delay={0.1}>
-                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(13,12,11,0.92),rgba(8,8,7,0.96))] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.2)] sm:p-8">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    Channel posture
+              <Reveal delay={0.08}>
+                <div
+                  ref={contactPanelRef}
+                  className="rounded-[2.2rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,13,12,0.92),rgba(9,8,8,0.96))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                    {contactFormCopy.lineLabel}
                   </p>
-                  <div className="mt-5 divide-y divide-white/10 border-t border-white/10">
-                    {contactStandards.map((item) => (
-                      <div key={item} className="py-4">
-                        <p className="text-sm leading-7 text-white/62">
-                          {item}
+                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+                    {contactFormCopy.lineIntro}
+                  </p>
+
+                  <form className="mt-8 grid gap-4" onSubmit={handleContactSubmit} noValidate>
+                    <div className="grid gap-4 sm:grid-cols-[0.9fr_1.1fr]">
+                      <SelectField
+                        name="title"
+                        value={contactForm.title}
+                        onChange={(event) => handleContactSelectChange("title", event)}
+                        onBlur={() => handleContactBlur("title")}
+                        placeholder={waitlistCopy.titlePlaceholder}
+                        searchable
+                        searchPlaceholder={waitlistCopy.titleSearch}
+                        fieldLabel={waitlistCopy.titleLabel}
+                        options={titleOptions}
+                        success={getContactFieldSuccess("title")}
+                        describedBy={getContactFieldDescribedBy("title")}
+                      />
+                      <div>
+                        <InputField
+                          name="fullName"
+                          value={contactForm.fullName}
+                          onChange={handleContactChange}
+                          onBlur={() => handleContactBlur("fullName")}
+                          autoComplete="name"
+                          placeholder={waitlistCopy.fullNamePlaceholder}
+                          invalid={Boolean(getVisibleContactFieldError("fullName"))}
+                          success={getContactFieldSuccess("fullName")}
+                          describedBy={getContactFieldDescribedBy("fullName")}
+                        />
+                        <FieldError id="contact-fullName-error" message={getVisibleContactFieldError("fullName")} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <InputField
+                        name="email"
+                        type="email"
+                        value={contactForm.email}
+                        onChange={handleContactChange}
+                        onBlur={() => handleContactBlur("email")}
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        placeholder={waitlistCopy.emailPlaceholder}
+                        invalid={Boolean(getVisibleContactFieldError("email"))}
+                        success={getContactFieldSuccess("email")}
+                        describedBy={getContactFieldDescribedBy("email")}
+                      />
+                      <FieldError id="contact-email-error" message={getVisibleContactFieldError("email")} />
+                    </div>
+
+                    <div>
+                      <SearchPicker
+                        name="country"
+                        value={contactForm.country}
+                        onChange={handleContactCountryChange}
+                        onBlur={handleContactCountryBlur}
+                        options={countryOptions.map((option) => ({
+                          label: option.label,
+                          code: option.code,
+                        }))}
+                        placeholder={waitlistCopy.countryPlaceholder}
+                        exactMatchUpdates
+                        fieldLabel="Country"
+                        invalid={Boolean(getVisibleContactFieldError("country"))}
+                        success={getContactFieldSuccess("country")}
+                        describedBy={getContactFieldDescribedBy("country")}
+                      />
+                      <FieldError id="contact-country-error" message={getVisibleContactFieldError("country")} />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
+                      <div>
+                        <InputField
+                          name="phoneCountryCode"
+                          value={contactForm.phoneCountryCode}
+                          onChange={handleContactChange}
+                          onBlur={() => handleContactBlur("phoneCountryCode")}
+                          autoComplete="tel-country-code"
+                          inputMode="tel"
+                          maxLength={5}
+                          placeholder={waitlistCopy.dialCodePlaceholder}
+                          invalid={Boolean(getVisibleContactFieldError("phoneCountryCode"))}
+                          success={getContactFieldSuccess("phoneCountryCode")}
+                          describedBy={getContactFieldDescribedBy("phoneCountryCode")}
+                        />
+                        <FieldError id="contact-phoneCountryCode-error" message={getVisibleContactFieldError("phoneCountryCode")} />
+                      </div>
+                      <div>
+                        <InputField
+                          name="whatsapp"
+                          value={contactForm.whatsapp}
+                          onChange={handleContactChange}
+                          onBlur={() => handleContactBlur("whatsapp")}
+                          autoComplete="tel-national"
+                          inputMode="tel"
+                          maxLength={15}
+                          placeholder={waitlistCopy.phonePlaceholder}
+                          invalid={Boolean(getVisibleContactFieldError("whatsapp"))}
+                          success={getContactFieldSuccess("whatsapp")}
+                          describedBy={getContactFieldDescribedBy("whatsapp")}
+                        />
+                        <FieldError id="contact-whatsapp-error" message={getVisibleContactFieldError("whatsapp")} />
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <SelectField
+                          name="interest"
+                          value={contactForm.interest}
+                          onChange={(event) => handleContactSelectChange("interest", event)}
+                          onBlur={() => handleContactBlur("interest")}
+                          placeholder="Line *"
+                          fieldLabel="Line"
+                          options={contactLineOptions}
+                          invalid={Boolean(getVisibleContactFieldError("interest"))}
+                          success={getContactFieldSuccess("interest")}
+                          describedBy={getContactFieldDescribedBy("interest")}
+                        />
+                        <FieldError id="contact-interest-error" message={getVisibleContactFieldError("interest")} />
+                      </div>
+                      <div>
+                        <SelectField
+                          name="timeline"
+                          value={contactForm.timeline}
+                          onChange={(event) => handleContactSelectChange("timeline", event)}
+                          onBlur={() => handleContactBlur("timeline")}
+                          placeholder="Timing *"
+                          fieldLabel="Timing"
+                          options={contactTimelineOptions}
+                          invalid={Boolean(getVisibleContactFieldError("timeline"))}
+                          success={getContactFieldSuccess("timeline")}
+                          describedBy={getContactFieldDescribedBy("timeline")}
+                        />
+                        <FieldError id="contact-timeline-error" message={getVisibleContactFieldError("timeline")} />
+                      </div>
+                      <div>
+                        <SelectField
+                          name="contactPreference"
+                          value={contactForm.contactPreference}
+                          onChange={(event) => handleContactSelectChange("contactPreference", event)}
+                          onBlur={() => handleContactBlur("contactPreference")}
+                          placeholder="Return route *"
+                          fieldLabel="Return route"
+                          options={contactPreferenceOptions}
+                          invalid={Boolean(getVisibleContactFieldError("contactPreference"))}
+                          success={getContactFieldSuccess("contactPreference")}
+                          describedBy={getContactFieldDescribedBy("contactPreference")}
+                        />
+                        <FieldError id="contact-contactPreference-error" message={getVisibleContactFieldError("contactPreference")} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <textarea
+                        name="note"
+                        value={contactForm.note}
+                        onChange={handleContactChange}
+                        onBlur={() => handleContactBlur("note")}
+                        rows={6}
+                        className={`${formFieldBaseClass} min-h-[10.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
+                        placeholder={waitlistCopy.notePlaceholder}
+                      />
+                      <FieldNote>{waitlistCopy.noteSupport}</FieldNote>
+                    </div>
+
+                    <div className="pt-2">
+                      <Button
+                        type="submit"
+                        disabled={contactState.loading}
+                        className="h-[3.85rem] w-full rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_16px_36px_rgba(239,229,215,0.2)] disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <span className="inline-flex items-center gap-3">
+                          {contactState.loading ? (
+                            <span className="browser-submit-spinner" aria-hidden="true" />
+                          ) : null}
+                          <span>
+                            {contactState.loading
+                              ? contactFormCopy.submitting
+                              : contactFormCopy.submit}
+                          </span>
+                        </span>
+                      </Button>
+                      <FieldNote>{contactFormCopy.retainedNote}</FieldNote>
+                      <p className="mt-3 text-[11px] leading-6 text-white/42">
+                        {contactFormCopy.privacyLead}{" "}
+                        <button
+                          type="button"
+                          onClick={() => goTo("/privacy-notice")}
+                          className="underline decoration-white/24 underline-offset-4 transition duration-300 hover:text-white/72"
+                        >
+                          Privacy Notice
+                        </button>
+                      </p>
+                    </div>
+
+                    <AnimatePresence>
+                      {contactState.success ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 6 }}
+                          transition={{ duration: 0.22, ease: easeLuxury }}
+                          className="overflow-hidden rounded-[1.6rem] border border-[#2b211b] bg-[#0d0b0a] shadow-[0_20px_48px_rgba(0,0,0,0.22)]"
+                          aria-live="polite"
+                        >
+                          <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
+                            <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                              {contactFormCopy.retained}
+                            </p>
+                            <p className="mt-3 rounded-[1rem] border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-base font-medium tracking-[0.08em] text-[#f4efe7] sm:text-lg">
+                              {contactState.reference || waitlistCopy.referencePending}
+                            </p>
+                          </div>
+                          <div className="space-y-4 px-5 py-5 sm:px-6">
+                            <p className="text-sm leading-6 text-white/62">
+                              {contactState.serviceMessage}
+                            </p>
+                            <div className="flex flex-col gap-3 sm:flex-row">
+                              <Button
+                                asChild
+                                className="rounded-full bg-[#efe5d7] px-5 text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+                              >
+                                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                                  {waitlistCopy.continueWhatsapp}
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setContactState((current) => ({ ...current, success: false }))}
+                                className="rounded-full border-white/15 bg-transparent px-5 text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                              >
+                                {contactFormCopy.writtenCta}
+                              </Button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+
+                    {contactState.error ? (
+                      <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">
+                        {contactState.error}
+                      </p>
+                    ) : null}
+                  </form>
+                </div>
+              </Reveal>
+            </div>
+          </Container>
+        </section>
+
+        <section className="relative py-8 sm:py-10 lg:py-14">
+          <Container>
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start lg:gap-10">
+              <Reveal>
+                <HouseLetterCard
+                  eyebrow="House correspondence"
+                  title="Contact should remain attached to the object line."
+                  body="A serious pair should not move through generic support language. The written route now remains inside the house record even when the pace is slower than WhatsApp."
+                  signature="Praeliator / correspondence note"
+                  className="h-full"
+                />
+              </Reveal>
+
+              <Reveal delay={0.06}>
+                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.97))] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.24)] sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    {contactFormCopy.standardsTitle}
+                  </p>
+                  <p className="mt-4 max-w-2xl text-sm leading-7 text-white/62">
+                    {contactFormCopy.standardsBody}
+                  </p>
+                  <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                    {contactChannels.map((channel) => (
+                      <div
+                        key={channel.title}
+                        className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-4"
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                          {channel.role}
+                        </p>
+                        <p className="mt-3 text-xl font-semibold tracking-[-0.04em] text-[#f4efe7]">
+                          {channel.title}
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-white/62">
+                          {channel.text}
                         </p>
                       </div>
                     ))}
@@ -11999,11 +12451,11 @@ const renderWaitlistPage = () => (
                 </div>
               </Reveal>
             </div>
-          </div>
-        </Container>
-      </section>
-    </>
-  );
+          </Container>
+        </section>
+      </>
+    );
+  };
 
   const renderMobileHomePage = () => (
     <>
@@ -13091,113 +13543,290 @@ const renderWaitlistPage = () => (
     </>
   );
 
-  const renderMobileContactPage = () => (
-    <>
-      <MobilePageHeroBanner
-        eyebrow={localizedRouteTitles["/contact"]}
-        title={contactCopy.heroTitle}
-        description={contactCopy.heroDescription}
-        actions={[
-          { label: contactCopy.primaryCta, href: whatsappGeneralLink, variant: "primary" },
-          { label: contactCopy.secondaryCta, onClick: () => goTo("/waitlist"), variant: "secondary" },
-        ]}
-        media={{
-          image: visImageSources.packaging,
-          alt: "Praeliator contact hero",
-          video: homeCinematicMedia.ownership.video,
-          badge: localizedRouteTitles["/contact"],
-          overlayTitle: "One voice, across every channel.",
-        }}
-        stats={pageHeroStats["/contact"]}
-      />
+  const renderMobileContactPage = () => {
+    const mobileContactCopyByLocale: Record<
+      SiteLocale,
+      { written: string; title: string; intro: string; submit: string; submitting: string }
+    > = {
+      en: {
+        written: "Written Correspondence",
+        title: "A written line should remain inside the house.",
+        intro: "Choose the line, leave the note, and the response returns under reference instead of moving into a mail app.",
+        submit: "Retain Correspondence",
+        submitting: "Retaining...",
+      },
+      es: {
+        written: "Correspondencia escrita",
+        title: "La via escrita debe permanecer dentro de la casa.",
+        intro: "Elige la linea, deja la nota y la respuesta vuelve bajo referencia en lugar de pasar a una app de correo.",
+        submit: "Retener correspondencia",
+        submitting: "Reteniendo...",
+      },
+      ja: {
+        written: "Written Correspondence",
+        title: "書面の導線もこの場で保持されるべきです。",
+        intro: "宛先を選び、要件を残すと、メールアプリへ渡さず参照番号付きで返答されます。",
+        submit: "Retain Correspondence",
+        submitting: "Retaining...",
+      },
+      fr: {
+        written: "Correspondance écrite",
+        title: "La voie écrite doit demeurer dans la maison.",
+        intro: "Choisissez la ligne, laissez la note, et la réponse revient sous référence au lieu de quitter le site vers une application mail.",
+        submit: "Retenir la correspondance",
+        submitting: "Rétention...",
+      },
+    };
+    const mobileContactCopy = mobileContactCopyByLocale[locale];
 
-      <MobileSectionFrame
-        eyebrow={contactCopy.primaryCta}
-        title={contactCopy.primaryTitle}
-      >
-        <div className="flex flex-col gap-3">
-          <Button
-            asChild
-            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
-          >
-            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-              {contactCopy.openWhatsapp}
-            </a>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => goTo("/waitlist")}
-            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
-          >
-            {contactCopy.quieterEntry}
-          </Button>
-        </div>
-      </MobileSectionFrame>
-
-      <MobileSectionFrame
-        eyebrow="House correspondence"
-        title="Contact is part of the object route."
-      >
-        <MobileEditorialLedger
-          items={[
-            ...contactChannels.map((channel) => ({
-              title: `${channel.role} / ${channel.title}`,
-              text: channel.text,
-            })),
-            ...contactPrinciples,
+    return (
+      <>
+        <MobilePageHeroBanner
+          eyebrow={localizedRouteTitles["/contact"]}
+          title={contactCopy.heroTitle}
+          description={contactCopy.heroDescription}
+          actions={[
+            { label: contactCopy.primaryCta, href: whatsappGeneralLink, variant: "primary" },
+            { label: mobileContactCopy.written, onClick: scrollToContactPanel, variant: "secondary" },
           ]}
+          media={{
+            image: visImageSources.packaging,
+            alt: "Praeliator contact hero",
+            video: homeCinematicMedia.ownership.video,
+            badge: localizedRouteTitles["/contact"],
+            overlayTitle: "One voice, across every channel.",
+          }}
+          stats={pageHeroStats["/contact"]}
         />
-      </MobileSectionFrame>
 
-      <MobileSectionFrame
-        eyebrow="Direct links"
-        title="Choose the route that fits the timing."
-      >
-        <div className="grid gap-3">
-          <Button
-            asChild
-            className="h-[3.6rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210]"
-          >
-            <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
-              WhatsApp
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
-          >
-            <a href={emailLink}>Email</a>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="h-[3.6rem] rounded-full border-white/15 bg-transparent px-6 text-sm text-[#f4efe7]"
-          >
-            <a href={instagramLink} target="_blank" rel="noreferrer">
-              Instagram
-            </a>
-          </Button>
-        </div>
-        <div className="mt-5 divide-y divide-white/[0.08] border-y border-white/[0.08]">
-          {contactEmailDirectory.map((entry) => (
-            <a
-              key={entry.address}
-              href={entry.href}
-              className="block py-5 transition duration-500 hover:text-white"
+        <MobileSectionFrame
+          eyebrow={mobileContactCopy.written}
+          title={mobileContactCopy.title}
+        >
+          <p className="text-sm leading-7 text-white/62">
+            {mobileContactCopy.intro}
+          </p>
+          <div ref={contactPanelRef} className="mt-5 grid gap-3">
+            {contactEmailDirectory.map((entry) => (
+              <button
+                key={entry.address}
+                type="button"
+                onClick={() => setContactLine(entry.value)}
+                className={`rounded-[1.3rem] border p-4 text-left transition duration-500 ${
+                  contactForm.interest === entry.value
+                    ? "border-[#c7a98d]/40 bg-white/[0.06]"
+                    : "border-white/10 bg-white/[0.03]"
+                }`}
+              >
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                  {entry.label}
+                </p>
+                <p className="mt-3 text-sm text-[#f4efe7]">{entry.address}</p>
+                <p className="mt-2 text-sm leading-7 text-white/56">{entry.note}</p>
+              </button>
+            ))}
+          </div>
+
+          <form className="mt-5 grid gap-4" onSubmit={handleContactSubmit} noValidate>
+            <SelectField
+              name="title"
+              value={contactForm.title}
+              onChange={(event) => handleContactSelectChange("title", event)}
+              onBlur={() => handleContactBlur("title")}
+              placeholder={waitlistCopy.titlePlaceholder}
+              searchable
+              searchPlaceholder={waitlistCopy.titleSearch}
+              fieldLabel={waitlistCopy.titleLabel}
+              options={titleOptions}
+              success={getContactFieldSuccess("title")}
+              describedBy={getContactFieldDescribedBy("title")}
+            />
+            <div>
+              <InputField
+                name="fullName"
+                value={contactForm.fullName}
+                onChange={handleContactChange}
+                onBlur={() => handleContactBlur("fullName")}
+                autoComplete="name"
+                placeholder={waitlistCopy.fullNamePlaceholder}
+                invalid={Boolean(getVisibleContactFieldError("fullName"))}
+                success={getContactFieldSuccess("fullName")}
+                describedBy={getContactFieldDescribedBy("fullName")}
+              />
+              <FieldError id="contact-fullName-error" message={getVisibleContactFieldError("fullName")} />
+            </div>
+            <div>
+              <InputField
+                name="email"
+                type="email"
+                value={contactForm.email}
+                onChange={handleContactChange}
+                onBlur={() => handleContactBlur("email")}
+                autoComplete="email"
+                autoCapitalize="none"
+                placeholder={waitlistCopy.emailPlaceholder}
+                invalid={Boolean(getVisibleContactFieldError("email"))}
+                success={getContactFieldSuccess("email")}
+                describedBy={getContactFieldDescribedBy("email")}
+              />
+              <FieldError id="contact-email-error" message={getVisibleContactFieldError("email")} />
+            </div>
+            <div>
+              <SearchPicker
+                name="country"
+                value={contactForm.country}
+                onChange={handleContactCountryChange}
+                onBlur={handleContactCountryBlur}
+                options={countryOptions.map((option) => ({
+                  label: option.label,
+                  code: option.code,
+                }))}
+                placeholder={waitlistCopy.countryPlaceholder}
+                exactMatchUpdates
+                fieldLabel="Country"
+                invalid={Boolean(getVisibleContactFieldError("country"))}
+                success={getContactFieldSuccess("country")}
+                describedBy={getContactFieldDescribedBy("country")}
+              />
+              <FieldError id="contact-country-error" message={getVisibleContactFieldError("country")} />
+            </div>
+            <div className="grid gap-4 grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <InputField
+                  name="phoneCountryCode"
+                  value={contactForm.phoneCountryCode}
+                  onChange={handleContactChange}
+                  onBlur={() => handleContactBlur("phoneCountryCode")}
+                  autoComplete="tel-country-code"
+                  inputMode="tel"
+                  maxLength={5}
+                  placeholder={waitlistCopy.dialCodePlaceholder}
+                  invalid={Boolean(getVisibleContactFieldError("phoneCountryCode"))}
+                  success={getContactFieldSuccess("phoneCountryCode")}
+                  describedBy={getContactFieldDescribedBy("phoneCountryCode")}
+                />
+                <FieldError id="contact-phoneCountryCode-error" message={getVisibleContactFieldError("phoneCountryCode")} />
+              </div>
+              <div>
+                <InputField
+                  name="whatsapp"
+                  value={contactForm.whatsapp}
+                  onChange={handleContactChange}
+                  onBlur={() => handleContactBlur("whatsapp")}
+                  autoComplete="tel-national"
+                  inputMode="tel"
+                  maxLength={15}
+                  placeholder={waitlistCopy.phonePlaceholder}
+                  invalid={Boolean(getVisibleContactFieldError("whatsapp"))}
+                  success={getContactFieldSuccess("whatsapp")}
+                  describedBy={getContactFieldDescribedBy("whatsapp")}
+                />
+                <FieldError id="contact-whatsapp-error" message={getVisibleContactFieldError("whatsapp")} />
+              </div>
+            </div>
+            <SelectField
+              name="interest"
+              value={contactForm.interest}
+              onChange={(event) => handleContactSelectChange("interest", event)}
+              onBlur={() => handleContactBlur("interest")}
+              placeholder="Line *"
+              fieldLabel="Line"
+              options={contactLineOptions}
+              invalid={Boolean(getVisibleContactFieldError("interest"))}
+              success={getContactFieldSuccess("interest")}
+              describedBy={getContactFieldDescribedBy("interest")}
+            />
+            <FieldError id="contact-interest-error" message={getVisibleContactFieldError("interest")} />
+            <SelectField
+              name="timeline"
+              value={contactForm.timeline}
+              onChange={(event) => handleContactSelectChange("timeline", event)}
+              onBlur={() => handleContactBlur("timeline")}
+              placeholder="Timing *"
+              fieldLabel="Timing"
+              options={contactTimelineOptions}
+              invalid={Boolean(getVisibleContactFieldError("timeline"))}
+              success={getContactFieldSuccess("timeline")}
+              describedBy={getContactFieldDescribedBy("timeline")}
+            />
+            <FieldError id="contact-timeline-error" message={getVisibleContactFieldError("timeline")} />
+            <SelectField
+              name="contactPreference"
+              value={contactForm.contactPreference}
+              onChange={(event) => handleContactSelectChange("contactPreference", event)}
+              onBlur={() => handleContactBlur("contactPreference")}
+              placeholder="Return route *"
+              fieldLabel="Return route"
+              options={contactPreferenceOptions}
+              invalid={Boolean(getVisibleContactFieldError("contactPreference"))}
+              success={getContactFieldSuccess("contactPreference")}
+              describedBy={getContactFieldDescribedBy("contactPreference")}
+            />
+            <FieldError id="contact-contactPreference-error" message={getVisibleContactFieldError("contactPreference")} />
+            <textarea
+              name="note"
+              value={contactForm.note}
+              onChange={handleContactChange}
+              onBlur={() => handleContactBlur("note")}
+              rows={5}
+              className={`${formFieldBaseClass} min-h-[9.5rem] resize-none px-5 py-4 align-top ${getFormFieldStateClasses({})}`}
+              placeholder={waitlistCopy.notePlaceholder}
+            />
+            <Button
+              type="submit"
+              disabled={contactState.loading}
+              className="h-[3.85rem] rounded-full bg-[#efe5d7] text-[#151210] shadow-[0_12px_28px_rgba(239,229,215,0.16)] transition duration-500 hover:bg-[#e4d7c7] disabled:opacity-70"
             >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
-                {entry.label}
+              {contactState.loading ? mobileContactCopy.submitting : mobileContactCopy.submit}
+            </Button>
+            <p className="text-[11px] leading-6 text-white/42">
+              Submitted details are retained only for review and follow-up under the house.{" "}
+              <button
+                type="button"
+                onClick={() => goTo("/privacy-notice")}
+                className="underline decoration-white/24 underline-offset-4"
+              >
+                Privacy Notice
+              </button>
+            </p>
+            {contactState.success ? (
+              <div className="rounded-[1.35rem] border border-white/[0.08] bg-white/[0.03] p-4">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
+                  Correspondence retained
+                </p>
+                <p className="mt-3 text-base tracking-[0.08em] text-[#f4efe7]">
+                  {contactState.reference || waitlistCopy.referencePending}
+                </p>
+                <p className="mt-3 text-sm leading-7 text-white/62">
+                  {contactState.serviceMessage}
+                </p>
+              </div>
+            ) : null}
+            {contactState.error ? (
+              <p className="text-sm leading-6 text-[#d99b8d]" aria-live="polite">
+                {contactState.error}
               </p>
-              <p className="mt-3 text-sm text-[#f4efe7]">{entry.address}</p>
-              <p className="mt-2 text-sm leading-7 text-white/56">{entry.note}</p>
-            </a>
-          ))}
-        </div>
-      </MobileSectionFrame>
-    </>
-  );
+            ) : null}
+          </form>
+        </MobileSectionFrame>
+
+        <MobileSectionFrame
+          eyebrow="House correspondence"
+          title="Contact is part of the object route."
+        >
+          <MobileEditorialLedger
+            items={[
+              ...contactChannels.map((channel) => ({
+                title: `${channel.role} / ${channel.title}`,
+                text: channel.text,
+              })),
+              ...contactPrinciples,
+            ]}
+          />
+        </MobileSectionFrame>
+      </>
+    );
+  };
 
   const renderAuthShell = ({
     eyebrow,
