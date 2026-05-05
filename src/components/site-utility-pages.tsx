@@ -589,7 +589,7 @@ export function FaqPage({
       returnLabel={copy.returnLabel}
       inquiryLabel={copy.inquiryLabel}
     >
-      <section className="rounded-[2.15rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(15,14,13,0.72),rgba(9,8,8,0.88))] p-5 shadow-[0_24px_74px_rgba(0,0,0,0.2)] sm:p-7">
+      <section className="border-t border-white/[0.08] pt-5 sm:pt-6">
         <div className="grid gap-6 xl:grid-cols-[0.76fr_1.24fr] xl:gap-7">
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
@@ -616,7 +616,7 @@ export function FaqPage({
             </div>
           </div>
 
-          <article className="rounded-[1.8rem] border border-white/[0.08] bg-black/20 p-6 sm:p-7">
+          <article className="border-l border-white/[0.08] pl-0 xl:pl-7">
             <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
               {copy.faq.curatedLabel}
             </p>
@@ -630,7 +630,7 @@ export function FaqPage({
         </div>
       </section>
 
-      <section className="rounded-[2.15rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(16,14,13,0.8),rgba(9,8,8,0.92))] p-5 shadow-[0_24px_74px_rgba(0,0,0,0.2)] sm:p-7">
+      <section className="border-t border-white/[0.08] pt-6 sm:pt-7">
         <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
           {copy.faq.aiEyebrow}
         </p>
@@ -651,7 +651,7 @@ export function FaqPage({
                 key={prompt}
                 type="button"
                 onClick={() => setQuestion(prompt)}
-                className="rounded-full border border-white/[0.1] px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-white/66 transition duration-300 hover:border-white/18 hover:text-white"
+                className="border-b border-white/[0.14] pb-1 text-[11px] uppercase tracking-[0.2em] text-white/58 transition duration-300 hover:border-white/28 hover:text-white"
               >
                 {prompt}
               </button>
@@ -659,13 +659,13 @@ export function FaqPage({
           </div>
         </div>
 
-        <form className="mt-6 grid gap-4" onSubmit={handleAsk}>
+        <form className="mt-6 grid gap-4 border-t border-white/[0.08] pt-6" onSubmit={handleAsk}>
           <textarea
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={5}
             data-native-cursor="true"
-            className="min-h-[11rem] w-full resize-none rounded-[1.8rem] border border-white/[0.08] bg-black/20 px-5 py-4 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
+            className="min-h-[11rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
             placeholder={copy.faq.questionPlaceholder}
           />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -682,11 +682,11 @@ export function FaqPage({
                 : aiState.mode === "ai"
                   ? copy.faq.aiModeLabel
                   : copy.faq.emptyAnswer}
-            </p>
+              </p>
           </div>
         </form>
 
-        <div className="mt-6 rounded-[1.8rem] border border-white/[0.08] bg-black/20 p-6">
+        <div className="mt-6 border-t border-white/[0.08] pt-6">
           {aiState.error ? (
             <p className="text-sm leading-8 text-[#d99b8d]">{aiState.error}</p>
           ) : aiState.answer ? (
