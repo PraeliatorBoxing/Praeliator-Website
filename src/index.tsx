@@ -26,7 +26,6 @@ import {
   useReducedMotion,
   useSpring,
 } from "motion/react";
-import Lenis from "lenis";
 import { createClient, type Session } from "@supabase/supabase-js";
 import {
   Check,
@@ -3135,6 +3134,13 @@ function Reveal({
   className?: string;
   delay?: number;
 }) {
+  const reduceMotion = useReducedMotion();
+  const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
+
+  if (reduceMotion || coarsePointer) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}
@@ -3242,6 +3248,21 @@ function getVideoFallbackImage(video?: string, fallback?: string) {
   return videoPathToAnimatedImagePath(video) ?? fallback;
 }
 
+function useMediaQueryFlag(query: string, fallback = false) {
+  const [matches, setMatches] = useState(fallback);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia(query);
+    const update = () => setMatches(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener?.("change", update);
+    return () => mediaQuery.removeEventListener?.("change", update);
+  }, [query]);
+
+  return matches;
+}
+
 function useMobileMediaActivation(enabled: boolean, rootMargin = "180px 0px") {
   const ref = useRef<HTMLElement | null>(null);
   const [isActive, setIsActive] = useState(!enabled);
@@ -3296,31 +3317,27 @@ function MediaSurface({
     medium: "bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.62))]",
     heavy: "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
   };
-  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
   const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
-    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener?.("change", update);
-    return () => mediaQuery.removeEventListener?.("change", update);
-  }, []);
+  const [videoReady, setVideoReady] = useState(!video);
+  const [videoFailed, setVideoFailed] = useState(false);
   useEffect(() => {
     setAnimatedImageFailed(false);
+    setVideoReady(!video);
+    setVideoFailed(false);
   }, [video]);
   const animatedImage = videoPathToAnimatedImagePath(video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
-    useMobileMediaActivation(Boolean(usePhoneAnimatedImage && video));
-  const shouldUseAnimatedImage = false;
-  const fallbackImage = usePhoneAnimatedImage ? src : getVideoFallbackImage(video, src);
-  const shouldRenderVideo = Boolean(
-    video && !usePhoneAnimatedImage && !shouldUseAnimatedImage && isMediaActive,
+    useMobileMediaActivation(Boolean(coarsePointer && video));
+  const shouldRenderVideo = Boolean(video && !videoFailed && isMediaActive);
+  const shouldUseAnimatedImage = Boolean(
+    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
   );
+  const fallbackImage = src;
   return (
     <div
       ref={mediaActivationRef as React.RefObject<HTMLDivElement>}
-      className={`relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#11100f] shadow-[0_32px_90px_rgba(0,0,0,0.38)] ${className}`}
+      className={`relative overflow-hidden rounded-[1.6rem] border border-white/[0.08] bg-[#0d0c0b] shadow-[0_18px_48px_rgba(0,0,0,0.24)] ${className}`}
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -3328,6 +3345,23 @@ function MediaSurface({
         aria-label={alt}
         role="img"
       />
+      {shouldRenderVideo ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={fallbackImage}
+          preload={coarsePointer ? "auto" : "metadata"}
+          onCanPlay={() => setVideoReady(true)}
+          onLoadedData={() => setVideoReady(true)}
+          onPlaying={() => setVideoReady(true)}
+          onError={() => setVideoFailed(true)}
+        >
+          <source src={video} type="video/mp4" />
+        </video>
+      ) : null}
       {shouldUseAnimatedImage ? (
         <img
           className="absolute inset-0 h-full w-full object-cover"
@@ -3337,21 +3371,8 @@ function MediaSurface({
           draggable={false}
           onError={() => setAnimatedImageFailed(true)}
         />
-      ) : shouldRenderVideo ? (
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={fallbackImage}
-          preload={usePhoneAnimatedImage ? "none" : "metadata"}
-        >
-          <source src={video} type="video/mp4" />
-        </video>
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,91,68,0.12),transparent_32%)]" />
       {priorityCopy ? (
         <div className="relative z-10 flex h-full items-end p-6 sm:p-8 lg:p-10">
           <div className="max-w-sm">{priorityCopy}</div>
@@ -3360,6 +3381,15 @@ function MediaSurface({
     </div>
   );
 }
+const housePrimaryButtonClass =
+  "rounded-full border border-[#d3c0a6] bg-[#efe4d4] px-7 py-6 text-sm text-[#17120e] transition duration-500 hover:bg-[#f5ece0] disabled:pointer-events-none disabled:opacity-60";
+
+const houseSecondaryButtonClass =
+  "rounded-full border border-white/14 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/24 hover:text-white disabled:pointer-events-none disabled:opacity-60";
+
+const houseIconButtonClass =
+  "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.1] bg-transparent text-white/68 transition duration-500 hover:border-white/18 hover:text-white";
+
 function PageStatStrip({
   items,
 }: {
@@ -3405,110 +3435,103 @@ function PageHeroBanner({
   note?: string;
 }) {
   return (
-    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.12),transparent_34%)]" />
+    <section className="relative pt-28 sm:pt-32 lg:pt-36">
       <Container className="relative">
-        <div className="rounded-[2.4rem] border border-white/[0.09] bg-[linear-gradient(180deg,rgba(15,13,12,0.96),rgba(10,9,8,0.94))] p-5 shadow-[0_36px_120px_rgba(0,0,0,0.42)] sm:p-7 lg:p-8">
-          <div
-            className={`grid gap-8 lg:items-stretch lg:gap-8 ${
-              media ? "lg:grid-cols-[0.9fr_1.1fr]" : "lg:grid-cols-1"
-            }`}
-          >
-            <Reveal className="flex">
-              <div className="flex h-full flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8 lg:p-10">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                    {eyebrow}
+        <div
+          className={`grid gap-10 border-t border-white/[0.08] pt-10 lg:gap-12 ${
+            media ? "lg:grid-cols-[0.76fr_1.24fr] lg:items-end" : "lg:grid-cols-1"
+          }`}
+        >
+          <Reveal className="flex">
+            <div className="flex h-full flex-col justify-between lg:pr-10">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+                  {eyebrow}
+                </p>
+                <h1 className="mt-5 max-w-[11ch] text-[clamp(3.5rem,6vw,6.2rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7]">
+                  {title}
+                </h1>
+                <p className="mt-6 max-w-[37rem] text-sm leading-7 text-white/58 sm:text-base sm:leading-8">
+                  {description}
+                </p>
+                {note ? (
+                  <p className="mt-7 max-w-xl text-[11px] uppercase tracking-[0.24em] text-white/30">
+                    {note}
                   </p>
-                  <h1 className="mt-5 text-4xl font-semibold leading-[0.94] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
-                    {title}
-                  </h1>
-                  <p className="mt-6 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                    {description}
-                  </p>
-                  {note ? (
-                    <p className="mt-6 max-w-xl text-[11px] uppercase tracking-[0.24em] text-white/34">
-                      {note}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  {actions.map((action) =>
-                    action.href ? (
-                      <Button
-                        key={action.label}
-                        asChild
-                        variant={
-                          action.variant === "secondary" ? "outline" : undefined
-                        }
-                        className={
-                          action.variant === "secondary"
-                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                        }
-                      >
-                        <a href={action.href} target="_blank" rel="noreferrer">
-                          {isWhatsAppHref(action.href) ? (
-                            <WhatsAppTextLabel label={action.label} />
-                          ) : (
-                            action.label
-                          )}
-                        </a>
-                      </Button>
-                    ) : (
-                      <Button
-                        key={action.label}
-                        type="button"
-                        variant={
-                          action.variant === "secondary" ? "outline" : undefined
-                        }
-                        onClick={action.onClick}
-                        className={
-                          action.variant === "secondary"
-                            ? "rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
-                            : "rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] hover:shadow-[0_20px_46px_rgba(239,229,215,0.24)]"
-                        }
-                      >
-                        {action.label}
-                      </Button>
-                    ),
-                  )}
-                </div>
+                ) : null}
               </div>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {actions.map((action) =>
+                  action.href ? (
+                    <Button
+                      key={action.label}
+                      asChild
+                      variant={action.variant === "secondary" ? "outline" : undefined}
+                      className={
+                        action.variant === "secondary"
+                          ? houseSecondaryButtonClass
+                          : housePrimaryButtonClass
+                      }
+                    >
+                      <a href={action.href} target="_blank" rel="noreferrer">
+                        {isWhatsAppHref(action.href) ? (
+                          <WhatsAppTextLabel label={action.label} />
+                        ) : (
+                          action.label
+                        )}
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button
+                      key={action.label}
+                      type="button"
+                      variant={action.variant === "secondary" ? "outline" : undefined}
+                      onClick={action.onClick}
+                      className={
+                        action.variant === "secondary"
+                          ? houseSecondaryButtonClass
+                          : housePrimaryButtonClass
+                      }
+                    >
+                      {action.label}
+                    </Button>
+                  ),
+                )}
+              </div>
+            </div>
+          </Reveal>
+          {media ? (
+            <Reveal delay={0.08}>
+              <MediaSurface
+                src={media.image}
+                alt={media.alt}
+                video={media.video}
+                className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
+                priorityCopy={
+                  <>
+                    {media.badge ? (
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
+                        {media.badge}
+                      </p>
+                    ) : null}
+                    {media.overlayTitle ? (
+                      <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
+                        {media.overlayTitle}
+                      </p>
+                    ) : null}
+                    {media.overlayText ? (
+                      <p className="mt-4 max-w-sm text-sm leading-7 text-white/72">
+                        {media.overlayText}
+                      </p>
+                    ) : null}
+                  </>
+                }
+              />
             </Reveal>
-            {media ? (
-              <Reveal delay={0.08}>
-                <MediaSurface
-                  src={media.image}
-                  alt={media.alt}
-                  video={media.video}
-                  className="min-h-[24rem] sm:min-h-[34rem] lg:min-h-[42rem]"
-                  priorityCopy={
-                    <>
-                      {media.badge ? (
-                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b] sm:text-[11px]">
-                          {media.badge}
-                        </p>
-                      ) : null}
-                      {media.overlayTitle ? (
-                        <p className="mt-4 max-w-[12ch] text-2xl font-semibold leading-[0.95] tracking-[-0.05em] text-[#f4efe7] sm:text-4xl">
-                          {media.overlayTitle}
-                        </p>
-                      ) : null}
-                      {media.overlayText ? (
-                        <p className="mt-4 max-w-sm text-sm leading-7 text-white/74">
-                          {media.overlayText}
-                        </p>
-                      ) : null}
-                    </>
-                  }
-                />
-              </Reveal>
-            ) : null}
-          </div>
-          <div className="mt-5 sm:mt-6">
-            <PageStatStrip items={stats} />
-          </div>
+          ) : null}
+        </div>
+        <div className="mt-7 sm:mt-8">
+          <PageStatStrip items={stats} />
         </div>
       </Container>
     </section>
@@ -3542,14 +3565,14 @@ function EditorialBlock({
           className={`grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 ${reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""}`}
         >
           <Reveal>
-            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,16,15,0.84),rgba(12,11,10,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:p-10">
+            <div className="border-t border-white/[0.08] pt-8 sm:pt-10">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
                 {eyebrow}
               </p>
-              <h2 className="mt-4 text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-4xl">
+              <h2 className="mt-4 max-w-[12ch] text-3xl font-semibold leading-[0.92] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.35rem]">
                 {title}
               </h2>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
+              <p className="mt-6 max-w-2xl text-sm leading-7 text-white/58 sm:text-base sm:leading-8">
                 {text}
               </p>
               {children ? <div className="mt-7">{children}</div> : null}
@@ -3606,148 +3629,134 @@ function ClubFooter({
   privacyLabel: string;
 }) {
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,#0b0b0b_0%,#060606_100%)] py-10 sm:py-12 lg:py-16">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(188,151,122,0.08),transparent_32%)]" />
+    <footer className="relative border-t border-white/[0.08] py-10 sm:py-12 lg:py-16">
       <Container className="relative">
-        <div className="overflow-hidden rounded-[2.3rem] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(14,12,11,0.94),rgba(9,8,8,0.98))] shadow-[0_34px_120px_rgba(0,0,0,0.36)]">
-          <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="border-b border-white/[0.08] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
-                Private client club
-              </p>
-              <h2 className="mt-4 text-3xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-4xl">
-                Praeliator Club
-              </h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-                A quieter continuation of the brand: controlled access, direct
-                contact, and ownership carried with continuity.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button
-                  asChild
-                  className="rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
+        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="border-t border-white/[0.08] pt-8 lg:pr-10">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[#b9a18d] sm:text-xs">
+              Private client line
+            </p>
+            <h2 className="mt-4 max-w-[10ch] text-3xl font-semibold leading-[0.92] tracking-[-0.055em] text-[#f4efe7] sm:text-4xl lg:text-[3.35rem]">
+              The house continues after inquiry.
+            </h2>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/56 sm:text-base sm:leading-8">
+              Direct contact, measured access, and ownership continuity remain under the same line.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button asChild className={housePrimaryButtonClass}>
+                <a href={whatsappGeneralLink} target="_blank" rel="noreferrer">
+                  <WhatsAppTextLabel label={privateInquiryLabel} />
+                </a>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/waitlist")}
+                className={houseSecondaryButtonClass}
+              >
+                {waitlistLabel}
+              </Button>
+            </div>
+            <div className="mt-9 divide-y divide-white/[0.08] border-y border-white/[0.08]">
+              {[
+                "Private acquisition",
+                "Measured release rhythm",
+                "Ownership continuity",
+              ].map((item) => (
+                <p
+                  key={item}
+                  className="py-3 text-[10px] uppercase tracking-[0.24em] text-white/48"
                 >
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-8 border-t border-white/[0.08] pt-8 lg:grid-cols-2 lg:gap-x-10">
+            {clubFooterColumns.map((column) => (
+              <div key={column.title}>
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                  {column.title}
+                </p>
+                {"links" in column ? (
+                  <div className="mt-6 space-y-4">
+                    {(column.title === "Explore" ? navLinks : column.links).map((item) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => goTo(item.route)}
+                        className="group flex w-full items-center justify-between text-left text-sm text-white/72 transition duration-500 hover:text-white"
+                      >
+                        <span>{item.label}</span>
+                        <ChevronRight className="h-4 w-4 text-white/24 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/52" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-6 space-y-4">
+                    {column.notes.map((item) => (
+                      <p key={item} className="text-sm text-white/54">
+                        {item}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <div className="lg:col-span-2">
+              <div className="flex flex-col gap-6 border-t border-white/[0.08] pt-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
+                    Direct contact
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-white/54">
+                    WhatsApp remains primary. Email and Instagram stay open for slower correspondence.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <a
+                    href={instagramLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Praeliator Instagram"
+                    className={houseIconButtonClass}
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                  <a
+                    href={emailLink}
+                    aria-label="Email Praeliator"
+                    className={houseIconButtonClass}
+                  >
+                    <Mail className="h-5 w-5" />
+                  </a>
                   <a
                     href={whatsappGeneralLink}
                     target="_blank"
                     rel="noreferrer"
+                    aria-label="WhatsApp Praeliator"
+                    className={houseIconButtonClass}
                   >
-                    <WhatsAppTextLabel label={privateInquiryLabel} />
+                    <MessageCircle className="h-5 w-5" />
                   </a>
-                </Button>
-                <Button
+                </div>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center gap-4">
+                <button
                   type="button"
-                  variant="outline"
-                  onClick={() => goTo("/waitlist")}
-                  className="rounded-full border-white/15 bg-transparent px-6 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+                  onClick={() => goTo("/faq")}
+                  className="text-[10px] uppercase tracking-[0.24em] text-white/42 transition duration-500 hover:text-white/72"
                 >
-                  {waitlistLabel}
-                </Button>
-              </div>
-              <div className="mt-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
-                {[
-                  "Private acquisition",
-                  "Controlled release rhythm",
-                  "Ownership continuity",
-                ].map((item) => (
-                  <p
-                    key={item}
-                    className="py-3 text-[10px] uppercase tracking-[0.24em] text-white/54"
-                  >
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-            <div className="grid gap-0 sm:grid-cols-2">
-              {clubFooterColumns.map((column) => (
-                <div
-                  key={column.title}
-                  className="border-b border-white/[0.08] p-6 last:border-b-0 sm:border-b-0 sm:first:border-r sm:p-8 lg:p-10"
+                  {faqLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo("/privacy-notice")}
+                  className="text-[10px] uppercase tracking-[0.24em] text-white/42 transition duration-500 hover:text-white/72"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                    {column.title}
-                  </p>
-                  {"links" in column ? (
-                    <div className="mt-6 space-y-4">
-                      {(column.title === "Explore" ? navLinks : column.links).map((item) => (
-                        <button
-                          key={item.label}
-                          type="button"
-                          onClick={() => goTo(item.route)}
-                          className="group flex w-full items-center justify-between text-left text-sm text-white/78 transition duration-500 hover:text-white"
-                        >
-                          <span>{item.label}</span>
-                          <ChevronRight className="h-4 w-4 text-white/28 transition duration-500 group-hover:translate-x-0.5 group-hover:text-white/58" />
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="mt-6 space-y-4">
-                      {column.notes.map((item) => (
-                        <p key={item} className="text-sm text-white/58">
-                          {item}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-              <div className="border-t border-white/[0.08] p-6 sm:col-span-2 sm:p-8 lg:p-10">
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-                      Direct contact
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-white/56">
-                      WhatsApp remains primary. Email and Instagram stay
-                      available for slower paths.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <a
-                      href={instagramLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label="Praeliator Instagram"
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
-                    >
-                      <Instagram className="h-5 w-5" />
-                    </a>
-                    <a
-                      href={emailLink}
-                      aria-label="Email Praeliator"
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
-                    >
-                      <Mail className="h-5 w-5" />
-                    </a>
-                    <a
-                      href={whatsappGeneralLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label="WhatsApp Praeliator"
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                    </a>
-                  </div>
-                </div>
-                <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-white/[0.08] pt-5">
-                  <button
-                    type="button"
-                    onClick={() => goTo("/faq")}
-                    className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
-                  >
-                    {faqLabel}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goTo("/privacy-notice")}
-                    className="text-[10px] uppercase tracking-[0.24em] text-white/46 transition duration-500 hover:text-white/76"
-                  >
-                    {privacyLabel}
-                  </button>
-                </div>
+                  {privacyLabel}
+                </button>
               </div>
             </div>
           </div>
@@ -3766,34 +3775,26 @@ function MobileHeroMediaBackdrop({
     video?: string;
   };
 }) {
-  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
   const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
-    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener?.("change", update);
-    return () => mediaQuery.removeEventListener?.("change", update);
-  }, []);
+  const [videoReady, setVideoReady] = useState(!media.video);
+  const [videoFailed, setVideoFailed] = useState(false);
   useEffect(() => {
     setAnimatedImageFailed(false);
+    setVideoReady(!media.video);
+    setVideoFailed(false);
   }, [media.video]);
 
   const animatedImage = videoPathToAnimatedImagePath(media.video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
-    useMobileMediaActivation(Boolean(usePhoneAnimatedImage && media.video), "220px 0px");
-  const shouldUseAnimatedImage = false;
-  const fallbackImage = usePhoneAnimatedImage
-    ? media.image
-    : getVideoFallbackImage(media.video, media.image);
+    useMobileMediaActivation(Boolean(coarsePointer && media.video), "220px 0px");
   const shouldRenderVideo = Boolean(
-    media.video &&
-      !usePhoneAnimatedImage &&
-      !shouldUseAnimatedImage &&
-      isMediaActive,
+    media.video && !videoFailed && isMediaActive,
   );
+  const shouldUseAnimatedImage = Boolean(
+    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
+  );
+  const fallbackImage = media.image;
 
   return (
     <div
@@ -3806,6 +3807,23 @@ function MobileHeroMediaBackdrop({
         aria-label={media.alt}
         role="img"
       />
+      {shouldRenderVideo ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={fallbackImage}
+          preload="auto"
+          onCanPlay={() => setVideoReady(true)}
+          onLoadedData={() => setVideoReady(true)}
+          onPlaying={() => setVideoReady(true)}
+          onError={() => setVideoFailed(true)}
+        >
+          <source src={media.video} type="video/mp4" />
+        </video>
+      ) : null}
       {shouldUseAnimatedImage ? (
         <img
           className="absolute inset-0 h-full w-full object-cover"
@@ -3815,18 +3833,6 @@ function MobileHeroMediaBackdrop({
           draggable={false}
           onError={() => setAnimatedImageFailed(true)}
         />
-      ) : shouldRenderVideo ? (
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={fallbackImage}
-          preload={usePhoneAnimatedImage ? "none" : "metadata"}
-        >
-          <source src={media.video} type="video/mp4" />
-        </video>
       ) : null}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.72)_78%,rgba(0,0,0,0.9))]" />
       <div className="absolute inset-x-0 top-0 h-[42svh] bg-[linear-gradient(180deg,rgba(3,3,3,0.88),rgba(3,3,3,0.34),transparent)]" />
@@ -3869,8 +3875,8 @@ function MobilePageHeroBanner({
             variant={action.variant === "secondary" ? "outline" : undefined}
             className={
               action.variant === "secondary"
-                ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                ? "h-[3.85rem] rounded-full border-white/14 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/22 hover:text-white"
+                : "h-[3.85rem] rounded-full border border-[#d3c0a6] bg-[#efe4d4] px-6 text-sm text-[#17120e] transition duration-500 hover:bg-[#f5ece0]"
             }
           >
             <a href={action.href} target="_blank" rel="noreferrer">
@@ -3885,8 +3891,8 @@ function MobilePageHeroBanner({
             onClick={action.onClick}
             className={
               action.variant === "secondary"
-                ? "h-[3.85rem] rounded-full border-white/14 bg-white/[0.025] px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
-                : "h-[3.85rem] rounded-full bg-[#efe5d7] px-6 text-sm text-[#151210] shadow-[0_16px_42px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                ? "h-[3.85rem] rounded-full border-white/14 bg-transparent px-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/22 hover:text-white"
+                : "h-[3.85rem] rounded-full border border-[#d3c0a6] bg-[#efe4d4] px-6 text-sm text-[#17120e] transition duration-500 hover:bg-[#f5ece0]"
             }
           >
             {action.label}
@@ -3897,14 +3903,14 @@ function MobilePageHeroBanner({
   );
 
   const statRail = stats && stats.length ? (
-    <div className="-mx-6 mt-7 flex gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="mt-8 divide-y divide-white/[0.08] border-y border-white/[0.08]">
       {stats.map((item, index) => (
         <Reveal key={`${item.label}-${index}`} delay={0.05 * index}>
-          <div className="min-w-[10.8rem] rounded-[1.35rem] border border-white/[0.09] bg-white/[0.025] p-4 backdrop-blur-md">
+          <div className="py-4">
             <p className="text-[10px] uppercase tracking-[0.22em] text-[#b9a18d]">
               {item.label}
             </p>
-            <p className="mt-2 text-sm leading-6 text-white/78">
+            <p className="mt-2 max-w-[18rem] text-sm leading-6 text-white/72">
               {item.value}
             </p>
           </div>
@@ -3949,11 +3955,9 @@ function MobilePageHeroBanner({
 
   return (
     <section className="relative overflow-hidden pb-8 pt-[6.2rem]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(188,151,122,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(77,52,32,0.18),transparent_42%)]" />
       <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(0,0,0,0.82),rgba(0,0,0,0.18),transparent)]" />
       <Container className="relative">
         <div className="relative overflow-hidden border-b border-white/[0.09] pb-8 pt-8">
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-[linear-gradient(180deg,transparent,rgba(185,161,141,0.06),transparent)]" />
           <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
             {eyebrow}
           </p>
@@ -3988,11 +3992,9 @@ function MobileSectionFrame({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative -mt-3 py-5">
+    <section className="relative py-6">
       <Container>
-        <div className="relative overflow-hidden border-t border-white/[0.085] pb-4 pt-8">
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(214,186,149,0.4),transparent)]" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-[linear-gradient(180deg,transparent,rgba(185,161,141,0.045),transparent)]" />
+        <div className="relative border-t border-white/[0.08] pb-3 pt-8">
           <div>
             <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
               {eyebrow}
@@ -4001,7 +4003,7 @@ function MobileSectionFrame({
               {title}
             </h2>
             {description ? (
-              <p className="mt-4 max-w-[26rem] text-[0.88rem] leading-6 text-white/56">{description}</p>
+              <p className="mt-4 max-w-[26rem] text-[0.88rem] leading-6 text-white/52">{description}</p>
             ) : null}
             <div className="mt-5">{children}</div>
           </div>
@@ -4049,9 +4051,9 @@ function MobileHomeFooter({
   emailLink: string;
 }) {
   return (
-    <section className="relative overflow-hidden pb-10 pt-7">
+    <section className="relative pb-10 pt-7">
       <Container>
-        <div className="rounded-[2.1rem] border border-white/[0.075] bg-[linear-gradient(180deg,rgba(14,12,11,0.9),rgba(6,6,6,0.98))] p-6 shadow-[0_34px_100px_rgba(0,0,0,0.36)]">
+        <div className="border-t border-white/[0.08] pt-8">
           <div className="text-center">
             <img
               src="/logo-header.png"
@@ -4077,21 +4079,20 @@ function MobileHomeFooter({
                 key={item.route}
                 type="button"
                 onClick={() => goTo(item.route)}
-                className="flex w-full items-center justify-between py-4 text-left text-sm uppercase tracking-[0.14em] text-white/82 transition duration-500 hover:text-white"
+                className="flex w-full items-center justify-between py-4 text-left text-sm uppercase tracking-[0.14em] text-white/76 transition duration-500 hover:text-white"
               >
                 <span>{item.label}</span>
-                <ChevronRight className="h-4 w-4 text-white/30" />
+                <ChevronRight className="h-4 w-4 text-white/28" />
               </button>
             ))}
           </div>
 
-          <div className="mt-8 rounded-[1.45rem] border border-white/[0.08] bg-white/[0.025] p-5">
+          <div className="mt-8">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
               Direct contact
             </p>
-            <p className="mt-3 text-sm leading-7 text-white/58">
-              WhatsApp remains primary. Email and Instagram stay available for
-              quieter paths.
+            <p className="mt-3 text-sm leading-7 text-white/54">
+              WhatsApp remains primary. Email and Instagram stay available for quieter paths.
             </p>
             <div className="mt-5 flex items-center justify-center gap-4">
               <a
@@ -4099,14 +4100,14 @@ function MobileHomeFooter({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Praeliator Instagram"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                className={houseIconButtonClass}
               >
                 <Instagram className="h-5 w-5" />
               </a>
               <a
                 href={emailLink}
                 aria-label="Email Praeliator"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                className={houseIconButtonClass}
               >
                 <Mail className="h-5 w-5" />
               </a>
@@ -4115,7 +4116,7 @@ function MobileHomeFooter({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="WhatsApp Praeliator"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-white/72 transition duration-500 hover:border-white/16 hover:bg-white/[0.06] hover:text-white"
+                className={houseIconButtonClass}
               >
                 <MessageCircle className="h-5 w-5" />
               </a>
@@ -4481,14 +4482,28 @@ function MobileHeader({
 }) {
   return (
     <motion.header className="fixed inset-x-0 top-0 z-50">
+      <AnimatePresence initial={false}>
+        {mobileMenuOpen ? (
+          <motion.button
+            type="button"
+            aria-label="Close menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: easeLuxury }}
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 z-0 block bg-transparent"
+          />
+        ) : null}
+      </AnimatePresence>
       <motion.div
         animate={{
-          backgroundColor: mobileMenuOpen ? "rgba(6,6,6,0.9)" : "rgba(6,6,6,0.18)",
-          backdropFilter: mobileMenuOpen ? "blur(20px)" : "blur(10px)",
+          backgroundColor: mobileMenuOpen ? "rgba(16,12,10,0.92)" : "rgba(9,8,7,0.7)",
+          backdropFilter: mobileMenuOpen ? "blur(12px)" : "blur(0px)",
           borderColor: mobileMenuOpen ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.035)",
         }}
         transition={{ duration: 0.45, ease: easeLuxury }}
-        className="border-b border-transparent bg-[linear-gradient(180deg,rgba(5,5,5,0.72),rgba(5,5,5,0.2),transparent)]"
+        className="relative z-10 border-b border-transparent bg-[linear-gradient(180deg,rgba(5,5,5,0.72),rgba(5,5,5,0.2),transparent)]"
       >
         <Container className="relative flex items-center justify-between py-3.5 md:py-5">
           <button
@@ -4550,6 +4565,7 @@ function MobileHeader({
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.4, ease: easeLuxury }}
               className="overflow-hidden border-t border-white/[0.06]"
+              onClick={(event) => event.stopPropagation()}
             >
               <Container className="pb-6 pt-4 md:pb-8 md:pt-6">
                 <div className="grid gap-2.5 md:grid-cols-2">
@@ -5453,40 +5469,44 @@ function CinematicScene({
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
-  const [usePhoneAnimatedImage, setUsePhoneAnimatedImage] = useState(false);
+  const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
   const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(max-width: 767px) and (pointer: coarse)");
-    const update = () => setUsePhoneAnimatedImage(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener?.("change", update);
-    return () => mediaQuery.removeEventListener?.("change", update);
-  }, []);
-  useEffect(() => {
     setAnimatedImageFailed(false);
-  }, [section.video]);
-  const animatedImage = videoPathToAnimatedImagePath(section.video);
-  const { ref: sceneActivationRef, isActive: isSceneActive } =
-    useMobileMediaActivation(stackedFlow, "220px 0px");
-  const shouldUseAnimatedImage = false;
-  const fallbackImage = usePhoneAnimatedImage
-    ? section.poster
-    : getVideoFallbackImage(section.video, section.poster);
-  const effectiveInView = stackedFlow ? isSceneActive : inView;
-  const shouldRenderVideo =
-    !usePhoneAnimatedImage &&
-    !shouldUseAnimatedImage &&
-    (!stackedFlow || isSceneActive);
-  useEffect(() => {
-    setVideoReady(shouldUseAnimatedImage);
+    setVideoFailed(false);
+    setVideoReady(false);
     setShowLoader(false);
     if (loaderTimerRef.current) {
       window.clearTimeout(loaderTimerRef.current);
       loaderTimerRef.current = null;
     }
-    if (shouldUseAnimatedImage) return;
+    return () => {
+      if (loaderTimerRef.current) {
+        window.clearTimeout(loaderTimerRef.current);
+        loaderTimerRef.current = null;
+      }
+    };
+  }, [section.video]);
+  const animatedImage = videoPathToAnimatedImagePath(section.video);
+  const { ref: sceneActivationRef, isActive: isSceneActive } =
+    useMobileMediaActivation(stackedFlow, "220px 0px");
+  const fallbackImage = section.poster;
+  const effectiveInView = stackedFlow ? isSceneActive : inView;
+  const lowMotionScene = stackedFlow || coarsePointer;
+  const shouldRenderVideo =
+    Boolean(section.video) && !videoFailed && (!stackedFlow || isSceneActive);
+  const shouldUseAnimatedImage = Boolean(
+    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
+  );
+  useEffect(() => {
+    setShowLoader(false);
+    if (loaderTimerRef.current) {
+      window.clearTimeout(loaderTimerRef.current);
+      loaderTimerRef.current = null;
+    }
+    if (!shouldRenderVideo || shouldUseAnimatedImage) return;
     loaderTimerRef.current = window.setTimeout(() => {
       setShowLoader(true);
     }, 220);
@@ -5496,7 +5516,7 @@ function CinematicScene({
         loaderTimerRef.current = null;
       }
     };
-  }, [section.video, shouldUseAnimatedImage]);
+  }, [section.video, shouldRenderVideo, shouldUseAnimatedImage]);
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -5511,13 +5531,19 @@ function CinematicScene({
       className={
         stackedFlow
           ? "relative isolate min-h-[100svh] overflow-hidden"
-          : "relative isolate h-[100svh] min-h-[100svh] overflow-hidden snap-start"
+          : "relative isolate h-[100svh] min-h-[100svh] overflow-hidden"
       }
     >
       <div className="absolute inset-0 overflow-hidden bg-[#050505]">
         <motion.div
-          animate={{ scale: effectiveInView ? 1 : 1.02, opacity: 1 }}
-          transition={{ duration: 1.35, ease: easeLuxury }}
+          animate={{
+            scale: effectiveInView ? 1 : lowMotionScene ? 1.004 : 1.02,
+            opacity: 1,
+          }}
+          transition={{
+            duration: lowMotionScene ? 0.45 : 1.35,
+            ease: easeLuxury,
+          }}
           className="absolute inset-0"
         >
           <div
@@ -5525,6 +5551,23 @@ function CinematicScene({
             style={{ backgroundImage: `url(${fallbackImage})` }}
             aria-hidden="true"
           />
+          {shouldRenderVideo ? (
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload={stackedFlow && coarsePointer ? "auto" : "metadata"}
+              poster={fallbackImage}
+              onCanPlay={markVideoReady}
+              onLoadedData={markVideoReady}
+              onPlaying={markVideoReady}
+              onError={() => setVideoFailed(true)}
+            >
+              <source src={section.video} type="video/mp4" />
+            </video>
+          ) : null}
           {shouldUseAnimatedImage ? (
             <img
               className="absolute inset-0 h-full w-full object-cover"
@@ -5534,21 +5577,6 @@ function CinematicScene({
               draggable={false}
               onError={() => setAnimatedImageFailed(true)}
             />
-          ) : shouldRenderVideo ? (
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload={stackedFlow ? "none" : "metadata"}
-              poster={fallbackImage}
-              onCanPlay={markVideoReady}
-              onLoadedData={markVideoReady}
-              onPlaying={markVideoReady}
-            >
-              <source src={section.video} type="video/mp4" />
-            </video>
           ) : null}
         </motion.div>
         <AnimatePresence>
@@ -5583,22 +5611,29 @@ function CinematicScene({
       >
         <motion.div
           animate={{
-            opacity: effectiveInView ? 1 : 0,
-            y: effectiveInView ? 0 : 42,
-            filter: effectiveInView ? "blur(0px)" : "blur(12px)",
+            opacity: effectiveInView ? 1 : lowMotionScene ? 0.72 : 0,
+            y: effectiveInView ? 0 : lowMotionScene ? 12 : 42,
+            filter: lowMotionScene
+              ? "blur(0px)"
+              : effectiveInView
+                ? "blur(0px)"
+                : "blur(12px)",
           }}
           transition={{
-            duration: 0.85,
-            delay: effectiveInView ? 0.28 : 0,
+            duration: lowMotionScene ? 0.42 : 0.85,
+            delay: effectiveInView && !lowMotionScene ? 0.28 : 0,
             ease: easeLuxury,
           }}
           className="mx-auto flex max-w-[92vw] flex-col items-center text-center"
         >
           <motion.p
-            animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 22 }}
+            animate={{
+              opacity: effectiveInView ? 1 : lowMotionScene ? 0.78 : 0,
+              y: effectiveInView ? 0 : lowMotionScene ? 8 : 22,
+            }}
             transition={{
-              duration: 0.8,
-              delay: effectiveInView ? 0.34 : 0,
+              duration: lowMotionScene ? 0.36 : 0.8,
+              delay: effectiveInView && !lowMotionScene ? 0.34 : 0,
               ease: easeLuxury,
             }}
             className="max-w-[92vw] text-[clamp(2.55rem,10.5vw,6.6rem)] font-extralight uppercase leading-[0.92] tracking-[0.09em] text-white/96 sm:tracking-[0.14em]"
@@ -5607,10 +5642,13 @@ function CinematicScene({
           </motion.p>
           {section.line ? (
             <motion.p
-              animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 16 }}
+              animate={{
+                opacity: effectiveInView ? 1 : lowMotionScene ? 0.72 : 0,
+                y: effectiveInView ? 0 : lowMotionScene ? 6 : 16,
+              }}
               transition={{
-                duration: 0.78,
-                delay: effectiveInView ? 0.48 : 0,
+                duration: lowMotionScene ? 0.34 : 0.78,
+                delay: effectiveInView && !lowMotionScene ? 0.48 : 0,
                 ease: easeLuxury,
               }}
               className="mt-5 max-w-[22rem] text-[0.92rem] leading-7 tracking-[0.08em] text-white/74 sm:max-w-[28rem] sm:text-[clamp(0.8rem,1.1vw,0.98rem)] sm:tracking-[0.1em]"
@@ -5619,10 +5657,13 @@ function CinematicScene({
             </motion.p>
           ) : null}
           <motion.div
-            animate={{ opacity: effectiveInView ? 1 : 0, y: effectiveInView ? 0 : 14 }}
+            animate={{
+              opacity: effectiveInView ? 1 : lowMotionScene ? 0.76 : 0,
+              y: effectiveInView ? 0 : lowMotionScene ? 6 : 14,
+            }}
             transition={{
-              duration: 0.76,
-              delay: effectiveInView ? 0.62 : 0,
+              duration: lowMotionScene ? 0.32 : 0.76,
+              delay: effectiveInView && !lowMotionScene ? 0.62 : 0,
               ease: easeLuxury,
             }}
             className="mt-9"
@@ -5662,171 +5703,180 @@ function ExploreFurtherScene({
   active: boolean;
   goTo: (nextRoute: Route) => void;
 }) {
-  const cards = [
+  const routes = [
     {
       key: "vis",
-      title: "Discover VIS",
-      text: "The flagship training glove.",
+      title: "View VIS",
+      text: "The issued object in full study.",
       image: visImageSources.hero,
       route: "/praeliator-vis" as Route,
     },
     {
       key: "acquisition",
-      title: "Private Acquisition",
-      text: "Handled directly, with control.",
+      title: "Begin Inquiry",
+      text: "Allocation continues through direct correspondence.",
       image: visImageSources.packaging,
       route: "/acquisition" as Route,
     },
     {
       key: "waitlist",
-      title: "Join Waitlist",
-      text: "Future access, recorded properly.",
+      title: "Enter Waitlist",
+      text: "Future access is retained under the register.",
       image: homeImageSources.presentation,
       route: "/waitlist" as Route,
     },
   ];
   return (
-    <section className="relative isolate bg-[linear-gradient(180deg,#15110d_0%,#0f0d0b_100%)] px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(201,171,129,0.11),transparent_34%)]" />
+    <section className="relative isolate bg-[linear-gradient(180deg,#18110d_0%,#120d0a_48%,#0d0a08_100%)] px-6 py-20 sm:px-10 lg:px-16 lg:py-24">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(118,76,49,0.22),transparent_30%),linear-gradient(180deg,rgba(53,34,24,0.16),transparent_34%)]" />
       <motion.div
         animate={{ opacity: active ? 1 : 0.4, y: active ? 0 : 20 }}
         transition={{ duration: 0.8, ease: easeLuxury }}
         className="relative z-10 mx-auto w-full max-w-[120rem]"
       >
-        <div className="mx-auto max-w-[48rem] text-center">
-          <p className="text-[10px] uppercase tracking-[0.34em] text-[#c7a97e] sm:text-xs">
-            House continuation
-          </p>
-          <h2 className="ownership-display mt-5 text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-[#f4efe7]">
-            After the opening, the object stays visible.
-          </h2>
-        </div>
+        <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <div className="lg:pt-4">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b88a63] sm:text-xs">
+              House continuation
+            </p>
+            <h2 className="mt-5 max-w-[10ch] text-[clamp(2.9rem,5.7vw,5.1rem)] font-semibold leading-[0.88] tracking-[-0.06em] text-[#f5efe7]">
+              After the opening, the object remains under view.
+            </h2>
+            <p className="mt-6 max-w-[28rem] text-sm leading-7 text-[#d7c5b3]/66 sm:text-base sm:leading-8">
+              The public introduction gives way to study, custody, and the proper route forward.
+            </p>
 
-        <div className="mt-14 grid gap-4 lg:grid-cols-[1.18fr_0.82fr]">
-          <motion.div
-            animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
-            transition={{
-              duration: 0.8,
-              delay: 0.08,
-              ease: easeLuxury,
-            }}
-          >
-            <MediaSurface
-              src={visImageSources.hero}
-              alt="Praeliator VIS continuation study"
-              video={visPageMedia.studyVideo}
-              className="min-h-[25rem] sm:min-h-[31rem] lg:min-h-[38rem]"
-              priorityCopy={
-                <div className="max-w-[14rem]">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
-                    Object
+            <div className="mt-12 space-y-8">
+              {houseArchivePillars.map((pillar, index) => (
+                <motion.div
+                  key={pillar.title}
+                  animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.08 + index * 0.05,
+                    ease: easeLuxury,
+                  }}
+                  className="border-t border-[#463227] pt-5"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#c39a75]">
+                    {pillar.title}
                   </p>
-                  <p className="mt-4 ownership-display text-[2.25rem] font-semibold leading-[0.9] tracking-[-0.055em] text-[#f4efe7] sm:text-[3rem]">
-                    VIS stays central.
+                  <p className="mt-3 max-w-[27rem] text-sm leading-7 text-white/62">
+                    {pillar.text}
                   </p>
-                </div>
-              }
-            />
-          </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {[
-              {
-                title: "Route",
-                statement: "Inquiry stays direct.",
-                image: visImageSources.packaging,
-                video: homeCinematicMedia.acquisition.video,
-              },
-              {
-                title: "Record",
-                statement: "Ownership stays retained.",
-                image: visImageSources.leather,
-                video: homeCinematicMedia.ownership.video,
-              },
-            ].map((panel, index) => (
+          <div className="space-y-8">
+            <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
               <motion.div
-                key={panel.title}
                 animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
                 transition={{
                   duration: 0.8,
-                  delay: 0.16 + index * 0.06,
+                  delay: 0.08,
                   ease: easeLuxury,
                 }}
+                className="relative overflow-hidden border border-[#3f2d22] bg-[#140f0c]"
               >
-                <MediaSurface
-                  src={panel.image}
-                  alt={`Praeliator ${panel.title.toLowerCase()} panel`}
-                  video={panel.video}
-                  className="min-h-[15rem] sm:min-h-[18rem]"
-                  priorityCopy={
-                    <div className="max-w-[12rem]">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
+                <div
+                  className="aspect-[16/12] bg-cover bg-center"
+                  style={{ backgroundImage: `url(${visImageSources.hero})` }}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,16,12,0.08),rgba(23,16,12,0.62))]" />
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#cfac8f]">
+                    Object study
+                  </p>
+                  <p className="mt-3 max-w-[12rem] text-[1.9rem] font-semibold leading-[0.9] tracking-[-0.05em] text-[#f5efe7] sm:text-[2.6rem]">
+                    VIS remains central.
+                  </p>
+                </div>
+              </motion.div>
+
+              <div className="grid gap-5">
+                {[
+                  {
+                    title: "Route",
+                    statement: "Inquiry stays direct.",
+                    image: visImageSources.packaging,
+                  },
+                  {
+                    title: "Record",
+                    statement: "Ownership stays retained.",
+                    image: visImageSources.leather,
+                  },
+                ].map((panel, index) => (
+                  <motion.div
+                    key={panel.title}
+                    animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 0.16 + index * 0.06,
+                      ease: easeLuxury,
+                    }}
+                    className="relative overflow-hidden border border-[#3f2d22] bg-[#140f0c]"
+                  >
+                    <div
+                      className="aspect-[16/9] bg-cover bg-center"
+                      style={{ backgroundImage: `url(${panel.image})` }}
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,14,11,0.14),rgba(20,14,11,0.68))]" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#cfac8f]">
                         {panel.title}
                       </p>
-                      <p className="mt-3 text-xl font-semibold leading-[0.95] tracking-[-0.04em] text-[#f4efe7] sm:text-2xl">
+                      <p className="mt-2 text-[1.15rem] font-semibold leading-[0.98] tracking-[-0.04em] text-[#f5efe7] sm:text-[1.35rem]">
                         {panel.statement}
                       </p>
                     </div>
-                  }
-                />
-              </motion.div>
-            ))}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-[#463227]">
+              {routes.map((routeItem, index) => (
+                <motion.button
+                  key={routeItem.key}
+                  type="button"
+                  onClick={() => goTo(routeItem.route)}
+                  animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.18 + index * 0.06,
+                    ease: easeLuxury,
+                  }}
+                  className="group grid w-full gap-4 border-b border-[#463227] py-5 text-left sm:grid-cols-[8.25rem_1fr_auto] sm:items-center sm:gap-6"
+                >
+                  <div className="relative overflow-hidden bg-[#140f0c]">
+                    <div
+                      className="aspect-[5/4] bg-cover bg-center transition duration-700 group-hover:scale-[1.02]"
+                      style={{ backgroundImage: `url(${routeItem.image})` }}
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,14,11,0.04),rgba(20,14,11,0.28))]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#c39a75]">
+                      Continue
+                    </p>
+                    <p className="mt-3 text-[1.02rem] uppercase tracking-[0.12em] text-[#f5efe7] sm:text-[1.15rem]">
+                      {routeItem.title}
+                    </p>
+                    <p className="mt-2 max-w-[28rem] text-sm leading-7 text-white/56">
+                      {routeItem.text}
+                    </p>
+                  </div>
+                  <div className="hidden items-center justify-end sm:flex">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#4e382a] text-[#c39a75] transition duration-500 group-hover:border-[#7b5941] group-hover:text-[#e6c8aa]">
+                      <ChevronRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
-          {houseArchivePillars.map((pillar, index) => (
-            <motion.div
-              key={pillar.title}
-              animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
-              transition={{
-                duration: 0.8,
-                delay: 0.12 + index * 0.04,
-                ease: easeLuxury,
-              }}
-              className="flex items-center gap-5"
-            >
-              {index ? (
-                <span aria-hidden="true" className="h-px w-5 bg-white/[0.14]" />
-              ) : null}
-              <span className="text-[10px] uppercase tracking-[0.24em] text-white/56">
-                {pillar.title}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-16 grid gap-5 lg:grid-cols-3 lg:gap-6">
-          {cards.map((card, index) => (
-            <motion.button
-              key={card.key}
-              type="button"
-              onClick={() => goTo(card.route)}
-              animate={{ opacity: active ? 1 : 0.52, y: active ? 0 : 18 }}
-              transition={{
-                duration: 0.8,
-                delay: 0.18 + index * 0.08,
-                ease: easeLuxury,
-              }}
-              className="group overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,13,12,0.88),rgba(11,10,9,0.92))] text-left shadow-[0_24px_70px_rgba(0,0,0,0.2)]"
-            >
-              <div className="relative aspect-[5/4] overflow-hidden bg-[#191919]">
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.03]"
-                  style={{ backgroundImage: `url(${card.image})` }}
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.36))]" />
-              </div>
-              <div className="px-7 py-7">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-[#c7a97e]">
-                  Continue
-                </p>
-                <p className="mt-4 text-[clamp(1rem,1.35vw,1.55rem)] uppercase tracking-[0.12em] text-white/92">
-                  {card.title}
-                </p>
-              </div>
-            </motion.button>
-          ))}
         </div>
       </motion.div>
     </section>
@@ -5966,7 +6016,6 @@ function HomeTailScene({
   whatsappGeneralLink,
   instagramLink,
   emailLink,
-  scrollContainerRef,
   stackedFlow = false,
 }: {
   active: boolean;
@@ -5974,7 +6023,6 @@ function HomeTailScene({
   whatsappGeneralLink: string;
   instagramLink: string;
   emailLink: string;
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   stackedFlow?: boolean;
 }) {
   if (stackedFlow) {
@@ -5992,19 +6040,14 @@ function HomeTailScene({
   }
 
   return (
-    <section className="relative isolate h-[100svh] min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
-      <div
-        ref={scrollContainerRef}
-        className="browser-scrollbar h-full overflow-y-auto overscroll-contain"
-      >
-        <ExploreFurtherScene active={active} goTo={goTo} />
-        <HomeFooterScene
-          goTo={goTo}
-          whatsappGeneralLink={whatsappGeneralLink}
-          instagramLink={instagramLink}
-          emailLink={emailLink}
-        />
-      </div>
+    <section className="relative isolate min-h-[100svh] bg-[linear-gradient(180deg,#121212_0%,#0a0a0a_100%)]">
+      <ExploreFurtherScene active={active} goTo={goTo} />
+      <HomeFooterScene
+        goTo={goTo}
+        whatsappGeneralLink={whatsappGeneralLink}
+        instagramLink={instagramLink}
+        emailLink={emailLink}
+      />
     </section>
   );
 }
@@ -6331,12 +6374,9 @@ function FullScreenCinematicHomepage({
   onActiveIndexChange?: (index: number) => void;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [useStackedFlow, setUseStackedFlow] = useState(false);
-  const unlockTimerRef = useRef<number | null>(null);
-  const touchStartYRef = useRef<number | null>(null);
-  const tailScrollRef = useRef<HTMLDivElement | null>(null);
-  const tailIndex = sections.findIndex((section) => section.kind === "tail");
+  const scrollViewportRef = useRef<HTMLDivElement | null>(null);
+  const sectionRefs = useRef<Array<HTMLElement | null>>([]);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const update = () => {
@@ -6354,137 +6394,46 @@ function FullScreenCinematicHomepage({
   useEffect(() => {
     onActiveIndexChange?.(activeIndex);
   }, [activeIndex, onActiveIndexChange]);
-  const goToIndex = (nextIndex: number) => {
-    const clamped = Math.max(0, Math.min(sections.length - 1, nextIndex));
-    if (clamped === activeIndex || isAnimating) return;
-    setIsAnimating(true);
-    setActiveIndex(clamped);
-    if (unlockTimerRef.current) {
-      window.clearTimeout(unlockTimerRef.current);
-    }
-    unlockTimerRef.current = window.setTimeout(() => {
-      setIsAnimating(false);
-      unlockTimerRef.current = null;
-    }, 950);
-  };
   useEffect(() => {
     if (useStackedFlow) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
+    const viewportNode = scrollViewportRef.current;
+    if (!viewportNode) return;
+
+    let ticking = false;
+    const updateActiveIndex = () => {
+      ticking = false;
+      const scrollTop = viewportNode.scrollTop;
+      let nearestIndex = 0;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+
+      sectionRefs.current.forEach((node, index) => {
+        if (!node) return;
+        const distance = Math.abs(node.offsetTop - scrollTop);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      setActiveIndex((current) =>
+        current === nearestIndex ? current : nearestIndex,
+      );
+    };
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateActiveIndex);
+    };
+
+    updateActiveIndex();
+    viewportNode.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
     return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
+      viewportNode.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
-  }, [useStackedFlow]);
-  useEffect(() => {
-    if (tailIndex < 0) return;
-    if (activeIndex !== tailIndex && tailScrollRef.current) {
-      tailScrollRef.current.scrollTo({ top: 0, behavior: "auto" });
-    }
-  }, [activeIndex, tailIndex]);
-  useEffect(() => {
-    const onWheel = (event: WheelEvent) => {
-      const tailNode = tailScrollRef.current;
-      const inTail = tailIndex >= 0 && activeIndex === tailIndex;
-      if (inTail && tailNode) {
-        const atTop = tailNode.scrollTop <= 2;
-        const atBottom =
-          tailNode.scrollTop + tailNode.clientHeight >=
-          tailNode.scrollHeight - 2;
-        if (event.deltaY > 0 && !atBottom) {
-          return;
-        }
-        if (event.deltaY < 0 && !atTop) {
-          return;
-        }
-        if (event.deltaY > 0 && atBottom) {
-          return;
-        }
-      }
-      event.preventDefault();
-      if (isAnimating || Math.abs(event.deltaY) < 24) return;
-      goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1));
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-        return;
-      const tailNode = tailScrollRef.current;
-      const inTail = tailIndex >= 0 && activeIndex === tailIndex;
-      if (inTail && tailNode) {
-        const atTop = tailNode.scrollTop <= 2;
-        const atBottom =
-          tailNode.scrollTop + tailNode.clientHeight >=
-          tailNode.scrollHeight - 2;
-        if (["ArrowDown", "PageDown", " "].includes(event.key) && !atBottom) {
-          return;
-        }
-        if (["ArrowUp", "PageUp"].includes(event.key) && !atTop) {
-          return;
-        }
-        if (event.key === "End") {
-          return;
-        }
-      }
-      if (isAnimating) {
-        if (
-          [
-            "ArrowDown",
-            "ArrowUp",
-            "PageDown",
-            "PageUp",
-            "Home",
-            "End",
-            " ",
-          ].includes(event.key)
-        ) {
-          event.preventDefault();
-        }
-        return;
-      }
-      if (["ArrowDown", "PageDown", " "].includes(event.key)) {
-        event.preventDefault();
-        goToIndex(activeIndex + 1);
-      } else if (["ArrowUp", "PageUp"].includes(event.key)) {
-        event.preventDefault();
-        goToIndex(activeIndex - 1);
-      } else if (event.key === "Home") {
-        event.preventDefault();
-        goToIndex(0);
-      } else if (event.key === "End") {
-        event.preventDefault();
-        goToIndex(sections.length - 1);
-      }
-    };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [activeIndex, isAnimating, sections.length, tailIndex]);
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    touchStartYRef.current = event.touches[0]?.clientY ?? null;
-  };
-  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
-    const startY = touchStartYRef.current;
-    const endY = event.changedTouches[0]?.clientY ?? null;
-    touchStartYRef.current = null;
-    if (startY === null || endY === null || isAnimating) return;
-    const deltaY = startY - endY;
-    if (Math.abs(deltaY) < 42) return;
-    const tailNode = tailScrollRef.current;
-    const inTail = tailIndex >= 0 && activeIndex === tailIndex;
-    if (inTail && tailNode) {
-      const atTop = tailNode.scrollTop <= 2;
-      if (!(deltaY < 0 && atTop)) {
-        return;
-      }
-    }
-    goToIndex(activeIndex + (deltaY > 0 ? 1 : -1));
-  };
+  }, [sections.length, useStackedFlow]);
   if (useStackedFlow) {
     return (
       <div className="relative bg-[#040404]">
@@ -6507,7 +6456,6 @@ function FullScreenCinematicHomepage({
               whatsappGeneralLink={whatsappGeneralLink}
               instagramLink={instagramLink}
               emailLink={emailLink}
-              scrollContainerRef={null}
               stackedFlow
             />
           );
@@ -6518,38 +6466,33 @@ function FullScreenCinematicHomepage({
 
   return (
     <div
-      className="relative h-[100svh] overflow-hidden bg-[#040404]"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      ref={scrollViewportRef}
+      className="browser-scrollbar relative h-[100svh] overflow-y-auto overscroll-y-contain bg-[#040404] [scrollbar-gutter:stable] snap-y snap-mandatory"
     >
-      <motion.div
-        animate={{ y: `-${activeIndex * 100}svh` }}
-        transition={{ duration: 1.1, ease: easeLuxury }}
-        className="will-change-transform"
-      >
-        {sections.map((section, index) => {
-          if (section.kind === "video") {
-            return (
-              <CinematicScene
-                key={section.key}
-                section={section}
-                active={index === activeIndex}
-              />
-            );
-          }
-          return (
+      {sections.map((section, index) => (
+        <div
+          key={section.key}
+          ref={(node) => {
+            sectionRefs.current[index] = node;
+          }}
+          className="snap-start"
+        >
+          {section.kind === "video" ? (
+            <CinematicScene
+              section={section}
+              active={index === activeIndex}
+            />
+          ) : (
             <HomeTailScene
-              key={section.key}
               active={index === activeIndex}
               goTo={goTo}
               whatsappGeneralLink={whatsappGeneralLink}
               instagramLink={instagramLink}
               emailLink={emailLink}
-              scrollContainerRef={tailScrollRef}
             />
-          );
-        })}
-      </motion.div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -6627,25 +6570,17 @@ const defaultLuxuryCursorFrame: LuxuryCursorFrame = {
 function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const pointerX = useMotionValue(-160);
   const pointerY = useMotionValue(-160);
-  const shellX = useSpring(pointerX, {
-    stiffness: 320,
-    damping: 32,
-    mass: 0.42,
-  });
-  const shellY = useSpring(pointerY, {
-    stiffness: 320,
-    damping: 32,
-    mass: 0.42,
-  });
+  const shellX = pointerX;
+  const shellY = pointerY;
   const haloX = useSpring(pointerX, {
-    stiffness: 180,
-    damping: 28,
-    mass: 0.72,
+    stiffness: 280,
+    damping: 30,
+    mass: 0.44,
   });
   const haloY = useSpring(pointerY, {
-    stiffness: 180,
-    damping: 28,
-    mass: 0.72,
+    stiffness: 280,
+    damping: 30,
+    mass: 0.44,
   });
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -6738,8 +6673,6 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       pointerY.set(pointerSource.y);
       return true;
     };
-
-    const refreshInteractiveFrame = () => {};
 
     const handlePointerMove = (event: PointerEvent) => {
       if (event.pointerType && event.pointerType !== "mouse") return;
@@ -6838,11 +6771,6 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
     window.addEventListener("pointerover", handlePointerOver, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     window.addEventListener("pointerup", handlePointerUp, { passive: true });
-    window.addEventListener("resize", refreshInteractiveFrame, { passive: true });
-    window.addEventListener("scroll", refreshInteractiveFrame, {
-      passive: true,
-      capture: true,
-    });
     window.addEventListener("blur", hideCursor);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     document.documentElement.addEventListener("mouseleave", hideCursor);
@@ -6852,8 +6780,6 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
       window.removeEventListener("pointerover", handlePointerOver);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("resize", refreshInteractiveFrame);
-      window.removeEventListener("scroll", refreshInteractiveFrame, true);
       window.removeEventListener("blur", hideCursor);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.documentElement.removeEventListener("mouseleave", hideCursor);
@@ -6864,14 +6790,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
   const isButtonVariant = variant === "button";
   const isHidden = !visible || variant === "hidden";
-  const shellWidth = isButtonVariant ? 28 : 24;
-  const shellHeight = isButtonVariant ? 28 : 24;
+  const shellWidth = isButtonVariant ? 20 : 16;
+  const shellHeight = isButtonVariant ? 20 : 16;
   const shellRadius = 999;
-  const haloWidth = isButtonVariant ? 56 : 48;
-  const haloHeight = isButtonVariant ? 56 : 48;
+  const haloWidth = isButtonVariant ? 34 : 28;
+  const haloHeight = isButtonVariant ? 34 : 28;
   const haloRadius = 999;
-  const centerGlyphWidth = 4.5;
-  const centerGlyphHeight = 4.5;
+  const centerGlyphWidth = 3;
+  const centerGlyphHeight = 3;
 
   return (
     <>
@@ -6880,23 +6806,23 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         className="pointer-events-none fixed left-0 top-0 z-[140]"
         style={{ x: haloX, y: haloY }}
         animate={{
-          opacity: isHidden ? 0 : isButtonVariant ? 0.46 : 0.34,
-          scale: isHidden ? 0.84 : pressed ? 0.94 : 1,
+          opacity: isHidden ? 0 : isButtonVariant ? 0.28 : 0.2,
+          scale: isHidden ? 0.9 : pressed ? 0.94 : 1,
         }}
-        transition={{ duration: 0.34, ease: easeLuxury }}
+        transition={{ duration: 0.18, ease: easeLuxury }}
       >
         <motion.div
-          className="-translate-x-1/2 -translate-y-1/2 blur-[18px]"
+          className="-translate-x-1/2 -translate-y-1/2 blur-[8px]"
           animate={{
             width: haloWidth,
             height: haloHeight,
             borderRadius: haloRadius,
             background:
               isButtonVariant
-                ? "radial-gradient(circle, rgba(214,186,149,0.16) 0%, rgba(214,186,149,0.04) 48%, rgba(214,186,149,0) 78%)"
-                : "radial-gradient(circle, rgba(239,229,215,0.12) 0%, rgba(214,186,149,0.03) 48%, rgba(214,186,149,0) 76%)",
+                ? "radial-gradient(circle, rgba(214,186,149,0.1) 0%, rgba(214,186,149,0.02) 54%, rgba(214,186,149,0) 80%)"
+                : "radial-gradient(circle, rgba(239,229,215,0.08) 0%, rgba(214,186,149,0.02) 54%, rgba(214,186,149,0) 80%)",
           }}
-          transition={{ duration: 0.42, ease: easeLuxury }}
+          transition={{ duration: 0.18, ease: easeLuxury }}
         />
       </motion.div>
 
@@ -6908,7 +6834,7 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
           opacity: isHidden ? 0 : 1,
           scale: isHidden ? 0.88 : pressed ? 0.94 : 1,
         }}
-        transition={{ duration: 0.3, ease: easeLuxury }}
+        transition={{ duration: 0.16, ease: easeLuxury }}
       >
         <motion.div
           className="-translate-x-1/2 -translate-y-1/2 overflow-hidden border"
@@ -6917,35 +6843,35 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
             height: shellHeight,
             borderRadius: shellRadius,
             backgroundColor: isButtonVariant
-              ? "rgba(245, 239, 231, 0.06)"
-              : "rgba(245, 239, 231, 0.035)",
+              ? "rgba(245, 239, 231, 0.045)"
+              : "rgba(245, 239, 231, 0.028)",
             borderColor: isButtonVariant
-              ? "rgba(216, 186, 149, 0.38)"
-              : "rgba(216, 186, 149, 0.26)",
+              ? "rgba(216, 186, 149, 0.3)"
+              : "rgba(216, 186, 149, 0.2)",
             boxShadow: isButtonVariant
-              ? "0 10px 24px rgba(40, 25, 11, 0.12), 0 0 0 1px rgba(255,255,255,0.035) inset"
-              : "0 8px 18px rgba(40, 25, 11, 0.08), 0 0 0 1px rgba(255,255,255,0.025) inset",
+              ? "0 8px 18px rgba(40, 25, 11, 0.08), 0 0 0 1px rgba(255,255,255,0.025) inset"
+              : "0 6px 14px rgba(40, 25, 11, 0.06), 0 0 0 1px rgba(255,255,255,0.02) inset",
           }}
-          transition={{ duration: 0.3, ease: easeLuxury }}
+          transition={{ duration: 0.16, ease: easeLuxury }}
         >
           <motion.div
             className="absolute inset-[1px] rounded-[inherit]"
             animate={{
               background: isButtonVariant
-                ? "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03))"
-                : "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))",
-              opacity: isButtonVariant ? 0.92 : 0.72,
+                ? "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))"
+                : "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.015))",
+              opacity: isButtonVariant ? 0.78 : 0.62,
             }}
-            transition={{ duration: 0.3, ease: easeLuxury }}
+            transition={{ duration: 0.16, ease: easeLuxury }}
           />
           <motion.div
             className="absolute inset-x-[18%] top-0 h-px"
             animate={{
-              opacity: isButtonVariant ? 0.52 : 0.28,
+              opacity: isButtonVariant ? 0.34 : 0.18,
               background:
                 "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.92), rgba(255,255,255,0))",
             }}
-            transition={{ duration: 0.24, ease: easeLuxury }}
+            transition={{ duration: 0.14, ease: easeLuxury }}
           />
           <motion.span
             className="absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2"
@@ -6954,11 +6880,11 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
               height: centerGlyphHeight,
               borderRadius: 999,
               backgroundColor: isButtonVariant
-                ? "rgba(244, 239, 231, 0.9)"
-                : "rgba(244, 239, 231, 0.82)",
+                ? "rgba(244, 239, 231, 0.86)"
+                : "rgba(244, 239, 231, 0.78)",
               boxShadow: isButtonVariant
-                ? "0 0 12px rgba(244, 239, 231, 0.22)"
-                : "0 0 10px rgba(244, 239, 231, 0.16)",
+                ? "0 0 8px rgba(244, 239, 231, 0.16)"
+                : "0 0 6px rgba(244, 239, 231, 0.1)",
             }}
             transition={{ duration: 0.28, ease: easeLuxury }}
           />
@@ -8018,36 +7944,6 @@ export default function PraeliatorWebsite() {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  useEffect(() => {
-    if (reduceMotion || route === "/" || !isDesktopViewport) return;
-    const editorialSmoothScrollRoutes = new Set<Route>([
-      "/praeliator-vis",
-      "/acquisition",
-      "/contact",
-    ]);
-    if (!editorialSmoothScrollRoutes.has(route)) return;
-    const isTouchDevice =
-      typeof window !== "undefined" &&
-      (window.matchMedia("(pointer: coarse)").matches ||
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0);
-    if (isTouchDevice) return;
-    const lenis = new Lenis({
-      duration: 0.72,
-      smoothWheel: true,
-      wheelMultiplier: 1.04,
-    });
-    let rafId = 0;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, [isDesktopViewport, reduceMotion, route]);
   useEffect(() => {
     if (typeof window === "undefined" || route === "/" || !isDesktopViewport) {
       setSecondaryPageHeaderLifted(false);
@@ -16250,6 +16146,20 @@ const renderWaitlistPage = () => (
           }}
           transition={{ duration: 1.05, ease: easeLuxury }}
         >
+          <AnimatePresence initial={false}>
+            {mobileMenuOpen ? (
+              <motion.button
+                type="button"
+                aria-label="Close menu"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25, ease: easeLuxury }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 z-0 block bg-transparent"
+              />
+            ) : null}
+          </AnimatePresence>
           <motion.div
             animate={{
               backgroundColor: mobileMenuOpen
@@ -16258,7 +16168,7 @@ const renderWaitlistPage = () => (
               backdropFilter: mobileMenuOpen ? "blur(18px)" : "blur(0px)",
             }}
             transition={{ duration: 0.55, ease: easeLuxury }}
-            className="overflow-visible bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
+            className="relative z-10 overflow-visible bg-[linear-gradient(180deg,rgba(5,5,5,0.78),rgba(5,5,5,0.24),transparent)]"
           >
             <Container className="relative flex items-center justify-between py-5 sm:py-6">
               <motion.button
@@ -16354,6 +16264,8 @@ const renderWaitlistPage = () => (
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.6, ease: easeLuxury }}
                   className="overflow-hidden"
+                  onMouseLeave={() => setMobileMenuOpen(false)}
+                  onClick={(event) => event.stopPropagation()}
                 >
                   <Container className="pb-8 pt-2 sm:pb-10 sm:pt-3 lg:pb-12">
                     <div className="border-t border-white/[0.08] pt-6 sm:pt-8">

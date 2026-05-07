@@ -44,9 +44,9 @@ const utilityPageCopy: Record<
   en: {
     faq: {
       eyebrow: "Practical record",
-      title: "Questions should be answered with the same control as the object.",
+      title: "The practical record.",
       intro:
-        "This page holds the practical side of acquisition, ownership, service, and private process so the main site can stay restrained.",
+        "Acquisition, ownership, service, and private process are held here so the main site may remain spare.",
       curatedLabel: "House answer",
       indexLabel: "Question index",
       aiEyebrow: "Question line",
@@ -98,9 +98,9 @@ const utilityPageCopy: Record<
     },
     privacy: {
       eyebrow: "Privacy notice",
-      title: "Data handling should read plainly and leave no ambiguity.",
+      title: "Data handling, plainly stated.",
       intro:
-        "The site collects only the information needed to review inquiries, issue private acquisition access, maintain ownership records, and continue aftercare.",
+        "Only the information required for inquiry, acquisition, ownership, and aftercare is retained.",
       plainLead:
         "In plain terms: if you enter your name, email, phone, destination, inquiry details, ownership details, or service notes, that information is retained only because Praeliator needs it to review correspondence, prepare delivery, preserve the ownership line, or continue service.",
       sections: [
@@ -460,7 +460,7 @@ const faqDirectLineCopy: Record<
 > = {
   en: {
     eyebrow: "Direct question",
-    title: "Continue the question here.",
+    title: "Continue here.",
     intro:
       "For anything practical within the published record, continue here. Replies remain brief, exact, and tied to the house record.",
     suggestionsLabel: "Published lines",
@@ -471,8 +471,8 @@ const faqDirectLineCopy: Record<
     ],
     questionPlaceholder:
       "Write a practical question about acquisition, ownership, or service.",
-    askLabel: "Request reply",
-    askingLabel: "Reviewing question...",
+    askLabel: "Send question",
+    askingLabel: "Reviewing line...",
     emptyAnswer:
       "Write a practical question about acquisition, ownership, or service.",
     unavailable:
@@ -561,7 +561,7 @@ function UtilityPageFrame({
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#080808_0%,#040404_100%)] pb-20 pt-28 sm:pb-24 sm:pt-32">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(198,157,118,0.08),transparent_30%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(198,157,118,0.05),transparent_28%)]"
         aria-hidden="true"
       />
       <div className="relative z-10 mx-auto w-full max-w-[112rem] px-5 sm:px-7 lg:px-10">
@@ -585,15 +585,15 @@ function UtilityPageFrame({
             </a>
           </div>
 
-          <div className="mt-8 grid gap-14 border-t border-white/[0.08] pt-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-10 lg:pt-12">
-            <div className="lg:pr-6">
+          <div className="mt-8 grid gap-14 border-t border-white/[0.08] pt-10 lg:grid-cols-[0.58fr_1.42fr] lg:gap-12 lg:pt-12">
+            <div className="lg:pr-8">
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#c7a97e]">
                 {eyebrow}
               </p>
-              <h1 className="mt-5 max-w-[10ch] text-[clamp(3rem,5.8vw,5.8rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-[#f3e8d8]">
+              <h1 className="mt-5 max-w-[9ch] text-[clamp(2.8rem,5vw,5.1rem)] font-semibold leading-[0.86] tracking-[-0.06em] text-[#f3e8d8]">
                 {title}
               </h1>
-              <p className="mt-6 max-w-[34rem] text-sm leading-8 text-white/60 sm:text-base">
+              <p className="mt-6 max-w-[32rem] text-sm leading-8 text-white/56 sm:text-base">
                 {intro}
               </p>
             </div>
@@ -622,7 +622,7 @@ export function FaqPage({
     loading: boolean;
     error: string;
     answer: string;
-    mode: "ai" | "curated" | null;
+    mode: "direct" | "curated" | null;
   }>({
     loading: false,
     error: "",
@@ -665,7 +665,7 @@ export function FaqPage({
         loading: false,
         error: "",
         answer: result.answer,
-        mode: result.mode === "curated" ? "curated" : "ai",
+        mode: result.mode === "curated" ? "curated" : "direct",
       });
     } catch (error) {
       setReplyState({
@@ -768,21 +768,21 @@ export function FaqPage({
                 onChange={(event) => setQuestion(event.target.value)}
                 rows={5}
                 data-native-cursor="true"
-                className="min-h-[11rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
+                className="min-h-[10rem] w-full resize-none border-b border-white/[0.12] bg-transparent px-0 py-2 text-[15px] leading-8 text-[#f3e8d8] outline-none transition duration-300 placeholder:text-white/28 focus:border-[#7d6855]"
                 placeholder={directQuestionCopy.questionPlaceholder}
               />
               <div className="flex flex-col gap-4">
                 <Button
                   type="submit"
                   disabled={replyState.loading || question.trim().length === 0}
-                  className="self-start rounded-full bg-[#efe5d7] px-6 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="self-start rounded-full border border-[#d3c0a6] bg-[#efe4d4] px-6 py-6 text-sm text-[#17120e] transition duration-500 hover:bg-[#f5ece0] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {replyState.loading
                     ? directQuestionCopy.askingLabel
                     : directQuestionCopy.askLabel}
                 </Button>
 
-                <div className="max-w-3xl">
+                <div className="max-w-3xl border-l border-white/[0.08] pl-5">
                   {replyState.loading ? (
                     <p className="text-[1rem] leading-8 text-white/46">
                       {directQuestionCopy.askingLabel}

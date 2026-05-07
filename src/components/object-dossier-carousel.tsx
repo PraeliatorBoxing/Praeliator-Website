@@ -37,14 +37,14 @@ export function ObjectDossierCarousel({
   }, [emblaApi]);
 
   return (
-    <div className="overflow-hidden rounded-[2.3rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,14,13,0.94),rgba(10,9,8,0.98))] shadow-[0_36px_100px_rgba(0,0,0,0.34)]">
-      <div className="flex flex-col gap-5 border-b border-white/10 px-6 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-8">
+    <div className="overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#0d0c0b] shadow-[0_18px_48px_rgba(0,0,0,0.24)]">
+      <div className="flex flex-col gap-5 border-b border-white/[0.08] px-6 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-8">
         <div>
           <p className="text-[10px] uppercase tracking-[0.28em] text-[#b9a18d]">
-            Archive carousel
+            Object record
           </p>
-          <p className="mt-3 max-w-xl text-sm leading-7 text-white/60">
-            A quieter object-study strip for the parts of VIS that matter most.
+          <p className="mt-3 max-w-xl text-sm leading-7 text-white/56">
+            A quieter object study for the parts of VIS that matter most.
           </p>
         </div>
 
@@ -52,14 +52,14 @@ export function ObjectDossierCarousel({
           <button
             type="button"
             onClick={() => emblaApi?.scrollPrev()}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-sm uppercase tracking-[0.18em] text-white/74 transition duration-500 hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+            className="inline-flex items-center justify-center border-b border-white/[0.12] pb-1 text-[11px] uppercase tracking-[0.22em] text-white/60 transition duration-500 hover:border-white/24 hover:text-white"
           >
             Prev
           </button>
           <button
             type="button"
             onClick={() => emblaApi?.scrollNext()}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-sm uppercase tracking-[0.18em] text-white/74 transition duration-500 hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+            className="inline-flex items-center justify-center border-b border-white/[0.12] pb-1 text-[11px] uppercase tracking-[0.22em] text-white/60 transition duration-500 hover:border-white/24 hover:text-white"
           >
             Next
           </button>
@@ -78,7 +78,6 @@ export function ObjectDossierCarousel({
                     aria-hidden="true"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.72))]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(185,161,141,0.16),transparent_32%)]" />
                   <div className="relative z-10 flex h-full items-end p-6 sm:p-8">
                     <div className="max-w-[18rem]">
                       <p className="text-[10px] uppercase tracking-[0.24em] text-[#d0b39b]">
@@ -121,7 +120,7 @@ export function ObjectDossierCarousel({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-t border-white/10 px-6 py-4 sm:px-8">
+      <div className="flex flex-wrap gap-x-5 gap-y-3 border-t border-white/[0.08] px-6 py-4 sm:px-8">
         {slides.map((slide, index) => {
           const active = index === selectedIndex;
           return (
@@ -129,10 +128,10 @@ export function ObjectDossierCarousel({
               key={slide.title}
               type="button"
               onClick={() => emblaApi?.scrollTo(index)}
-              className={`rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.2em] transition duration-500 ${
+              className={`border-b pb-1 text-[10px] uppercase tracking-[0.2em] transition duration-500 ${
                 active
-                  ? "border-[#b89a75] bg-[#181513] text-[#f4efe7]"
-                  : "border-white/10 bg-white/[0.02] text-white/50 hover:border-white/18 hover:text-white/80"
+                  ? "border-[#b89a75] text-[#f4efe7]"
+                  : "border-white/[0.1] text-white/46 hover:border-white/18 hover:text-white/78"
               }`}
             >
               {slide.eyebrow}
