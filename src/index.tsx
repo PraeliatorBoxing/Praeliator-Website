@@ -4490,7 +4490,7 @@ function MobileHeader({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: easeLuxury }}
+            transition={{ duration: 0.42, ease: easeLuxury }}
             onClick={() => setMobileMenuOpen(false)}
             className="fixed inset-0 z-0 block bg-transparent"
           />
@@ -4563,7 +4563,7 @@ function MobileHeader({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: easeLuxury }}
+              transition={{ duration: 0.56, ease: easeLuxury }}
               className="overflow-hidden border-t border-white/[0.06]"
               onClick={(event) => event.stopPropagation()}
             >
@@ -16146,7 +16146,7 @@ const renderWaitlistPage = () => (
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.25, ease: easeLuxury }}
+                transition={{ duration: 0.42, ease: easeLuxury }}
                 onClick={() => setMobileMenuOpen(false)}
                 className="fixed inset-0 z-0 block bg-transparent"
               />
@@ -16254,7 +16254,7 @@ const renderWaitlistPage = () => (
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: easeLuxury }}
+                  transition={{ duration: 0.78, ease: easeLuxury }}
                   className="overflow-hidden"
                   onMouseLeave={() => setMobileMenuOpen(false)}
                   onClick={(event) => event.stopPropagation()}
