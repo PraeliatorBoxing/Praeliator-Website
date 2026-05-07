@@ -6572,16 +6572,8 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
   const pointerY = useMotionValue(-160);
   const shellX = pointerX;
   const shellY = pointerY;
-  const haloX = useSpring(pointerX, {
-    stiffness: 280,
-    damping: 30,
-    mass: 0.44,
-  });
-  const haloY = useSpring(pointerY, {
-    stiffness: 280,
-    damping: 30,
-    mass: 0.44,
-  });
+  const haloX = pointerX;
+  const haloY = pointerY;
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [variant, setVariant] = useState<LuxuryCursorVariant>("default");
@@ -6790,14 +6782,14 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
 
   const isButtonVariant = variant === "button";
   const isHidden = !visible || variant === "hidden";
-  const shellWidth = isButtonVariant ? 20 : 16;
-  const shellHeight = isButtonVariant ? 20 : 16;
+  const shellWidth = isButtonVariant ? 28 : 22;
+  const shellHeight = isButtonVariant ? 28 : 22;
   const shellRadius = 999;
-  const haloWidth = isButtonVariant ? 34 : 28;
-  const haloHeight = isButtonVariant ? 34 : 28;
+  const haloWidth = isButtonVariant ? 46 : 38;
+  const haloHeight = isButtonVariant ? 46 : 38;
   const haloRadius = 999;
-  const centerGlyphWidth = 3;
-  const centerGlyphHeight = 3;
+  const centerGlyphWidth = isButtonVariant ? 5 : 4;
+  const centerGlyphHeight = isButtonVariant ? 5 : 4;
 
   return (
     <>
@@ -6806,23 +6798,23 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         className="pointer-events-none fixed left-0 top-0 z-[140]"
         style={{ x: haloX, y: haloY }}
         animate={{
-          opacity: isHidden ? 0 : isButtonVariant ? 0.28 : 0.2,
-          scale: isHidden ? 0.9 : pressed ? 0.94 : 1,
+          opacity: isHidden ? 0 : isButtonVariant ? 0.34 : 0.26,
+          scale: isHidden ? 0.92 : pressed ? 0.9 : 1,
         }}
-        transition={{ duration: 0.18, ease: easeLuxury }}
+        transition={{ duration: 0.1, ease: easeLuxury }}
       >
         <motion.div
-          className="-translate-x-1/2 -translate-y-1/2 blur-[8px]"
+          className="-translate-x-1/2 -translate-y-1/2 blur-[10px]"
           animate={{
             width: haloWidth,
             height: haloHeight,
             borderRadius: haloRadius,
             background:
               isButtonVariant
-                ? "radial-gradient(circle, rgba(214,186,149,0.1) 0%, rgba(214,186,149,0.02) 54%, rgba(214,186,149,0) 80%)"
-                : "radial-gradient(circle, rgba(239,229,215,0.08) 0%, rgba(214,186,149,0.02) 54%, rgba(214,186,149,0) 80%)",
+                ? "radial-gradient(circle, rgba(214,186,149,0.22) 0%, rgba(214,186,149,0.08) 48%, rgba(214,186,149,0) 78%)"
+                : "radial-gradient(circle, rgba(244,239,231,0.18) 0%, rgba(214,186,149,0.06) 50%, rgba(214,186,149,0) 80%)",
           }}
-          transition={{ duration: 0.18, ease: easeLuxury }}
+          transition={{ duration: 0.1, ease: easeLuxury }}
         />
       </motion.div>
 
@@ -6832,9 +6824,9 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
         style={{ x: shellX, y: shellY }}
         animate={{
           opacity: isHidden ? 0 : 1,
-          scale: isHidden ? 0.88 : pressed ? 0.94 : 1,
+          scale: isHidden ? 0.9 : pressed ? 0.9 : 1,
         }}
-        transition={{ duration: 0.16, ease: easeLuxury }}
+        transition={{ duration: 0.08, ease: easeLuxury }}
       >
         <motion.div
           className="-translate-x-1/2 -translate-y-1/2 overflow-hidden border"
@@ -6843,35 +6835,35 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
             height: shellHeight,
             borderRadius: shellRadius,
             backgroundColor: isButtonVariant
-              ? "rgba(245, 239, 231, 0.045)"
-              : "rgba(245, 239, 231, 0.028)",
+              ? "rgba(245, 239, 231, 0.13)"
+              : "rgba(245, 239, 231, 0.09)",
             borderColor: isButtonVariant
-              ? "rgba(216, 186, 149, 0.3)"
-              : "rgba(216, 186, 149, 0.2)",
+              ? "rgba(223, 193, 156, 0.72)"
+              : "rgba(223, 193, 156, 0.58)",
             boxShadow: isButtonVariant
-              ? "0 8px 18px rgba(40, 25, 11, 0.08), 0 0 0 1px rgba(255,255,255,0.025) inset"
-              : "0 6px 14px rgba(40, 25, 11, 0.06), 0 0 0 1px rgba(255,255,255,0.02) inset",
+              ? "0 0 0 1px rgba(255,255,255,0.06) inset, 0 0 16px rgba(80,53,30,0.22), 0 10px 22px rgba(25,15,8,0.18)"
+              : "0 0 0 1px rgba(255,255,255,0.045) inset, 0 0 12px rgba(80,53,30,0.16), 0 8px 18px rgba(25,15,8,0.12)",
           }}
-          transition={{ duration: 0.16, ease: easeLuxury }}
+          transition={{ duration: 0.08, ease: easeLuxury }}
         >
           <motion.div
             className="absolute inset-[1px] rounded-[inherit]"
             animate={{
               background: isButtonVariant
-                ? "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))"
-                : "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.015))",
-              opacity: isButtonVariant ? 0.78 : 0.62,
+                ? "linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))"
+                : "linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.035))",
+              opacity: isButtonVariant ? 0.9 : 0.8,
             }}
-            transition={{ duration: 0.16, ease: easeLuxury }}
+            transition={{ duration: 0.08, ease: easeLuxury }}
           />
           <motion.div
             className="absolute inset-x-[18%] top-0 h-px"
             animate={{
-              opacity: isButtonVariant ? 0.34 : 0.18,
+              opacity: isButtonVariant ? 0.58 : 0.4,
               background:
                 "linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.92), rgba(255,255,255,0))",
             }}
-            transition={{ duration: 0.14, ease: easeLuxury }}
+            transition={{ duration: 0.08, ease: easeLuxury }}
           />
           <motion.span
             className="absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2"
@@ -6880,13 +6872,13 @@ function LuxuryCursor({ enabled }: { enabled: boolean }) {
               height: centerGlyphHeight,
               borderRadius: 999,
               backgroundColor: isButtonVariant
-                ? "rgba(244, 239, 231, 0.86)"
-                : "rgba(244, 239, 231, 0.78)",
+                ? "rgba(255, 249, 241, 0.96)"
+                : "rgba(255, 246, 236, 0.94)",
               boxShadow: isButtonVariant
-                ? "0 0 8px rgba(244, 239, 231, 0.16)"
-                : "0 0 6px rgba(244, 239, 231, 0.1)",
+                ? "0 0 10px rgba(255, 245, 233, 0.42)"
+                : "0 0 8px rgba(255, 245, 233, 0.3)",
             }}
-            transition={{ duration: 0.28, ease: easeLuxury }}
+            transition={{ duration: 0.1, ease: easeLuxury }}
           />
         </motion.div>
       </motion.div>
