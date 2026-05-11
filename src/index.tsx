@@ -3244,8 +3244,12 @@ function videoPathToAnimatedImagePath(video?: string) {
   if (!video) return undefined;
   return video.replace(/\.mp4(\?.*)?$/i, ".avif$1");
 }
+function videoPathToMotionFallbackPath(video?: string) {
+  if (!video) return undefined;
+  return video.replace(/\.mp4(\?.*)?$/i, "-lite.mp4$1");
+}
 function getVideoFallbackImage(video?: string, fallback?: string) {
-  return videoPathToAnimatedImagePath(video) ?? fallback;
+  return fallback ?? videoPathToAnimatedImagePath(video);
 }
 
 function useMediaQueryFlag(query: string, fallback = false) {
@@ -3318,20 +3322,22 @@ function MediaSurface({
     heavy: "bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.78))]",
   };
   const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
-  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
+  const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!video);
   const [videoFailed, setVideoFailed] = useState(false);
   useEffect(() => {
-    setAnimatedImageFailed(false);
+    setMotionFallbackFailed(false);
     setVideoReady(!video);
     setVideoFailed(false);
   }, [video]);
-  const animatedImage = videoPathToAnimatedImagePath(video);
+  const motionFallbackVideo = videoPathToMotionFallbackPath(video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(coarsePointer && video));
   const shouldRenderVideo = Boolean(video && !videoFailed && isMediaActive);
-  const shouldUseAnimatedImage = Boolean(
-    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
+  const shouldRenderMotionFallback = Boolean(
+    motionFallbackVideo &&
+      !motionFallbackFailed &&
+      (!shouldRenderVideo || !videoReady),
   );
   const fallbackImage = src;
   return (
@@ -3362,15 +3368,19 @@ function MediaSurface({
           <source src={video} type="video/mp4" />
         </video>
       ) : null}
-      {shouldUseAnimatedImage ? (
-        <img
+      {shouldRenderMotionFallback ? (
+        <video
           className="absolute inset-0 h-full w-full object-cover"
-          src={animatedImage}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          onError={() => setAnimatedImageFailed(true)}
-        />
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={fallbackImage}
+          onError={() => setMotionFallbackFailed(true)}
+        >
+          <source src={motionFallbackVideo} type="video/mp4" />
+        </video>
       ) : null}
       <div className={`absolute inset-0 ${overlayMap[dim]}`} />
       {priorityCopy ? (
@@ -3381,6 +3391,71 @@ function MediaSurface({
     </div>
   );
 }
+
+function BackdropLoopVideo({
+  video,
+  poster,
+  preload = "metadata",
+}: {
+  video?: string;
+  poster: string;
+  preload?: "none" | "metadata" | "auto";
+}) {
+  const [videoReady, setVideoReady] = useState(!video);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
+  const motionFallbackVideo = videoPathToMotionFallbackPath(video);
+
+  useEffect(() => {
+    setVideoReady(!video);
+    setVideoFailed(false);
+    setMotionFallbackFailed(false);
+  }, [video]);
+
+  const shouldRenderVideo = Boolean(video && !videoFailed);
+  const shouldRenderMotionFallback = Boolean(
+    motionFallbackVideo &&
+      !motionFallbackFailed &&
+      (!shouldRenderVideo || !videoReady),
+  );
+
+  return (
+    <>
+      {shouldRenderVideo ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload={preload}
+          poster={poster}
+          onCanPlay={() => setVideoReady(true)}
+          onLoadedData={() => setVideoReady(true)}
+          onPlaying={() => setVideoReady(true)}
+          onError={() => setVideoFailed(true)}
+        >
+          <source src={video} type="video/mp4" />
+        </video>
+      ) : null}
+      {shouldRenderMotionFallback ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={poster}
+          onError={() => setMotionFallbackFailed(true)}
+        >
+          <source src={motionFallbackVideo} type="video/mp4" />
+        </video>
+      ) : null}
+    </>
+  );
+}
+
 const housePrimaryButtonClass =
   "rounded-full border border-[#d3c0a6] bg-[#efe4d4] px-7 py-6 text-sm text-[#17120e] transition duration-500 hover:bg-[#f5ece0] disabled:pointer-events-none disabled:opacity-60";
 
@@ -3776,23 +3851,25 @@ function MobileHeroMediaBackdrop({
   };
 }) {
   const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
-  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
+  const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!media.video);
   const [videoFailed, setVideoFailed] = useState(false);
   useEffect(() => {
-    setAnimatedImageFailed(false);
+    setMotionFallbackFailed(false);
     setVideoReady(!media.video);
     setVideoFailed(false);
   }, [media.video]);
 
-  const animatedImage = videoPathToAnimatedImagePath(media.video);
+  const motionFallbackVideo = videoPathToMotionFallbackPath(media.video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(coarsePointer && media.video), "220px 0px");
   const shouldRenderVideo = Boolean(
     media.video && !videoFailed && isMediaActive,
   );
-  const shouldUseAnimatedImage = Boolean(
-    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
+  const shouldRenderMotionFallback = Boolean(
+    motionFallbackVideo &&
+      !motionFallbackFailed &&
+      (!shouldRenderVideo || !videoReady),
   );
   const fallbackImage = media.image;
 
@@ -3824,15 +3901,19 @@ function MobileHeroMediaBackdrop({
           <source src={media.video} type="video/mp4" />
         </video>
       ) : null}
-      {shouldUseAnimatedImage ? (
-        <img
+      {shouldRenderMotionFallback ? (
+        <video
           className="absolute inset-0 h-full w-full object-cover"
-          src={animatedImage}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          onError={() => setAnimatedImageFailed(true)}
-        />
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={fallbackImage}
+          onError={() => setMotionFallbackFailed(true)}
+        >
+          <source src={motionFallbackVideo} type="video/mp4" />
+        </video>
       ) : null}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.72)_78%,rgba(0,0,0,0.9))]" />
       <div className="absolute inset-x-0 top-0 h-[42svh] bg-[linear-gradient(180deg,rgba(3,3,3,0.88),rgba(3,3,3,0.34),transparent)]" />
@@ -5470,11 +5551,11 @@ function CinematicScene({
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
-  const [animatedImageFailed, setAnimatedImageFailed] = useState(false);
+  const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
   useEffect(() => {
-    setAnimatedImageFailed(false);
+    setMotionFallbackFailed(false);
     setVideoFailed(false);
     setVideoReady(false);
     setShowLoader(false);
@@ -5489,7 +5570,7 @@ function CinematicScene({
       }
     };
   }, [section.video]);
-  const animatedImage = videoPathToAnimatedImagePath(section.video);
+  const motionFallbackVideo = videoPathToMotionFallbackPath(section.video);
   const { ref: sceneActivationRef, isActive: isSceneActive } =
     useMobileMediaActivation(stackedFlow, "220px 0px");
   const fallbackImage = section.poster;
@@ -5497,8 +5578,10 @@ function CinematicScene({
   const lowMotionScene = stackedFlow || coarsePointer;
   const shouldRenderVideo =
     Boolean(section.video) && !videoFailed && (!stackedFlow || isSceneActive);
-  const shouldUseAnimatedImage = Boolean(
-    animatedImage && !animatedImageFailed && (!shouldRenderVideo || !videoReady),
+  const shouldRenderMotionFallback = Boolean(
+    motionFallbackVideo &&
+      !motionFallbackFailed &&
+      (!shouldRenderVideo || !videoReady),
   );
   useEffect(() => {
     setShowLoader(false);
@@ -5506,7 +5589,7 @@ function CinematicScene({
       window.clearTimeout(loaderTimerRef.current);
       loaderTimerRef.current = null;
     }
-    if (!shouldRenderVideo || shouldUseAnimatedImage) return;
+    if (!shouldRenderVideo || shouldRenderMotionFallback) return;
     loaderTimerRef.current = window.setTimeout(() => {
       setShowLoader(true);
     }, 220);
@@ -5516,7 +5599,7 @@ function CinematicScene({
         loaderTimerRef.current = null;
       }
     };
-  }, [section.video, shouldRenderVideo, shouldUseAnimatedImage]);
+  }, [section.video, shouldRenderVideo, shouldRenderMotionFallback]);
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -5568,15 +5651,19 @@ function CinematicScene({
               <source src={section.video} type="video/mp4" />
             </video>
           ) : null}
-          {shouldUseAnimatedImage ? (
-            <img
+          {shouldRenderMotionFallback ? (
+            <video
               className="absolute inset-0 h-full w-full object-cover"
-              src={animatedImage}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-              onError={() => setAnimatedImageFailed(true)}
-            />
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster={fallbackImage}
+              onError={() => setMotionFallbackFailed(true)}
+            >
+              <source src={motionFallbackVideo} type="video/mp4" />
+            </video>
           ) : null}
         </motion.div>
         <AnimatePresence>
@@ -9568,17 +9655,11 @@ export default function PraeliatorWebsite() {
             style={{ backgroundImage: `url(${getVideoFallbackImage(visPageMedia.heroVideo, visImageSources.hero)})` }}
             aria-hidden="true"
           />
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
+          <BackdropLoopVideo
+            video={visPageMedia.heroVideo}
+            poster={getVideoFallbackImage(visPageMedia.heroVideo, visImageSources.hero) ?? visImageSources.hero}
             preload="auto"
-            poster={getVideoFallbackImage(visPageMedia.heroVideo, visImageSources.hero)}
-          >
-            <source src={visPageMedia.heroVideo} type="video/mp4" />
-          </video>
+          />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.62)_70%,rgba(0,0,0,0.9))]" />
           <div className="absolute inset-x-0 top-0 h-[30svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.82),rgba(4,4,4,0.28),transparent)]" />
           <div className="absolute inset-x-0 bottom-0 h-[40svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.22),rgba(4,4,4,0.9))]" />
@@ -10138,17 +10219,11 @@ const renderAcquisitionPageLegacy = () => {
           style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.acquisition.video, homeCinematicMedia.acquisition.poster)})` }}
           aria-hidden="true"
         />
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
+        <BackdropLoopVideo
+          video={homeCinematicMedia.acquisition.video}
+          poster={getVideoFallbackImage(homeCinematicMedia.acquisition.video, homeCinematicMedia.acquisition.poster) ?? homeCinematicMedia.acquisition.poster}
           preload="auto"
-          poster={getVideoFallbackImage(homeCinematicMedia.acquisition.video, homeCinematicMedia.acquisition.poster)}
-        >
-          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
         <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
@@ -11000,20 +11075,16 @@ const renderAcquisitionPage = () => (
           }}
           aria-hidden="true"
         />
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
+        <BackdropLoopVideo
+          video={homeCinematicMedia.acquisition.video}
+          poster={
+            getVideoFallbackImage(
+              homeCinematicMedia.acquisition.video,
+              homeCinematicMedia.acquisition.poster,
+            ) ?? homeCinematicMedia.acquisition.poster
+          }
           preload="auto"
-          poster={getVideoFallbackImage(
-            homeCinematicMedia.acquisition.video,
-            homeCinematicMedia.acquisition.poster,
-          )}
-        >
-          <source src={homeCinematicMedia.acquisition.video} type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),rgba(0,0,0,0.28)_40%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.9))]" />
         <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
         <div className="absolute inset-x-0 bottom-0 h-[38svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.18),rgba(4,4,4,0.84))]" />
@@ -11941,17 +12012,11 @@ const renderWaitlistPage = () => (
               style={{ backgroundImage: `url(${getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)})` }}
               aria-hidden="true"
             />
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
+            <BackdropLoopVideo
+              video={homeCinematicMedia.ownership.video}
+              poster={getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging) ?? visImageSources.packaging}
               preload="metadata"
-              poster={getVideoFallbackImage(homeCinematicMedia.ownership.video, visImageSources.packaging)}
-            >
-              <source src={homeCinematicMedia.ownership.video} type="video/mp4" />
-            </video>
+            />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.04),rgba(0,0,0,0.2)_38%,rgba(0,0,0,0.54)_68%,rgba(0,0,0,0.88))]" />
             <div className="absolute inset-x-0 top-0 h-[32svh] bg-[linear-gradient(180deg,rgba(4,4,4,0.84),rgba(4,4,4,0.34),transparent)]" />
             <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,4,4,0.16),rgba(4,4,4,0.82))]" />
