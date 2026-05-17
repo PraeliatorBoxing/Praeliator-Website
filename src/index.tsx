@@ -3248,6 +3248,10 @@ function videoPathToMotionFallbackPath(video?: string) {
   if (!video) return undefined;
   return video.replace(/\.mp4(\?.*)?$/i, "-lite.mp4$1");
 }
+function videoPathToIOSVideoPath(video?: string) {
+  if (!video) return undefined;
+  return video.replace(/\.mp4(\?.*)?$/i, "-ios.mp4$1");
+}
 function getVideoFallbackImage(video?: string, fallback?: string) {
   return fallback ?? videoPathToAnimatedImagePath(video);
 }
@@ -3325,15 +3329,16 @@ function MediaSurface({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!video);
   const [videoFailed, setVideoFailed] = useState(false);
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   useEffect(() => {
     setMotionFallbackFailed(false);
-    setVideoReady(!video);
+    setVideoReady(!playbackVideo);
     setVideoFailed(false);
-  }, [video]);
+  }, [playbackVideo]);
   const motionFallbackVideo = videoPathToMotionFallbackPath(video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(coarsePointer && video));
-  const shouldRenderVideo = Boolean(video && !videoFailed && isMediaActive);
+  const shouldRenderVideo = Boolean(playbackVideo && !videoFailed && isMediaActive);
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
@@ -3365,7 +3370,7 @@ function MediaSurface({
           onPlaying={() => setVideoReady(true)}
           onError={() => setVideoFailed(true)}
         >
-          <source src={video} type="video/mp4" />
+          <source src={playbackVideo} type="video/mp4" />
         </video>
       ) : null}
       {shouldRenderMotionFallback ? (
@@ -3401,18 +3406,20 @@ function BackdropLoopVideo({
   poster: string;
   preload?: "none" | "metadata" | "auto";
 }) {
+  const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
   const [videoReady, setVideoReady] = useState(!video);
   const [videoFailed, setVideoFailed] = useState(false);
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   const motionFallbackVideo = videoPathToMotionFallbackPath(video);
 
   useEffect(() => {
-    setVideoReady(!video);
+    setVideoReady(!playbackVideo);
     setVideoFailed(false);
     setMotionFallbackFailed(false);
-  }, [video]);
+  }, [playbackVideo]);
 
-  const shouldRenderVideo = Boolean(video && !videoFailed);
+  const shouldRenderVideo = Boolean(playbackVideo && !videoFailed);
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
@@ -3435,7 +3442,7 @@ function BackdropLoopVideo({
           onPlaying={() => setVideoReady(true)}
           onError={() => setVideoFailed(true)}
         >
-          <source src={video} type="video/mp4" />
+          <source src={playbackVideo} type="video/mp4" />
         </video>
       ) : null}
       {shouldRenderMotionFallback ? (
@@ -3854,17 +3861,18 @@ function MobileHeroMediaBackdrop({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!media.video);
   const [videoFailed, setVideoFailed] = useState(false);
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(media.video) : media.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
-    setVideoReady(!media.video);
+    setVideoReady(!playbackVideo);
     setVideoFailed(false);
-  }, [media.video]);
+  }, [playbackVideo]);
 
   const motionFallbackVideo = videoPathToMotionFallbackPath(media.video);
   const { ref: mediaActivationRef, isActive: isMediaActive } =
     useMobileMediaActivation(Boolean(coarsePointer && media.video), "220px 0px");
   const shouldRenderVideo = Boolean(
-    media.video && !videoFailed && isMediaActive,
+    playbackVideo && !videoFailed && isMediaActive,
   );
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
@@ -3898,7 +3906,7 @@ function MobileHeroMediaBackdrop({
           onPlaying={() => setVideoReady(true)}
           onError={() => setVideoFailed(true)}
         >
-          <source src={media.video} type="video/mp4" />
+          <source src={playbackVideo} type="video/mp4" />
         </video>
       ) : null}
       {shouldRenderMotionFallback ? (
@@ -5554,10 +5562,13 @@ function CinematicScene({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
+  const playbackVideo = coarsePointer
+    ? videoPathToIOSVideoPath(section.video)
+    : section.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoFailed(false);
-    setVideoReady(false);
+    setVideoReady(!playbackVideo);
     setShowLoader(false);
     if (loaderTimerRef.current) {
       window.clearTimeout(loaderTimerRef.current);
@@ -5569,7 +5580,7 @@ function CinematicScene({
         loaderTimerRef.current = null;
       }
     };
-  }, [section.video]);
+  }, [playbackVideo]);
   const motionFallbackVideo = videoPathToMotionFallbackPath(section.video);
   const { ref: sceneActivationRef, isActive: isSceneActive } =
     useMobileMediaActivation(stackedFlow, "220px 0px");
@@ -5577,7 +5588,7 @@ function CinematicScene({
   const effectiveInView = stackedFlow ? isSceneActive : inView;
   const lowMotionScene = stackedFlow || coarsePointer;
   const shouldRenderVideo =
-    Boolean(section.video) && !videoFailed && (!stackedFlow || isSceneActive);
+    Boolean(playbackVideo) && !videoFailed && (!stackedFlow || isSceneActive);
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
@@ -5599,7 +5610,7 @@ function CinematicScene({
         loaderTimerRef.current = null;
       }
     };
-  }, [section.video, shouldRenderVideo, shouldRenderMotionFallback]);
+  }, [playbackVideo, shouldRenderVideo, shouldRenderMotionFallback]);
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -5648,7 +5659,7 @@ function CinematicScene({
               onPlaying={markVideoReady}
               onError={() => setVideoFailed(true)}
             >
-              <source src={section.video} type="video/mp4" />
+              <source src={playbackVideo} type="video/mp4" />
             </video>
           ) : null}
           {shouldRenderMotionFallback ? (
