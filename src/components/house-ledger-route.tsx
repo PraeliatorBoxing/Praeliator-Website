@@ -41,6 +41,8 @@ type HouseLedgerSale = {
     serialNumber: string;
     status: string;
     deliveryRecordedAt?: string | null;
+    deliveryReference?: string | null;
+    deliveryNote?: string | null;
     legacyRefreshEligibleOn?: string | null;
   } | null;
   paidAt?: string | null;
@@ -251,6 +253,11 @@ export function HouseLedgerRoute({
     expiresInHours: "72",
     createdBy: "Praeliator",
     specifications: issuanceSpecificationDefault,
+    personalMonogramEnabled: "false",
+    personalMonogramInitials: "",
+    personalMonogramPlacement: "Leather case",
+    personalMonogramFee: "0",
+    personalMonogramNote: "",
   });
   const [issueFieldErrors, setIssueFieldErrors] = useState<Record<string, string>>(
     {},
@@ -258,6 +265,12 @@ export function HouseLedgerRoute({
   const [issueSubmitting, setIssueSubmitting] = useState(false);
   const [issueResult, setIssueResult] = useState<HouseLedgerIssueResult | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const [deliveryDrafts, setDeliveryDrafts] = useState<
+    Record<string, { deliveryReference: string; deliveryNote: string }>
+  >({});
+  const [deliveryRecordingId, setDeliveryRecordingId] = useState<string | null>(
+    null,
+  );
   const seenNotificationIdsRef = useRef<Set<string>>(new Set());
   const hasHydratedNotificationsRef = useRef(false);
   const copyFeedbackTimeoutRef = useRef<number | null>(null);
@@ -497,6 +510,80 @@ export function HouseLedgerRoute({
       );
     } finally {
       setStatusUpdatingId(null);
+    }
+  };
+
+  const handleDeliveryDraftChange = (
+    saleId: string,
+    field: "deliveryReference" | "deliveryNote",
+    value: string,
+  ) => {
+    setDeliveryDrafts((current) => ({
+      ...current,
+      [saleId]: {
+        deliveryReference: current[saleId]?.deliveryReference || "",
+        deliveryNote: current[saleId]?.deliveryNote || "",
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleRecordDelivery = async (saleId: string) => {
+    if (!authToken || deliveryRecordingId) return;
+
+    setDeliveryRecordingId(saleId);
+    try {
+      const draft = deliveryDrafts[saleId] || {
+        deliveryReference: "",
+        deliveryNote: "",
+      };
+      const response = await fetch("/api/house-ledger", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          action: "record-delivery",
+          saleId,
+          deliveryReference: draft.deliveryReference,
+          deliveryNote: draft.deliveryNote,
+        }),
+      });
+      const result = await parseJsonResponse<SaleStatusResponse>(
+        response,
+        "The delivery record response could not be read.",
+      );
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Delivery could not be recorded.");
+      }
+
+      setState((current) =>
+        current
+          ? {
+              ...current,
+              sales: current.sales.map((sale) =>
+                sale.id === saleId ? result.sale : sale,
+              ),
+            }
+          : current,
+      );
+      setDeliveryDrafts((current) => {
+        const next = { ...current };
+        delete next[saleId];
+        return next;
+      });
+      await loadState({ silent: true });
+    } catch (recordError) {
+      setError(
+        recordError instanceof Error
+          ? recordError.message
+          : "Delivery could not be recorded.",
+      );
+    } finally {
+      setDeliveryRecordingId(null);
     }
   };
 
@@ -1118,6 +1205,131 @@ export function HouseLedgerRoute({
                       ) : null}
                     </label>
 
+                    <div className="grid gap-4 border-y border-[#d9ccb9] py-5">
+                      <label className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={issueForm.personalMonogramEnabled === "true"}
+                          onChange={(event) =>
+                            handleIssueFieldChange(
+                              "personalMonogramEnabled",
+                              event.target.checked ? "true" : "false",
+                            )
+                          }
+                          className="mt-1 h-4 w-4 rounded border-[#b8916d] text-[#211711] focus:ring-[#a37a56]"
+                        />
+                        <span>
+                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                            Personal Monogram
+                          </span>
+                          <span className="mt-2 block text-sm leading-7 text-[#5d4a3b]">
+                            Optional tonal deboss for initials only. The fee is
+                            included once in the issued total.
+                          </span>
+                        </span>
+                      </label>
+
+                      {issueForm.personalMonogramEnabled === "true" ? (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <label className="grid gap-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                              Initials
+                            </span>
+                            <input
+                              value={issueForm.personalMonogramInitials}
+                              onChange={(event) =>
+                                handleIssueFieldChange(
+                                  "personalMonogramInitials",
+                                  event.target.value.toUpperCase(),
+                                )
+                              }
+                              className={`${fieldClassName} ${
+                                issueFieldErrors.personalMonogramInitials
+                                  ? "border-[#b98d83]"
+                                  : ""
+                              }`}
+                              placeholder="PM"
+                              maxLength={3}
+                              autoCapitalize="characters"
+                            />
+                            {issueFieldErrors.personalMonogramInitials ? (
+                              <span className="text-xs leading-6 text-[#7a3b33]">
+                                {issueFieldErrors.personalMonogramInitials}
+                              </span>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                              Placement
+                            </span>
+                            <select
+                              value={issueForm.personalMonogramPlacement}
+                              onChange={(event) =>
+                                handleIssueFieldChange(
+                                  "personalMonogramPlacement",
+                                  event.target.value,
+                                )
+                              }
+                              className={fieldClassName}
+                            >
+                              <option value="Leather case">Leather case</option>
+                              <option value="One glove">One glove</option>
+                              <option value="Both gloves">Both gloves</option>
+                              <option value="Both gloves and leather case">
+                                Both gloves and leather case
+                              </option>
+                            </select>
+                          </label>
+
+                          <label className="grid gap-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                              Monogram fee
+                            </span>
+                            <input
+                              value={issueForm.personalMonogramFee}
+                              onChange={(event) =>
+                                handleIssueFieldChange(
+                                  "personalMonogramFee",
+                                  event.target.value,
+                                )
+                              }
+                              className={`${fieldClassName} ${
+                                issueFieldErrors.personalMonogramFee
+                                  ? "border-[#b98d83]"
+                                  : ""
+                              }`}
+                              inputMode="decimal"
+                              placeholder="1200"
+                            />
+                            {issueFieldErrors.personalMonogramFee ? (
+                              <span className="text-xs leading-6 text-[#7a3b33]">
+                                {issueFieldErrors.personalMonogramFee}
+                              </span>
+                            ) : null}
+                          </label>
+
+                          <label className="grid gap-2 sm:col-span-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                              Monogram note
+                            </span>
+                            <textarea
+                              value={issueForm.personalMonogramNote}
+                              onChange={(event) =>
+                                handleIssueFieldChange(
+                                  "personalMonogramNote",
+                                  event.target.value.slice(0, 240),
+                                )
+                              }
+                              className={`${textAreaFieldClassName} min-h-[7rem] resize-y`}
+                              placeholder="Placement nuance or production note for the house."
+                              maxLength={240}
+                            />
+                          </label>
+                        </div>
+                      ) : null}
+                    </div>
+
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                       <Button
                         type="submit"
@@ -1144,6 +1356,11 @@ export function HouseLedgerRoute({
                             expiresInHours: "72",
                             createdBy: "Praeliator",
                             specifications: issuanceSpecificationDefault,
+                            personalMonogramEnabled: "false",
+                            personalMonogramInitials: "",
+                            personalMonogramPlacement: "Leather case",
+                            personalMonogramFee: "0",
+                            personalMonogramNote: "",
                           });
                           setIssueFieldErrors({});
                         }}
@@ -1379,6 +1596,62 @@ export function HouseLedgerRoute({
                                     ? `Delivery recorded ${formatCompactDate(sale.objectRecord.deliveryRecordedAt)}. Legacy Refresh opens ${formatCompactDate(sale.objectRecord.legacyRefreshEligibleOn)}.`
                                     : "Delivery has not been recorded yet; the aftercare clock remains sealed."}
                                 </p>
+                                {sale.objectRecord.deliveryReference ? (
+                                  <p className="mt-1">
+                                    Delivery reference {sale.objectRecord.deliveryReference}.
+                                  </p>
+                                ) : null}
+                              </div>
+                            ) : null}
+                            {sale.objectRecord &&
+                            !sale.objectRecord.deliveryRecordedAt ? (
+                              <div className="mt-4 grid gap-3 border-t border-[#e1d1bd] pt-4">
+                                <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b7057]">
+                                  Record delivery
+                                </p>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                  <input
+                                    value={
+                                      deliveryDrafts[sale.id]?.deliveryReference ||
+                                      ""
+                                    }
+                                    onChange={(event) =>
+                                      handleDeliveryDraftChange(
+                                        sale.id,
+                                        "deliveryReference",
+                                        event.target.value,
+                                      )
+                                    }
+                                    className={fieldClassName}
+                                    placeholder="Courier or delivery reference"
+                                  />
+                                  <input
+                                    value={
+                                      deliveryDrafts[sale.id]?.deliveryNote || ""
+                                    }
+                                    onChange={(event) =>
+                                      handleDeliveryDraftChange(
+                                        sale.id,
+                                        "deliveryNote",
+                                        event.target.value,
+                                      )
+                                    }
+                                    className={fieldClassName}
+                                    placeholder="Internal delivery note"
+                                  />
+                                </div>
+                                <div>
+                                  <Button
+                                    type="button"
+                                    onClick={() => void handleRecordDelivery(sale.id)}
+                                    disabled={deliveryRecordingId === sale.id}
+                                    className="rounded-full bg-[#201814] px-5 py-4 text-xs text-[#f6eee3] shadow-[0_12px_30px_rgba(35,27,21,0.14)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#18120f] disabled:pointer-events-none disabled:opacity-60"
+                                  >
+                                    {deliveryRecordingId === sale.id
+                                      ? "Recording delivery..."
+                                      : "Record Delivery"}
+                                  </Button>
+                                </div>
                               </div>
                             ) : null}
                           </div>
@@ -1401,7 +1674,7 @@ export function HouseLedgerRoute({
                               >
                                 <option value="pending">Pending release</option>
                                 <option value="preparing">Preparing</option>
-                                <option value="fulfilled">Fulfilled</option>
+                                <option value="fulfilled">Delivery recorded</option>
                                 <option value="archived">Archived</option>
                               </select>
                             </label>

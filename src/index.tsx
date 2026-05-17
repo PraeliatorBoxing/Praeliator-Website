@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
 import { HouseLedgerRoute } from "./components/house-ledger-route";
+import { PrivateCommissionRoute } from "./components/private-commission-route";
 import type { SiteRoute } from "./lib/site-seo";
 const visSpecifications = [
   { label: "Object class", value: "Recorded training pair" },
@@ -673,6 +674,7 @@ type Route =
   | "/object-record"
   | "/acquisition"
   | "/private-acquisition"
+  | "/private-commission"
   | "/house-ledger"
   | "/waitlist"
   | "/contact"
@@ -701,11 +703,17 @@ type AuthNotice = {
 
 type RegisteredOwnershipPair = {
   id: string;
+  source?: "pair_registry" | "acquisition_object_record";
   model: string;
   serial: string;
   claimCodeLast4: string;
   deliveryConfirmedAt: string;
   registeredAt: string;
+  objectReference?: string | null;
+  objectRecordStatus?: string | null;
+  deliveryRecorded?: boolean;
+  deliveryReference?: string | null;
+  personalizationSummary?: string | null;
   legacyRefreshEligibleOn: string;
   legacyRefreshEligible: boolean;
   legacyRefreshRequestId?: string | null;
@@ -762,6 +770,7 @@ const routeTitles: Record<Route, string> = {
   "/object-record": "Object Record",
   "/acquisition": "Acquisition",
   "/private-acquisition": "Private Acquisition",
+  "/private-commission": "Private Commission",
   "/house-ledger": "House Ledger",
   "/waitlist": "Waitlist",
   "/contact": "Contact",
@@ -782,6 +791,7 @@ const routeMicroLabels: Record<Route, string> = {
   "/object-record": "OBJECT RECORD",
   "/acquisition": "ACQUISITION",
   "/private-acquisition": "PRIVATE",
+  "/private-commission": "COMMISSION",
   "/house-ledger": "LEDGER",
   "/waitlist": "WAITLIST",
   "/contact": "CONTACT",
@@ -2315,8 +2325,11 @@ function OwnershipPairFolio({
   );
   const recordState = getLegacyRefreshRecordState(pair);
   const pairAge = getPairAgeDescriptor(pair.deliveryConfirmedAt);
+  const deliveryRecorded = pair.deliveryRecorded !== false;
   const serviceSummary = pair.legacyRefreshRequestStatus
     ? `${formatLegacyRefreshStatus(pair.legacyRefreshRequestStatus)}${pair.legacyRefreshRequestedAt ? ` · Requested ${formatOwnershipDate(pair.legacyRefreshRequestedAt)}` : ""}`
+    : !deliveryRecorded
+      ? "Delivery record pending."
     : pair.legacyRefreshEligible
       ? "The invitation may now proceed into private review."
       : `Chamber opens ${formatOwnershipDate(pair.legacyRefreshEligibleOn)}.`;
@@ -2375,8 +2388,13 @@ function OwnershipPairFolio({
           </div>
 
           <p className="mt-5 max-w-xl text-sm leading-7 text-[#433429]">
-            Registered on {formatOwnershipDate(pair.registeredAt)}. Delivery was
-            recorded on {formatOwnershipDate(pair.deliveryConfirmedAt)}. {pairAge.detail}
+            Registered on {formatOwnershipDate(pair.registeredAt)}.{" "}
+            {deliveryRecorded
+              ? `Delivery was recorded on ${formatOwnershipDate(pair.deliveryConfirmedAt)}. ${pairAge.detail}`
+              : "Delivery has not been recorded by the house yet; the aftercare clock remains sealed."}
+            {pair.personalizationSummary
+              ? ` Personal Monogram: ${pair.personalizationSummary}.`
+              : ""}
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -2385,7 +2403,9 @@ function OwnershipPairFolio({
                 Recorded delivery
               </p>
               <p className="mt-2 text-sm leading-6 text-[#231b15]">
-                {formatOwnershipDate(pair.deliveryConfirmedAt)}
+                {deliveryRecorded
+                  ? formatOwnershipDate(pair.deliveryConfirmedAt)
+                  : "Pending house record"}
               </p>
             </div>
             <div className="rounded-[1rem] border border-[#ddd0be] bg-[#fbf6ef]/88 p-3">
@@ -2393,7 +2413,7 @@ function OwnershipPairFolio({
                 Pair age
               </p>
               <p className="mt-2 text-sm leading-6 text-[#231b15]">
-                {pairAge.label}
+                {deliveryRecorded ? pairAge.label : "Not opened"}
               </p>
             </div>
             <div className="rounded-[1rem] border border-[#ddd0be] bg-[#fbf6ef]/88 p-3">
@@ -2401,7 +2421,7 @@ function OwnershipPairFolio({
                 Claim seal
               </p>
               <p className="mt-2 text-sm leading-6 text-[#231b15]">
-                {formatClaimSeal(pair.claimCodeLast4)}
+                {pair.objectReference || formatClaimSeal(pair.claimCodeLast4)}
               </p>
             </div>
             <div className="rounded-[1rem] border border-[#ddd0be] bg-[#fbf6ef]/88 p-3">
@@ -2409,7 +2429,9 @@ function OwnershipPairFolio({
                 Eligible on
               </p>
               <p className="mt-2 text-sm leading-6 text-[#231b15]">
-                {formatOwnershipDate(pair.legacyRefreshEligibleOn)}
+                {deliveryRecorded
+                  ? formatOwnershipDate(pair.legacyRefreshEligibleOn)
+                  : "After delivery record"}
               </p>
             </div>
           </div>
@@ -2427,6 +2449,8 @@ function OwnershipPairFolio({
                 <p className="mt-3 text-sm leading-7 text-[#433429]">
                   {pair.legacyRefreshEligible
                     ? "This pair has crossed its recorded threshold. The next step is invitation and private review, never open booking."
+                    : !deliveryRecorded
+                      ? "The invitation remains sealed until delivery is recorded under the house ledger."
                     : "The invitation remains sealed until the recorded maturity date is reached under the house rules."}
                 </p>
               </div>
@@ -2479,7 +2503,9 @@ function OwnershipPairFolio({
                 </div>
               ) : (
                 <div className="inline-flex rounded-full border border-[#cdbca7] bg-[#fbf6ef] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#7d6753]">
-                  Opens {formatOwnershipDate(pair.legacyRefreshEligibleOn)}
+                  {deliveryRecorded
+                    ? `Opens ${formatOwnershipDate(pair.legacyRefreshEligibleOn)}`
+                    : "Opens after delivery record"}
                 </div>
               )}
               <Button
@@ -3099,6 +3125,7 @@ function mapOwnershipRow(
   const legacyRefreshEligibleOn = getLegacyRefreshEligibleOn(row.delivery_confirmed_at);
   return {
     id: row.id,
+    source: "pair_registry",
     model: row.model || "Praeliator VIS",
     serial: row.serial,
     claimCodeLast4: row.claim_code_last4 || "",
@@ -3106,6 +3133,71 @@ function mapOwnershipRow(
     registeredAt: row.current_owner_claimed_at || row.delivery_confirmed_at,
     legacyRefreshEligibleOn,
     legacyRefreshEligible: Date.now() >= new Date(legacyRefreshEligibleOn).getTime(),
+    legacyRefreshRequestId: request?.id ?? null,
+    legacyRefreshRequestStatus: request?.status ?? null,
+    legacyRefreshRequestedAt: request?.requested_at ?? null,
+    legacyRefreshNote: request?.note ?? null,
+  };
+}
+
+function getPersonalizationSummaryFromSnapshot(snapshot: unknown) {
+  if (!snapshot || typeof snapshot !== "object") return null;
+  const monogram = snapshot as Record<string, unknown>;
+  if (monogram.enabled !== true) return null;
+  const initials = String(monogram.initials || "").trim();
+  const placement = String(monogram.placement || "").trim();
+  return [initials, placement].filter(Boolean).join(" / ") || null;
+}
+
+function mapAcquisitionObjectRecordRow(
+  row: {
+    id: string;
+    product_name: string | null;
+    serial_number: string;
+    object_reference: string | null;
+    status: string | null;
+    personalization_snapshot?: unknown;
+    paid_at: string | null;
+    delivery_recorded_at: string | null;
+    legacy_refresh_eligible_on: string | null;
+    delivery_reference?: string | null;
+    created_at: string | null;
+  },
+  request?: {
+    id: string;
+    status: string | null;
+    requested_at: string;
+    note: string | null;
+  } | null,
+): RegisteredOwnershipPair {
+  const deliveryRecorded = Boolean(row.delivery_recorded_at);
+  const recordAnchor =
+    row.delivery_recorded_at || row.paid_at || row.created_at || new Date().toISOString();
+  const eligibleOn =
+    row.legacy_refresh_eligible_on ||
+    (deliveryRecorded ? getLegacyRefreshEligibleOn(recordAnchor) : "");
+  const eligible =
+    Boolean(deliveryRecorded && eligibleOn) &&
+    Date.now() >= new Date(eligibleOn).getTime();
+
+  return {
+    id: row.id,
+    source: "acquisition_object_record",
+    model: row.product_name || "Praeliator VIS",
+    serial: row.serial_number,
+    claimCodeLast4: row.object_reference ? row.object_reference.slice(-4) : "",
+    deliveryConfirmedAt: recordAnchor,
+    registeredAt: row.paid_at || row.created_at || recordAnchor,
+    objectReference: row.object_reference,
+    objectRecordStatus: row.status,
+    deliveryRecorded,
+    deliveryReference: row.delivery_reference || null,
+    personalizationSummary: getPersonalizationSummaryFromSnapshot(
+      row.personalization_snapshot,
+    ),
+    legacyRefreshEligibleOn:
+      eligibleOn || getLegacyRefreshEligibleOn(recordAnchor),
+    legacyRefreshEligible: eligible,
     legacyRefreshRequestId: request?.id ?? null,
     legacyRefreshRequestStatus: request?.status ?? null,
     legacyRefreshRequestedAt: request?.requested_at ?? null,
@@ -3120,6 +3212,7 @@ function normalizePath(pathname: string): Route {
     clean === "/object-record" ||
     clean === "/acquisition" ||
     clean === "/private-acquisition" ||
+    clean === "/private-commission" ||
     clean === "/house-ledger" ||
     clean === "/waitlist" ||
     clean === "/contact" ||
@@ -7924,7 +8017,67 @@ export default function PraeliatorWebsite() {
         }
       });
 
-      setOwnershipPairs((data || []).map((row: any) => mapOwnershipRow(row, latestRequestByPair.get(row.id) || null)));
+      const registeredPairs = (data || []).map((row: any) =>
+        mapOwnershipRow(row, latestRequestByPair.get(row.id) || null),
+      );
+
+      const { data: objectRows, error: objectError } = await supabase
+        .from("acquisition_object_records")
+        .select("id, product_name, serial_number, object_reference, status, personalization_snapshot, paid_at, delivery_recorded_at, legacy_refresh_eligible_on, delivery_reference, created_at")
+        .order("paid_at", { ascending: false });
+
+      let objectPairs: RegisteredOwnershipPair[] = [];
+
+      if (objectError && objectError.code !== "42P01") {
+        setAuthNotice({
+          tone: "error",
+          title: "Object records unavailable",
+          body: objectError.message,
+        });
+      }
+
+      if (objectRows?.length) {
+        const objectIds = objectRows.map((row: any) => row.id).filter(Boolean);
+        const { data: objectRefreshRows, error: objectRefreshError } =
+          await supabase
+            .from("legacy_refresh_object_requests")
+            .select("id, object_record_id, status, requested_at, note")
+            .in("object_record_id", objectIds)
+            .order("requested_at", { ascending: false });
+
+        if (objectRefreshError && objectRefreshError.code !== "42P01") {
+          setAuthNotice({
+            tone: "error",
+            title: "Object aftercare unavailable",
+            body: objectRefreshError.message,
+          });
+        }
+
+        const latestRequestByObject = new Map<
+          string,
+          { id: string; status: string | null; requested_at: string; note: string | null }
+        >();
+        (objectRefreshRows || []).forEach((row: any) => {
+          if (!latestRequestByObject.has(row.object_record_id)) {
+            latestRequestByObject.set(row.object_record_id, row);
+          }
+        });
+
+        objectPairs = objectRows.map((row: any) =>
+          mapAcquisitionObjectRecordRow(
+            row,
+            latestRequestByObject.get(row.id) || null,
+          ),
+        );
+      }
+
+      setOwnershipPairs(
+        [...registeredPairs, ...objectPairs].sort(
+          (left, right) =>
+            new Date(right.registeredAt).getTime() -
+            new Date(left.registeredAt).getTime(),
+        ),
+      );
     } finally {
       setOwnershipLoading(false);
       setOwnershipInitialized(true);
@@ -8346,11 +8499,14 @@ export default function PraeliatorWebsite() {
 
   const authRoutes = new Set<Route>(["/sign-in", "/sign-up", "/magic-link", "/verify-email", "/forgot-password", "/reset-password", "/oauth/consent"]);
   const hidesGlobalChrome =
-    route === "/private-acquisition" || route === "/house-ledger";
+    route === "/private-acquisition" ||
+    route === "/private-commission" ||
+    route === "/house-ledger";
   const routeUsesFooter =
     !authRoutes.has(route) &&
     route !== "/ownership-record" &&
     route !== "/private-acquisition" &&
+    route !== "/private-commission" &&
     route !== "/house-ledger" &&
     route !== "/faq" &&
     route !== "/privacy-notice";
@@ -10385,6 +10541,14 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
+      <section className="bg-[#050404] py-12 sm:py-16 lg:py-20">
+        <Container>
+          <Reveal>
+            <ObjectDossierCarousel slides={visArchiveSlides} />
+          </Reveal>
+        </Container>
+      </section>
+
       <section className="bg-[#080707] py-14 sm:py-18 lg:py-24">
         <Container>
           <Reveal className="max-w-4xl">
@@ -10431,6 +10595,15 @@ export default function PraeliatorWebsite() {
               <p className="mt-7 max-w-xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
                 Personal Monogram should feel like a prepared object, not an online customization menu. The house keeps control of type, size, placement, finish, and approval.
               </p>
+              <div className="mt-8">
+                <Button
+                  type="button"
+                  onClick={() => goTo("/private-commission")}
+                  className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.12)] transition duration-500 hover:bg-[#e4d7c7]"
+                >
+                  Request Private Commission
+                </Button>
+              </div>
             </Reveal>
             <Reveal delay={0.08}>
               <div className="grid gap-10 md:grid-cols-2">
@@ -14857,6 +15030,65 @@ const renderWaitlistPage = () => (
     setLegacyRefreshSubmitting(true);
     setAuthNotice(null);
     try {
+      const activePair = ownershipPairs.find(
+        (pair) => pair.id === legacyRefreshDraftPairId,
+      );
+
+      if (!activePair) {
+        setLegacyRefreshError("This object line is no longer visible in the current Ownership Record.");
+        return;
+      }
+
+      if (activePair.source === "acquisition_object_record") {
+        if (!activePair.deliveryRecorded) {
+          setLegacyRefreshError(
+            "Legacy Refresh opens only after delivery has been recorded by the house.",
+          );
+          return;
+        }
+
+        if (!activePair.legacyRefreshEligible) {
+          setLegacyRefreshError(
+            "Legacy Refresh is still sealed for this object line. The invitation follows the recorded delivery date.",
+          );
+          return;
+        }
+
+        const { error } = await client
+          .from("legacy_refresh_object_requests")
+          .insert({
+            object_record_id: activePair.id,
+            owner_user_id: authSession.user.id,
+            owner_email: authSession.user.email || "",
+            note: legacyRefreshNote.trim() || null,
+          });
+
+        if (error) {
+          const normalized = error.message.toLowerCase();
+          if (
+            normalized.includes("duplicate") ||
+            normalized.includes("unique")
+          ) {
+            setLegacyRefreshError(
+              "A Legacy Refresh request is already active for this object line.",
+            );
+          } else {
+            setLegacyRefreshError(error.message);
+          }
+          return;
+        }
+
+        await loadOwnershipPairs();
+        setLegacyRefreshDraftPairId(null);
+        setLegacyRefreshNote("");
+        setAuthNotice({
+          tone: "success",
+          title: "Legacy Refresh requested",
+          body: "The application has entered private review under the house record.",
+        });
+        return;
+      }
+
       const { error } = await client.rpc("apply_legacy_refresh", {
         p_pair_id: legacyRefreshDraftPairId,
         p_note: legacyRefreshNote.trim() || null,
@@ -16352,6 +16584,16 @@ const renderWaitlistPage = () => (
             languageLabel={copy.languageLabel}
           />
         );
+      case "/private-commission":
+        return (
+          <PrivateCommissionRoute
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
+          />
+        );
       case "/house-ledger":
         return (
           <HouseLedgerRoute
@@ -16417,6 +16659,16 @@ const renderWaitlistPage = () => (
       case "/private-acquisition":
         return (
           <PrivateAcquisitionRoute
+            wordmarkSrc={brandAssetPaths.headerWordmark}
+            onReturnHome={() => goTo("/")}
+            locale={locale}
+            onLocaleChange={setLocale}
+            languageLabel={copy.languageLabel}
+          />
+        );
+      case "/private-commission":
+        return (
+          <PrivateCommissionRoute
             wordmarkSrc={brandAssetPaths.headerWordmark}
             onReturnHome={() => goTo("/")}
             locale={locale}
@@ -16674,7 +16926,7 @@ const renderWaitlistPage = () => (
 
       <main
         className={
-          route === "/private-acquisition"
+          route === "/private-acquisition" || route === "/private-commission"
             ? "overflow-x-hidden bg-[#090806]"
             : route === "/"
             ? "overflow-x-hidden bg-[#040404]"

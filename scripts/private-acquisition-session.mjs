@@ -52,6 +52,10 @@ Create:
     --shipping-region "Monterrey" \\
     --expires-in-hours 72 \\
     --created-by "Praeliator" \\
+    --personal-monogram true \\
+    --monogram-initials "PM" \\
+    --monogram-placement "Leather case" \\
+    --monogram-fee 1200 \\
     --spec "Format=16 oz lace-up" \\
     --spec "Material=Top-grain cowhide"
 
@@ -157,18 +161,55 @@ function buildProductSnapshot(specFlags) {
   return specifications.length ? { specifications } : {};
 }
 
+function parseBooleanFlag(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["1", "true", "yes", "on", "enabled"].includes(normalized);
+}
+
+function normalizeMonogramInitials(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
 async function handleCreate(flags) {
   const currency = getFlag(flags, "currency", "mxn");
   const subtotalAmount = parseMajorAmount(getFlag(flags, "subtotal", "0"), currency);
   const shippingAmount = parseMajorAmount(getFlag(flags, "shipping", "0"), currency);
+  const personalMonogramEnabled = parseBooleanFlag(getFlag(flags, "personal-monogram"));
+  const monogramInitials = normalizeMonogramInitials(getFlag(flags, "monogram-initials"));
+  const monogramPlacement = getFlag(flags, "monogram-placement", "Leather case");
+  const monogramNote = getFlag(flags, "monogram-note");
+  const monogramFeeAmount = personalMonogramEnabled
+    ? parseMajorAmount(getFlag(flags, "monogram-fee", "0"), currency)
+    : 0;
   const totalAmount = parseMajorAmount(
-    getFlag(flags, "total", `${(subtotalAmount + shippingAmount) / 10 ** getCurrencyExponent(currency)}`),
+    getFlag(
+      flags,
+      "total",
+      `${(subtotalAmount + shippingAmount + monogramFeeAmount) / 10 ** getCurrencyExponent(currency)}`,
+    ),
     currency,
   );
   const quantity = Number(getFlag(flags, "quantity", "1"));
   const expiresInHours = Number(getFlag(flags, "expires-in-hours", "72"));
   const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
   const productSnapshot = buildProductSnapshot(getRepeatedFlag(flags, "spec"));
+  const personalMonogram = personalMonogramEnabled
+    ? {
+        enabled: true,
+        initials: monogramInitials,
+        placement: monogramPlacement,
+        note: monogramNote || null,
+        feeAmount: monogramFeeAmount,
+        currency,
+        finish: "Tonal deboss",
+      }
+    : {
+        enabled: false,
+      };
+
+  if (personalMonogramEnabled && (monogramInitials.length < 1 || monogramInitials.length > 3)) {
+    throw new Error("Personal Monogram initials must remain between one and three characters.");
+  }
 
   const result = await createPrivateAcquisitionSession({
     clientName: getFlag(flags, "client-name"),
@@ -179,6 +220,25 @@ async function handleCreate(flags) {
     orderSnapshot: {
       issuedFollowing: "Direct correspondence",
       housePreparedAt: new Date().toISOString(),
+      personalMonogram,
+      priceLines: [
+        {
+          label: getFlag(flags, "product-name"),
+          amount: subtotalAmount,
+        },
+        {
+          label: "Private allocation and fulfillment",
+          amount: shippingAmount,
+        },
+        ...(personalMonogramEnabled
+          ? [
+              {
+                label: "Personal Monogram",
+                amount: monogramFeeAmount,
+              },
+            ]
+          : []),
+      ],
     },
     quantity,
     currency,
@@ -211,6 +271,11 @@ async function handleCreate(flags) {
       ]
         .filter(Boolean)
         .join(", ")}`,
+    );
+  }
+  if (personalMonogramEnabled) {
+    console.log(
+      `Monogram       : ${monogramInitials} / ${monogramPlacement} / ${formatMoney(monogramFeeAmount, currency)}`,
     );
   }
   console.log("");

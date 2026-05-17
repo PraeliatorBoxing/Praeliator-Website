@@ -82,6 +82,14 @@ function getDeliverySnapshot(session: Record<string, unknown>) {
     : {};
 }
 
+function getPersonalizationSnapshot(session: Record<string, unknown>) {
+  const orderSnapshot = getOrderSnapshotObject(session);
+  const personalization = orderSnapshot.personalMonogram;
+  return personalization && typeof personalization === "object"
+    ? (personalization as Record<string, unknown>)
+    : { enabled: false };
+}
+
 function resolveSessionField(
   session: Record<string, unknown>,
   sessionKey: string,
@@ -216,6 +224,8 @@ function serializeObjectRecord(record: Record<string, unknown> | null | undefine
     serialNumber: record.serial_number,
     status: record.status,
     deliveryRecordedAt: record.delivery_recorded_at,
+    deliveryReference: record.delivery_reference,
+    deliveryNote: record.delivery_note,
     legacyRefreshEligibleOn: record.legacy_refresh_eligible_on,
   };
 }
@@ -229,13 +239,24 @@ async function upsertObjectRecordFromSession(input: {
   const resolvedDelivery = getResolvedDeliveryDetails(session);
   const timestamp = nowIso();
   const fulfillmentStatus = normalizeInlineText(sale.fulfillment_status);
+  const { data: existingRecord, error: existingRecordError } = await supabase
+    .from("acquisition_object_records")
+    .select("delivery_recorded_at, delivery_reference, delivery_note, delivery_recorded_by, legacy_refresh_eligible_on")
+    .eq("private_acquisition_session_id", String(session.id))
+    .maybeSingle();
+
+  if (existingRecordError) throw existingRecordError;
+
   const deliveryRecordedAt =
     fulfillmentStatus === "fulfilled"
-      ? normalizeInlineText(sale.delivery_recorded_at) || timestamp
+      ? normalizeInlineText(existingRecord?.delivery_recorded_at) ||
+        normalizeInlineText(sale.delivery_recorded_at) ||
+        timestamp
       : null;
   const legacyRefreshEligibleOn =
     deliveryRecordedAt && fulfillmentStatus === "fulfilled"
-      ? addOneYearIso(deliveryRecordedAt)
+      ? normalizeInlineText(existingRecord?.legacy_refresh_eligible_on) ||
+        addOneYearIso(deliveryRecordedAt)
       : null;
 
   const payload = {
@@ -272,8 +293,12 @@ async function upsertObjectRecordFromSession(input: {
       session.order_snapshot && typeof session.order_snapshot === "object"
         ? session.order_snapshot
         : {},
+    personalization_snapshot: getPersonalizationSnapshot(session),
     paid_at: normalizeInlineText(session.paid_at) || normalizeInlineText(sale.paid_at) || null,
     delivery_recorded_at: deliveryRecordedAt,
+    delivery_reference: normalizeInlineText(existingRecord?.delivery_reference) || null,
+    delivery_note: normalizeInlineText(existingRecord?.delivery_note) || null,
+    delivery_recorded_by: normalizeInlineText(existingRecord?.delivery_recorded_by) || null,
     legacy_refresh_eligible_on: legacyRefreshEligibleOn,
     updated_at: timestamp,
   };
@@ -489,7 +514,7 @@ export async function getHouseLedgerState() {
     ? await supabase
         .from("acquisition_object_records")
         .select(
-          "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+          "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, delivery_reference, delivery_note, legacy_refresh_eligible_on",
         )
         .in("sale_id", saleIds)
     : { data: [], error: null };
@@ -602,7 +627,7 @@ export async function updateHouseLedgerSaleStatus(input: {
   const { data: existingRecord, error: existingRecordError } = await supabase
     .from("acquisition_object_records")
     .select(
-      "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+      "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, delivery_reference, delivery_note, legacy_refresh_eligible_on",
     )
     .eq("sale_id", data.id)
     .maybeSingle();
@@ -643,7 +668,7 @@ export async function updateHouseLedgerSaleStatus(input: {
       })
       .eq("id", existingRecord.id)
       .select(
-        "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+        "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, delivery_reference, delivery_note, legacy_refresh_eligible_on",
       )
       .single();
 
@@ -707,5 +732,132 @@ export async function updateHouseLedgerSaleStatus(input: {
     objectRecord: serializeObjectRecord(objectRecord),
     paidAt: data.paid_at,
     createdAt: data.created_at,
+  };
+}
+
+export async function recordHouseLedgerDelivery(input: {
+  saleId: string;
+  deliveryReference?: string | null;
+  deliveryNote?: string | null;
+  recordedBy?: string | null;
+}) {
+  const supabase = createSupabaseAdmin();
+  const timestamp = nowIso();
+  const deliveryReference = normalizeInlineText(input.deliveryReference) || null;
+  const deliveryNote = normalizeInlineText(input.deliveryNote) || null;
+  const recordedBy = normalizeInlineText(input.recordedBy) || "Praeliator";
+
+  const { data: sale, error: saleError } = await supabase
+    .from("sales_registry")
+    .update({
+      fulfillment_status: "fulfilled",
+      updated_at: timestamp,
+    })
+    .eq("id", input.saleId)
+    .select(
+      "id, private_acquisition_session_id, sale_reference, client_name, client_email, product_name, currency, total_amount, amount_received, quantity, shipping_country, shipping_region, shipping_city, fulfillment_status, paid_at, created_at",
+    )
+    .single();
+
+  if (saleError) throw saleError;
+
+  const { data: existingRecord, error: existingRecordError } = await supabase
+    .from("acquisition_object_records")
+    .select(
+      "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, delivery_reference, delivery_note, legacy_refresh_eligible_on",
+    )
+    .eq("sale_id", sale.id)
+    .maybeSingle();
+
+  if (existingRecordError) throw existingRecordError;
+
+  let objectRecord = existingRecord;
+
+  if (!objectRecord && sale.private_acquisition_session_id) {
+    const { data: session, error: sessionError } = await supabase
+      .from("private_acquisition_sessions")
+      .select("*")
+      .eq("id", sale.private_acquisition_session_id)
+      .single();
+
+    if (sessionError) throw sessionError;
+    objectRecord = await upsertObjectRecordFromSession({ sale, session });
+  }
+
+  if (!objectRecord) {
+    throw new Error("The object line could not be found for this sale.");
+  }
+
+  const deliveryRecordedAt =
+    normalizeInlineText(objectRecord.delivery_recorded_at) || timestamp;
+  const legacyRefreshEligibleOn =
+    normalizeInlineText(objectRecord.legacy_refresh_eligible_on) ||
+    addOneYearIso(deliveryRecordedAt);
+
+  const { data: updatedRecord, error: recordError } = await supabase
+    .from("acquisition_object_records")
+    .update({
+      status: "delivery_recorded",
+      delivery_recorded_at: deliveryRecordedAt,
+      delivery_reference: deliveryReference,
+      delivery_note: deliveryNote,
+      delivery_recorded_by: recordedBy,
+      legacy_refresh_eligible_on: legacyRefreshEligibleOn,
+      updated_at: timestamp,
+    })
+    .eq("id", objectRecord.id)
+    .select(
+      "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, delivery_reference, delivery_note, legacy_refresh_eligible_on",
+    )
+    .single();
+
+  if (recordError) throw recordError;
+
+  const { error: notificationError } = await supabase
+    .from("house_ledger_notifications")
+    .upsert(
+      {
+        sale_id: sale.id,
+        kind: "delivery_recorded",
+        event_key: `delivery-recorded:${updatedRecord.id}`,
+        title: `Delivery recorded - ${updatedRecord.serial_number}`,
+        body: [
+          sale.client_name || "Private client",
+          sale.product_name,
+          `Legacy Refresh opens ${formatPaidAtForLedger(legacyRefreshEligibleOn)}`,
+        ]
+          .filter(Boolean)
+          .join(" - "),
+        payload: {
+          saleId: sale.id,
+          objectReference: updatedRecord.object_reference,
+          serialNumber: updatedRecord.serial_number,
+          deliveryRecordedAt,
+          deliveryReference,
+          legacyRefreshEligibleOn,
+        },
+      },
+      { onConflict: "event_key" },
+    );
+
+  if (notificationError) throw notificationError;
+
+  return {
+    id: sale.id,
+    saleReference: sale.sale_reference,
+    clientName: sale.client_name,
+    clientEmail: sale.client_email,
+    productName: sale.product_name,
+    quantity: sale.quantity,
+    currency: sale.currency,
+    totalAmount: sale.total_amount,
+    amountReceived: sale.amount_received,
+    shippingCountry: sale.shipping_country,
+    shippingRegion: sale.shipping_region,
+    shippingCity: sale.shipping_city,
+    fulfillmentStatus: sale.fulfillment_status,
+    objectRecord: serializeObjectRecord(updatedRecord),
+    paidAt: sale.paid_at,
+    createdAt: sale.created_at,
   };
 }

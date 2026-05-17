@@ -514,6 +514,21 @@ function getSpecifications(
   ];
 }
 
+function getPersonalMonogramSummary(session?: AcquisitionSessionSummary | null) {
+  const raw = session?.orderSnapshot?.personalMonogram;
+  if (!raw || typeof raw !== "object") return null;
+  const monogram = raw as Record<string, unknown>;
+  if (monogram.enabled !== true) return null;
+
+  return {
+    initials: String(monogram.initials || "").trim(),
+    placement: String(monogram.placement || "").trim(),
+    feeAmount:
+      typeof monogram.feeAmount === "number" ? monogram.feeAmount : null,
+    currency: String(monogram.currency || session?.currency || "mxn"),
+  };
+}
+
 function PrivatePaymentForm({
   session,
   token,
@@ -1214,6 +1229,7 @@ export function PrivateAcquisitionRoute({
               : "The validity window for this issuance has now closed.";
 
   const specifications = getSpecifications(activeSession);
+  const personalMonogram = getPersonalMonogramSummary(activeSession);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#090806] text-[#f6efe5]">
@@ -1448,6 +1464,21 @@ export function PrivateAcquisitionRoute({
                         </p>
                       </div>
                     </div>
+                    {personalMonogram ? (
+                      <div className="mt-3 rounded-[1.6rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
+                        <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                          Personal Monogram
+                        </p>
+                        <p className="mt-3 text-lg text-[#241912]">
+                          {[
+                            personalMonogram.initials,
+                            personalMonogram.placement,
+                          ]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="mt-5 grid gap-3 border-y border-[#d8c3aa] py-5 sm:grid-cols-4">
                       {[
                         ["01", "Settlement retained"],
@@ -1598,9 +1629,35 @@ export function PrivateAcquisitionRoute({
                                     activeSession.shippingAmount,
                                     activeSession.currency,
                                   )
-                                : "Pending"}
+                              : "Pending"}
                             </p>
                           </div>
+
+                          {personalMonogram ? (
+                            <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                              <div>
+                                <p className="text-lg leading-8 text-[#241912]">
+                                  Personal Monogram
+                                </p>
+                                <p className="text-sm leading-7 text-[#6c5646]">
+                                  {[
+                                    personalMonogram.initials,
+                                    personalMonogram.placement,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" / ")}
+                                </p>
+                              </div>
+                              <p className="text-lg leading-8 text-[#241912] sm:text-right">
+                                {personalMonogram.feeAmount !== null
+                                  ? formatMoney(
+                                      personalMonogram.feeAmount,
+                                      personalMonogram.currency,
+                                    )
+                                  : "Included"}
+                              </p>
+                            </div>
+                          ) : null}
 
                           <div className="flex flex-col gap-2 py-4 pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                             <div>

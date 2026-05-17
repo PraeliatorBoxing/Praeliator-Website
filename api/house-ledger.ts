@@ -4,6 +4,7 @@ import {
   HouseLedgerAccessError,
   isValidFulfillmentStatus,
   markHouseLedgerNotificationsRead,
+  recordHouseLedgerDelivery,
   requireHouseLedgerOwner,
   updateHouseLedgerSaleStatus,
 } from "./_lib/house-ledger.js";
@@ -18,6 +19,13 @@ type StatusPayload = {
   action?: string;
   saleId?: string;
   fulfillmentStatus?: string;
+};
+
+type DeliveryPayload = {
+  action?: string;
+  saleId?: string;
+  deliveryReference?: string;
+  deliveryNote?: string;
 };
 
 type IssueRequestBody = {
@@ -35,6 +43,11 @@ type IssueRequestBody = {
   expiresInHours?: string | number;
   createdBy?: string;
   specifications?: string;
+  personalMonogramEnabled?: boolean | string;
+  personalMonogramInitials?: string;
+  personalMonogramPlacement?: string;
+  personalMonogramNote?: string;
+  personalMonogramFee?: string | number;
 };
 
 function normalizeInlineText(value: unknown) {
@@ -112,16 +125,45 @@ function parseSpecifications(value: string) {
   };
 }
 
+function parseBooleanFlag(value: unknown) {
+  if (typeof value === "boolean") return value;
+  const normalized = normalizeInlineText(value).toLowerCase();
+  return ["1", "true", "yes", "on", "enabled"].includes(normalized);
+}
+
+function normalizeMonogramInitials(value: unknown) {
+  return normalizeInlineText(value).toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function normalizeMonogramPlacement(value: unknown) {
+  const placement = normalizeInlineText(value);
+  return placement || "Leather case";
+}
+
 function buildPreparedNotice(input: {
   referenceCode: string;
   privateUrl: string;
   expiresAt: string;
+  personalMonogram?: {
+    enabled: boolean;
+    initials?: string | null;
+    placement?: string | null;
+  };
 }) {
+  const monogramLine = input.personalMonogram?.enabled
+    ? `\nPersonal Monogram: ${[
+        input.personalMonogram.initials,
+        input.personalMonogram.placement,
+      ]
+        .filter(Boolean)
+        .join(" / ")}\n`
+    : "";
+
   return `Your private Praeliator acquisition page has been issued.
 
 Reference code: ${input.referenceCode}
 Private acquisition link: ${input.privateUrl}
-Valid until: ${formatDisplayDate(input.expiresAt)}
+Valid until: ${formatDisplayDate(input.expiresAt)}${monogramLine}
 
 Please open the link above, enter the issued reference code, complete the destination record, and confirm payment within the same page.
 
@@ -144,10 +186,24 @@ function buildPowerShellSnippet(input: {
   expiresInHours: number;
   createdBy: string;
   specificationEntries: string[];
+  personalMonogram: {
+    enabled: boolean;
+    initials: string;
+    placement: string;
+    note: string;
+    fee: string;
+  };
 }) {
   const specFlags = input.specificationEntries
     .map((entry) => ` --spec "${escapePowerShellString(entry)}"`)
     .join("");
+  const monogramFlags = input.personalMonogram.enabled
+    ? ` --personal-monogram true --monogram-initials "${escapePowerShellString(input.personalMonogram.initials)}" --monogram-placement "${escapePowerShellString(input.personalMonogram.placement)}" --monogram-fee ${input.personalMonogram.fee || "0"}${
+        input.personalMonogram.note
+          ? ` --monogram-note "${escapePowerShellString(input.personalMonogram.note)}"`
+          : ""
+      }`
+    : "";
 
   return `$clientName = "${escapePowerShellString(input.clientName)}"
 $clientEmail = "${escapePowerShellString(input.clientEmail)}"
@@ -155,7 +211,7 @@ $clientPhone = "${escapePowerShellString(input.clientPhone)}"
 $country = "${escapePowerShellString(input.shippingCountry)}"
 $region = "${escapePowerShellString(input.shippingRegion)}"
 
-$output = npm run private-acquisition:create -- --product-name "${escapePowerShellString(input.productName)}" --client-name $clientName --client-email $clientEmail --client-phone $clientPhone --subtotal ${input.subtotal} --shipping ${input.shipping} --currency ${input.currency} --quantity ${input.quantity} --shipping-country $country --shipping-region $region --expires-in-hours ${input.expiresInHours} --created-by "${escapePowerShellString(input.createdBy)}"${specFlags}
+$output = npm run private-acquisition:create -- --product-name "${escapePowerShellString(input.productName)}" --client-name $clientName --client-email $clientEmail --client-phone $clientPhone --subtotal ${input.subtotal} --shipping ${input.shipping} --currency ${input.currency} --quantity ${input.quantity} --shipping-country $country --shipping-region $region --expires-in-hours ${input.expiresInHours} --created-by "${escapePowerShellString(input.createdBy)}"${specFlags}${monogramFlags}
 
 $output
 
@@ -227,6 +283,33 @@ async function handleSaleStatus(request: Request, body: StatusPayload) {
   });
 }
 
+async function handleRecordDelivery(request: Request, body: DeliveryPayload) {
+  const owner = await requireHouseLedgerOwner(request);
+  const saleId = normalizeInlineText(body.saleId);
+
+  if (!saleId) {
+    return createHouseLedgerResponse(
+      {
+        success: false,
+        error: "A sale id is required before delivery can be recorded.",
+      },
+      400,
+    );
+  }
+
+  const sale = await recordHouseLedgerDelivery({
+    saleId,
+    deliveryReference: body.deliveryReference,
+    deliveryNote: body.deliveryNote,
+    recordedBy: owner.email,
+  });
+
+  return createHouseLedgerResponse({
+    success: true,
+    sale,
+  });
+}
+
 async function handleIssueAcquisition(request: Request, body: IssueRequestBody) {
   await requireHouseLedgerOwner(request);
 
@@ -245,6 +328,15 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
   const specificationInput = String(body.specifications || "");
   const { entries: specificationEntries, invalidEntries, productSnapshot } =
     parseSpecifications(specificationInput);
+  const personalMonogramEnabled = parseBooleanFlag(body.personalMonogramEnabled);
+  const personalMonogramInitials = normalizeMonogramInitials(
+    body.personalMonogramInitials,
+  );
+  const personalMonogramPlacement = normalizeMonogramPlacement(
+    body.personalMonogramPlacement,
+  );
+  const personalMonogramNote = normalizeInlineText(body.personalMonogramNote);
+  const personalMonogramFee = normalizeInlineText(body.personalMonogramFee);
 
   const fieldErrors: Record<string, string> = {};
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -295,6 +387,7 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
 
   let subtotalAmount = 0;
   let shippingAmount = 0;
+  let personalMonogramFeeAmount = 0;
 
   try {
     subtotalAmount = parseMajorAmount(subtotal || "0", currency);
@@ -306,6 +399,30 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
     shippingAmount = parseMajorAmount(shipping || "0", currency);
   } catch {
     fieldErrors.shipping = "Enter a valid shipping amount.";
+  }
+
+  if (personalMonogramEnabled) {
+    if (
+      personalMonogramInitials.length < 1 ||
+      personalMonogramInitials.length > 3
+    ) {
+      fieldErrors.personalMonogramInitials =
+        "Personal Monogram initials must remain between one and three characters.";
+    }
+
+    try {
+      personalMonogramFeeAmount = parseMajorAmount(
+        personalMonogramFee || "0",
+        currency,
+      );
+      if (personalMonogramFeeAmount < 0) {
+        fieldErrors.personalMonogramFee =
+          "Personal Monogram fee cannot be negative.";
+      }
+    } catch {
+      fieldErrors.personalMonogramFee =
+        "Enter a valid Personal Monogram fee amount.";
+    }
   }
 
   if (Object.keys(fieldErrors).length) {
@@ -320,7 +437,20 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
   }
 
   const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
-  const totalAmount = subtotalAmount + shippingAmount;
+  const totalAmount = subtotalAmount + shippingAmount + personalMonogramFeeAmount;
+  const personalMonogram = personalMonogramEnabled
+    ? {
+        enabled: true,
+        initials: personalMonogramInitials,
+        placement: personalMonogramPlacement,
+        note: personalMonogramNote || null,
+        feeAmount: personalMonogramFeeAmount,
+        currency,
+        finish: "Tonal deboss",
+      }
+    : {
+        enabled: false,
+      };
   const result = await createPrivateAcquisitionSession({
     clientName,
     clientEmail,
@@ -330,6 +460,25 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
     orderSnapshot: {
       issuedFollowing: "Direct correspondence",
       housePreparedAt: new Date().toISOString(),
+      personalMonogram,
+      priceLines: [
+        {
+          label: productName,
+          amount: subtotalAmount,
+        },
+        {
+          label: "Private allocation and fulfillment",
+          amount: shippingAmount,
+        },
+        ...(personalMonogramEnabled
+          ? [
+              {
+                label: "Personal Monogram",
+                amount: personalMonogramFeeAmount,
+              },
+            ]
+          : []),
+      ],
     },
     quantity,
     currency,
@@ -354,6 +503,7 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
       referenceCode: result.referenceCode,
       privateUrl: result.privateUrl,
       expiresAt: result.expiresAt,
+      personalMonogram,
     }),
     powerShellSnippet: buildPowerShellSnippet({
       clientName,
@@ -369,6 +519,13 @@ async function handleIssueAcquisition(request: Request, body: IssueRequestBody) 
       expiresInHours,
       createdBy,
       specificationEntries,
+      personalMonogram: {
+        enabled: personalMonogramEnabled,
+        initials: personalMonogramInitials,
+        placement: personalMonogramPlacement,
+        note: personalMonogramNote,
+        fee: personalMonogramFee || "0",
+      },
     }),
   });
 }
@@ -409,6 +566,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as
       | ReadPayload
       | StatusPayload
+      | DeliveryPayload
       | IssueRequestBody;
     const action = normalizeInlineText(body.action).toLowerCase();
 
@@ -418,6 +576,10 @@ export async function POST(request: Request) {
 
     if (action === "sale-status") {
       return await handleSaleStatus(request, body as StatusPayload);
+    }
+
+    if (action === "record-delivery") {
+      return await handleRecordDelivery(request, body as DeliveryPayload);
     }
 
     if (action === "issue-acquisition") {

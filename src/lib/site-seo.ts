@@ -4,6 +4,7 @@ export type SiteRoute =
   | "/object-record"
   | "/acquisition"
   | "/private-acquisition"
+  | "/private-commission"
   | "/house-ledger"
   | "/waitlist"
   | "/contact"
@@ -68,6 +69,14 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
       "Issued private acquisition sessions are validated and completed inside a controlled Praeliator payment chamber.",
     image: defaultImage,
     canonicalPath: "/private-acquisition",
+    robots: "noindex, nofollow",
+  },
+  "/private-commission": {
+    title: "Private Commission | Praeliator",
+    description:
+      "Private Commission requests allow select Praeliator clients to enter a controlled review process for individually prepared glove sets.",
+    image: `${siteOrigin}/images/vis-logo-detail.jpg`,
+    canonicalPath: "/private-commission",
     robots: "noindex, nofollow",
   },
   "/house-ledger": {

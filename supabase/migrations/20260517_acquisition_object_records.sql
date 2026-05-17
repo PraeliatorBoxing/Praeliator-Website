@@ -13,8 +13,12 @@ create table if not exists public.acquisition_object_records (
   destination_snapshot jsonb not null default '{}'::jsonb,
   product_snapshot jsonb not null default '{}'::jsonb,
   order_snapshot jsonb not null default '{}'::jsonb,
+  personalization_snapshot jsonb not null default '{}'::jsonb,
   paid_at timestamptz,
   delivery_recorded_at timestamptz,
+  delivery_reference text,
+  delivery_note text,
+  delivery_recorded_by text,
   legacy_refresh_eligible_on timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
@@ -27,3 +31,14 @@ create index if not exists acquisition_object_records_delivery_idx
   on public.acquisition_object_records (delivery_recorded_at desc);
 
 alter table public.acquisition_object_records enable row level security;
+
+drop policy if exists acquisition_object_records_owner_select
+  on public.acquisition_object_records;
+
+create policy acquisition_object_records_owner_select
+  on public.acquisition_object_records
+  for select
+  to authenticated
+  using (
+    lower(client_email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
