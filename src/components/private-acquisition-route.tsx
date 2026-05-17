@@ -1430,7 +1430,7 @@ export function PrivateAcquisitionRoute({
                     <div className="mt-8 grid gap-3 sm:grid-cols-2">
                       <div className="rounded-[1.6rem] border border-[#d8c3aa] bg-[#f8f2ea] p-5">
                         <p className="text-[11px] uppercase tracking-[0.24em] text-[#9a7a5b]">
-                          Object
+                          Object line
                         </p>
                         <p className="mt-3 text-lg text-[#241912]">
                           {stateResponse.session.productName}
@@ -1448,6 +1448,30 @@ export function PrivateAcquisitionRoute({
                         </p>
                       </div>
                     </div>
+                    <div className="mt-5 grid gap-3 border-y border-[#d8c3aa] py-5 sm:grid-cols-4">
+                      {[
+                        ["01", "Settlement retained"],
+                        ["02", "Ledger entry created"],
+                        ["03", "Delivery prepared"],
+                        ["04", "Aftercare clock begins at recorded delivery"],
+                      ].map(([step, label]) => (
+                        <div key={step} className="border-t border-[#e7d8c7] pt-3 first:border-t-0 sm:border-l sm:border-t-0 sm:pl-4 sm:first:border-l-0 sm:first:pl-0">
+                          <p className="text-[10px] uppercase tracking-[0.24em] text-[#9a7a5b]">
+                            {step}
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-[#4d3c30]">
+                            {label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5f4b3c]">
+                      The pair is not treated as a completed checkout. It now
+                      continues as a retained object line: payment confirmed,
+                      destination preserved, delivery prepared, and future
+                      Legacy Refresh governed by the delivery date recorded by
+                      the house.
+                    </p>
                   </motion.div>
                 ) : stateResponse.state === "revoked" ||
                   stateResponse.state === "expired" ? (

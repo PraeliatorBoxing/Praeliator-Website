@@ -670,6 +670,7 @@ type AcquisitionWhatsAppErrors = Partial<
 type Route =
   | "/"
   | "/praeliator-vis"
+  | "/object-record"
   | "/acquisition"
   | "/private-acquisition"
   | "/house-ledger"
@@ -758,6 +759,7 @@ const acquisitionWhatsAppRequiredFields: AcquisitionWhatsAppFieldName[] = [
 const routeTitles: Record<Route, string> = {
   "/": "Home",
   "/praeliator-vis": "Praeliator VIS",
+  "/object-record": "Object Record",
   "/acquisition": "Acquisition",
   "/private-acquisition": "Private Acquisition",
   "/house-ledger": "House Ledger",
@@ -777,6 +779,7 @@ const routeTitles: Record<Route, string> = {
 const routeMicroLabels: Record<Route, string> = {
   "/": "",
   "/praeliator-vis": "VIS",
+  "/object-record": "OBJECT RECORD",
   "/acquisition": "ACQUISITION",
   "/private-acquisition": "PRIVATE",
   "/house-ledger": "LEDGER",
@@ -795,6 +798,7 @@ const routeMicroLabels: Record<Route, string> = {
 };
 const navItems: Array<{ label: string; path: Route }> = [
   { label: "VIS", path: "/praeliator-vis" },
+  { label: "Object Record", path: "/object-record" },
   { label: "Acquisition", path: "/acquisition" },
   { label: "Waitlist", path: "/waitlist" },
   { label: "Contact", path: "/contact" },
@@ -1121,6 +1125,62 @@ const conservationDoctrine = [
   {
     title: "Refresh",
     text: "Legacy Refresh opens only when the recorded age and service posture justify review.",
+  },
+];
+const objectRecordStandards = [
+  {
+    label: "No open cart",
+    text: "Praeliator does not ask the client to behave like a shopper. Acquisition begins through correspondence and issue.",
+  },
+  {
+    label: "No discount theater",
+    text: "The house does not use urgency mechanics, public inventory pressure, or promotional noise to make the object feel valuable.",
+  },
+  {
+    label: "Recorded object",
+    text: "A paid acquisition creates an internal object line before it becomes a delivery event.",
+  },
+  {
+    label: "Delivery governs age",
+    text: "Legacy Refresh remains tied to recorded delivery, not the payment date and not the registration date.",
+  },
+];
+const acquisitionRitualSteps = [
+  { label: "Inquiry received", value: "The client enters direct correspondence." },
+  { label: "Allocation reviewed", value: "The house decides whether an issue route should open." },
+  { label: "Private page issued", value: "A tokenized link and reference code are prepared for one client line." },
+  { label: "Destination retained", value: "Delivery details are recorded before payment can open." },
+  { label: "Settlement confirmed", value: "Payment creates a sale line and an object record." },
+  { label: "Delivery recorded", value: "Fulfillment starts the aftercare and Legacy Refresh clock." },
+];
+const personalMonogramRules = [
+  { label: "Characters", value: "Initials only, maximum 2-3 characters." },
+  { label: "Finish", value: "Tonal deboss only. No color fill, symbols, emojis, or external marks." },
+  { label: "Placement", value: "One glove, both gloves, leather case, or gloves and case, inside approved positions only." },
+  { label: "Pricing posture", value: "One flat personalization fee for the set, not microcharges per placement." },
+];
+const privateCommissionRules = [
+  { label: "Approval", value: "Every commission is subject to house review before quote or production." },
+  { label: "Scope", value: "Approved tones, special case treatment, interior detail, inscription, or edition line may be considered." },
+  { label: "Boundary", value: "No cartoon graphics, loud logos, flags over the glove, cheap metallic printing, or requests that dilute the house." },
+  { label: "Commercial form", value: "Quoted individually from 12,000 MXN, with deposit before production." },
+];
+const boxingVisionMarks = [
+  {
+    label: "Myth",
+    text: "Boxing is introduced as form, not violence.",
+  },
+  {
+    label: "Movement",
+    text: "Praeliator should make beginning boxing feel noble, controlled, and desirable.",
+  },
+  {
+    label: "Ritual",
+    text: "The first wrap, stance, round, glove, and lesson should feel like entry into discipline.",
+  },
+  {
+    label: "Artifact",
+    text: "The glove becomes the object that carries that discipline into ownership.",
   },
 ];
 const certificatePreviewFields = [
@@ -3057,6 +3117,7 @@ function normalizePath(pathname: string): Route {
   if (
     clean === "/" ||
     clean === "/praeliator-vis" ||
+    clean === "/object-record" ||
     clean === "/acquisition" ||
     clean === "/private-acquisition" ||
     clean === "/house-ledger" ||
@@ -7892,8 +7953,8 @@ export default function PraeliatorWebsite() {
   const supplementalRouteTitles = useMemo(
     () =>
       ({
-        en: { "/faq": "FAQ", "/privacy-notice": "Privacy Notice" },
-        es: { "/faq": "Preguntas", "/privacy-notice": "Privacidad" },
+        en: { "/faq": "FAQ", "/privacy-notice": "Privacy Notice", "/object-record": "Object Record" },
+        es: { "/faq": "Preguntas", "/privacy-notice": "Privacidad", "/object-record": "Registro del Objeto" },
         ja: { "/faq": "FAQ", "/privacy-notice": "プライバシー" },
         fr: { "/faq": "FAQ", "/privacy-notice": "Confidentialité" },
       })[locale],
@@ -7958,6 +8019,11 @@ export default function PraeliatorWebsite() {
           label: copy.nav.vis,
           path: "/praeliator-vis" as Route,
           meta: copy.navMeta.vis,
+        },
+        {
+          label: localizedRouteTitles["/object-record"],
+          path: "/object-record" as Route,
+          meta: localizedRouteMicroLabels["/object-record"],
         },
         {
           label: copy.nav.acquisition,
@@ -10203,6 +10269,215 @@ export default function PraeliatorWebsite() {
                     {waitlistCopy.joinWaitlist}
                   </Button>
                 </div>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+    </>
+  );
+
+  const renderObjectRecordPage = () => (
+    <>
+      <section className="relative isolate overflow-hidden bg-[#040404]">
+        <div className="absolute inset-0">
+          <MediaSurface
+            src={visImageSources.packaging}
+            alt="Praeliator VIS object record"
+            video={homeCinematicMedia.ownership.video}
+            className="h-full min-h-[100svh] rounded-none border-0 shadow-none"
+            dim="heavy"
+          />
+        </div>
+        <Container className="relative z-10 flex min-h-[100svh] items-end pb-14 pt-32 sm:pb-18 lg:pb-24">
+          <Reveal className="max-w-[68rem]">
+            <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
+              The Object Record
+            </p>
+            <h1 className="mt-5 max-w-[12ch] text-[clamp(3.2rem,8vw,8rem)] font-semibold leading-[0.88] tracking-[-0.068em] text-[#f4efe7]">
+              Proof before persuasion.
+            </h1>
+            <p className="mt-7 max-w-3xl text-sm leading-7 text-white/66 sm:text-base sm:leading-8">
+              Praeliator should make boxing feel beautiful enough to begin and serious enough to remain. The glove is the artifact; the record is the proof that acquisition, delivery, ownership, and aftercare belong to one house system.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button
+                type="button"
+                onClick={() => goTo("/praeliator-vis")}
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+              >
+                View VIS
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => goTo("/acquisition")}
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+              >
+                Begin Inquiry
+              </Button>
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="bg-[#070605] py-16 sm:py-20 lg:py-24">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+            <Reveal>
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+                Strategic thesis
+              </p>
+              <h2 className="mt-5 max-w-[10ch] text-[clamp(2.8rem,6vw,5.7rem)] font-semibold leading-[0.88] tracking-[-0.066em] text-[#f4efe7]">
+                Boxing is not violence. Boxing is form.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <div className="border-y border-white/10 py-6">
+                <p className="max-w-3xl text-base leading-8 text-white/66 sm:text-lg sm:leading-9">
+                  Praeliator is being built to make boxing desirable to begin. The glove is not positioned as a weapon or a gym object. It is an instrument of rhythm, patience, control, and self-command.
+                </p>
+                <div className="mt-8">
+                  <QuietEditorialMatrix columns={2} items={boxingVisionMarks} />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-[#0a0807] py-12 sm:py-16 lg:py-20">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+            <Reveal>
+              <MediaSurface
+                src={visImageSources.leather}
+                alt="Praeliator material evidence"
+                video={homeCinematicMedia.material.video}
+                className="min-h-[26rem] rounded-none border-y border-white/10 shadow-none"
+                dim="light"
+                priorityCopy={
+                  <div className="max-w-[34rem]">
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b]">
+                      Evidence plate
+                    </p>
+                    <p className="mt-4 text-[clamp(2.2rem,5vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7]">
+                      Material, line, and record must carry the claim.
+                    </p>
+                  </div>
+                }
+              />
+            </Reveal>
+            <Reveal delay={0.08}>
+              <div className="lg:pt-8">
+                <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+                  House standards
+                </p>
+                <h2 className="mt-5 max-w-[10ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
+                  The house defines what it will not do.
+                </h2>
+                <div className="mt-8">
+                  <QuietEditorialMatrix columns={2} items={objectRecordStandards} />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-[#080707] py-14 sm:py-18 lg:py-24">
+        <Container>
+          <Reveal className="max-w-4xl">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+              Acquisition ritual
+            </p>
+            <h2 className="mt-5 max-w-[12ch] text-[clamp(2.6rem,5vw,5.2rem)] font-semibold leading-[0.9] tracking-[-0.064em] text-[#f4efe7]">
+              The sale becomes a line of custody.
+            </h2>
+          </Reveal>
+          <Reveal delay={0.08} className="mt-10">
+            <div className="grid gap-x-8 gap-y-0 border-y border-white/10 lg:grid-cols-3">
+              {acquisitionRitualSteps.map((step, index) => (
+                <div
+                  key={step.label}
+                  className="border-t border-white/10 py-6 first:border-t-0 lg:border-l lg:border-t-0 lg:px-6 lg:first:border-l-0"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <p className="mt-3 text-lg leading-7 text-[#f4efe7]">
+                    {step.label}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-white/58">
+                    {step.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </Container>
+      </section>
+
+      <section className="bg-[#130d09] py-14 text-[#f4efe7] sm:py-18 lg:py-24">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[0.86fr_1.14fr] lg:gap-16">
+            <Reveal>
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#d1b08f]">
+                Controlled personalization
+              </p>
+              <h2 className="mt-5 max-w-[10ch] text-[clamp(2.8rem,6vw,5.6rem)] font-semibold leading-[0.88] tracking-[-0.064em]">
+                Marked for the owner, never redesigned by the owner.
+              </h2>
+              <p className="mt-7 max-w-xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
+                Personal Monogram should feel like a prepared object, not an online customization menu. The house keeps control of type, size, placement, finish, and approval.
+              </p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <div className="grid gap-10 md:grid-cols-2">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#d1b08f]">
+                    Personal Monogram
+                  </p>
+                  <div className="mt-5">
+                    <DataList items={personalMonogramRules} compact />
+                  </div>
+                  <p className="mt-5 text-sm leading-7 text-white/58">
+                    Recommended commercial shape: one flat fee between MX$900 and MX$1,500 for the set. The strongest default placement is the leather case, with glove placement offered only inside approved positions.
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#d1b08f]">
+                    Private Commission
+                  </p>
+                  <div className="mt-5">
+                    <DataList items={privateCommissionRules} compact />
+                  </div>
+                  <p className="mt-5 text-sm leading-7 text-white/58">
+                    Commission should begin privately from MX$12,000 and remain quoted by complexity. It is not a cheaper route to color choice; it is a higher tier of house interpretation.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-[#050505] py-16 sm:py-20 lg:py-24">
+        <Container>
+          <Reveal>
+            <div className="grid gap-8 border-y border-white/10 py-10 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+                  Product ladder
+                </p>
+                <h2 className="mt-5 max-w-[12ch] text-[clamp(2.7rem,5vw,5rem)] font-semibold leading-[0.9] tracking-[-0.064em] text-[#f4efe7]">
+                  Standard, personalized, commissioned.
+                </h2>
+              </div>
+              <div className="grid gap-4 text-sm leading-7 text-white/62">
+                <p>Flagship VIS remains the center: MX$6,000 plus private allocation and fulfillment where applicable.</p>
+                <p>Personal Monogram adds a controlled ownership mark without changing the product language.</p>
+                <p>Private Commission remains selective, quoted, slower, and subject to house approval.</p>
               </div>
             </div>
           </Reveal>
@@ -16063,6 +16338,8 @@ const renderWaitlistPage = () => (
     switch (route) {
       case "/praeliator-vis":
         return renderMobileVisPage();
+      case "/object-record":
+        return renderObjectRecordPage();
       case "/acquisition":
         return renderMobileAcquisitionPage();
       case "/private-acquisition":
@@ -16133,6 +16410,8 @@ const renderWaitlistPage = () => (
     switch (route) {
       case "/praeliator-vis":
         return renderVisPage();
+      case "/object-record":
+        return renderObjectRecordPage();
       case "/acquisition":
         return renderAcquisitionPage();
       case "/private-acquisition":

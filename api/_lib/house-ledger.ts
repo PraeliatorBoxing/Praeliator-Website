@@ -1,4 +1,5 @@
 import { createClient, type User } from "@supabase/supabase-js";
+import { createHash } from "crypto";
 
 const HOUSE_LEDGER_ALLOWED_EMAILS_ENV = "HOUSE_LEDGER_ALLOWED_EMAILS";
 const FULFILLMENT_STATUSES = ["pending", "preparing", "fulfilled", "archived"] as const;
@@ -182,6 +183,113 @@ function buildSaleNotificationBody(sale: Record<string, unknown>) {
   return fragments.join(" · ");
 }
 
+function hashFragment(value: unknown, length = 8) {
+  return createHash("sha256")
+    .update(normalizeInlineText(value) || nowIso())
+    .digest("hex")
+    .slice(0, length)
+    .toUpperCase();
+}
+
+function buildObjectReference(session: Record<string, unknown>) {
+  return `OR-${hashFragment(`${session.id}:${session.reference_code}`, 10)}`;
+}
+
+function buildSerialNumber(session: Record<string, unknown>) {
+  const product = normalizeInlineText(session.product_name).toUpperCase();
+  const productCode = product.includes("VIS") ? "VIS" : "OBJ";
+  return `PR-${productCode}-${hashFragment(session.id, 6)}`;
+}
+
+function addOneYearIso(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setUTCFullYear(date.getUTCFullYear() + 1);
+  return date.toISOString();
+}
+
+function serializeObjectRecord(record: Record<string, unknown> | null | undefined) {
+  if (!record) return null;
+  return {
+    id: record.id,
+    objectReference: record.object_reference,
+    serialNumber: record.serial_number,
+    status: record.status,
+    deliveryRecordedAt: record.delivery_recorded_at,
+    legacyRefreshEligibleOn: record.legacy_refresh_eligible_on,
+  };
+}
+
+async function upsertObjectRecordFromSession(input: {
+  sale: Record<string, unknown>;
+  session: Record<string, unknown>;
+}) {
+  const { sale, session } = input;
+  const supabase = createSupabaseAdmin();
+  const resolvedDelivery = getResolvedDeliveryDetails(session);
+  const timestamp = nowIso();
+  const fulfillmentStatus = normalizeInlineText(sale.fulfillment_status);
+  const deliveryRecordedAt =
+    fulfillmentStatus === "fulfilled"
+      ? normalizeInlineText(sale.delivery_recorded_at) || timestamp
+      : null;
+  const legacyRefreshEligibleOn =
+    deliveryRecordedAt && fulfillmentStatus === "fulfilled"
+      ? addOneYearIso(deliveryRecordedAt)
+      : null;
+
+  const payload = {
+    private_acquisition_session_id: String(session.id),
+    sale_id: String(sale.id),
+    object_reference: buildObjectReference(session),
+    serial_number: buildSerialNumber(session),
+    product_name: normalizeInlineText(session.product_name),
+    client_name: resolvedDelivery.clientName,
+    client_email: resolvedDelivery.clientEmail,
+    status:
+      fulfillmentStatus === "fulfilled"
+        ? "delivery_recorded"
+        : fulfillmentStatus === "preparing"
+          ? "preparing"
+          : fulfillmentStatus === "archived"
+            ? "archived"
+            : "paid_recorded",
+    destination_snapshot: {
+      country: resolvedDelivery.shippingCountry,
+      region: resolvedDelivery.shippingRegion,
+      city: resolvedDelivery.shippingCity,
+      postalCode: resolvedDelivery.shippingPostalCode,
+      addressLine1: resolvedDelivery.shippingAddressLine1,
+      addressLine2: resolvedDelivery.shippingAddressLine2,
+      recipientName: resolvedDelivery.shippingRecipientName,
+      deliveryNotes: resolvedDelivery.shippingDeliveryNotes,
+    },
+    product_snapshot:
+      session.product_snapshot && typeof session.product_snapshot === "object"
+        ? session.product_snapshot
+        : {},
+    order_snapshot:
+      session.order_snapshot && typeof session.order_snapshot === "object"
+        ? session.order_snapshot
+        : {},
+    paid_at: normalizeInlineText(session.paid_at) || normalizeInlineText(sale.paid_at) || null,
+    delivery_recorded_at: deliveryRecordedAt,
+    legacy_refresh_eligible_on: legacyRefreshEligibleOn,
+    updated_at: timestamp,
+  };
+
+  const { data, error } = await supabase
+    .from("acquisition_object_records")
+    .upsert(payload, {
+      onConflict: "private_acquisition_session_id",
+    })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 function toOwnerRecord(user: User) {
   return {
     id: user.id,
@@ -307,6 +415,8 @@ export async function syncHouseLedgerSaleFromSession(input: {
 
   if (saleError) throw saleError;
 
+  const objectRecord = await upsertObjectRecordFromSession({ sale, session });
+
   const notificationTimestamp = nowIso();
   const notificationEventKey = `sale-paid:${String(session.id)}`;
   const { error: notificationError } = await supabase
@@ -321,6 +431,8 @@ export async function syncHouseLedgerSaleFromSession(input: {
         payload: {
           saleId: sale.id,
           saleReference: sale.sale_reference,
+          objectReference: objectRecord.object_reference,
+          serialNumber: objectRecord.serial_number,
           productName: sale.product_name,
           totalAmount: sale.total_amount,
           currency: sale.currency,
@@ -342,7 +454,10 @@ export async function syncHouseLedgerSaleFromSession(input: {
 
   if (syncError) throw syncError;
 
-  return sale;
+  return {
+    ...sale,
+    objectRecord,
+  };
 }
 
 export async function getHouseLedgerState() {
@@ -369,6 +484,21 @@ export async function getHouseLedgerState() {
   if (notificationsError) throw notificationsError;
 
   const summary = Array.isArray(summaryRows) && summaryRows[0] ? summaryRows[0] : null;
+  const saleIds = (sales || []).map((sale) => sale.id).filter(Boolean);
+  const { data: objectRecords, error: objectRecordsError } = saleIds.length
+    ? await supabase
+        .from("acquisition_object_records")
+        .select(
+          "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+        )
+        .in("sale_id", saleIds)
+    : { data: [], error: null };
+
+  if (objectRecordsError) throw objectRecordsError;
+
+  const objectRecordBySaleId = new Map(
+    (objectRecords || []).map((record) => [record.sale_id, record]),
+  );
 
   return {
     stats: {
@@ -398,6 +528,7 @@ export async function getHouseLedgerState() {
       shippingRegion: sale.shipping_region,
       shippingCity: sale.shipping_city,
       fulfillmentStatus: sale.fulfillment_status,
+      objectRecord: serializeObjectRecord(objectRecordBySaleId.get(sale.id)),
       paidAt: sale.paid_at,
       createdAt: sale.created_at,
     })),
@@ -462,11 +593,102 @@ export async function updateHouseLedgerSaleStatus(input: {
     })
     .eq("id", input.saleId)
     .select(
-      "id, sale_reference, client_name, client_email, product_name, currency, total_amount, amount_received, quantity, shipping_country, shipping_region, shipping_city, fulfillment_status, paid_at, created_at",
+      "id, private_acquisition_session_id, sale_reference, client_name, client_email, product_name, currency, total_amount, amount_received, quantity, shipping_country, shipping_region, shipping_city, fulfillment_status, paid_at, created_at",
     )
     .single();
 
   if (error) throw error;
+
+  const { data: existingRecord, error: existingRecordError } = await supabase
+    .from("acquisition_object_records")
+    .select(
+      "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+    )
+    .eq("sale_id", data.id)
+    .maybeSingle();
+
+  if (existingRecordError) throw existingRecordError;
+
+  let objectRecord = existingRecord;
+
+  if (existingRecord) {
+    const mappedStatus =
+      input.fulfillmentStatus === "fulfilled"
+        ? "delivery_recorded"
+        : input.fulfillmentStatus === "archived"
+          ? "archived"
+          : input.fulfillmentStatus === "preparing"
+            ? "preparing"
+            : "paid_recorded";
+
+    const shouldRecordDelivery =
+      input.fulfillmentStatus === "fulfilled" &&
+      !normalizeInlineText(existingRecord.delivery_recorded_at);
+    const deliveryRecordedAt = shouldRecordDelivery
+      ? timestamp
+      : normalizeInlineText(existingRecord.delivery_recorded_at) || null;
+    const legacyRefreshEligibleOn =
+      deliveryRecordedAt && input.fulfillmentStatus === "fulfilled"
+        ? normalizeInlineText(existingRecord.legacy_refresh_eligible_on) ||
+          addOneYearIso(deliveryRecordedAt)
+        : normalizeInlineText(existingRecord.legacy_refresh_eligible_on) || null;
+
+    const { data: updatedRecord, error: recordError } = await supabase
+      .from("acquisition_object_records")
+      .update({
+        status: mappedStatus,
+        delivery_recorded_at: deliveryRecordedAt,
+        legacy_refresh_eligible_on: legacyRefreshEligibleOn,
+        updated_at: timestamp,
+      })
+      .eq("id", existingRecord.id)
+      .select(
+        "id, sale_id, object_reference, serial_number, status, delivery_recorded_at, legacy_refresh_eligible_on",
+      )
+      .single();
+
+    if (recordError) throw recordError;
+    objectRecord = updatedRecord;
+
+    if (shouldRecordDelivery) {
+      const { error: notificationError } = await supabase
+        .from("house_ledger_notifications")
+        .upsert(
+          {
+            sale_id: data.id,
+            kind: "delivery_recorded",
+            event_key: `delivery-recorded:${existingRecord.id}`,
+            title: `Delivery recorded · ${existingRecord.serial_number}`,
+            body: [
+              data.client_name || "Private client",
+              data.product_name,
+              `Legacy Refresh opens ${formatPaidAtForLedger(legacyRefreshEligibleOn)}`,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+            payload: {
+              saleId: data.id,
+              objectReference: existingRecord.object_reference,
+              serialNumber: existingRecord.serial_number,
+              deliveryRecordedAt,
+              legacyRefreshEligibleOn,
+            },
+          },
+          { onConflict: "event_key" },
+        );
+
+      if (notificationError) throw notificationError;
+    }
+  } else if (data.private_acquisition_session_id) {
+    const { data: session, error: sessionError } = await supabase
+      .from("private_acquisition_sessions")
+      .select("*")
+      .eq("id", data.private_acquisition_session_id)
+      .single();
+
+    if (sessionError) throw sessionError;
+    objectRecord = await upsertObjectRecordFromSession({ sale: data, session });
+  }
 
   return {
     id: data.id,
@@ -482,6 +704,7 @@ export async function updateHouseLedgerSaleStatus(input: {
     shippingRegion: data.shipping_region,
     shippingCity: data.shipping_city,
     fulfillmentStatus: data.fulfillment_status,
+    objectRecord: serializeObjectRecord(objectRecord),
     paidAt: data.paid_at,
     createdAt: data.created_at,
   };

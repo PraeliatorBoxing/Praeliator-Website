@@ -78,6 +78,7 @@ export const siteCopy = {
     routeTitles: {
       "/": "Home",
       "/praeliator-vis": "Praeliator VIS",
+      "/object-record": "Object Record",
       "/acquisition": "Acquisition",
       "/private-acquisition": "Private Acquisition",
       "/house-ledger": "House Ledger",
@@ -95,6 +96,7 @@ export const siteCopy = {
     routeMicroLabels: {
       "/": "",
       "/praeliator-vis": "VIS",
+      "/object-record": "OBJECT RECORD",
       "/acquisition": "ACQUISITION",
       "/private-acquisition": "PRIVATE",
       "/house-ledger": "LEDGER",

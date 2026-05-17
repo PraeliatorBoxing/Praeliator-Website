@@ -117,15 +117,17 @@ function buildPreparedNotice(input: {
   privateUrl: string;
   expiresAt: string;
 }) {
-  return `Your private acquisition page has been prepared.
+  return `Your private Praeliator acquisition page has been issued.
 
 Reference code: ${input.referenceCode}
 Private acquisition link: ${input.privateUrl}
 Valid until: ${formatDisplayDate(input.expiresAt)}
 
-Please open the link above, enter the issued reference code, complete the delivery details, and proceed to payment within the same page.
+Please open the link above, enter the issued reference code, complete the destination record, and confirm payment within the same page.
 
-Should anything require further clarification, please let us know.`;
+Once settlement is confirmed, the object line enters the house ledger. Delivery, ownership continuity, and future aftercare remain attached to that same record.
+
+Should anything require further clarification, the house will continue directly.`;
 }
 
 function buildPowerShellSnippet(input: {
@@ -162,15 +164,17 @@ $url = ($output | Select-String 'Private URL\\s*:\\s*(.+)$').Matches[0].Groups[1
 $expires = ($output | Select-String 'Expires at\\s*:\\s*(.+)$').Matches[0].Groups[1].Value.Trim()
 
 @"
-Your private acquisition page has been prepared.
+Your private Praeliator acquisition page has been issued.
 
 Reference code: $reference
 Private acquisition link: $url
 Valid until: $expires
 
-Please open the link above, enter the issued reference code, complete the delivery details, and proceed to payment within the same page.
+Please open the link above, enter the issued reference code, complete the destination record, and confirm payment within the same page.
 
-Should anything require further clarification, please let us know.
+Once settlement is confirmed, the object line enters the house ledger. Delivery, ownership continuity, and future aftercare remain attached to that same record.
+
+Should anything require further clarification, the house will continue directly.
 "@`;
 }
 

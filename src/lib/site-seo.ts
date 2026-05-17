@@ -1,6 +1,7 @@
 export type SiteRoute =
   | "/"
   | "/praeliator-vis"
+  | "/object-record"
   | "/acquisition"
   | "/private-acquisition"
   | "/house-ledger"
@@ -45,6 +46,14 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     image: `${siteOrigin}/images/vis-hero.jpg`,
     canonicalPath: "/praeliator-vis",
     keywords: ["Praeliator VIS", "luxury boxing gloves", "training gloves"],
+  },
+  "/object-record": {
+    title: "The Object Record | Praeliator",
+    description:
+      "The Praeliator object record explains VIS evidence, private acquisition, ownership continuity, controlled personalization, and future aftercare.",
+    image: `${siteOrigin}/images/vis-packaging.jpg`,
+    canonicalPath: "/object-record",
+    keywords: ["Praeliator object record", "boxing as form", "personal monogram"],
   },
   "/acquisition": {
     title: "Private Acquisition | Praeliator",
@@ -206,6 +215,29 @@ export function getSiteSchema(route: SiteRoute) {
         availability: "https://schema.org/LimitedAvailability",
         url: getCanonicalUrl(metadata.canonicalPath),
       },
+    });
+  }
+
+  if (route === "/object-record") {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "The Object Record",
+      description: metadata.description,
+      image: metadata.image,
+      author: {
+        "@type": "Organization",
+        name: "Praeliator",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Praeliator",
+        logo: {
+          "@type": "ImageObject",
+          url: `${siteOrigin}/logo-header.png`,
+        },
+      },
+      mainEntityOfPage: getCanonicalUrl(metadata.canonicalPath),
     });
   }
 

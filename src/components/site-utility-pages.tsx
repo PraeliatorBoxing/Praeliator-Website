@@ -58,6 +58,8 @@ const utilityPageCopy: Record<
         "How does private acquisition begin?",
         "Can I buy VIS through a public checkout?",
         "When does Legacy Refresh become available?",
+        "What is Personal Monogram?",
+        "What is Private Commission?",
       ],
       questionPlaceholder: "Ask a practical question about acquisition, ownership, or service.",
       askLabel: "Ask the house",
@@ -93,6 +95,16 @@ const utilityPageCopy: Record<
           question: "How are delivery details handled?",
           answer:
             "Delivery details are collected only after private access is verified and before payment is opened, so the route remains controlled from inquiry through fulfillment.",
+        },
+        {
+          question: "What is Personal Monogram?",
+          answer:
+            "Personal Monogram is a controlled initials service: small, tonal, debossed, and limited to approved placements. It marks the set for the owner without turning the glove into open customization.",
+        },
+        {
+          question: "What is Private Commission?",
+          answer:
+            "Private Commission is the higher private tier for approved special work. It is quoted individually, reviewed by the house, and kept inside Praeliator's design language rather than opened as an unlimited customization menu.",
         },
       ],
     },
@@ -468,6 +480,8 @@ const faqDirectLineCopy: Record<
       "How does private acquisition begin?",
       "Can I buy VIS through a public checkout?",
       "When does Legacy Refresh become available?",
+      "What is Personal Monogram?",
+      "What is Private Commission?",
     ],
     questionPlaceholder:
       "Write a practical question about acquisition, ownership, or service.",

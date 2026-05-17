@@ -58,6 +58,118 @@ const faqKnowledge: FaqKnowledgeEntry[] = [
     },
   },
   {
+    topic: "Praeliator mission and boxing as form",
+    keywords: [
+      "mission",
+      "vision",
+      "thesis",
+      "movement",
+      "boxing is form",
+      "boxing not violence",
+      "violence",
+      "form",
+      "discipline",
+      "begin boxing",
+      "start boxing",
+      "why boxing",
+      "beginner",
+      "student",
+      "instrument",
+      "ritual",
+      "myth",
+      "movement",
+      "artifact",
+      "status",
+      "mision",
+      "vision",
+      "disciplina",
+      "principiante",
+      "forme",
+      "discipline",
+    ],
+    answers: {
+      en: "For us, boxing is not violence. Boxing is form. The glove is an instrument, the ring is a test of rhythm and self-command, and the first lesson should feel like entry into a serious discipline. Our larger work is to make boxing beautiful enough to begin, not merely to sell equipment to those who already train.",
+      es: "Para nosotros, el boxeo no es violencia. El boxeo es forma. El guante es un instrumento, el ring prueba ritmo y autocontrol, y la primera clase debe sentirse como la entrada a una disciplina seria. El trabajo mayor es hacer que el boxeo se sienta bello y digno de comenzar, no solo vender equipo a quien ya entrena.",
+      ja: "For us, boxing is not violence. Boxing is form. The glove is an instrument, the ring tests rhythm and self-command, and the first lesson should feel like entry into a serious discipline. Our larger work is to make boxing beautiful enough to begin, not merely to sell equipment to those who already train.",
+      fr: "Pour nous, la boxe n'est pas la violence. La boxe est une forme. Le gant est un instrument, le ring eprouve le rythme et la maitrise de soi, et la premiere lecon doit ressembler a l'entree dans une discipline serieuse. Notre travail est de rendre la boxe assez belle pour commencer, non seulement de vendre de l'equipement a ceux qui s'entrainent deja.",
+    },
+  },
+  {
+    topic: "Personal Monogram",
+    keywords: [
+      "personal monogram",
+      "monogram",
+      "initials",
+      "pm",
+      "personalization",
+      "personalisation",
+      "custom initials",
+      "deboss",
+      "debossed",
+      "marked",
+      "leather case",
+      "initial",
+      "monograma",
+      "iniciales",
+      "personnalisation",
+    ],
+    answers: {
+      en: "Personal Monogram is a controlled ownership mark, not open customization. We would allow two or three initials, one fixed typeface, one fixed size, tonal deboss only, and approved placements on one glove, both gloves, the leather case, or the set. The correct commercial posture is one flat fee for the set, generally around MX$900 to MX$1,500, with no microcharges.",
+      es: "Personal Monogram es una marca controlada de propiedad, no personalizacion abierta. Permitiria dos o tres iniciales, una sola tipografia, un solo tamano, deboss tonal y posiciones aprobadas en un guante, ambos guantes, el estuche de piel o el set. La postura correcta es una tarifa plana por el set, usualmente entre MX$900 y MX$1,500, sin microcargos.",
+      ja: "Personal Monogram is a controlled ownership mark, not open customization. We would allow two or three initials, one fixed typeface, one fixed size, tonal deboss only, and approved placements on one glove, both gloves, the leather case, or the set. The correct posture is one flat fee for the set, generally around MX$900 to MX$1,500.",
+      fr: "Personal Monogram est une marque de propriete controlee, non une personnalisation ouverte. Nous accepterions deux ou trois initiales, une seule typographie, une seule taille, un debossage tonal et des emplacements approuves sur un gant, les deux gants, l'etui en cuir ou l'ensemble. La bonne posture commerciale est un forfait unique pour l'ensemble, generalement entre MX$900 et MX$1,500.",
+    },
+  },
+  {
+    topic: "Private Commission",
+    keywords: [
+      "private commission",
+      "commission",
+      "bespoke",
+      "custom glove",
+      "custom color",
+      "special order",
+      "limited edition",
+      "deposit",
+      "quote",
+      "quoted",
+      "bespoke service",
+      "commissioned",
+      "comision",
+      "bespoke",
+      "commande speciale",
+    ],
+    answers: {
+      en: "Private Commission is the higher private tier. It is not a menu where a client designs anything they want. The house reviews the request, accepts only work that belongs to the Praeliator language, prepares a controlled direction, quotes individually, and requires a deposit before production. The internal starting posture should be from MX$12,000, with more complex work quoted higher.",
+      es: "Private Commission es el nivel privado superior. No es un menu donde el cliente disena cualquier cosa. La casa revisa la solicitud, acepta solo trabajo que pertenezca al lenguaje de Praeliator, prepara una direccion controlada, cotiza individualmente y exige deposito antes de producir. La postura inicial debe partir desde MX$12,000, con trabajo complejo cotizado mas alto.",
+      ja: "Private Commission is the higher private tier. It is not a menu where a client designs anything they want. The house reviews the request, accepts only work that belongs to the Praeliator language, prepares a controlled direction, quotes individually, and requires a deposit before production. The internal starting posture should be from MX$12,000.",
+      fr: "Private Commission est le niveau prive superieur. Ce n'est pas un menu ou le client dessine tout ce qu'il veut. La maison examine la demande, n'accepte que ce qui appartient au langage Praeliator, prepare une direction controlee, etablit un devis individuel et demande un depot avant production. Le seuil interne devrait commencer autour de MX$12,000.",
+    },
+  },
+  {
+    topic: "Praeliator product ladder",
+    keywords: [
+      "product ladder",
+      "ladder",
+      "levels",
+      "pricing ladder",
+      "standard personalized commissioned",
+      "standard",
+      "personalized",
+      "commissioned",
+      "flagship",
+      "levels",
+      "escala",
+      "niveau",
+    ],
+    answers: {
+      en: "The clean ladder is standard, personalized, commissioned. First comes the flagship VIS set at MX$6,000. Then VIS with Personal Monogram as a controlled flat-fee ownership mark. Above that sits Private Commission, quoted individually from a higher threshold and subject to house approval. This lets the public product remain disciplined while private work carries the personal layer.",
+      es: "La escalera limpia es estandar, personalizado, comisionado. Primero esta el set VIS insignia en MX$6,000. Luego VIS con Personal Monogram como marca controlada de propiedad con tarifa plana. Por encima esta Private Commission, cotizada individualmente desde un umbral mas alto y sujeta a aprobacion de la casa.",
+      ja: "The clean ladder is standard, personalized, commissioned. First comes the flagship VIS set at MX$6,000. Then VIS with Personal Monogram as a controlled flat-fee ownership mark. Above that sits Private Commission, quoted individually from a higher threshold and subject to house approval.",
+      fr: "L'echelle est simple: standard, personnalise, commissionne. D'abord le set VIS a MX$6,000. Ensuite VIS avec Personal Monogram comme marque de propriete controlee a forfait. Au-dessus se trouve Private Commission, avec devis individuel depuis un seuil plus eleve et sous approbation de la maison.",
+    },
+  },
+  {
     topic: "Acquisition route",
     keywords: [
       "acquisition",
@@ -392,8 +504,14 @@ const brandDossier: Record<IntakeLocale, string> = {
   en: [
     "We are a private luxury boxing house.",
     "We regard boxing as an art form and the glove as a resolved object rather than ordinary equipment.",
+    "Our strategic thesis is that boxing is not violence; boxing is form.",
+    "The glove is an instrument of rhythm, patience, control, and self-command.",
+    "The larger mission is to make boxing beautiful and desirable to begin, not only to sell gloves to people who already train.",
     "Our flagship published object is Praeliator VIS, a recorded training pair.",
     "The published VIS line carries top-grain cowhide leather, restrained construction, rigid presentation, and controlled aftercare.",
+    "The public product ladder is standard VIS, VIS with Personal Monogram, and Private Commission.",
+    "Personal Monogram is a controlled initials service: two or three characters, one typeface, one size, tonal deboss, approved placements only, and one flat fee for the set.",
+    "Private Commission is a selective higher tier: house review, controlled direction, individual quote, deposit, longer lead time, and final house approval.",
     "Private acquisition begins by direct correspondence, not by public cart or open ecommerce flow.",
     "For approved clients, a private acquisition session may be issued with unique access, reference verification, destination details, and on-site payment.",
     "Our Ownership Record is the private client layer where registered pairs, recorded delivery age, and future service eligibility remain under one house line.",
@@ -440,7 +558,7 @@ const brandDossier: Record<IntakeLocale, string> = {
 };
 
 const unknownAnswer: Record<IntakeLocale, string> = {
-  en: "Within the published house record, we can answer directly on acquisition, VIS specifications, payment access, ownership, Legacy Refresh, delivery, privacy, and the broader Praeliator position. If you keep the question within those lines, we can continue here properly.",
+  en: "Within the published house record, we can answer directly on acquisition, VIS specifications, Personal Monogram, Private Commission, payment access, ownership, Legacy Refresh, delivery, privacy, and the broader Praeliator position. If you keep the question within those lines, we can continue here properly.",
   es: "Puedo responder sobre la ruta publicada de adquisición, especificaciones de VIS, acceso al pago, propiedad, Legacy Refresh, entrega y privacidad. Si preguntas dentro de una de esas líneas, puedo responder aquí mismo.",
   ja: "取得ルート、VIS の仕様、支払いアクセス、所有記録、Legacy Refresh、配送、プライバシーに関する公開情報にはここで回答できます。これらの範囲で尋ねていただければ、ここで直接お答えします。",
   fr: "Je peux répondre ici sur la voie publiée d'acquisition, les spécifications de VIS, l'accès au paiement, la propriété, Legacy Refresh, la livraison et la confidentialité. Si la question reste dans l'une de ces lignes, je peux répondre directement.",
@@ -570,8 +688,8 @@ export async function POST(request: Request) {
           "Speak as the house in first person. Never refer to Praeliator in the third person when answering. " +
           "Keep the tone restrained, exact, calm, private, and impeccably composed, with the manners of a discreet luxury house. Keep answers under 140 words. " +
           "Prefer elegant, confident phrasing such as 'For us' or calm declarative statements. Avoid business-strategy verbs like 'position', 'market', 'brand narrative', or 'we keep' when a more graceful phrasing is available. " +
-          "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully by stating what is known from the published route and where the public record stops. " +
-          "For questions about identity, quality, positioning, luxury, tone, object philosophy, craftsmanship, acquisition, ownership, service, delivery, privacy, or contact, answer directly from the dossier. " +
+          "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully from the house philosophy and state any boundary only when a concrete promise would require unpublished information. " +
+          "For questions about identity, quality, positioning, luxury, tone, object philosophy, craftsmanship, acquisition, ownership, service, delivery, privacy, contact, Personal Monogram, Private Commission, or why boxing should be desirable to begin, answer directly from the dossier. " +
           "Do not invent inventory counts, hidden policies, unpublished lead times, custom promises, or legal guarantees. " +
           "Do not mention AI, training data, or internal tooling. Avoid generic marketing phrases and avoid startup language.",
         input:

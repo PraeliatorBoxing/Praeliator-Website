@@ -35,6 +35,14 @@ type HouseLedgerSale = {
   shippingRegion?: string | null;
   shippingCity?: string | null;
   fulfillmentStatus: "pending" | "preparing" | "fulfilled" | "archived";
+  objectRecord?: {
+    id: string;
+    objectReference: string;
+    serialNumber: string;
+    status: string;
+    deliveryRecordedAt?: string | null;
+    legacyRefreshEligibleOn?: string | null;
+  } | null;
   paidAt?: string | null;
   createdAt?: string | null;
 };
@@ -1346,6 +1354,11 @@ export function HouseLedgerRoute({
                                 (sale.shippingRegion ? `, ${sale.shippingRegion}` : "")}
                             </p>
                             <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.22em] text-[#85684d]">
+                              {sale.objectRecord?.serialNumber ? (
+                                <span className="rounded-full border border-[#d6c4ad] px-3 py-2">
+                                  {sale.objectRecord.serialNumber}
+                                </span>
+                              ) : null}
                               <span className="rounded-full border border-[#d6c4ad] px-3 py-2">
                                 {formatMoney(sale.totalAmount, sale.currency)}
                               </span>
@@ -1356,6 +1369,18 @@ export function HouseLedgerRoute({
                                 {formatCompactDate(sale.paidAt)}
                               </span>
                             </div>
+                            {sale.objectRecord ? (
+                              <div className="mt-4 border-t border-[#e1d1bd] pt-4 text-sm leading-7 text-[#5d4a3b]">
+                                <p>
+                                  Object line {sale.objectRecord.objectReference} is retained under this sale.
+                                </p>
+                                <p className="mt-1">
+                                  {sale.objectRecord.deliveryRecordedAt
+                                    ? `Delivery recorded ${formatCompactDate(sale.objectRecord.deliveryRecordedAt)}. Legacy Refresh opens ${formatCompactDate(sale.objectRecord.legacyRefreshEligibleOn)}.`
+                                    : "Delivery has not been recorded yet; the aftercare clock remains sealed."}
+                                </p>
+                              </div>
+                            ) : null}
                           </div>
 
                           <div className="w-full max-w-[15rem]">
