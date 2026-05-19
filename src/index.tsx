@@ -101,17 +101,17 @@ const serviceStandards = [
   "Follow-up stays direct, private, and connected to future custody.",
 ];
 const visImageSources = {
-  hero: "/images/vis-hero.jpg",
-  leather: "/images/vis-leather.jpg",
-  plate: "/images/vis-logo-detail.jpg",
-  packaging: "/images/vis-packaging.jpg",
-  videoPoster: "/images/video-poster.jpg",
+  hero: "/images/vis-glove-hero.jpg",
+  leather: "/images/vis-leather-material-closeup.jpg",
+  plate: "/images/vis-logo-construction-detail.jpg",
+  packaging: "/images/vis-packaging-presentation.jpg",
+  videoPoster: "/images/homepage-secondary-video-poster.jpg",
 };
 const galleryImages = [
-  "/images/gallery-01.jpg",
-  "/images/gallery-03.jpg",
-  "/images/gallery-06.jpg",
-  "/images/gallery-09.jpg",
+  "/images/homepage-cinematic-hero-poster.jpg",
+  "/images/homepage-secondary-video-poster.jpg",
+  "/images/homepage-material-gallery-reference.jpg",
+  "/images/private-acquisition-presentation-poster.jpg",
 ];
 const homeImageSources = {
   hero: galleryImages[0],
@@ -120,28 +120,28 @@ const homeImageSources = {
   presentation: galleryImages[3],
 };
 const homeCinematicMedia = {
-  hero: { video: "/videos/home-hero.mp4", poster: homeImageSources.hero },
-  vis: { video: "/videos/home-vis.mp4", poster: visImageSources.hero },
+  hero: { video: "/videos/homepage-boxing-as-art-hero.mp4", poster: homeImageSources.hero },
+  vis: { video: "/videos/homepage-vis-flagship-glove.mp4", poster: visImageSources.hero },
   material: {
-    video: "/videos/home-material.mp4",
+    video: "/videos/vis-leather-material-study.mp4",
     poster: visImageSources.leather,
   },
   ownership: {
-    video: "/videos/home-ownership.mp4",
+    video: "/videos/ownership-record-packaging-archive.mp4",
     poster: visImageSources.packaging,
   },
   acquisition: {
-    video: "/videos/home-acquisition.mp4",
+    video: "/videos/private-acquisition-correspondence.mp4",
     poster: homeImageSources.presentation,
   },
 };
 const visPageMedia = {
   heroVideo: homeCinematicMedia.vis.video,
-  studyVideo: "/videos/vis-object-study.mp4",
+  studyVideo: "/videos/vis-product-object-study.mp4",
   materialVideo: homeCinematicMedia.material.video,
   ownershipVideo: homeCinematicMedia.ownership.video,
 };
-const customVideoLoaderIcon = "/images/video-loader.svg";
+const customVideoLoaderIcon = "/images/praeliator-video-loading-mark.svg";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const supabase =
@@ -155,13 +155,13 @@ const supabase =
       })
     : null;
 const brandAssetPaths = {
-  wordmark: "/logo-header.png",
-  ownershipFaviconMark: "/ownership-favicon-mark.png",
-  headerWordmark: "/wordmark-full.png",
-  headerMonogramMark: "/monogram-mark.svg",
-  headerLaurelMark: "/laurel-mark.svg",
-  headerWordmarkPCrop: "/wordmark-p-crop.png",
-  menuMiniLaurel: "/menu-mini-laurel.svg",
+  wordmark: "/praeliator-gold-monogram-logo.png",
+  ownershipFaviconMark: "/praeliator-ownership-record-seal.png",
+  headerWordmark: "/praeliator-gold-wordmark-full.png",
+  headerMonogramMark: "/praeliator-gold-monogram-mark.svg",
+  headerLaurelMark: "/praeliator-gold-laurel-mark.svg",
+  headerWordmarkPCrop: "/praeliator-gold-wordmark-full.png",
+  menuMiniLaurel: "/praeliator-menu-mini-laurel-mark.svg",
   monogram: {
     leftOuter: "/brand/monogram/leaf-left-outer.svg",
     leftUpper: "/brand/monogram/leaf-left-upper.svg",
@@ -3411,7 +3411,10 @@ function getVideoFallbackImage(video?: string, fallback?: string) {
 }
 
 function useMediaQueryFlag(query: string, fallback = false) {
-  const [matches, setMatches] = useState(fallback);
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return fallback;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -3423,6 +3426,50 @@ function useMediaQueryFlag(query: string, fallback = false) {
   }, [query]);
 
   return matches;
+}
+
+function useAutoplayRepair(
+  ref: React.RefObject<HTMLVideoElement | null>,
+  enabled: boolean,
+  source?: string,
+) {
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    const node = ref.current;
+    if (!node) return;
+
+    node.muted = true;
+    node.defaultMuted = true;
+    node.playsInline = true;
+
+    const attemptPlay = () => {
+      if (!ref.current) return;
+      ref.current.play().catch(() => undefined);
+    };
+
+    attemptPlay();
+    const retryEvents = ["loadedmetadata", "loadeddata", "canplay", "playing"];
+    retryEvents.forEach((eventName) =>
+      node.addEventListener(eventName, attemptPlay),
+    );
+    window.addEventListener("pageshow", attemptPlay);
+    document.addEventListener("visibilitychange", attemptPlay);
+    window.addEventListener("scroll", attemptPlay, { passive: true });
+    window.addEventListener("touchstart", attemptPlay, {
+      passive: true,
+      once: true,
+    });
+
+    return () => {
+      retryEvents.forEach((eventName) =>
+        node.removeEventListener(eventName, attemptPlay),
+      );
+      window.removeEventListener("pageshow", attemptPlay);
+      document.removeEventListener("visibilitychange", attemptPlay);
+      window.removeEventListener("scroll", attemptPlay);
+      window.removeEventListener("touchstart", attemptPlay);
+    };
+  }, [enabled, ref, source]);
 }
 
 function useMobileMediaActivation(enabled: boolean, rootMargin = "180px 0px") {
@@ -3483,6 +3530,8 @@ function MediaSurface({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!video);
   const [videoFailed, setVideoFailed] = useState(false);
+  const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   useEffect(() => {
     setMotionFallbackFailed(false);
@@ -3498,6 +3547,12 @@ function MediaSurface({
       !motionFallbackFailed &&
       (!shouldRenderVideo || !videoReady),
   );
+  useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
+  useAutoplayRepair(
+    fallbackVideoRef,
+    shouldRenderMotionFallback,
+    motionFallbackVideo,
+  );
   const fallbackImage = src;
   return (
     <div
@@ -3512,9 +3567,11 @@ function MediaSurface({
       />
       {shouldRenderVideo ? (
         <video
+          ref={primaryVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           poster={fallbackImage}
@@ -3529,9 +3586,11 @@ function MediaSurface({
       ) : null}
       {shouldRenderMotionFallback ? (
         <video
+          ref={fallbackVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           preload="auto"
@@ -3564,6 +3623,8 @@ function BackdropLoopVideo({
   const [videoReady, setVideoReady] = useState(!video);
   const [videoFailed, setVideoFailed] = useState(false);
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
+  const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   const motionFallbackVideo = videoPathToMotionFallbackPath(video);
 
@@ -3579,14 +3640,22 @@ function BackdropLoopVideo({
       !motionFallbackFailed &&
       (!shouldRenderVideo || !videoReady),
   );
+  useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
+  useAutoplayRepair(
+    fallbackVideoRef,
+    shouldRenderMotionFallback,
+    motionFallbackVideo,
+  );
 
   return (
     <>
       {shouldRenderVideo ? (
         <video
+          ref={primaryVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           preload={preload}
@@ -3601,9 +3670,11 @@ function BackdropLoopVideo({
       ) : null}
       {shouldRenderMotionFallback ? (
         <video
+          ref={fallbackVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           preload="auto"
@@ -4015,6 +4086,8 @@ function MobileHeroMediaBackdrop({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(!media.video);
   const [videoFailed, setVideoFailed] = useState(false);
+  const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(media.video) : media.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
@@ -4033,6 +4106,12 @@ function MobileHeroMediaBackdrop({
       !motionFallbackFailed &&
       (!shouldRenderVideo || !videoReady),
   );
+  useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
+  useAutoplayRepair(
+    fallbackVideoRef,
+    shouldRenderMotionFallback,
+    motionFallbackVideo,
+  );
   const fallbackImage = media.image;
 
   return (
@@ -4048,9 +4127,11 @@ function MobileHeroMediaBackdrop({
       />
       {shouldRenderVideo ? (
         <video
+          ref={primaryVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           poster={fallbackImage}
@@ -4065,9 +4146,11 @@ function MobileHeroMediaBackdrop({
       ) : null}
       {shouldRenderMotionFallback ? (
         <video
+          ref={fallbackVideoRef}
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
+          defaultMuted
           loop
           playsInline
           preload="auto"
@@ -4299,7 +4382,7 @@ function MobileHomeFooter({
         <div className="border-t border-white/[0.08] pt-8">
           <div className="text-center">
             <img
-              src="/logo-header.png"
+              src="/praeliator-gold-monogram-logo.png"
               alt="Praeliator"
               className="mx-auto h-14 w-auto object-contain opacity-95"
             />
@@ -5716,6 +5799,8 @@ function CinematicScene({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
+  const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
+  const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const playbackVideo = coarsePointer
     ? videoPathToIOSVideoPath(section.video)
     : section.video;
@@ -5747,6 +5832,12 @@ function CinematicScene({
     motionFallbackVideo &&
       !motionFallbackFailed &&
       (!shouldRenderVideo || !videoReady),
+  );
+  useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
+  useAutoplayRepair(
+    fallbackVideoRef,
+    shouldRenderMotionFallback,
+    motionFallbackVideo,
   );
   useEffect(() => {
     setShowLoader(false);
@@ -5801,12 +5892,14 @@ function CinematicScene({
           />
           {shouldRenderVideo ? (
             <video
+              ref={primaryVideoRef}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
               muted
+              defaultMuted
               loop
               playsInline
-              preload={stackedFlow && coarsePointer ? "auto" : "metadata"}
+              preload={active || stackedFlow || coarsePointer ? "auto" : "metadata"}
               poster={fallbackImage}
               onCanPlay={markVideoReady}
               onLoadedData={markVideoReady}
@@ -5818,9 +5911,11 @@ function CinematicScene({
           ) : null}
           {shouldRenderMotionFallback ? (
             <video
+              ref={fallbackVideoRef}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
               muted
+              defaultMuted
               loop
               playsInline
               preload="auto"
@@ -6152,7 +6247,7 @@ function HomeFooterScene({
         <div className="border-t border-white/18 pt-14">
           <div className="text-center">
             <img
-              src="/logo-header.png"
+              src="/praeliator-gold-monogram-logo.png"
               alt="Praeliator"
               className="mx-auto h-14 w-auto object-contain opacity-95"
             />
@@ -6626,7 +6721,15 @@ function FullScreenCinematicHomepage({
   onActiveIndexChange?: (index: number) => void;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [useStackedFlow, setUseStackedFlow] = useState(false);
+  const [useStackedFlow, setUseStackedFlow] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia("(max-width: 767px)").matches &&
+      (window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0)
+    );
+  });
   const scrollViewportRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
   useEffect(() => {
@@ -10435,32 +10538,36 @@ export default function PraeliatorWebsite() {
 
   const renderObjectRecordPage = () => (
     <>
-      <section className="relative isolate overflow-hidden bg-[#040404]">
+      <section className="relative isolate overflow-hidden bg-[#040302]">
         <div className="absolute inset-0">
           <MediaSurface
-            src={visImageSources.packaging}
-            alt="Praeliator VIS object record"
-            video={homeCinematicMedia.ownership.video}
+            src={visImageSources.hero}
+            alt="Praeliator VIS held as an object record"
+            video={visPageMedia.studyVideo}
             className="h-full min-h-[100svh] rounded-none border-0 shadow-none"
             dim="heavy"
           />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,3,2,0.9),rgba(9,6,4,0.58)_46%,rgba(4,3,2,0.82))]" />
+          <div className="absolute inset-x-0 bottom-0 h-[36svh] bg-[linear-gradient(180deg,transparent,rgba(4,3,2,0.96))]" />
         </div>
-        <Container className="relative z-10 flex min-h-[100svh] items-end pb-14 pt-32 sm:pb-18 lg:pb-24">
-          <Reveal className="max-w-[68rem]">
-            <p className="text-[10px] uppercase tracking-[0.36em] text-[#c7a98d] sm:text-xs">
+        <Container className="relative z-10 flex min-h-[100svh] items-end pb-14 pt-32 lg:pb-24">
+          <Reveal className="max-w-[72rem]">
+            <p className="text-[10px] uppercase tracking-[0.38em] text-[#c7a98d] sm:text-xs">
               The Object Record
             </p>
-            <h1 className="mt-5 max-w-[12ch] text-[clamp(3.2rem,8vw,8rem)] font-semibold leading-[0.88] tracking-[-0.068em] text-[#f4efe7]">
-              Proof before persuasion.
+            <h1 className="mt-5 max-w-[13ch] text-[clamp(3.15rem,8vw,8.4rem)] font-semibold leading-[0.86] tracking-[-0.07em] text-[#f4efe7]">
+              The object must be able to answer for itself.
             </h1>
-            <p className="mt-7 max-w-3xl text-sm leading-7 text-white/66 sm:text-base sm:leading-8">
-              Praeliator should make boxing feel beautiful enough to begin and serious enough to remain. The glove is the artifact; the record is the proof that acquisition, delivery, ownership, and aftercare belong to one house system.
+            <p className="mt-7 max-w-2xl text-sm leading-7 text-white/68 sm:text-base sm:leading-8">
+              This page exists to show the material proof, the issue route, and the
+              continuity that remains after delivery. Praeliator should not ask for
+              belief before it shows evidence.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 onClick={() => goTo("/praeliator-vis")}
-                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:bg-[#e4d7c7]"
+                className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.14)] transition duration-500 hover:bg-[#e4d7c7]"
               >
                 View VIS
               </Button>
@@ -10468,7 +10575,7 @@ export default function PraeliatorWebsite() {
                 type="button"
                 variant="outline"
                 onClick={() => goTo("/acquisition")}
-                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/20 hover:bg-white/5"
+                className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:border-white/22 hover:bg-white/[0.04]"
               >
                 Begin Inquiry
               </Button>
@@ -10477,24 +10584,35 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="bg-[#070605] py-16 sm:py-20 lg:py-24">
+      <section className="bg-[#080503] py-16 sm:py-20 lg:py-24">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <div className="grid gap-12 lg:grid-cols-[0.74fr_1.26fr] lg:gap-20">
             <Reveal>
-              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
-                Strategic thesis
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b98f70]">
+                Purpose
               </p>
-              <h2 className="mt-5 max-w-[10ch] text-[clamp(2.8rem,6vw,5.7rem)] font-semibold leading-[0.88] tracking-[-0.066em] text-[#f4efe7]">
-                Boxing is not violence. Boxing is form.
+              <h2 className="mt-5 max-w-[9ch] text-[clamp(2.75rem,6vw,5.8rem)] font-semibold leading-[0.88] tracking-[-0.066em] text-[#f4efe7]">
+                Not a story. A record.
               </h2>
             </Reveal>
             <Reveal delay={0.06}>
-              <div className="border-y border-white/10 py-6">
-                <p className="max-w-3xl text-base leading-8 text-white/66 sm:text-lg sm:leading-9">
-                  Praeliator is being built to make boxing desirable to begin. The glove is not positioned as a weapon or a gym object. It is an instrument of rhythm, patience, control, and self-command.
+              <div className="border-y border-white/10 py-7">
+                <p className="max-w-3xl text-base leading-8 text-white/68 sm:text-lg sm:leading-9">
+                  The Object Record is the public explanation of why VIS is treated as
+                  more than a product page: boxing as form, acquisition by issue,
+                  ownership under record, and aftercare by maturity.
                 </p>
-                <div className="mt-8">
-                  <QuietEditorialMatrix columns={2} items={boxingVisionMarks} />
+                <div className="mt-9 divide-y divide-white/10 border-t border-white/10">
+                  {boxingVisionMarks.map((item) => (
+                    <div key={item.label} className="grid gap-3 py-5 sm:grid-cols-[9rem_1fr]">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#b98f70]">
+                        {item.label}
+                      </p>
+                      <p className="max-w-2xl text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </Reveal>
@@ -10502,23 +10620,23 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="bg-[#0a0807] py-12 sm:py-16 lg:py-20">
+      <section className="bg-[#110a06] py-14 sm:py-20 lg:py-24">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+          <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-14">
             <Reveal>
               <MediaSurface
                 src={visImageSources.leather}
-                alt="Praeliator material evidence"
+                alt="Praeliator VIS leather and construction evidence"
                 video={homeCinematicMedia.material.video}
-                className="min-h-[26rem] rounded-none border-y border-white/10 shadow-none"
+                className="min-h-[28rem] rounded-none border-y border-[#4c3324]/60 shadow-none"
                 dim="light"
                 priorityCopy={
                   <div className="max-w-[34rem]">
-                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#d0b39b]">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-[#d0b39b]">
                       Evidence plate
                     </p>
-                    <p className="mt-4 text-[clamp(2.2rem,5vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7]">
-                      Material, line, and record must carry the claim.
+                    <p className="mt-4 text-[clamp(2.15rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7]">
+                      Material carries the claim before copy does.
                     </p>
                   </div>
                 }
@@ -10526,14 +10644,23 @@ export default function PraeliatorWebsite() {
             </Reveal>
             <Reveal delay={0.08}>
               <div className="lg:pt-8">
-                <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+                <p className="text-[10px] uppercase tracking-[0.34em] text-[#c29a7b]">
                   House standards
                 </p>
                 <h2 className="mt-5 max-w-[10ch] text-4xl font-semibold leading-[0.9] tracking-[-0.06em] text-[#f4efe7] sm:text-5xl">
-                  The house defines what it will not do.
+                  Restraint is a rule, not a mood.
                 </h2>
-                <div className="mt-8">
-                  <QuietEditorialMatrix columns={2} items={objectRecordStandards} />
+                <div className="mt-8 divide-y divide-[#4c3324]/70 border-y border-[#4c3324]/70">
+                  {objectRecordStandards.map((item) => (
+                    <div key={item.label} className="py-5">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#c29a7b]">
+                        {item.label}
+                      </p>
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-white/62">
+                        {item.text}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </Reveal>
@@ -10549,51 +10676,54 @@ export default function PraeliatorWebsite() {
         </Container>
       </section>
 
-      <section className="bg-[#080707] py-14 sm:py-18 lg:py-24">
+      <section className="bg-[#090604] py-16 sm:py-20 lg:py-24">
         <Container>
-          <Reveal className="max-w-4xl">
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
-              Acquisition ritual
-            </p>
-            <h2 className="mt-5 max-w-[12ch] text-[clamp(2.6rem,5vw,5.2rem)] font-semibold leading-[0.9] tracking-[-0.064em] text-[#f4efe7]">
-              The sale becomes a line of custody.
-            </h2>
-          </Reveal>
-          <Reveal delay={0.08} className="mt-10">
-            <div className="grid gap-x-8 gap-y-0 border-y border-white/10 lg:grid-cols-3">
-              {acquisitionRitualSteps.map((step, index) => (
-                <div
-                  key={step.label}
-                  className="border-t border-white/10 py-6 first:border-t-0 lg:border-l lg:border-t-0 lg:px-6 lg:first:border-l-0"
-                >
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#b9a18d]">
-                    {String(index + 1).padStart(2, "0")}
-                  </p>
-                  <p className="mt-3 text-lg leading-7 text-[#f4efe7]">
-                    {step.label}
-                  </p>
-                  <p className="mt-3 text-sm leading-7 text-white/58">
-                    {step.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
+          <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-20">
+            <Reveal className="lg:sticky lg:top-28 self-start">
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b98f70]">
+                Acquisition ritual
+              </p>
+              <h2 className="mt-5 max-w-[11ch] text-[clamp(2.65rem,5vw,5.3rem)] font-semibold leading-[0.9] tracking-[-0.064em] text-[#f4efe7]">
+                A sale becomes custody only when it is recorded.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <div className="border-y border-white/10">
+                {acquisitionRitualSteps.map((step, index) => (
+                  <div
+                    key={step.label}
+                    className="grid gap-4 border-t border-white/10 py-6 first:border-t-0 sm:grid-cols-[5rem_0.9fr_1.1fr] sm:items-start"
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.28em] text-[#b98f70]">
+                      {String(index + 1).padStart(2, "0")}
+                    </p>
+                    <p className="text-lg leading-7 text-[#f4efe7]">
+                      {step.label}
+                    </p>
+                    <p className="text-sm leading-7 text-white/58">
+                      {step.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
         </Container>
       </section>
 
-      <section className="bg-[#130d09] py-14 text-[#f4efe7] sm:py-18 lg:py-24">
+      <section className="bg-[#180f09] py-16 text-[#f4efe7] sm:py-20 lg:py-24">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[0.86fr_1.14fr] lg:gap-16">
             <Reveal>
               <p className="text-[10px] uppercase tracking-[0.34em] text-[#d1b08f]">
-                Controlled personalization
+                Personal work
               </p>
-              <h2 className="mt-5 max-w-[10ch] text-[clamp(2.8rem,6vw,5.6rem)] font-semibold leading-[0.88] tracking-[-0.064em]">
-                Marked for the owner, never redesigned by the owner.
+              <h2 className="mt-5 max-w-[10ch] text-[clamp(2.75rem,6vw,5.7rem)] font-semibold leading-[0.88] tracking-[-0.064em]">
+                Prepared for the owner. Still unmistakably Praeliator.
               </h2>
               <p className="mt-7 max-w-xl text-sm leading-7 text-white/64 sm:text-base sm:leading-8">
-                Personal Monogram should feel like a prepared object, not an online customization menu. The house keeps control of type, size, placement, finish, and approval.
+                Personal Monogram and Private Commission should deepen ownership
+                without handing the design language away.
               </p>
               <div className="mt-8">
                 <Button
@@ -10606,7 +10736,7 @@ export default function PraeliatorWebsite() {
               </div>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="grid gap-10 md:grid-cols-2">
+              <div className="grid gap-12 md:grid-cols-2">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[#d1b08f]">
                     Personal Monogram
@@ -10615,7 +10745,8 @@ export default function PraeliatorWebsite() {
                     <DataList items={personalMonogramRules} compact />
                   </div>
                   <p className="mt-5 text-sm leading-7 text-white/58">
-                    Recommended commercial shape: one flat fee between MX$900 and MX$1,500 for the set. The strongest default placement is the leather case, with glove placement offered only inside approved positions.
+                    One flat personalization fee for the set. No visual menu, no
+                    loud placement, no decorative drift.
                   </p>
                 </div>
                 <div>
@@ -10626,7 +10757,8 @@ export default function PraeliatorWebsite() {
                     <DataList items={privateCommissionRules} compact />
                   </div>
                   <p className="mt-5 text-sm leading-7 text-white/58">
-                    Commission should begin privately from MX$12,000 and remain quoted by complexity. It is not a cheaper route to color choice; it is a higher tier of house interpretation.
+                    Quoted privately from MX$12,000. The house interprets the
+                    request rather than surrendering the object to customization.
                   </p>
                 </div>
               </div>
@@ -10638,19 +10770,34 @@ export default function PraeliatorWebsite() {
       <section className="bg-[#050505] py-16 sm:py-20 lg:py-24">
         <Container>
           <Reveal>
-            <div className="grid gap-8 border-y border-white/10 py-10 lg:grid-cols-[1fr_0.8fr] lg:items-end">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
-                  Product ladder
-                </p>
-                <h2 className="mt-5 max-w-[12ch] text-[clamp(2.7rem,5vw,5rem)] font-semibold leading-[0.9] tracking-[-0.064em] text-[#f4efe7]">
-                  Standard, personalized, commissioned.
-                </h2>
-              </div>
-              <div className="grid gap-4 text-sm leading-7 text-white/62">
-                <p>Flagship VIS remains the center: MX$6,000 plus private allocation and fulfillment where applicable.</p>
-                <p>Personal Monogram adds a controlled ownership mark without changing the product language.</p>
-                <p>Private Commission remains selective, quoted, slower, and subject to house approval.</p>
+            <div className="border-y border-white/10 py-10">
+              <p className="text-[10px] uppercase tracking-[0.34em] text-[#b9a18d]">
+                Product ladder
+              </p>
+              <div className="mt-8 grid gap-8 lg:grid-cols-3">
+                {[
+                  {
+                    label: "Flagship VIS",
+                    value: "MX$6,000. The central recorded training pair and presentation set.",
+                  },
+                  {
+                    label: "Personal Monogram",
+                    value: "A restrained ownership mark added within house-approved placement.",
+                  },
+                  {
+                    label: "Private Commission",
+                    value: "A selective, quoted route for prepared work that still belongs to the house.",
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="border-t border-white/10 pt-5">
+                    <p className="text-[10px] uppercase tracking-[0.26em] text-[#b9a18d]">
+                      {item.label}
+                    </p>
+                    <p className="mt-4 max-w-md text-sm leading-7 text-white/62">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </Reveal>

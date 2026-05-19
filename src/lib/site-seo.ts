@@ -29,14 +29,14 @@ export type SiteMetadata = {
 };
 
 const siteOrigin = "https://praeliator.com";
-const defaultImage = `${siteOrigin}/images/vis-hero.jpg`;
+const defaultImage = `${siteOrigin}/images/vis-glove-hero.jpg`;
 
 const routeMetadata: Record<SiteRoute, SiteMetadata> = {
   "/": {
     title: "Praeliator | Luxury Boxing House",
     description:
       "Praeliator is a private boxing house where equipment, acquisition, and ownership are treated with the control and gravity of a recorded object.",
-    image: `${siteOrigin}/images/gallery-01.jpg`,
+    image: `${siteOrigin}/images/homepage-cinematic-hero-poster.jpg`,
     canonicalPath: "/",
     keywords: ["praeliator", "luxury boxing gloves", "boxing as art"],
   },
@@ -44,7 +44,7 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     title: "Praeliator VIS | Recorded Training Pair",
     description:
       "Praeliator VIS is the flagship recorded training pair: top-grain cowhide, restrained presentation, and controlled aftercare under the house.",
-    image: `${siteOrigin}/images/vis-hero.jpg`,
+    image: `${siteOrigin}/images/vis-glove-hero.jpg`,
     canonicalPath: "/praeliator-vis",
     keywords: ["Praeliator VIS", "luxury boxing gloves", "training gloves"],
   },
@@ -52,7 +52,7 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     title: "The Object Record | Praeliator",
     description:
       "The Praeliator object record explains VIS evidence, private acquisition, ownership continuity, controlled personalization, and future aftercare.",
-    image: `${siteOrigin}/images/vis-packaging.jpg`,
+    image: `${siteOrigin}/images/vis-packaging-presentation.jpg`,
     canonicalPath: "/object-record",
     keywords: ["Praeliator object record", "boxing as form", "personal monogram"],
   },
@@ -60,7 +60,7 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     title: "Private Acquisition | Praeliator",
     description:
       "Private acquisition begins by direct correspondence. Praeliator retains context before allocation, destination, and payment are issued under one controlled line.",
-    image: `${siteOrigin}/images/vis-packaging.jpg`,
+    image: `${siteOrigin}/images/vis-packaging-presentation.jpg`,
     canonicalPath: "/acquisition",
   },
   "/private-acquisition": {
@@ -75,7 +75,7 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     title: "Private Commission | Praeliator",
     description:
       "Private Commission requests allow select Praeliator clients to enter a controlled review process for individually prepared glove sets.",
-    image: `${siteOrigin}/images/vis-logo-detail.jpg`,
+    image: `${siteOrigin}/images/vis-logo-construction-detail.jpg`,
     canonicalPath: "/private-commission",
     robots: "noindex, nofollow",
   },
@@ -91,21 +91,21 @@ const routeMetadata: Record<SiteRoute, SiteMetadata> = {
     title: "Waitlist | Praeliator",
     description:
       "A quieter register for future allocation, collector interest, and continued private access under the Praeliator house.",
-    image: `${siteOrigin}/images/vis-logo-detail.jpg`,
+    image: `${siteOrigin}/images/vis-logo-construction-detail.jpg`,
     canonicalPath: "/waitlist",
   },
   "/contact": {
     title: "Contact | Praeliator",
     description:
       "Direct Praeliator correspondence for private inquiry, quieter follow-up, and controlled contact lines.",
-    image: `${siteOrigin}/images/vis-packaging.jpg`,
+    image: `${siteOrigin}/images/vis-packaging-presentation.jpg`,
     canonicalPath: "/contact",
   },
   "/faq": {
     title: "FAQ | Praeliator",
     description:
       "Practical guidance on acquisition, ownership, care, and private service under the Praeliator house.",
-    image: `${siteOrigin}/images/vis-leather.jpg`,
+    image: `${siteOrigin}/images/vis-leather-material-closeup.jpg`,
     canonicalPath: "/faq",
   },
   "/privacy-notice": {
@@ -190,7 +190,7 @@ export function getSiteSchema(route: SiteRoute) {
     "@type": "Organization",
     name: "Praeliator",
     url: siteOrigin,
-    logo: `${siteOrigin}/logo-header.png`,
+    logo: `${siteOrigin}/praeliator-gold-monogram-logo.png`,
     sameAs: ["https://www.instagram.com/praeliator"],
   };
 
@@ -243,7 +243,7 @@ export function getSiteSchema(route: SiteRoute) {
         name: "Praeliator",
         logo: {
           "@type": "ImageObject",
-          url: `${siteOrigin}/logo-header.png`,
+          url: `${siteOrigin}/praeliator-gold-monogram-logo.png`,
         },
       },
       mainEntityOfPage: getCanonicalUrl(metadata.canonicalPath),

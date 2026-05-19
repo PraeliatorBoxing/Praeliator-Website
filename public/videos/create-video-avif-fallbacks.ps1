@@ -1,9 +1,10 @@
 $videos = @(
-  "home-vis",
-  "home-material",
-  "home-ownership",
-  "home-acquisition",
-  "vis-object-study"
+  "homepage-boxing-as-art-hero",
+  "homepage-vis-flagship-glove",
+  "vis-leather-material-study",
+  "ownership-record-packaging-archive",
+  "private-acquisition-correspondence",
+  "vis-product-object-study"
 )
 
 foreach ($name in $videos) {
