@@ -154,6 +154,27 @@ const supabase =
         },
       })
     : null;
+function isMissingSupabaseRelationError(
+  error: { code?: string | null; message?: string | null; details?: string | null; hint?: string | null } | null | undefined,
+  relationName: string,
+) {
+  if (!error) return false;
+  const code = String(error.code || "").toUpperCase();
+  const text = [error.message, error.details, error.hint]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const relation = relationName.toLowerCase();
+
+  return (
+    code === "42P01" ||
+    code === "PGRST205" ||
+    (text.includes("schema cache") && text.includes(relation)) ||
+    text.includes(`relation "${relation}" does not exist`) ||
+    text.includes(`table '${relation}'`) ||
+    text.includes(`table "${relation}"`)
+  );
+}
 const brandAssetPaths = {
   wordmark: "/praeliator-gold-monogram-logo.png",
   ownershipFaviconMark: "/praeliator-ownership-record-seal.png",
@@ -8131,15 +8152,22 @@ export default function PraeliatorWebsite() {
 
       let objectPairs: RegisteredOwnershipPair[] = [];
 
-      if (objectError && objectError.code !== "42P01") {
+      if (
+        objectError &&
+        !isMissingSupabaseRelationError(
+          objectError,
+          "acquisition_object_records",
+        )
+      ) {
         setAuthNotice({
           tone: "error",
           title: "Object records unavailable",
-          body: objectError.message,
+          body:
+            "The retained object records could not be opened. Please try again shortly.",
         });
       }
 
-      if (objectRows?.length) {
+      if (!objectError && objectRows?.length) {
         const objectIds = objectRows.map((row: any) => row.id).filter(Boolean);
         const { data: objectRefreshRows, error: objectRefreshError } =
           await supabase
@@ -8148,11 +8176,18 @@ export default function PraeliatorWebsite() {
             .in("object_record_id", objectIds)
             .order("requested_at", { ascending: false });
 
-        if (objectRefreshError && objectRefreshError.code !== "42P01") {
+        if (
+          objectRefreshError &&
+          !isMissingSupabaseRelationError(
+            objectRefreshError,
+            "legacy_refresh_object_requests",
+          )
+        ) {
           setAuthNotice({
             tone: "error",
             title: "Object aftercare unavailable",
-            body: objectRefreshError.message,
+            body:
+              "The aftercare record could not be opened. Please try again shortly.",
           });
         }
 
