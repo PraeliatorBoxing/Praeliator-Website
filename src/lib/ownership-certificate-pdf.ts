@@ -445,7 +445,11 @@ export async function downloadOwnershipCertificatePdf(
   });
 
   const pdfBytes = await pdf.save();
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const pdfArrayBuffer = pdfBytes.buffer.slice(
+    pdfBytes.byteOffset,
+    pdfBytes.byteOffset + pdfBytes.byteLength,
+  ) as ArrayBuffer;
+  const blob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;

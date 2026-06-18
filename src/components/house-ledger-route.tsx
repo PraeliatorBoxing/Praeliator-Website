@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { motion } from "motion/react";
 import { Button } from "./ui/button";
@@ -134,6 +134,13 @@ async function parseJsonResponse<T>(response: Response, fallbackError: string) {
   } catch {
     throw new Error(fallbackError);
   }
+}
+
+function getResponseError(
+  result: { success: boolean; error?: string },
+  fallback: string,
+) {
+  return result.success === false ? result.error || fallback : fallback;
 }
 
 function formatMoney(amount: number, currency: string) {
@@ -355,7 +362,9 @@ export function HouseLedgerRoute({
         );
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || "The house ledger could not be opened.");
+          throw new Error(
+            getResponseError(result, "The house ledger could not be opened."),
+          );
         }
 
         setState(result);
@@ -431,7 +440,9 @@ export function HouseLedgerRoute({
       );
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Ledger notifications could not be updated.");
+        throw new Error(
+          getResponseError(result, "Ledger notifications could not be updated."),
+        );
       }
 
       setState((current) =>
@@ -488,7 +499,9 @@ export function HouseLedgerRoute({
       );
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "The sale line could not be updated.");
+        throw new Error(
+          getResponseError(result, "The sale line could not be updated."),
+        );
       }
 
       setState((current) =>
@@ -557,7 +570,9 @@ export function HouseLedgerRoute({
       );
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || "Delivery could not be recorded.");
+        throw new Error(
+          getResponseError(result, "Delivery could not be recorded."),
+        );
       }
 
       setState((current) =>
@@ -655,12 +670,17 @@ export function HouseLedgerRoute({
       );
 
       if (!response.ok || !result.success) {
-        if (result.fieldErrors) {
-          setIssueFieldErrors(result.fieldErrors);
+        const fieldErrors =
+          result.success === false ? result.fieldErrors : undefined;
+        if (fieldErrors) {
+          setIssueFieldErrors(fieldErrors);
         }
 
         throw new Error(
-          result.error || "The private acquisition page could not be issued.",
+          getResponseError(
+            result,
+            "The private acquisition page could not be issued.",
+          ),
         );
       }
 
@@ -1434,7 +1454,7 @@ export function HouseLedgerRoute({
                           {issueResult.issuance.orderSummary.productName}
                         </p>
                         <p className="text-sm leading-7 text-[#5e4b3b]">
-                          Qty {issueResult.issuance.orderSummary.quantity} Â·{" "}
+                          Qty {issueResult.issuance.orderSummary.quantity} ·{" "}
                           {formatMoney(
                             issueResult.issuance.orderSummary.totalAmount,
                             issueResult.issuance.orderSummary.currency,
@@ -1811,3 +1831,4 @@ export function HouseLedgerRoute({
     </section>
   );
 }
+

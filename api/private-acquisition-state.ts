@@ -8,6 +8,7 @@ import {
   jsonResponse,
   serializeAcquisitionSession,
 } from "./_lib/private-acquisition.js";
+import { getPublicError } from "./_lib/request-guard.js";
 
 export async function GET(request: Request) {
   try {
@@ -88,10 +89,10 @@ export async function GET(request: Request) {
       paymentStatus: session.stripe_payment_intent_status || null,
     });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to load the private acquisition session.";
+    const message = getPublicError(
+      error,
+      "Unable to load the private acquisition session.",
+    );
 
     return jsonResponse({ success: false, state: "error", error: message }, 500, {
       "Set-Cookie": buildClearedGrantCookie(request),

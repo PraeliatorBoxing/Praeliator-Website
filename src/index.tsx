@@ -1,17 +1,12 @@
-/// <reference types="vite/client" />
+﻿/// <reference types="vite/client" />
 import "@fontsource/cormorant-garamond/latin-600.css";
 import "@fontsource/cormorant-garamond/latin-700.css";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "./components/ui/button";
 import { ObjectDossierCarousel } from "./components/object-dossier-carousel";
 import { SiteAnalytics } from "./components/site-analytics";
 import { SiteHead } from "./components/site-head";
-import {
-  FaqPage,
-  PrivacyNoticePage,
-} from "./components/site-utility-pages";
-import { downloadOwnershipCertificatePdf } from "./lib/ownership-certificate-pdf";
 import {
   getInitialSiteLocale,
   getSiteCopy,
@@ -36,10 +31,40 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react";
-import { PrivateAcquisitionRoute } from "./components/private-acquisition-route";
-import { HouseLedgerRoute } from "./components/house-ledger-route";
-import { PrivateCommissionRoute } from "./components/private-commission-route";
 import type { SiteRoute } from "./lib/site-seo";
+const FaqPage = lazy(() =>
+  import("./components/site-utility-pages").then((module) => ({
+    default: module.FaqPage,
+  })),
+);
+const PrivacyNoticePage = lazy(() =>
+  import("./components/site-utility-pages").then((module) => ({
+    default: module.PrivacyNoticePage,
+  })),
+);
+const PrivateAcquisitionRoute = lazy(() =>
+  import("./components/private-acquisition-route").then((module) => ({
+    default: module.PrivateAcquisitionRoute,
+  })),
+);
+const HouseLedgerRoute = lazy(() =>
+  import("./components/house-ledger-route").then((module) => ({
+    default: module.HouseLedgerRoute,
+  })),
+);
+const PrivateCommissionRoute = lazy(() =>
+  import("./components/private-commission-route").then((module) => ({
+    default: module.PrivateCommissionRoute,
+  })),
+);
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#070707] px-6 text-center">
+      <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#d8b46a]/70 to-transparent" />
+    </div>
+  );
+}
 const visSpecifications = [
   { label: "Object class", value: "Recorded training pair" },
   { label: "Allocation amount", value: "$6,000 MXN" },
@@ -407,7 +432,7 @@ const countryOptions = [
   { code: "+40", label: "Romania" },
   { code: "+7", label: "Russian Federation" },
   { code: "+250", label: "Rwanda" },
-  { code: "+262", label: "RÃ©union" },
+  { code: "+262", label: "RÒ©union" },
   { code: "+1869", label: "Saint Kitts and Nevis" },
   { code: "+1758", label: "Saint Lucia" },
   { code: "+508", label: "Saint Pierre and Miquelon" },
@@ -632,11 +657,11 @@ const titleOptions = [
   { value: "Mdm.", label: "Mdm." },
   { value: "Monsieur", label: "Monsieur" },
   { value: "Madame", label: "Madame" },
-  { value: "SeÃ±or", label: "SeÃ±or" },
-  { value: "SeÃ±ora", label: "SeÃ±ora" },
-  { value: "SeÃ±orita", label: "SeÃ±orita" },
-  { value: "å…ˆç”Ÿ", label: "å…ˆç”Ÿ" },
-  { value: "å¥³å£«", label: "å¥³å£«" },
+  { value: "SeÒ±or", label: "SeÒ±or" },
+  { value: "SeÒ±ora", label: "SeÒ±ora" },
+  { value: "SeÒ±orita", label: "SeÒ±orita" },
+  { value: "先生", label: "先生" },
+  { value: "女士", label: "女士" },
 ];
 const interestOptions = [
   { value: "Praeliator VIS", label: "Praeliator VIS" },
@@ -2331,6 +2356,7 @@ function OwnershipPairFolio({
   onOpenTransferReview,
   onExportCertificate,
 }: {
+  key?: React.Key;
   pair: RegisteredOwnershipPair;
   index: number;
   onEnterLegacyRefresh: (pair: RegisteredOwnershipPair) => void;
@@ -3305,6 +3331,7 @@ function Reveal({
   className = "",
   delay = 0,
 }: {
+  key?: React.Key;
   children: React.ReactNode;
   className?: string;
   delay?: number;
@@ -4557,10 +4584,14 @@ function OAuthConsentRoute({
   authInitialized,
   authSession,
   goTo,
+  signInLabel,
+  createAccountLabel,
 }: {
   authInitialized: boolean;
   authSession: Session | null;
   goTo: (nextRoute: Route) => void;
+  signInLabel: string;
+  createAccountLabel: string;
 }) {
   const [authorizationId, setAuthorizationId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -4718,7 +4749,7 @@ function OAuthConsentRoute({
                       onClick={() => goTo("/sign-in")}
                       className="rounded-full bg-[#efe5d7] px-7 py-6 text-sm text-[#151210] shadow-[0_14px_36px_rgba(239,229,215,0.18)] transition duration-500 hover:-translate-y-0.5 hover:bg-[#e4d7c7]"
                     >
-                      {copy.signIn}
+                      {signInLabel}
                     </Button>
                     <Button
                       type="button"
@@ -4726,7 +4757,7 @@ function OAuthConsentRoute({
                       onClick={() => goTo("/sign-up")}
                       className="rounded-full border-white/15 bg-transparent px-7 py-6 text-sm text-[#f4efe7] transition duration-500 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
                     >
-                      {ownershipCopy.createAccount}
+                      {createAccountLabel}
                     </Button>
                   </div>
                 </div>
@@ -5800,6 +5831,7 @@ function CinematicScene({
   active,
   stackedFlow = false,
 }: {
+  key?: React.Key;
   section: {
     key: string;
     word: string;
@@ -6068,6 +6100,7 @@ function ExploreFurtherScene({
   active,
   goTo,
 }: {
+  key?: React.Key;
   active: boolean;
   goTo: (nextRoute: Route) => void;
 }) {
@@ -6386,6 +6419,7 @@ function HomeTailScene({
   emailLink,
   stackedFlow = false,
 }: {
+  key?: React.Key;
   active: boolean;
   goTo: (nextRoute: Route) => void;
   whatsappGeneralLink: string;
@@ -15005,6 +15039,8 @@ const renderWaitlistPage = () => (
       authInitialized={authInitialized}
       authSession={authSession}
       goTo={goTo}
+      signInLabel={copy.signIn}
+      createAccountLabel={ownershipCopy.createAccount}
     />
   );
 
@@ -15334,6 +15370,9 @@ const renderWaitlistPage = () => (
           };
 
       try {
+        const { downloadOwnershipCertificatePdf } = await import(
+          "./lib/ownership-certificate-pdf"
+        );
         await downloadOwnershipCertificatePdf({
           clientName: getOwnershipDisplayName(authSession),
           clientEmail: authSession.user.email ?? null,
@@ -17123,7 +17162,9 @@ const renderWaitlistPage = () => (
             animate="animate"
             exit="exit"
           >
-            {usesDesktopSurfaceLayout ? renderPage() : renderMobilePage()}
+            <Suspense fallback={<RouteLoadingFallback />}>
+              {usesDesktopSurfaceLayout ? renderPage() : renderMobilePage()}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
@@ -17156,3 +17197,4 @@ const renderWaitlistPage = () => (
     </div>
   );
 }
+

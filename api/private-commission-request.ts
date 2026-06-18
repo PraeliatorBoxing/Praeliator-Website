@@ -1,11 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "crypto";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       "Content-Type": "application/json",
+      ...headers,
     },
   });
 }
@@ -49,7 +60,13 @@ function buildRequestReference() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const limitState = checkRateLimit(request, "private-commission-request", {
+      limit: 6,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const body = await readJsonBody(request);
     const fullName = normalizeInlineText(body.fullName);
     const email = normalizeInlineText(body.email).toLowerCase();
     const phone = normalizeInlineText(body.phone);
@@ -127,11 +144,12 @@ export async function POST(request: Request) {
         "The private commission request has been received for house review.",
     });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "The commission request could not be retained.";
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(
+      error,
+      "The commission request could not be retained.",
+    );
 
-    return jsonResponse({ success: false, error: message }, 500);
+    return jsonResponse({ success: false, error: message }, status);
   }
 }

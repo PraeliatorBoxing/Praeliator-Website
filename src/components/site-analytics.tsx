@@ -4,10 +4,18 @@ declare global {
   interface Window {
     dataLayer?: Array<Record<string, unknown>>;
     gtag?: (...args: unknown[]) => void;
-    fbq?: (...args: unknown[]) => void;
-    _fbq?: (...args: unknown[]) => void;
+    fbq?: MetaPixelQueue;
+    _fbq?: MetaPixelQueue;
   }
 }
+
+type MetaPixelQueue = ((...args: unknown[]) => void) & {
+  callMethod?: (...args: unknown[]) => void;
+  push?: (...args: unknown[]) => void;
+  queue?: unknown[][];
+  loaded?: boolean;
+  version?: string;
+};
 
 const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
 const metaPixelId = import.meta.env.VITE_META_PIXEL_ID as string | undefined;
@@ -52,16 +60,11 @@ export function SiteAnalytics() {
             if (n.callMethod) {
               n.callMethod(...args);
             } else {
-              n.queue.push(args);
+              n.queue?.push(args);
             }
-          } as typeof window.fbq & {
-            callMethod?: (...args: unknown[]) => void;
-            queue: unknown[][];
-            loaded?: boolean;
-            version?: string;
-          };
+          } as MetaPixelQueue;
           if (!f._fbq) f._fbq = n;
-          n.push = n;
+          n.push = (...args: unknown[]) => n(...args);
           n.loaded = true;
           n.version = "2.0";
           n.queue = [];
@@ -83,8 +86,8 @@ export function SiteAnalytics() {
       }
     };
 
-    const idleScheduler =
-      "requestIdleCallback" in window
+    const idleScheduler: number =
+      typeof window.requestIdleCallback === "function"
         ? window.requestIdleCallback(run, { timeout: 1800 })
         : window.setTimeout(run, 900);
 
@@ -92,7 +95,7 @@ export function SiteAnalytics() {
       if ("cancelIdleCallback" in window && typeof idleScheduler === "number") {
         window.cancelIdleCallback(idleScheduler);
       } else {
-        window.clearTimeout(idleScheduler as number);
+        globalThis.clearTimeout(idleScheduler);
       }
     };
   }, []);

@@ -9,6 +9,12 @@ import {
   serializeAcquisitionSession,
   validateDeliveryDetailsInput,
 } from "./_lib/private-acquisition.js";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type DeliveryPayload = {
   token?: string;
@@ -28,7 +34,13 @@ type DeliveryPayload = {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as DeliveryPayload;
+    const limitState = checkRateLimit(request, "private-acquisition-delivery", {
+      limit: 20,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const body = (await readJsonBody(request, { maxBytes: 12 * 1024 })) as DeliveryPayload;
     const token = (body.token || "").trim();
 
     if (!token) {
@@ -143,18 +155,15 @@ export async function POST(request: Request) {
       session: serializeAcquisitionSession(updatedSession),
     });
   } catch (error) {
-    const rawMessage =
-      error instanceof Error
-        ? error.message
-        : "The destination record could not be retained.";
-
-    const message = /json|unexpected token|doctype|<html/i.test(rawMessage)
-      ? "The destination record could not be confirmed just now. Please try again."
-      : rawMessage;
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(
+      error,
+      "The destination record could not be confirmed just now. Please try again.",
+    );
 
     return jsonResponse(
       { success: false, state: "error", error: message },
-      500,
+      status,
     );
   }
 }

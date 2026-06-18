@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test",
+    "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "private-acquisition:create": "node scripts/private-acquisition-session.mjs create",
     "private-acquisition:revoke": "node scripts/private-acquisition-session.mjs revoke"

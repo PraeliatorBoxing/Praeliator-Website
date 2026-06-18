@@ -2,6 +2,12 @@ import {
   jsonResponse,
   persistPrivateInquiry,
 } from "./_lib/private-inquiry.js";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type TransferReviewPayload = {
   currentOwnerName?: string;
@@ -54,7 +60,13 @@ function validatePayload(payload: ReturnType<typeof normalizePayload>) {
 
 export async function POST(request: Request) {
   try {
-    const rawPayload = (await request.json()) as TransferReviewPayload;
+    const limitState = checkRateLimit(request, "ownership-transfer-review", {
+      limit: 8,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const rawPayload = (await readJsonBody(request, { maxBytes: 12 * 1024 })) as TransferReviewPayload;
     const payload = normalizePayload(rawPayload);
     const validationError = validatePayload(payload);
 
@@ -99,9 +111,9 @@ export async function POST(request: Request) {
 
     return jsonResponse({ success: true, ...result }, 200);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Transfer review failed.";
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(error, "Transfer review failed.");
 
-    return jsonResponse({ success: false, error: message }, 500);
+    return jsonResponse({ success: false, error: message }, status);
   }
 }

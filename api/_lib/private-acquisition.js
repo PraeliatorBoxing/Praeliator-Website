@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
-import { syncHouseLedgerSaleFromSession } from "./house-ledger.js";
 
 export const PRIVATE_ACQUISITION_COOKIE_NAME =
   "praeliator_private_acquisition_grant";
@@ -24,6 +23,11 @@ const DELIVERY_REQUIRED_FIELD_KEYS = [
   "shipping_postal_code",
   "shipping_address_line1",
 ];
+
+async function syncHouseLedgerSaleFromSessionIfAvailable(input) {
+  const { syncHouseLedgerSaleFromSession } = await import("./house-ledger.js");
+  return syncHouseLedgerSaleFromSession(input);
+}
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -976,7 +980,7 @@ export async function markSessionPaid({
   if (currentSessionError) throw currentSessionError;
 
   if (currentSession.status === "paid") {
-    await syncHouseLedgerSaleFromSession({
+    await syncHouseLedgerSaleFromSessionIfAvailable({
       session: currentSession,
       paymentIntentId,
       amountReceived,
@@ -1007,7 +1011,7 @@ export async function markSessionPaid({
 
   if (error) throw error;
 
-  await syncHouseLedgerSaleFromSession({
+  await syncHouseLedgerSaleFromSessionIfAvailable({
     session: data,
     paymentIntentId,
     amountReceived,

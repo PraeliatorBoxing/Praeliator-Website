@@ -241,7 +241,7 @@ Notes:
 - L377 [String]: Romania
 - L378 [String]: Russian Federation
 - L379 [String]: Rwanda
-- L380 [String]: RÃ©union
+- L380 [String]: Réunion
 - L381 [String]: Saint Kitts and Nevis
 - L382 [String]: Saint Lucia
 - L383 [String]: Saint Pierre and Miquelon
@@ -376,16 +376,16 @@ Notes:
 - L512 [String]: Monsieur
 - L513 [String]: Madame
 - L513 [String]: Madame
-- L514 [String]: SeÃ±or
-- L514 [String]: SeÃ±or
-- L515 [String]: SeÃ±ora
-- L515 [String]: SeÃ±ora
-- L516 [String]: SeÃ±orita
-- L516 [String]: SeÃ±orita
-- L517 [String]: å…ˆç”Ÿ
-- L517 [String]: å…ˆç”Ÿ
-- L518 [String]: å¥³å£«
-- L518 [String]: å¥³å£«
+- L514 [String]: Señor
+- L514 [String]: Señor
+- L515 [String]: Señora
+- L515 [String]: Señora
+- L516 [String]: Señorita
+- L516 [String]: Señorita
+- L517 [String]: 先生
+- L517 [String]: 先生
+- L518 [String]: 女士
+- L518 [String]: 女士
 - L521 [String]: Praeliator VIS
 - L521 [String]: Praeliator VIS
 - L522 [String]: Future releases

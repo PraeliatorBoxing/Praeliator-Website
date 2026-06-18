@@ -1,4 +1,9 @@
 import { promises as dns } from "node:dns";
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 function isValidEmailFormat(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -8,10 +13,14 @@ function extractDomain(email: string) {
   return email.split("@")[1]?.trim().toLowerCase() || "";
 }
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
   });
 }
 
@@ -27,7 +36,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const payload = (await request.json().catch(() => ({}))) as {
+    const limitState = checkRateLimit(request, "validate-waitlist-email-domain", {
+      limit: 30,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const payload = (await readJsonBody(request, { maxBytes: 2 * 1024 }).catch(
+      () => ({}),
+    )) as {
       email?: string;
     };
     const email = String(payload.email || "").trim().toLowerCase();

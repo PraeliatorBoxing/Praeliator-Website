@@ -12,6 +12,12 @@ import {
   jsonResponse,
   serializeAcquisitionSession,
 } from "./_lib/private-acquisition.js";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type PaymentIntentPayload = {
   token?: string;
@@ -25,7 +31,13 @@ const REUSABLE_PAYMENT_STATUSES = new Set([
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as PaymentIntentPayload;
+    const limitState = checkRateLimit(request, "private-acquisition-payment-intent", {
+      limit: 20,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const body = (await readJsonBody(request, { maxBytes: 4 * 1024 })) as PaymentIntentPayload;
     const token = (body.token || "").trim();
 
     if (!token) {
@@ -219,14 +231,15 @@ export async function POST(request: Request) {
       paymentStatus: paymentIntentStatus,
     });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to prepare the private payment chamber.";
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(
+      error,
+      "Unable to prepare the private payment chamber.",
+    );
 
     return jsonResponse(
       { success: false, state: "error", error: message },
-      500,
+      status,
       {
         "Set-Cookie": buildClearedGrantCookie(request),
       },

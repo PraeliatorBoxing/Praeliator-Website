@@ -1,4 +1,9 @@
 type IntakeLocale = "en" | "es" | "ja" | "fr";
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type FaqKnowledgeEntry = {
   topic: string;
@@ -622,10 +627,14 @@ function getFallbackAnswer(question: string, locale: IntakeLocale) {
   return Array.from(new Set(topMatches)).join(" ");
 }
 
-function jsonResponse(body: unknown, status = 200) {
+function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
   });
 }
 
@@ -645,7 +654,16 @@ function extractOutputText(payload: any) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { question?: string; locale?: string };
+    const limitState = checkRateLimit(request, "faq-assistant", {
+      limit: 18,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const body = (await readJsonBody(request, { maxBytes: 4 * 1024 })) as {
+      question?: string;
+      locale?: string;
+    };
     const question = (body.question || "").trim();
     const locale = normalizeLocale(body.locale);
 

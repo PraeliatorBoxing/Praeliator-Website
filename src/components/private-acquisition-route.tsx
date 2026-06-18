@@ -188,6 +188,10 @@ type GeoapifyAutocompleteResponse = {
   }>;
 };
 
+type GeoapifyAddressProperties = NonNullable<
+  NonNullable<GeoapifyAutocompleteResponse["features"]>[number]["properties"]
+>;
+
 const easeLuxury: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const chamberFieldClass =
   "min-h-[4.15rem] w-full rounded-[1.55rem] border border-[#c8ad8e] bg-[#fffaf4] px-5 text-[16px] text-[#241912] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition placeholder:text-[#a89177] focus:border-[#8f6848] focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,122,86,0.09)] [color-scheme:light] sm:text-[1rem]";
@@ -317,6 +321,13 @@ async function readJsonResponse<T>(response: Response) {
   }
 }
 
+function getResponseError(
+  result: { success: boolean; error?: string },
+  fallback: string,
+) {
+  return result.success === false ? result.error || fallback : fallback;
+}
+
 function normalizeAddressComparison(value: string) {
   return value.toLowerCase().replace(/[\s,.-]+/g, " ").trim();
 }
@@ -352,10 +363,11 @@ function mapGeoapifySuggestion(
     | GeoapifyAutocompleteResponse["results"][number],
   fallbackCountry: string,
 ): AddressSuggestion | null {
-  const properties =
-    "properties" in (feature || {}) && feature?.properties
+  const properties = (
+    "properties" in feature && feature.properties
       ? feature.properties
-      : feature;
+      : feature
+  ) as GeoapifyAddressProperties;
   if (!properties) return null;
 
   const addressLine1 = getFirstGeoapifyValue(
@@ -428,8 +440,8 @@ function PrivateRouteLanguageSwitcher({
   const [open, setOpen] = useState(false);
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
   const currentOption =
-    siteLocaleOptions.find((option) => option.value === locale) ??
-    siteLocaleOptions[0];
+    normalizedSiteLocaleOptions.find((option) => option.value === locale) ??
+    normalizedSiteLocaleOptions[0];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -964,8 +976,10 @@ export function PrivateAcquisitionRoute({
 
       if (!response.ok || !result.success) {
         setAccessError(
-          result.error ||
+          getResponseError(
+            result,
             "The reference could not be verified for this private issuance.",
+          ),
         );
         return;
       }
@@ -1092,10 +1106,12 @@ export function PrivateAcquisitionRoute({
       }
 
       if (!response.ok || !result.success) {
-        setDeliveryErrors(result.fieldErrors || {});
+        setDeliveryErrors(result.success === false ? result.fieldErrors || {} : {});
         setDeliveryError(
-          result.error ||
+          getResponseError(
+            result,
             "The destination record could not be retained under this issuance.",
+          ),
         );
         setDeliveryNotice("");
         return;
@@ -1165,7 +1181,10 @@ export function PrivateAcquisitionRoute({
 
       if (!response.ok || !result.success) {
         setPaymentError(
-          result.error || "The private payment chamber could not be prepared.",
+          getResponseError(
+            result,
+            "The private payment chamber could not be prepared.",
+          ),
         );
         return;
       }

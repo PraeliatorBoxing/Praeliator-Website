@@ -12,6 +12,12 @@ import {
   recordFailedAccessAttempt,
   serializeAcquisitionSession,
 } from "./_lib/private-acquisition.js";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type AccessPayload = {
   token?: string;
@@ -20,7 +26,13 @@ type AccessPayload = {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as AccessPayload;
+    const limitState = checkRateLimit(request, "private-acquisition-access", {
+      limit: 20,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const body = (await readJsonBody(request, { maxBytes: 4 * 1024 })) as AccessPayload;
     const token = (body.token || "").trim();
     const referenceCode = (body.referenceCode || "").trim();
 
@@ -145,14 +157,15 @@ export async function POST(request: Request) {
       },
     );
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to verify the private acquisition reference.";
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(
+      error,
+      "Unable to verify the private acquisition reference.",
+    );
 
     return jsonResponse(
       { success: false, state: "error", error: message },
-      500,
+      status,
       {
         "Set-Cookie": buildClearedGrantCookie(request),
       },

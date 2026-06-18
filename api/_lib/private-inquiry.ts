@@ -184,10 +184,14 @@ async function upsertHubSpotContact(
   return data.results?.[0]?.id || null;
 }
 
-export function jsonResponse(body: unknown, status = 200) {
+export function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
   });
 }
 

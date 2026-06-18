@@ -84,6 +84,13 @@ async function readJsonResponse<T>(response: Response): Promise<T | null> {
   return JSON.parse(text) as T;
 }
 
+function getResponseError(
+  result: { success: boolean; error?: string },
+  fallback: string,
+) {
+  return result.success === false ? result.error || fallback : fallback;
+}
+
 export function PrivateCommissionRoute({
   wordmarkSrc,
   onReturnHome,
@@ -148,9 +155,12 @@ export function PrivateCommissionRoute({
       }
 
       if (!response.ok || !result.success) {
-        setFieldErrors(result.fieldErrors || {});
+        setFieldErrors(result.success === false ? result.fieldErrors || {} : {});
         throw new Error(
-          result.error || "The commission request could not be retained.",
+          getResponseError(
+            result,
+            "The commission request could not be retained.",
+          ),
         );
       }
 

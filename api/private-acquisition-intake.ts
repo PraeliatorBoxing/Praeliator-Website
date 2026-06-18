@@ -6,6 +6,12 @@ import {
   persistPrivateAcquisitionBrief,
   persistPrivateInquiry,
 } from "./_lib/private-inquiry.js";
+import {
+  checkRateLimit,
+  getPublicError,
+  rateLimitResponse,
+  readJsonBody,
+} from "./_lib/request-guard.js";
 
 type AcquisitionPayload = {
   title?: string;
@@ -75,7 +81,13 @@ function validatePayload(payload: ReturnType<typeof normalizePayload>) {
 
 export async function POST(request: Request) {
   try {
-    const rawPayload = (await request.json()) as AcquisitionPayload;
+    const limitState = checkRateLimit(request, "private-acquisition-intake", {
+      limit: 8,
+      windowMs: 60 * 1000,
+    });
+    if (!limitState.allowed) return rateLimitResponse(jsonResponse, limitState);
+
+    const rawPayload = (await readJsonBody(request)) as AcquisitionPayload;
     const payload = normalizePayload(rawPayload);
     const validationError = validatePayload(payload);
 
@@ -128,11 +140,9 @@ export async function POST(request: Request) {
 
     return jsonResponse({ success: true, ...result }, 200);
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Private acquisition intake failed.";
+    const status = Number((error as { status?: number })?.status || 500);
+    const message = getPublicError(error, "Private acquisition intake failed.");
 
-    return jsonResponse({ success: false, error: message }, 500);
+    return jsonResponse({ success: false, error: message }, status);
   }
 }
