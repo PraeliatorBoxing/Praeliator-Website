@@ -3454,6 +3454,10 @@ function videoPathToIOSVideoPath(video?: string) {
   if (!video) return undefined;
   return video.replace(/\.mp4(\?.*)?$/i, "-ios.mp4$1");
 }
+function getPerformanceSaverVideoPath(video?: string) {
+  if (!video) return undefined;
+  return videoPathToMotionFallbackPath(video) || video;
+}
 function getVideoFallbackImage(video?: string, fallback?: string) {
   return fallback ?? videoPathToAnimatedImagePath(video);
 }
@@ -3476,6 +3480,65 @@ function useMediaQueryFlag(query: string, fallback = false) {
   return matches;
 }
 
+function getInitialPerformanceSaverMode() {
+  if (typeof window === "undefined") return false;
+  const navigatorWithHints = navigator as Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+    deviceMemory?: number;
+    hardwareConcurrency?: number;
+  };
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  const reducedData = window.matchMedia("(prefers-reduced-data: reduce)").matches;
+  const saveData = Boolean(navigatorWithHints.connection?.saveData);
+  const effectiveType = navigatorWithHints.connection?.effectiveType || "";
+  const lowMemory =
+    typeof navigatorWithHints.deviceMemory === "number" &&
+    navigatorWithHints.deviceMemory <= 4;
+  const lowConcurrency =
+    typeof navigatorWithHints.hardwareConcurrency === "number" &&
+    navigatorWithHints.hardwareConcurrency <= 4;
+  const slowConnection = /(^|-)2g$|3g/.test(effectiveType);
+
+  return (
+    prefersReducedMotion ||
+    reducedData ||
+    saveData ||
+    slowConnection ||
+    lowMemory ||
+    lowConcurrency
+  );
+}
+
+function usePerformanceSaverMode() {
+  const [enabled, setEnabled] = useState(getInitialPerformanceSaverMode);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+    const reducedDataQuery = window.matchMedia("(prefers-reduced-data: reduce)");
+    const update = () => {
+      setEnabled(getInitialPerformanceSaverMode() || document.hidden);
+    };
+
+    update();
+    reducedMotionQuery.addEventListener?.("change", update);
+    reducedDataQuery.addEventListener?.("change", update);
+    document.addEventListener("visibilitychange", update);
+
+    return () => {
+      reducedMotionQuery.removeEventListener?.("change", update);
+      reducedDataQuery.removeEventListener?.("change", update);
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
+
+  return enabled;
+}
+
 function useAutoplayRepair(
   ref: React.RefObject<HTMLVideoElement | null>,
   enabled: boolean,
@@ -3488,9 +3551,14 @@ function useAutoplayRepair(
 
     node.muted = true;
     node.defaultMuted = true;
+    node.autoplay = true;
     node.playsInline = true;
+    node.setAttribute("muted", "");
+    node.setAttribute("playsinline", "");
+    node.setAttribute("webkit-playsinline", "");
 
     const attemptPlay = () => {
+      if (document.hidden) return;
       if (!ref.current) return;
       ref.current.play().catch(() => undefined);
     };
@@ -3501,9 +3569,23 @@ function useAutoplayRepair(
       node.addEventListener(eventName, attemptPlay),
     );
     window.addEventListener("pageshow", attemptPlay);
-    document.addEventListener("visibilitychange", attemptPlay);
-    window.addEventListener("scroll", attemptPlay, { passive: true });
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        ref.current?.pause();
+      } else {
+        attemptPlay();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("touchstart", attemptPlay, {
+      passive: true,
+      once: true,
+    });
+    window.addEventListener("pointerdown", attemptPlay, {
+      passive: true,
+      once: true,
+    });
+    window.addEventListener("click", attemptPlay, {
       passive: true,
       once: true,
     });
@@ -3513,9 +3595,10 @@ function useAutoplayRepair(
         node.removeEventListener(eventName, attemptPlay),
       );
       window.removeEventListener("pageshow", attemptPlay);
-      document.removeEventListener("visibilitychange", attemptPlay);
-      window.removeEventListener("scroll", attemptPlay);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("touchstart", attemptPlay);
+      window.removeEventListener("pointerdown", attemptPlay);
+      window.removeEventListener("click", attemptPlay);
     };
   }, [enabled, ref, source]);
 }
@@ -3593,6 +3676,7 @@ function MediaSurface({
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
+      !coarsePointer &&
       (!shouldRenderVideo || !videoReady),
   );
   useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
@@ -3630,6 +3714,9 @@ function MediaSurface({
           onError={() => setVideoFailed(true)}
         >
           <source src={playbackVideo} type="video/mp4" />
+          {coarsePointer && motionFallbackVideo ? (
+            <source src={motionFallbackVideo} type="video/mp4" />
+          ) : null}
         </video>
       ) : null}
       {shouldRenderMotionFallback ? (
@@ -3686,6 +3773,7 @@ function BackdropLoopVideo({
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
+      !coarsePointer &&
       (!shouldRenderVideo || !videoReady),
   );
   useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
@@ -3712,9 +3800,12 @@ function BackdropLoopVideo({
           onLoadedData={() => setVideoReady(true)}
           onPlaying={() => setVideoReady(true)}
           onError={() => setVideoFailed(true)}
-        >
-          <source src={playbackVideo} type="video/mp4" />
-        </video>
+      >
+        <source src={playbackVideo} type="video/mp4" />
+        {coarsePointer && motionFallbackVideo ? (
+          <source src={motionFallbackVideo} type="video/mp4" />
+        ) : null}
+      </video>
       ) : null}
       {shouldRenderMotionFallback ? (
         <video
@@ -4152,6 +4243,7 @@ function MobileHeroMediaBackdrop({
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
+      !coarsePointer &&
       (!shouldRenderVideo || !videoReady),
   );
   useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
@@ -4190,6 +4282,9 @@ function MobileHeroMediaBackdrop({
           onError={() => setVideoFailed(true)}
         >
           <source src={playbackVideo} type="video/mp4" />
+          {coarsePointer && motionFallbackVideo ? (
+            <source src={motionFallbackVideo} type="video/mp4" />
+          ) : null}
         </video>
       ) : null}
       {shouldRenderMotionFallback ? (
@@ -5830,6 +5925,7 @@ function CinematicScene({
   section,
   active,
   stackedFlow = false,
+  performanceSaver = false,
 }: {
   key?: React.Key;
   section: {
@@ -5844,19 +5940,26 @@ function CinematicScene({
   };
   active: boolean;
   stackedFlow?: boolean;
+  performanceSaver?: boolean;
 }) {
   const inView = active;
   const [videoReady, setVideoReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const coarsePointer = useMediaQueryFlag("(pointer: coarse), (hover: none)");
+  const reducedMotion = useReducedMotion();
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const loaderTimerRef = useRef<number | null>(null);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = coarsePointer
-    ? videoPathToIOSVideoPath(section.video)
-    : section.video;
+  const shouldDisableVideo = Boolean(reducedMotion);
+  const playbackVideo = shouldDisableVideo
+    ? undefined
+    : performanceSaver
+      ? getPerformanceSaverVideoPath(section.video)
+      : coarsePointer
+        ? videoPathToIOSVideoPath(section.video)
+        : section.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoFailed(false);
@@ -5878,12 +5981,17 @@ function CinematicScene({
     useMobileMediaActivation(stackedFlow, "220px 0px");
   const fallbackImage = section.poster;
   const effectiveInView = stackedFlow ? isSceneActive : inView;
-  const lowMotionScene = stackedFlow || coarsePointer;
+  const lowMotionScene = stackedFlow || coarsePointer || performanceSaver;
   const shouldRenderVideo =
-    Boolean(playbackVideo) && !videoFailed && (!stackedFlow || isSceneActive);
+    Boolean(playbackVideo) &&
+    !videoFailed &&
+    effectiveInView &&
+    (!stackedFlow || isSceneActive);
   const shouldRenderMotionFallback = Boolean(
     motionFallbackVideo &&
       !motionFallbackFailed &&
+      !performanceSaver &&
+      !shouldDisableVideo &&
       (!shouldRenderVideo || !videoReady),
   );
   useAutoplayRepair(primaryVideoRef, shouldRenderVideo, playbackVideo);
@@ -5909,6 +6017,20 @@ function CinematicScene({
       }
     };
   }, [playbackVideo, shouldRenderVideo, shouldRenderMotionFallback]);
+  useEffect(() => {
+    const primary = primaryVideoRef.current;
+    const fallback = fallbackVideoRef.current;
+    if (shouldRenderVideo || shouldRenderMotionFallback) return;
+
+    primary?.pause();
+    fallback?.pause();
+    if (!effectiveInView) {
+      primary?.removeAttribute("src");
+      fallback?.removeAttribute("src");
+      primary?.load();
+      fallback?.load();
+    }
+  }, [effectiveInView, shouldRenderVideo, shouldRenderMotionFallback]);
   const markVideoReady = () => {
     setVideoReady(true);
     setShowLoader(false);
@@ -5952,7 +6074,7 @@ function CinematicScene({
               defaultMuted
               loop
               playsInline
-              preload={active || stackedFlow || coarsePointer ? "auto" : "metadata"}
+              preload={performanceSaver ? "metadata" : effectiveInView ? "auto" : "none"}
               poster={fallbackImage}
               onCanPlay={markVideoReady}
               onLoadedData={markVideoReady}
@@ -5960,6 +6082,9 @@ function CinematicScene({
               onError={() => setVideoFailed(true)}
             >
               <source src={playbackVideo} type="video/mp4" />
+              {coarsePointer && motionFallbackVideo ? (
+                <source src={motionFallbackVideo} type="video/mp4" />
+              ) : null}
             </video>
           ) : null}
           {shouldRenderMotionFallback ? (
@@ -5971,7 +6096,7 @@ function CinematicScene({
               defaultMuted
               loop
               playsInline
-              preload="auto"
+              preload={effectiveInView ? "metadata" : "none"}
               poster={fallbackImage}
               onError={() => setMotionFallbackFailed(true)}
             >
@@ -6754,6 +6879,7 @@ function FullScreenCinematicHomepage({
   instagramLink,
   emailLink,
   onActiveIndexChange,
+  performanceSaver = false,
 }: {
   sections: Array<
     | {
@@ -6774,6 +6900,7 @@ function FullScreenCinematicHomepage({
   instagramLink: string;
   emailLink: string;
   onActiveIndexChange?: (index: number) => void;
+  performanceSaver?: boolean;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [useStackedFlow, setUseStackedFlow] = useState(() => {
@@ -6855,6 +6982,7 @@ function FullScreenCinematicHomepage({
                 section={section}
                 active={true}
                 stackedFlow
+                performanceSaver={performanceSaver}
               />
             );
           }
@@ -6877,7 +7005,9 @@ function FullScreenCinematicHomepage({
   return (
     <div
       ref={scrollViewportRef}
-      className="browser-scrollbar relative h-[100svh] overflow-y-auto overscroll-y-contain bg-[#040404] [scrollbar-gutter:stable] snap-y snap-mandatory"
+      className={`browser-scrollbar relative h-[100svh] overflow-y-auto overscroll-y-contain bg-[#040404] [scrollbar-gutter:stable] ${
+        performanceSaver ? "" : "snap-y snap-mandatory"
+      }`}
     >
       {sections.map((section, index) => (
         <div
@@ -6885,12 +7015,13 @@ function FullScreenCinematicHomepage({
           ref={(node) => {
             sectionRefs.current[index] = node;
           }}
-          className="snap-start"
+          className={performanceSaver ? "" : "snap-start"}
         >
           {section.kind === "video" ? (
             <CinematicScene
               section={section}
               active={index === activeIndex}
+              performanceSaver={performanceSaver}
             />
           ) : (
             <HomeTailScene
@@ -7655,6 +7786,7 @@ export default function PraeliatorWebsite() {
   const [ownershipInitialized, setOwnershipInitialized] = useState(false);
 
   const reduceMotion = useReducedMotion();
+  const performanceSaverMode = usePerformanceSaverMode();
   const [viewportMode, setViewportMode] = useState<
     "mobile" | "tablet" | "desktop"
   >(() => getViewportMode());
@@ -7717,7 +7849,11 @@ export default function PraeliatorWebsite() {
     if (typeof window === "undefined") return;
     const pointerQuery = window.matchMedia("(pointer: fine)");
     const syncLuxuryCursor = () => {
-      const enabled = isDesktopViewport && !reduceMotion && pointerQuery.matches;
+      const enabled =
+        isDesktopViewport &&
+        !reduceMotion &&
+        !performanceSaverMode &&
+        pointerQuery.matches;
       setLuxuryCursorEnabled(enabled);
       document.documentElement.classList.toggle(
         "praeliator-luxury-cursor",
@@ -7743,7 +7879,7 @@ export default function PraeliatorWebsite() {
       document.documentElement.classList.remove("praeliator-luxury-cursor");
       document.body.classList.remove("praeliator-luxury-cursor");
     };
-  }, [isDesktopViewport, reduceMotion]);
+  }, [isDesktopViewport, performanceSaverMode, reduceMotion]);
 
   useEffect(() => {
     if (isDesktopViewport || !mobileMenuOpen) return;
@@ -10048,6 +10184,7 @@ export default function PraeliatorWebsite() {
         instagramLink={instagramLink}
         emailLink={emailLink}
         onActiveIndexChange={setHomeSectionIndex}
+        performanceSaver={Boolean(reduceMotion || performanceSaverMode)}
       />
     );
   };
