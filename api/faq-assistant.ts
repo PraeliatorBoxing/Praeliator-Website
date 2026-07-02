@@ -639,17 +639,8 @@ function jsonResponse(
 }
 
 function extractOutputText(payload: any) {
-  if (typeof payload?.output_text === "string" && payload.output_text.trim()) {
-    return payload.output_text.trim();
-  }
-
-  const output = Array.isArray(payload?.output) ? payload.output : [];
-  const contentText = output
-    .flatMap((item: any) => (Array.isArray(item?.content) ? item.content : []))
-    .map((part: any) => part?.text)
-    .find((value: unknown) => typeof value === "string" && value.trim());
-
-  return typeof contentText === "string" ? contentText.trim() : "";
+  const content = payload?.choices?.[0]?.message?.content;
+  return typeof content === "string" ? content.trim() : "";
 }
 
 export async function POST(request: Request) {
@@ -675,7 +666,7 @@ export async function POST(request: Request) {
     }
 
     const fallbackAnswer = getFallbackAnswer(question, locale);
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
       return jsonResponse({
@@ -692,30 +683,39 @@ export async function POST(request: Request) {
       })
       .join("\n");
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const systemPrompt =
+      `You are the voice of Praeliator, a private luxury boxing house. Answer in ${localeNames[locale]}. ` +
+      "Speak as the house in first person, using 'we' and 'our'. Never refer to Praeliator in the third person. " +
+      "Your tone is restrained, exact, unhurried, and impeccably composed — the manner of a house that does not need to sell. " +
+      "Write with authority and composure. Prefer phrases like 'For us', 'We regard', 'We do not' over commercial or explanatory language. " +
+      "Do not use business-strategy verbs: no 'position', 'leverage', 'brand narrative', 'market', 'target'. " +
+      "Do not use adjectives that sound like advertising: no 'premium', 'exclusive', 'luxury' as filler words — show it through substance. " +
+      "Answer from the provided house dossier and guidance. If the question is near the published record, answer from philosophy and substance. " +
+      "State a boundary only when a concrete promise would require unpublished information. " +
+      "Never invent inventory counts, lead times, custom promises, or legal guarantees. " +
+      "Never mention AI, language models, training data, or internal tooling. " +
+      "Keep the answer under 130 words. Do not pad. Do not summarize. End when the thought is complete.";
+
+    const userMessage =
+      `Question: ${question}\n\n` +
+      `House dossier:\n${brandDossier[locale]}\n\n` +
+      `House guidance:\n${context}\n\n` +
+      `Curated fallback answer:\n${fallbackAnswer}`;
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_FAQ_MODEL || "gpt-4.1-mini",
-        store: false,
-        instructions:
-          `You are the Praeliator house reply. Answer in ${localeNames[locale]}. ` +
-          "Speak as the house in first person. Never refer to Praeliator in the third person when answering. " +
-          "Keep the tone restrained, exact, calm, private, and impeccably composed, with the manners of a discreet luxury house. Keep answers under 140 words. " +
-          "Prefer elegant, confident phrasing such as 'For us' or calm declarative statements. Avoid business-strategy verbs like 'position', 'market', 'brand narrative', or 'we keep' when a more graceful phrasing is available. " +
-          "Answer from the provided Praeliator house guidance first. If the question is adjacent to the published guidance, answer helpfully from the house philosophy and state any boundary only when a concrete promise would require unpublished information. " +
-          "For questions about identity, quality, positioning, luxury, tone, object philosophy, craftsmanship, acquisition, ownership, service, delivery, privacy, contact, Personal Monogram, Private Commission, or why boxing should be desirable to begin, answer directly from the dossier. " +
-          "Do not invent inventory counts, hidden policies, unpublished lead times, custom promises, or legal guarantees. " +
-          "Do not mention AI, training data, or internal tooling. Avoid generic marketing phrases and avoid startup language.",
-        input:
-          `Question: ${question}\n\n` +
-          `Praeliator house dossier:\n${brandDossier[locale]}\n\n` +
-          `Praeliator house guidance:\n${context}\n\n` +
-          `Fallback house answer:\n${fallbackAnswer}`,
-        temperature: 0.4,
+        model: process.env.GROQ_FAQ_MODEL || "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ],
+        temperature: 0.35,
+        max_tokens: 220,
       }),
     });
 

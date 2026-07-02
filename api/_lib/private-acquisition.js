@@ -1011,6 +1011,8 @@ export async function markSessionPaid({
 
   if (error) throw error;
 
+  await supabase.rpc("increment_sale_counter");
+
   await syncHouseLedgerSaleFromSessionIfAvailable({
     session: data,
     paymentIntentId,

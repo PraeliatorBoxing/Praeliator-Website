@@ -9,6 +9,7 @@ import {
   updateHouseLedgerSaleStatus,
 } from "./_lib/house-ledger.js";
 import { createPrivateAcquisitionSession } from "./_lib/private-acquisition.js";
+import { getPublicError } from "./_lib/request-guard.js";
 
 type ReadPayload = {
   action?: string;
@@ -552,10 +553,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "The house ledger could not be opened.";
+    const message = getPublicError(error, "The house ledger could not be opened.");
 
     return createHouseLedgerResponse({ success: false, error: message }, 500);
   }
@@ -598,10 +596,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "The house ledger request could not be completed.";
+    const message = getPublicError(error, "The house ledger request could not be completed.");
 
     return createHouseLedgerResponse({ success: false, error: message }, 500);
   }

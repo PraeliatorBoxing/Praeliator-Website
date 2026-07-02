@@ -21,7 +21,7 @@ import {
   useReducedMotion,
   useSpring,
 } from "motion/react";
-import { createClient, type Session } from "@supabase/supabase-js";
+import { createClient, type Session, type EmailOtpType } from "@supabase/supabase-js";
 import {
   Check,
   ChevronRight,
@@ -2600,6 +2600,7 @@ function LegacyRefreshChamberDialog({
   const recordState = getLegacyRefreshRecordState(pair);
   const pairAge = getPairAgeDescriptor(pair.deliveryConfirmedAt);
   const editionTheme = getOwnershipEditionTheme(pair.serial, 0);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setStage("invitation");
@@ -2617,9 +2618,39 @@ function LegacyRefreshChamberDialog({
   }, []);
 
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    return () => {
+      previouslyFocused?.focus?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    const focusableSelector =
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !submitting) {
         onClose();
+        return;
+      }
+
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusable: HTMLElement[] = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+        );
+        if (focusable.length === 0) return;
+
+        const first: HTMLElement = focusable[0];
+        const last: HTMLElement = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -2642,10 +2673,12 @@ function LegacyRefreshChamberDialog({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 12, scale: 0.995 }}
         transition={{ duration: 0.34, ease: easeLuxury }}
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={`legacy-refresh-title-${pair.id}`}
-        className={`ownership-grain relative h-[100svh] w-screen overflow-hidden rounded-none border-0 text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] ${editionTheme.surfaceClassName}`}
+        tabIndex={-1}
+        className={`ownership-grain relative h-[100svh] w-screen overflow-hidden rounded-none border-0 text-[#231b15] shadow-[0_44px_140px_rgba(53,34,20,0.24)] outline-none ${editionTheme.surfaceClassName}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
@@ -3482,6 +3515,7 @@ function useMediaQueryFlag(query: string, fallback = false) {
 
 function getInitialPerformanceSaverMode() {
   if (typeof window === "undefined") return false;
+  const coarsePointer = window.matchMedia("(pointer: coarse), (hover: none)").matches;
   const navigatorWithHints = navigator as Navigator & {
     connection?: { saveData?: boolean; effectiveType?: string };
     deviceMemory?: number;
@@ -3506,8 +3540,7 @@ function getInitialPerformanceSaverMode() {
     reducedData ||
     saveData ||
     slowConnection ||
-    lowMemory ||
-    lowConcurrency
+    (!coarsePointer && (lowMemory || lowConcurrency))
   );
 }
 
@@ -3663,7 +3696,7 @@ function MediaSurface({
   const [videoFailed, setVideoFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
+  const playbackVideo = video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoReady(!playbackVideo);
@@ -3706,6 +3739,7 @@ function MediaSurface({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           poster={fallbackImage}
           preload={coarsePointer ? "auto" : "metadata"}
           onCanPlay={() => setVideoReady(true)}
@@ -3728,6 +3762,7 @@ function MediaSurface({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           preload="auto"
           poster={fallbackImage}
           onError={() => setMotionFallbackFailed(true)}
@@ -3760,7 +3795,7 @@ function BackdropLoopVideo({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
+  const playbackVideo = video;
   const motionFallbackVideo = videoPathToMotionFallbackPath(video);
 
   useEffect(() => {
@@ -3794,6 +3829,7 @@ function BackdropLoopVideo({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           preload={preload}
           poster={poster}
           onCanPlay={() => setVideoReady(true)}
@@ -3816,6 +3852,7 @@ function BackdropLoopVideo({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           preload="auto"
           poster={poster}
           onError={() => setMotionFallbackFailed(true)}
@@ -4227,7 +4264,7 @@ function MobileHeroMediaBackdrop({
   const [videoFailed, setVideoFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(media.video) : media.video;
+  const playbackVideo = media.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoReady(!playbackVideo);
@@ -4274,6 +4311,7 @@ function MobileHeroMediaBackdrop({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           poster={fallbackImage}
           preload="auto"
           onCanPlay={() => setVideoReady(true)}
@@ -4296,6 +4334,7 @@ function MobileHeroMediaBackdrop({
           defaultMuted
           loop
           playsInline
+          aria-hidden="true"
           preload="auto"
           poster={fallbackImage}
           onError={() => setMotionFallbackFailed(true)}
@@ -5957,9 +5996,7 @@ function CinematicScene({
     ? undefined
     : performanceSaver
       ? getPerformanceSaverVideoPath(section.video)
-      : coarsePointer
-        ? videoPathToIOSVideoPath(section.video)
-        : section.video;
+      : section.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoFailed(false);
@@ -6074,6 +6111,7 @@ function CinematicScene({
               defaultMuted
               loop
               playsInline
+              aria-hidden="true"
               preload={performanceSaver ? "metadata" : effectiveInView ? "auto" : "none"}
               poster={fallbackImage}
               onCanPlay={markVideoReady}
@@ -6096,6 +6134,7 @@ function CinematicScene({
               defaultMuted
               loop
               playsInline
+              aria-hidden="true"
               preload={effectiveInView ? "metadata" : "none"}
               poster={fallbackImage}
               onError={() => setMotionFallbackFailed(true)}
@@ -8134,10 +8173,11 @@ export default function PraeliatorWebsite() {
         }
 
         if (tokenHash && type) {
-          const normalizedType = type === "magiclink" ? "magiclink" : type === "recovery" ? "recovery" : "email";
+          const normalizedType: EmailOtpType =
+            type === "magiclink" ? "magiclink" : type === "recovery" ? "recovery" : "email";
           const { error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
-            type: normalizedType as any,
+            type: normalizedType,
           });
           if (cancelled) return;
           if (error) {
@@ -8952,18 +8992,18 @@ export default function PraeliatorWebsite() {
     setAuthLoading(true);
     setAuthNotice(null);
     try {
-      const params = otpVerification.channel === "phone"
-        ? {
-            phone: otpVerification.identity,
-            token: otpVerification.token.trim(),
-            type: "sms" as const,
-          }
-        : {
-            email: otpVerification.identity,
-            token: otpVerification.token.trim(),
-            type: "email" as const,
-          };
-      const { data, error } = await client.auth.verifyOtp(params as any);
+      const { data, error } =
+        otpVerification.channel === "phone"
+          ? await client.auth.verifyOtp({
+              phone: otpVerification.identity,
+              token: otpVerification.token.trim(),
+              type: "sms",
+            })
+          : await client.auth.verifyOtp({
+              email: otpVerification.identity,
+              token: otpVerification.token.trim(),
+              type: "email",
+            });
       if (error) {
         const nextNotice = getFriendlyAuthNotice(
           error.message,
