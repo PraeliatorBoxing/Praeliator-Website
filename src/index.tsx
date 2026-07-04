@@ -3515,7 +3515,6 @@ function useMediaQueryFlag(query: string, fallback = false) {
 
 function getInitialPerformanceSaverMode() {
   if (typeof window === "undefined") return false;
-  const coarsePointer = window.matchMedia("(pointer: coarse), (hover: none)").matches;
   const navigatorWithHints = navigator as Navigator & {
     connection?: { saveData?: boolean; effectiveType?: string };
     deviceMemory?: number;
@@ -3540,7 +3539,8 @@ function getInitialPerformanceSaverMode() {
     reducedData ||
     saveData ||
     slowConnection ||
-    (!coarsePointer && (lowMemory || lowConcurrency))
+    lowMemory ||
+    lowConcurrency
   );
 }
 
@@ -3696,7 +3696,7 @@ function MediaSurface({
   const [videoFailed, setVideoFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = video;
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoReady(!playbackVideo);
@@ -3795,7 +3795,7 @@ function BackdropLoopVideo({
   const [motionFallbackFailed, setMotionFallbackFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = video;
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(video) : video;
   const motionFallbackVideo = videoPathToMotionFallbackPath(video);
 
   useEffect(() => {
@@ -4264,7 +4264,7 @@ function MobileHeroMediaBackdrop({
   const [videoFailed, setVideoFailed] = useState(false);
   const primaryVideoRef = useRef<HTMLVideoElement | null>(null);
   const fallbackVideoRef = useRef<HTMLVideoElement | null>(null);
-  const playbackVideo = media.video;
+  const playbackVideo = coarsePointer ? videoPathToIOSVideoPath(media.video) : media.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoReady(!playbackVideo);
@@ -5996,7 +5996,9 @@ function CinematicScene({
     ? undefined
     : performanceSaver
       ? getPerformanceSaverVideoPath(section.video)
-      : section.video;
+      : coarsePointer
+        ? videoPathToIOSVideoPath(section.video)
+        : section.video;
   useEffect(() => {
     setMotionFallbackFailed(false);
     setVideoFailed(false);
